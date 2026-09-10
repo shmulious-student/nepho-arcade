@@ -4,7 +4,11 @@
   "heroes": {
     "male": ["nepho", "bruiser", "zero"],
     "female": ["riva", "byte", "sol"],
-    "atlas": { "file": "/assets/generated/hero-roster-atlas.png", "type": "atlas-reference", "columns": 3, "rows": 2, "order": ["nepho", "bruiser", "zero", "riva", "byte", "sol"] }
+    "atlas": { "file": "/assets/generated/hero-roster-atlas.png", "type": "atlas-reference", "columns": 3, "rows": 2, "order": ["nepho", "bruiser", "zero", "riva", "byte", "sol"] },
+    "actions": { "file": "/assets/generated/hero-action-atlas-v2.png", "type": "row-strip-atlas", "rows": 6, "framesPerRow": 8, "order": ["nepho", "bruiser", "zero", "riva", "byte", "sol"], "frameOrder": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] }
+  },
+  "bosses": {
+    "actions": { "file": "/assets/generated/boss-action-atlas-v2.png", "type": "row-strip-atlas", "rows": 10, "framesPerRow": 6, "order": ["ferryman", "glass-warden", "kilnheart", "monk-zero", "market-king", "railmaw", "crown-runner", "the-null", "vault-mother", "ultra-signal"], "frameOrder": ["idle", "approach", "attack", "special", "hurt", "defeat"] }
   },
   "assets": {
     "heroActions": { "file": "/assets/generated/hero-actions-strip.png", "type": "horizontal-strip", "frames": 8, "order": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] },

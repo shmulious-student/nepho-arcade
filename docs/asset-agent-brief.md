@@ -11,7 +11,9 @@ The roster now contains six selectable heroes: `nepho`, `bruiser`, and `zero` (m
 | `/assets/generated/hero-actions-strip.png` | Player body/action source | 2172×724 RGBA | Slice into 8 equal source cells, trim transparent bounds, normalize all frames to 96×128 with bottom-center anchor. Use as the shared P1/P2 body. |
 | `/assets/generated/enemy-boss-atlas.png` | Enemy/boss visual source | 1448×1086 RGBA | Use as an art reference atlas first; crop 4×3 slots, then normalize visible figures into `enemy-grunt`, `enemy-elite`, `boss`, and `ultra` textures. Use tint/accessory overlays for variants. |
 | `/assets/generated/level-backdrop-atlas.png` | Ten district background source | 1182×1330 RGB | Crop 2×5 slots. Scale each crop to a 960×540 cover image and preserve a clear combat floor in the bottom 30%. Add a dark translucent gameplay read layer in Phaser. |
-| `/assets/generated/hero-roster-atlas.png` | Six selectable hero body/face-area references | 1536×1024 RGBA | Crop 3×2 slots in manifest order: `nepho`, `bruiser`, `zero`, `riva`, `byte`, `sol`; normalize each hero to the same body frame contract. |
+| `/assets/generated/hero-roster-atlas.png` | Six selectable hero body/face-area references | 1536×1024 RGBA | Crop 3×2 slots in manifest order: `nepho`, `bruiser`, `zero`, `riva`, `byte`, `sol`; use for hero select cards. |
+| `/assets/generated/hero-action-atlas-v2.png` | Six complete hero action strips | 1402×1122 RGBA | Crop 6 rows × 8 columns in manifest order; normalize each row to 96×128 frames. |
+| `/assets/generated/boss-action-atlas-v2.png` | Ten complete boss action strips | 1214×1295 RGBA | Crop 10 rows × 6 columns in manifest order; normalize each row to 144×176 frames. |
 | `/assets/generated/manifest.json` | Stable source metadata | — | Load by manifest key, never hard-code filenames in gameplay systems. |
 
 ## Recommended Phaser loader
@@ -33,6 +35,7 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 - Recommended identities: Nepho (balanced burst), Bruiser (heavy damage), Zero (speed/control), Riva (combo mobility), Byte (ranged special), Sol (defense/counter).
 - P1/P2 may choose independently; their selected hero is a simulation `heroId`, never inferred from renderer state.
 - Frame order from the strip: `idle`, `walk`, `attack`, `heavy`, `dash`, `special`, `hurt`, `defeat`.
+- Hero action source: `hero-action-atlas-v2.png`; row order and frame order are authoritative in `manifest.json`.
 - Keep bottom-center at the same world coordinate for every frame.
 - Face the character right in source art; mirror the display sprite when moving left.
 - Use the portrait upload as a separate circular face texture positioned over the selected hero's face area. Do not bake a user portrait into sprite frames.
@@ -45,6 +48,8 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 - Create nine boss identities through palette, portrait, accessory overlay, attack telegraph, and data—not nine full animation rigs.
 - Map bosses to levels: Ferryman, Glass Warden, Kilnheart, Monk Zero, Market King, Railmaw, Crown Runner, The Null, Vault Mother, Ultra Signal.
 - Level 10 uses the `ultra` visual and a phase deck containing the nine boss attack patterns.
+- Boss action source: `boss-action-atlas-v2.png`; each boss row is independently normalized but shares animation state names `idle`, `approach`, `attack`, `special`, `hurt`, `defeat`.
+- Keep the boss row as the visual source for its matching boss ID; do not recolor one boss into all ten once these strips are integrated.
 
 ## Background contract
 
