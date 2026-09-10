@@ -16,6 +16,8 @@ The active roster is now four selectable heroes: `nepho` and `bruiser` (male); `
 | `/assets/generated/entry-extensions-06-10.png` | First-view level extension atlas B | 941×1672 RGB | 1×5 vertical atlas for the entry reveal before the playable backdrop. Use with `entry-signs-06-10.svg`. |
 | `/assets/generated/entry-signs-01-05.svg` | Exact bilingual sign overlay A | 941×1672 SVG | Transparent overlay aligned to entry atlas A; Latin line above Hebrew line in every sign. |
 | `/assets/generated/entry-signs-06-10.svg` | Exact bilingual sign overlay B | 941×1672 SVG | Transparent overlay aligned to entry atlas B; Latin line above Hebrew line in every sign. |
+| `/assets/generated/level-replacements-rishon-petachtikva-capoeira.png` | Replacement backdrop strip | 1024×1536 RGB | 1×3 vertical atlas for levels 1, 2, and 6, in that order. |
+| `/assets/generated/level-replacement-signs.svg` | Replacement bilingual signs | 1024×1536 SVG | Exact vector labels for the three replacement slots. |
 | `/assets/generated/hero-roster-atlas.png` | Six selectable hero body/face-area references | 1536×1024 RGBA | Crop 3×2 slots in manifest order: `nepho`, `bruiser`, `zero`, `riva`, `byte`, `sol`; use for hero select cards. |
 | `/assets/generated/hero-action-atlas-v2.png` | Six complete hero action strips | 1402×1122 RGBA | Crop 6 rows × 8 columns in manifest order; normalize each row to 96×128 frames. |
 | `/assets/generated/hero-nepho-grid.png` | Nepho full action grid | 1230×1278 RGBA | 8 action rows × 6 frames; normalize to 96×128 frames. |
@@ -63,7 +65,7 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 ## Background contract
 
 - Pre-slice the two 1×5 vertical atlases into ten named textures. Do not use the older 2×5 atlas for active gameplay.
-- Level order is authoritative: 1 Israel, 2 Petah Tikva city, 3 Barcelona city, 4 Sant Cugat town, 5 HaTikva school, 6 martial arts gym, 7 basketball gym, 8 theater, 9 candy factory, 10 Catalunya.
+- Level order is authoritative: 1 Rishon LeZion, 2 Refael Eitan Street in Petah Tikva, 3 Barcelona city, 4 Sant Cugat town, 5 HaTikva school, 6 Capoeira Brazilian martial arts gym, 7 basketball gym, 8 theater, 9 candy factory, 10 Catalunya.
 - On level entry, show the matching `entry-extensions` slot first for 1.5–2 seconds with the matching SVG sign overlay, then pan/transition into the normal playable backdrop. Signs are vector overlays to guarantee readable Latin and Hebrew; do not ask the image model to redraw the lettering.
 - Render three stacked layers: backdrop, optional parallax decal strip, and procedural FX.
 - Keep the central horizontal band readable for combat. Apply a 20–35% navy overlay behind characters where contrast is weak.
