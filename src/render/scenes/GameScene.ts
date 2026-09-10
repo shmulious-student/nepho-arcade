@@ -9,6 +9,8 @@ import { Hud } from '../Hud';
 import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
 import { LEVEL_W, type HeroId } from '../../sim/types';
+import { synth } from '../../audio/synth';
+import { sequencer } from '../../audio/sequencer';
 
 interface StartData {
   mode: 'local' | 'host' | 'guest';
@@ -97,8 +99,10 @@ export class GameScene extends Phaser.Scene {
 
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR') as any;
     this.showKeyboardHint(!!this.heroes[1]);
+    this.input.once('pointerdown', () => synth.unlock());
+    this.input.keyboard!.once('keydown', () => synth.unlock());
 
-    this.events.once('shutdown', () => this.cleanup());
+    this.events.once('shutdown', () => { sequencer.stop(); this.cleanup(); });
   }
 
   private showKeyboardHint(withP2: boolean): void {
@@ -110,6 +114,19 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
     this.tweens.add({ targets: hint, alpha: 0.25, delay: 5000, duration: 1200 });
+  }
+
+  private playSfx(ev: import('../../sim/types').SimEvent): void {
+    switch (ev.type) {
+      case 'hit': if (ev.heavy) synth.hitHeavy(); else synth.hitLight(); break;
+      case 'block': synth.block(); break;
+      case 'dash': synth.dash(); break;
+      case 'launch': synth.launch(); break;
+      case 'special': synth.special(ev.a); break;
+      case 'ko': synth.ko(); break;
+      case 'bossPhase': synth.bossPhase(); break;
+      case 'heal': synth.heal(); break;
+    }
   }
 
   private cleanup(): void {
@@ -223,12 +240,16 @@ export class GameScene extends Phaser.Scene {
     for (const [id, view] of this.views) {
       if (!seen.has(id) || view.staleSince(snap.tick)) { view.destroy(); this.views.delete(id); }
     }
-    for (const ev of snap.events) this.fx.handle(ev, snap.cameraX);
+    for (const ev of snap.events) { this.fx.handle(ev, snap.cameraX); this.playSfx(ev); }
+    sequencer.start(this.levelIndex);
+    sequencer.setBossMode(snap.phase === 'boss');
 
     this.hud.update(snap);
 
     if (!this.finished && (snap.phase === 'victory' || snap.phase === 'gameover')) {
       this.finished = true;
+      sequencer.stop();
+      if (snap.phase === 'victory') synth.victory(); else synth.gameOver();
       const world = this.session.world();
       this.time.delayedCall(900, () => {
         this.scene.start('Results', {

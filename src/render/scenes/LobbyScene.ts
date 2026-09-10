@@ -4,6 +4,7 @@ import { HEROES, HERO_IDS } from '../../sim/frameData';
 import type { HeroId } from '../../sim/types';
 import { openFaceCropper } from '../../face/cropper';
 import { VIEW_W, VIEW_H } from '../../sim/types';
+import { synth } from '../../audio/synth';
 
 const PALETTE = { bg: 0x050711, panel: 0x0b1730, line: 0x344861, accent: 0xffcf5c, cyan: 0x75f5dc, text: 0xf3f4e8, muted: 0x9bb1c9 };
 
@@ -102,7 +103,7 @@ export class LobbyScene extends Phaser.Scene {
   private makeButton(x: number, y: number, w: number, h: number, label: string, onClick: () => void, fill = 0x14243d, textColour: number = PALETTE.text): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } {
     const g = this.add.rectangle(x, y, w, h, fill).setOrigin(w > 150 ? 0.5 : 0, 0).setStrokeStyle(1, PALETTE.line).setInteractive({ useHandCursor: true });
     const text = this.add.text(x + (w > 150 ? 0 : w / 2), y + h / 2, label, { fontFamily: 'monospace', fontSize: '11px', color: Phaser.Display.Color.IntegerToColor(textColour).rgba }).setOrigin(0.5);
-    g.on('pointerdown', onClick);
+    g.on('pointerdown', () => { synth.unlock(); synth.uiClick(); onClick(); });
     g.on('pointerover', () => g.setFillStyle(fill === 0x14243d ? 0x1c2f4d : fill));
     g.on('pointerout', () => g.setFillStyle(fill));
     return { g, text };
