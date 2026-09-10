@@ -33,7 +33,7 @@ export class World {
   private maxAttackers = 2;
   private done = false;
   result: 'victory' | 'gameover' | null = null;
-  lives: [number, number] = [4, 4]; // extra continues beyond the current life, per hero slot
+  lives: [number, number] = [5, 5]; // extra continues beyond the current life, per hero slot — generous margin for human play, not just bot viability
 
   constructor(opts: WorldOptions) {
     this.rng = new Rng(opts.seed);

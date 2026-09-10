@@ -49,10 +49,10 @@ export interface HeroDef {
 }
 
 export const HEROES: Record<HeroId, HeroDef> = {
-  nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 110, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
-  bruiser: { id: 'bruiser', name: 'BRUISER', gender: 'male', bias: 'Heavy hitter · armored slam', hp: 140, speed: 2.2, dmgMul: 1.3, special: 'slam', colour: 0xff9357, cardKey: 'card-bruiser' },
-  riva: { id: 'riva', name: 'RIVA', gender: 'female', bias: 'Combo mobility · line dash', hp: 100, speed: 3.0, dmgMul: 0.9, special: 'line', colour: 0xa4ee42, cardKey: 'card-riva' },
-  byte: { id: 'byte', name: 'BYTE', gender: 'female', bias: 'Ranged · four-shot volley', hp: 100, speed: 2.7, dmgMul: 0.95, special: 'volley', colour: 0xff76c8, cardKey: 'card-byte' },
+  nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 130, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
+  bruiser: { id: 'bruiser', name: 'BRUISER', gender: 'male', bias: 'Heavy hitter · armored slam', hp: 165, speed: 2.2, dmgMul: 1.3, special: 'slam', colour: 0xff9357, cardKey: 'card-bruiser' },
+  riva: { id: 'riva', name: 'RIVA', gender: 'female', bias: 'Combo mobility · line dash', hp: 120, speed: 3.0, dmgMul: 0.9, special: 'line', colour: 0xa4ee42, cardKey: 'card-riva' },
+  byte: { id: 'byte', name: 'BYTE', gender: 'female', bias: 'Ranged · four-shot volley', hp: 120, speed: 2.7, dmgMul: 0.95, special: 'volley', colour: 0xff76c8, cardKey: 'card-byte' },
 };
 
 export const HERO_IDS: HeroId[] = ['nepho', 'bruiser', 'riva', 'byte'];

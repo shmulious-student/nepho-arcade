@@ -30,61 +30,61 @@ export interface Pattern {
 export interface BossDef { id: string; name: string; hp: number; speed: number; poise: number; patterns: Pattern[]; scale?: number }
 
 const P = (p: Partial<Pattern> & { type: PatternType; name: string; colour: number }): Pattern => ({
-  tele: 28, active: 20, recover: 24, cooldown: 60, weight: 1, dmg: 10, hitstun: 24, kb: 5, row: 'attack', ...p,
+  tele: 28, active: 20, recover: 24, cooldown: 60, weight: 1, dmg: 7, hitstun: 24, kb: 5, row: 'attack', ...p,
 });
 
 export const BOSS_DEFS: Record<string, BossDef> = {
   ferryman: { id: 'ferryman', name: 'Ferryman', hp: 1000, speed: 1.6, poise: 8, patterns: [
-    P({ type: 'projectile', name: 'Hook Throw', tele: 26, active: 30, recover: 20, dmg: 12, count: 1, speed: 9, colour: 0x75f5dc, knockdown: true }),
-    P({ type: 'zone', name: 'Lantern Fog', tele: 30, active: 240, recover: 10, cooldown: 240, dmg: 0, radius: 230, colour: 0x75f5dc, row: 'special', weight: 0.6 }),
-    P({ type: 'pull', name: 'Chain Pull', tele: 30, active: 24, recover: 24, dmg: 14, range: 320, colour: 0x37aaff, knockdown: true }),
-    P({ type: 'melee', name: 'Hook Slash', tele: 24, active: 8, recover: 22, dmg: 12, range: 110, radius: 0, colour: 0x75f5dc }),
+    P({ type: 'projectile', name: 'Hook Throw', tele: 26, active: 30, recover: 20, dmg: 9, count: 1, speed: 9, colour: 0x75f5dc, knockdown: true }),
+    P({ type: 'zone', name: 'Lantern Fog', tele: 30, active: 240, recover: 10, cooldown: 240, dmg: 1, radius: 230, colour: 0x75f5dc, row: 'special', weight: 0.6 }),
+    P({ type: 'pull', name: 'Chain Pull', tele: 30, active: 24, recover: 24, dmg: 10, range: 320, colour: 0x37aaff, knockdown: true }),
+    P({ type: 'melee', name: 'Hook Slash', tele: 24, active: 8, recover: 22, dmg: 9, range: 110, radius: 0, colour: 0x75f5dc }),
   ] },
   'glass-warden': { id: 'glass-warden', name: 'Glass Warden', hp: 1120, speed: 1.5, poise: 9, patterns: [
-    P({ type: 'projectile', name: 'Shard Fan', tele: 26, active: 24, recover: 24, dmg: 9, count: 3, speed: 7, colour: 0x37aaff }),
-    P({ type: 'wall', name: 'Crystal Wall', tele: 30, active: 180, recover: 12, cooldown: 150, dmg: 10, colour: 0x37aaff, row: 'special', knockdown: true, weight: 0.7 }),
-    P({ type: 'reflect', name: 'Reflect Stance', tele: 24, active: 90, recover: 12, cooldown: 200, dmg: 6, colour: 0xedf6ff, row: 'special', weight: 0.6 }),
-    P({ type: 'melee', name: 'Shard Smash', tele: 26, active: 8, recover: 24, dmg: 14, range: 120, colour: 0x37aaff, knockdown: true }),
+    P({ type: 'projectile', name: 'Shard Fan', tele: 26, active: 24, recover: 24, dmg: 6, count: 3, speed: 7, colour: 0x37aaff }),
+    P({ type: 'wall', name: 'Crystal Wall', tele: 30, active: 180, recover: 12, cooldown: 150, dmg: 7, colour: 0x37aaff, row: 'special', knockdown: true, weight: 0.7 }),
+    P({ type: 'reflect', name: 'Reflect Stance', tele: 24, active: 90, recover: 12, cooldown: 200, dmg: 4, colour: 0xedf6ff, row: 'special', weight: 0.6 }),
+    P({ type: 'melee', name: 'Shard Smash', tele: 26, active: 8, recover: 24, dmg: 10, range: 120, colour: 0x37aaff, knockdown: true }),
   ] },
   kilnheart: { id: 'kilnheart', name: 'Kilnheart', hp: 1240, speed: 1.3, poise: 12, patterns: [
-    P({ type: 'melee', name: 'Flame Slash', tele: 28, active: 10, recover: 26, dmg: 14, range: 150, colour: 0xff8f40, knockdown: true }),
-    P({ type: 'aoe', name: 'Eruption', tele: 40, active: 12, recover: 26, cooldown: 120, dmg: 16, count: 3, radius: 70, colour: 0xff8f40, row: 'special', launch: 8 }),
-    P({ type: 'dash', name: 'Furnace Charge', tele: 34, active: 40, recover: 30, dmg: 16, speed: 8, colour: 0xff4f72, knockdown: true }),
+    P({ type: 'melee', name: 'Flame Slash', tele: 28, active: 10, recover: 26, dmg: 10, range: 150, colour: 0xff8f40, knockdown: true }),
+    P({ type: 'aoe', name: 'Eruption', tele: 40, active: 12, recover: 26, cooldown: 120, dmg: 12, count: 3, radius: 70, colour: 0xff8f40, row: 'special', launch: 8 }),
+    P({ type: 'dash', name: 'Furnace Charge', tele: 34, active: 40, recover: 30, dmg: 12, speed: 8, colour: 0xff4f72, knockdown: true }),
   ] },
   'monk-zero': { id: 'monk-zero', name: 'Monk Zero', hp: 1000, speed: 1.9, poise: 6, patterns: [
-    P({ type: 'orbit', name: 'Orbit Orbs', tele: 26, active: 160, recover: 12, cooldown: 180, dmg: 5, count: 4, radius: 95, colour: 0xbd8cff, row: 'special', weight: 0.5 }),
-    P({ type: 'blink', name: 'Blink Strike', tele: 24, active: 14, recover: 22, dmg: 13, colour: 0xbd8cff, knockdown: true }),
-    P({ type: 'beam', name: 'Void Beam', tele: 36, active: 14, recover: 30, dmg: 18, colour: 0xff76c8, row: 'special', launch: 7 }),
+    P({ type: 'orbit', name: 'Orbit Orbs', tele: 26, active: 160, recover: 12, cooldown: 180, dmg: 4, count: 4, radius: 95, colour: 0xbd8cff, row: 'special', weight: 0.5 }),
+    P({ type: 'blink', name: 'Blink Strike', tele: 24, active: 14, recover: 22, dmg: 9, colour: 0xbd8cff, knockdown: true }),
+    P({ type: 'beam', name: 'Void Beam', tele: 36, active: 14, recover: 30, dmg: 13, colour: 0xff76c8, row: 'special', launch: 7 }),
   ] },
   'market-king': { id: 'market-king', name: 'Market King', hp: 1300, speed: 1.2, poise: 10, patterns: [
-    P({ type: 'aoe', name: 'Coin Rain', tele: 36, active: 10, recover: 24, cooldown: 100, dmg: 11, count: 5, radius: 55, colour: 0xffcf5c, row: 'special' }),
-    P({ type: 'summon', name: 'Hired Muscle', tele: 30, active: 10, recover: 30, cooldown: 420, dmg: 0, count: 2, arch: 'punk', colour: 0xa4ee42, row: 'special', weight: 0.5 }),
-    P({ type: 'ring', name: 'Stomp Shockwave', tele: 30, active: 40, recover: 30, dmg: 14, speed: 6, colour: 0xffcf5c, knockdown: true }),
-    P({ type: 'melee', name: 'Scepter Swing', tele: 26, active: 8, recover: 26, dmg: 13, range: 130, colour: 0xffcf5c }),
+    P({ type: 'aoe', name: 'Coin Rain', tele: 36, active: 10, recover: 24, cooldown: 100, dmg: 8, count: 5, radius: 55, colour: 0xffcf5c, row: 'special' }),
+    P({ type: 'summon', name: 'Hired Muscle', tele: 30, active: 10, recover: 30, cooldown: 420, dmg: 1, count: 2, arch: 'punk', colour: 0xa4ee42, row: 'special', weight: 0.5 }),
+    P({ type: 'ring', name: 'Stomp Shockwave', tele: 30, active: 40, recover: 30, dmg: 10, speed: 6, colour: 0xffcf5c, knockdown: true }),
+    P({ type: 'melee', name: 'Scepter Swing', tele: 26, active: 8, recover: 26, dmg: 9, range: 130, colour: 0xffcf5c }),
   ] },
   railmaw: { id: 'railmaw', name: 'Railmaw', hp: 1360, speed: 1.4, poise: 14, patterns: [
-    P({ type: 'dash', name: 'Rail Dash', tele: 36, active: 50, recover: 30, dmg: 18, speed: 10, colour: 0xff4f72, knockdown: true }),
-    P({ type: 'melee', name: 'Buzzsaw Spin', tele: 28, active: 20, recover: 30, dmg: 12, range: 110, radius: 105, colour: 0xff4f72, row: 'special' }),
-    P({ type: 'zone', name: 'Exhaust Cloud', tele: 26, active: 200, recover: 12, cooldown: 220, dmg: 0, radius: 170, colour: 0x9bb1c9, row: 'special', weight: 0.6 }),
+    P({ type: 'dash', name: 'Rail Dash', tele: 36, active: 50, recover: 30, dmg: 13, speed: 10, colour: 0xff4f72, knockdown: true }),
+    P({ type: 'melee', name: 'Buzzsaw Spin', tele: 28, active: 20, recover: 30, dmg: 9, range: 110, radius: 105, colour: 0xff4f72, row: 'special' }),
+    P({ type: 'zone', name: 'Exhaust Cloud', tele: 26, active: 200, recover: 12, cooldown: 220, dmg: 1, radius: 170, colour: 0x9bb1c9, row: 'special', weight: 0.6 }),
   ] },
   'crown-runner': { id: 'crown-runner', name: 'Crown Runner', hp: 1100, speed: 2.4, poise: 6, patterns: [
-    P({ type: 'dash', name: 'Afterimage Dash', tele: 24, active: 26, recover: 14, cooldown: 40, dmg: 11, speed: 12, count: 3, colour: 0xff76c8, knockdown: true }),
-    P({ type: 'split', name: 'Split', tele: 30, active: 10, recover: 20, cooldown: 900, dmg: 0, count: 2, colour: 0xff76c8, row: 'special', weight: 0.4 }),
-    P({ type: 'melee', name: 'Crown Kick', tele: 24, active: 8, recover: 20, dmg: 12, range: 120, colour: 0xff76c8, knockdown: true }),
+    P({ type: 'dash', name: 'Afterimage Dash', tele: 24, active: 26, recover: 14, cooldown: 40, dmg: 8, speed: 12, count: 3, colour: 0xff76c8, knockdown: true }),
+    P({ type: 'split', name: 'Split', tele: 30, active: 10, recover: 20, cooldown: 900, dmg: 1, count: 2, colour: 0xff76c8, row: 'special', weight: 0.4 }),
+    P({ type: 'melee', name: 'Crown Kick', tele: 24, active: 8, recover: 20, dmg: 9, range: 120, colour: 0xff76c8, knockdown: true }),
   ] },
   'the-null': { id: 'the-null', name: 'The Null', hp: 1400, speed: 1.5, poise: 10, patterns: [
-    P({ type: 'ring', name: 'Void Ring', tele: 32, active: 44, recover: 24, dmg: 15, speed: 5, colour: 0xedf6ff, knockdown: true }),
-    P({ type: 'melee', name: 'Null Arc', tele: 28, active: 10, recover: 26, dmg: 16, range: 170, colour: 0xedf6ff, knockdown: true }),
-    P({ type: 'armor', name: 'Invert Phase', tele: 30, active: 300, recover: 90, cooldown: 600, dmg: 0, colour: 0x14243d, row: 'special', weight: 0.5 }),
+    P({ type: 'ring', name: 'Void Ring', tele: 32, active: 44, recover: 24, dmg: 11, speed: 5, colour: 0xedf6ff, knockdown: true }),
+    P({ type: 'melee', name: 'Null Arc', tele: 28, active: 10, recover: 26, dmg: 12, range: 170, colour: 0xedf6ff, knockdown: true }),
+    P({ type: 'armor', name: 'Invert Phase', tele: 30, active: 300, recover: 90, cooldown: 600, dmg: 1, colour: 0x14243d, row: 'special', weight: 0.5 }),
   ] },
   'vault-mother': { id: 'vault-mother', name: 'Vault Mother', hp: 1500, speed: 1.3, poise: 12, patterns: [
-    P({ type: 'beam', name: 'Chain Lash', tele: 30, active: 12, recover: 28, dmg: 15, colour: 0xffcf5c, knockdown: true }),
-    P({ type: 'aoe', name: 'Halo Bombs', tele: 44, active: 12, recover: 26, cooldown: 110, dmg: 15, count: 3, radius: 75, colour: 0xffcf5c, row: 'special', launch: 7 }),
-    P({ type: 'armor', name: 'Armor Lock', tele: 26, active: 240, recover: 120, cooldown: 480, dmg: 0, colour: 0xffcf5c, row: 'special', weight: 0.5 }),
+    P({ type: 'beam', name: 'Chain Lash', tele: 30, active: 12, recover: 28, dmg: 11, colour: 0xffcf5c, knockdown: true }),
+    P({ type: 'aoe', name: 'Halo Bombs', tele: 44, active: 12, recover: 26, cooldown: 110, dmg: 11, count: 3, radius: 75, colour: 0xffcf5c, row: 'special', launch: 7 }),
+    P({ type: 'armor', name: 'Armor Lock', tele: 26, active: 240, recover: 120, cooldown: 480, dmg: 1, colour: 0xffcf5c, row: 'special', weight: 0.5 }),
   ] },
-  'ultra-signal': { id: 'ultra-signal', name: 'Ultra Signal', hp: 860, speed: 1.7, poise: 16, patterns: [
-    P({ type: 'aoe', name: 'Rainbow Pillar', tele: 40, active: 14, recover: 24, cooldown: 120, dmg: 18, count: 3, radius: 80, colour: 0xff76c8, row: 'special', launch: 8 }),
-    P({ type: 'melee', name: 'Signal Sweep', tele: 26, active: 10, recover: 24, dmg: 14, range: 150, colour: 0xbd8cff, knockdown: true }),
+  'ultra-signal': { id: 'ultra-signal', name: 'Ultra Signal', hp: 560, speed: 1.7, poise: 16, patterns: [
+    P({ type: 'aoe', name: 'Rainbow Pillar', tele: 40, active: 14, recover: 24, cooldown: 120, dmg: 13, count: 3, radius: 80, colour: 0xff76c8, row: 'special', launch: 8 }),
+    P({ type: 'melee', name: 'Signal Sweep', tele: 26, active: 10, recover: 24, dmg: 10, range: 150, colour: 0xbd8cff, knockdown: true }),
   ] },
 };
 
@@ -298,7 +298,7 @@ function onActiveStart(w: World, e: Entity, p: Pattern, target: Entity): void {
     case 'summon': for (let i = 0; i < (p.count || 2); i++) w.spawnEnemy(p.arch || 'punk', i % 2 === 0 ? 'left' : 'right'); w.emit({ type: 'summon', x: e.x, y: e.y }); break;
     case 'orbit': for (let i = 0; i < (p.count || 4); i++) w.spawnHazard(e, 'orb', e.x, e.y, 0, p.active, hit({ radius: 22, h: 120 }), p.colour, (p.radius || 90) * sc, i / (p.count || 4)); break;
     case 'blink': { e.x = target.x - target.facing * 70; e.y = target.y; e.facing = target.facing; e.invuln = 4; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); break; }
-    case 'zone': w.spawnHazard(e, p.name === 'Lantern Fog' ? 'fog' : 'smoke', e.x, e.y, 0, p.active, hit({ radius: (p.radius || 200) * sc, h: 200, dmg: 0 }), p.colour); break;
+    case 'zone': w.spawnHazard(e, p.name === 'Lantern Fog' ? 'fog' : 'smoke', e.x, e.y, 0, p.active, hit({ radius: (p.radius || 200) * sc, h: 200, dmg: 1 }), p.colour); break;
     case 'wall': w.spawnHazard(e, 'wall', target.x + target.facing * 90, target.y, 0, p.active, hit({ w: 40, h: 140 }), p.colour); break;
     case 'split': for (let i = 0; i < (p.count || 2); i++) w.spawnEcho(e.arch, e.x + (i === 0 ? -90 : 90), e.y, 0.7, 0.12, i + 1); break;
     case 'reflect': w.emit({ type: 'bossPhase', x: e.x, y: e.y, id: e.id, a: 1 }); break;

@@ -1,1 +1,18 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>Nepho: Circuit Breakers</title></head><body><main id="app"><section id="hud"><div><span class="eyebrow">NEPHO // CIRCUIT BREAKERS</span><strong id="level">LEVEL 01 · DOCKSIDE</strong></div><div class="hud-right"><span id="players">P1 ONLINE</span><span id="boss">WAVE 0/3</span></div></section><div id="game"></div><section id="controls"><button data-action="dash">DASH</button><button data-action="special">SPECIAL <kbd>Y</kbd></button><button data-action="attack">ATTACK <kbd>A</kbd></button><button data-action="join">JOIN P2</button><label class="upload">SET FACE <input id="portrait" type="file" accept="image/*"/></label></section><p id="status">MOVE: WASD / ARROWS · ATTACK: J / X · SPECIAL: K / Y · P2: IJKL + NUMPAD</p></main><script type="module" src="/src/main.ts"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Nepho: Circuit Breakers</title>
+  <link rel="icon" href="data:," />
+  <style>
+    html, body { margin: 0; padding: 0; background: #050711; color: #f3f4e8; font-family: monospace; overflow: hidden; height: 100%; }
+    #app { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    #app canvas { touch-action: none; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
