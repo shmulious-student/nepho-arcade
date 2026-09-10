@@ -1,18 +1,92 @@
 # Nepho: Circuit Breakers
 
-Mobile-first 2D arcade action prototype. Run `npm install`, then `npm run dev`.
+A browser-based mobile 2D arcade beat-em-up. Old-school side-scrolling co-op action — light/heavy
+combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
+final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins
+over LAN from their own phone. Upload a photo and your face rides on your character's head, animated
+with the body — blinking, flinching, pulsing on your special.
 
-## Product plan
+```bash
+npm install
+npm run dev        # solo/local play at http://localhost:5173
+npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm run build` first)
+```
 
-- **Core loop:** enter a 3-minute stage, clear three pressure waves, build Special meter through clean hits, defeat the stage boss, bank a relic, and push to the next district. Level 10 merges all boss patterns into the Ultra Boss.
-- **Player verbs:** move, basic strike, launch/air juggle, dash-cancel, and Nepho Burst. Co-op shares boss aggro and enables combo assists.
-- **Portraits:** upload is handled in the DOM; production implementation should crop to a face guide, run a landmark/segmentation pass, and bind the portrait to a reusable face rig (eyes, brows, mouth, hurt/effort poses) over the body sprite. Never bake the photo into every animation frame.
-- **LAN co-op:** host-authoritative lockstep over WebRTC DataChannel with a small signaling page; inputs are timestamped action packets, while simulation remains deterministic and renderer-local.
-- **Ten levels:** Dockside, Skyline, Furnace, Temple, Neon Market, Subway, Rooftops, Null Lab, Core Vault, Last Light. Each ends with a bespoke boss; the final level uses all nine boss moves as a phase deck.
+## Controls
 
-## Next production slices
+- **Move:** WASD or arrow keys (P1) / D-pad on touch.
+- **Light / Heavy:** `J` / `K` (touch: ATK / HVY). Light chains up to 3 hits; the third hit is a
+  360° "breaker" that lands on both sides at once and beats enemy guard.
+- **Dash:** `L`, or double-tap a direction. A dash is a sustained run, not a burst — it keeps going
+  until you tap the opposite direction, run into an enemy (auto-attacks on contact), or cancel into
+  an attack. Hold up/down while dashing to angle it diagonally.
+- **Special:** `I` (touch: SPC) once the meter is full.
+- **Block:** `U` (touch: BLK), held. Cuts incoming damage to ~25% while you face the attack; a
+  guard-breaker or AoE still gets through.
+- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4` (light/heavy/dash/special/block).
+- **LAN co-op:** from the lobby, turn on **LAN CO-OP**, host or join with the 4-letter room code (or
+  scan the QR code) — see below.
 
-1. Replace rectangles with normalized sprite strips and a face-rig layer.
-2. Add hitboxes, juggle state, boss phase scripts, relic progression, pause/settings, and touch joystick.
-3. Add deterministic net session, reconnect, and match-end validation.
-4. Add audio, accessibility, reduced-motion mode, and browser/mobile playtest coverage.
+## Architecture
+
+```
+src/sim/       deterministic simulation — fixed 60Hz tick, seeded RNG, no Phaser import (enforced by
+               a test). Fighters, 6 enemy archetypes, 10 bosses with data-driven patterns, the wave
+               director, and world.step(inputs) -> Snapshot. This is the single source of truth for
+               both local play and the network host.
+src/render/    Phaser 3 scenes and view layer. Reads Snapshots only — never touches sim internals
+               directly. EntityView/FaceRig/Fx/Backdrop/Hud/TouchControls/anim.ts.
+src/net/       binary snapshot/input codec + Local/Host/Guest Session classes.
+src/face/      local-only portrait processing (crop, posterize, skin-tone blend, outline) and the
+               DOM upload/crop modal. The photo never leaves the device.
+src/audio/     procedural Web Audio — SFX and a per-level chiptune sequencer. No audio files.
+src/shared/    catalog.ts — types + loader for the asset pipeline's manifest.
+tools/         asset pipeline (build-assets.mjs, asset-ops.mjs) and CI-style gates (check-assets.mjs).
+server/        LAN relay + static server (server/index.mjs).
+tests/         vitest: determinism, frame-data invariants, codec round-trip, face-pixel assertions,
+               and a full 10-level bot campaign that verifies every level is actually won (not just
+               finished) in both 1P and 2P.
+```
+
+Run `npm run verify` to do everything CI would: rebuild the asset pack, run its gates, run every
+vitest suite, and produce a production build.
+
+## Asset pipeline
+
+`public/assets/generated/` holds the hand-authored/generated PNG masters (hero and enemy action
+grids, ten boss grids, backdrops, bilingual sign SVGs). `npm run build:assets` slices and normalizes
+them into `public/game/` — the only thing the running game ever loads. Re-run it any time a master is
+replaced; the pipeline auto-detects grid layout (even inconsistent cell sizes), trims per-frame boxes,
+defringes matte halos, and computes a per-frame head anchor for the face rig. `public/game/debug/`
+gets a labeled contact sheet per character for a human to sanity-check the head anchors — it's
+gitignored and stripped from `dist/` (see `tools/prune-dist.mjs`).
+
+A few source masters have known defects the pipeline works around automatically (documented in
+`docs/asset-prompts.md`, which also has ready-to-paste prompts for regenerating them properly):
+`hero-byte-grid.png` is currently the wrong character and is substituted with a hue-shifted Riva;
+`enemy-03-purple-fighter-grid.png` has a baked (non-transparent) checkerboard background that the
+pipeline attempts to un-bake. Drop in a corrected master and rebuild — nothing else needs to change.
+
+## LAN co-op, in detail
+
+`npm run lan` starts `server/index.mjs`, a small generic two-peer WebSocket room relay plus a static
+file server (serves `dist/` if built, else falls back to `public/`). It prints both a `localhost` and
+a LAN IP URL. The **host** picks HOST GAME to get a 4-letter room code and a QR code encoding the LAN
+join URL; the **guest**, on the same Wi-Fi, opens that URL (or types the code under JOIN GAME) and
+picks a hero. The host is authoritative: it runs the real simulation and broadcasts compact binary
+snapshots at 30Hz; the guest sends 60Hz input and interpolates between snapshots for smooth motion.
+Solo and local-2P play need no server at all.
+
+## Known gaps / next steps
+
+- `hero-byte-grid.png` and `enemy-03-purple-fighter-grid.png` should be regenerated — see
+  `docs/asset-prompts.md` for exact prompts. The game plays correctly today via the pipeline's
+  fallbacks; this is a visual polish item, not a blocker.
+- Difficulty has been tuned twice: once against a bot playing at optimal efficiency, then eased
+  substantially further for real human play (see the git history on `src/sim/enemyAi.ts` and
+  `src/sim/bosses.ts` for the reasoning). If a level still feels too hard or too easy, the wave
+  rosters live in `src/sim/levels.ts` and boss HP/patterns in `src/sim/bosses.ts`.
+- No accessibility pass (reduced-motion, colorblind-safe telegraph colors) yet.
+- `docs/asset-prompts.md` also lists optional art (a title logo, six unused enemy/mini-boss designs
+  already sitting in `enemy-boss-atlas.png` slots 6–11, real SFX/music to replace the procedural
+  audio) that would add polish but aren't required for the game to work.
