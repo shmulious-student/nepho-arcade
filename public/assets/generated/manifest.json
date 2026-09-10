@@ -16,6 +16,9 @@
     "levelBackdropAtlas": { "type": "two-vertical-atlases", "slotLayout": "1x5", "slotOrder": "top-to-bottom", "atlases": [
       { "file": "/assets/generated/level-backdrops-01-05.png", "levels": [1,2,3,4,5], "order": ["israel", "petah-tikva-city", "barcelona-city", "sant-cugat-town", "hatikva-school"] },
       { "file": "/assets/generated/level-backdrops-06-10.png", "levels": [6,7,8,9,10], "order": ["martial-arts-gym", "basketball-gym", "theater", "candy-factory", "catalunya"] }
+    ], "entryExtensions": [
+      { "file": "/assets/generated/entry-extensions-01-05.png", "signOverlay": "/assets/generated/entry-signs-01-05.svg", "levels": [1,2,3,4,5] },
+      { "file": "/assets/generated/entry-extensions-06-10.png", "signOverlay": "/assets/generated/entry-signs-06-10.svg", "levels": [6,7,8,9,10] }
     ] }
   }
 }
