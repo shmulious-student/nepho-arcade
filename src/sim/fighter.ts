@@ -4,7 +4,7 @@ import { LANE_H, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
 import type { World } from './world';
 
-const MOVE_STATES = new Set(['light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special']);
+const MOVE_STATES = new Set(['light1', 'light2', 'light3', 'heavy', 'dashAttack', 'special']);
 export const isMove = (s: string) => MOVE_STATES.has(s);
 
 export function heroSpecialHit(heroId: HeroId): Hitbox | null {
@@ -39,6 +39,20 @@ function startMove(w: World, e: Entity, state: string): void {
 }
 
 const HERO_IDS_INDEX: Record<HeroId, number> = { nepho: 0, bruiser: 1, riva: 2, byte: 3 };
+
+/** True if a live enemy/boss/echo is close ahead of `e` in its current lane — used to auto-engage
+ * (end the dash into a dash-attack) when running into someone, per the "dash doesn't end until you
+ * turn around or hit something" design. */
+function enemyAhead(w: World, e: Entity): boolean {
+  for (const t of w.entities) {
+    if (t.dead || t.hp <= 0) continue;
+    if (t.kind !== 'enemy' && t.kind !== 'boss' && t.kind !== 'echo') continue;
+    if (Math.abs(t.y - e.y) > 18) continue;
+    const ahead = (t.x - e.x) * e.facing;
+    if (ahead > 0 && ahead < 52) return true;
+  }
+  return false;
+}
 
 export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (e.hitstop > 0) { e.hitstop--; return; }
@@ -97,6 +111,22 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     e.st++; clampHero(w, e); return;
   }
 
+  if (s === 'dash') {
+    // Open-ended run: keeps going until the player reverses direction or the dash engages an enemy
+    // (auto dash-attack on contact, or a buffered light/heavy), not a fixed-duration burst — this also
+    // means combo attacks can be queued mid-dash (buffered in e.pdata) and land the instant it ends.
+    if (e.st < 10) e.invuln = Math.max(e.invuln, 1); // brief i-frames only at the start of the run
+    if ((e.facing === 1 && (pressed & BTN.LEFT)) || (e.facing === -1 && (pressed & BTN.RIGHT))) {
+      e.facing = e.facing === 1 ? -1 : 1; setState(e, 'idle'); e.pdata = 0; e.st++; clampHero(w, e); return;
+    }
+    if (e.pdata & (BTN.LIGHT | BTN.HEAVY) || (e.st > 3 && enemyAhead(w, e))) { e.pdata = 0; startMove(w, e, 'dashAttack'); return; }
+    if (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
+    e.x += e.facing * HERO_MOVES.dash.speed! * slowMul;
+    // Holding up/down actively steers the dash into a diagonal run, not just a light drift.
+    if (held & BTN.UP) e.y -= 2.2 * slowMul; if (held & BTN.DOWN) e.y += 2.2 * slowMul;
+    e.st++; clampHero(w, e); return;
+  }
+
   if (move && isMove(s)) {
     const t = total(move);
     if (move.iframes && e.st >= move.iframes[0] && e.st <= move.iframes[1]) e.invuln = Math.max(e.invuln, 1);
@@ -110,22 +140,13 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     // movement during moves
     let spd = move.speed || 0;
     if (s === 'special' && def.special === 'line') spd = e.st >= move.startup && e.st < move.startup + move.active ? 14 : 0;
-    if (s === 'dash') spd = e.st < move.active ? move.speed! : 0;
-    if (spd) {
-      e.x += e.facing * spd * slowMul;
-      if (s === 'dash') { // allow lane drift while dashing
-        if (held & BTN.UP) e.y -= 1.2; if (held & BTN.DOWN) e.y += 1.2;
-      }
-    }
+    if (spd) e.x += e.facing * spd * slowMul;
     // byte volley spawns projectiles during the active window
     if (s === 'special' && def.special === 'volley' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 3 === 0) {
       w.spawnProjectile(e, 'bolt', e.x + e.facing * 30, e.y, e.z + 50, e.facing * 11, { dx: 0, dy: 0, w: 30, h: 40, dmg: 12, hitstun: 18, kb: 3, knockdown: (e.st - move.startup) >= 9 });
     }
     // cancels
-    if (move.cancelFrom !== undefined && e.st >= move.cancelFrom) {
-      if (s === 'dash' && (e.pdata & (BTN.LIGHT | BTN.HEAVY))) { e.pdata = 0; startMove(w, e, 'dashAttack'); return; }
-      if (s !== 'dash' && (e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }
-    }
+    if (move.cancelFrom !== undefined && e.st >= move.cancelFrom && (e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }
     if (move.specialCancel && e.st >= move.startup && (e.pdata & BTN.SPECIAL) && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
     if (e.st >= t - 1) { setState(e, 'idle'); e.pdata = 0; }
     e.st++; clampHero(w, e); return;

@@ -112,8 +112,7 @@ export class LobbyScene extends Phaser.Scene {
     this.netMode = 'host';
     this.statusText.setText('starting host…');
     const { wsUrlFromLocation, HostSession } = await import('../../net/session');
-    const seed = Math.floor(Math.random() * 1e9);
-    const session = new HostSession(wsUrlFromLocation(), seed, this.startLevel, this.heroPick);
+    const session = new HostSession(wsUrlFromLocation());
     session.events.onRoom = (code) => {
       this.roomCode = code;
       const joinUrl = `${location.origin}/?join=${code}`;
@@ -138,11 +137,39 @@ export class LobbyScene extends Phaser.Scene {
   }
 
   private promptJoin(): void {
-    const code = prompt('Enter the 4-letter room code shown on the host screen:');
-    if (!code) return;
-    this.netMode = 'guest';
-    this.roomCode = code.toUpperCase();
-    this.statusText.setText(`joining room ${this.roomCode}…`);
+    // A DOM modal instead of window.prompt(): native prompt() is unreliable in embedded/mobile
+    // webviews and can't be driven by automated testing, and a real on-screen keypad is friendlier
+    // for a 4-character code on a touch device anyway.
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(5,7,17,.88);z-index:9999;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#f3f4e8;';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'background:#0b1730;border:2px solid #344861;border-radius:10px;padding:22px;width:min(90vw,300px);text-align:center;';
+    panel.innerHTML = `
+      <div style="font-size:13px;color:#ffcf5c;margin-bottom:12px;letter-spacing:.06em;">ROOM CODE</div>
+      <input id="nepho-join-code" maxlength="4" autocomplete="off" autocapitalize="characters"
+        style="width:100%;font:700 28px monospace;letter-spacing:.3em;text-align:center;background:#14243d;
+        border:1px solid #344861;color:#75f5dc;border-radius:6px;padding:10px 0;text-transform:uppercase;" />
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+        <button id="nepho-join-cancel" style="background:#14243d;border:1px solid #344861;color:#f3f4e8;padding:8px 14px;border-radius:6px;font-family:monospace;">CANCEL</button>
+        <button id="nepho-join-ok" style="background:#75f5dc;border:none;color:#0b1730;padding:8px 14px;border-radius:6px;font-family:monospace;font-weight:bold;">JOIN</button>
+      </div>`;
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    const input = panel.querySelector('#nepho-join-code') as HTMLInputElement;
+    const close = () => document.body.removeChild(overlay);
+    const submit = () => {
+      const code = input.value.trim().toUpperCase();
+      if (code.length !== 4) { input.focus(); return; }
+      this.netMode = 'guest';
+      this.roomCode = code;
+      this.statusText.setText(`joining room ${this.roomCode}…`);
+      close();
+    };
+    input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    panel.querySelector('#nepho-join-ok')!.addEventListener('click', submit);
+    panel.querySelector('#nepho-join-cancel')!.addEventListener('click', close);
+    input.focus();
   }
 
   private tryStart(): void {
@@ -153,6 +180,7 @@ export class LobbyScene extends Phaser.Scene {
     }
     if (this.netMode === 'host') {
       const session = this.registry.get('pendingHostSession');
+      session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes);
       this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, faceKeys: this.faceKeys });
       return;
     }

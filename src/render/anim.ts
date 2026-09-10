@@ -34,7 +34,10 @@ function pick(frames: readonly number[], st: number, ticks: number, loop: boolea
 export function heroFrameKey(state: string, st: number): string {
   const m = HERO_MOVES[state];
   if (!m) return 'idle/0';
-  return `${m.row}/${pick(m.frames, st, Math.max(1, moveTotal(m)), state === 'idle' || state === 'walk')}`;
+  // idle/walk loop naturally; dash is now an open-ended sustained run (see fighter.ts) rather than a
+  // fixed-duration burst, so it loops too instead of freezing on its last frame once st exceeds it.
+  const loop = state === 'idle' || state === 'walk' || state === 'dash';
+  return `${m.row}/${pick(m.frames, st, Math.max(1, moveTotal(m)), loop)}`;
 }
 
 const GENERIC6 = [0, 1, 2, 3, 4, 5] as const;

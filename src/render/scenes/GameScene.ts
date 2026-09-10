@@ -21,6 +21,21 @@ interface StartData {
   faceKeys: [string | null, string | null];
 }
 
+/** Converts a quick double-press of the same direction into a synthesized DASH, the classic
+ * beat-em-up alternative to a dedicated dash button. */
+class DoubleTapDash {
+  private lastDir = 0;
+  private lastTime = 0;
+  check(pressed: number, nowMs: number): boolean {
+    for (const dir of [BTN.LEFT, BTN.RIGHT]) {
+      if (!(pressed & dir)) continue;
+      if (this.lastDir === dir && nowMs - this.lastTime < 280) { this.lastDir = 0; this.lastTime = 0; return true; }
+      this.lastDir = dir; this.lastTime = nowMs;
+    }
+    return false;
+  }
+}
+
 export class GameScene extends Phaser.Scene {
   constructor() { super('Game'); }
 
@@ -34,18 +49,23 @@ export class GameScene extends Phaser.Scene {
   private touch!: TouchControls;
   private p1Edge = new InputEdge();
   private p2Edge = new InputEdge();
+  private p1Dash = new DoubleTapDash();
+  private p2Dash = new DoubleTapDash();
   private heroes: [HeroId, HeroId | null] = ['nepho', null];
   private faceKeys: [string | null, string | null] = [null, null];
   private levelIndex = 1;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private finished = false;
   private entryShown = false;
+  private waitingText?: Phaser.GameObjects.Text;
+  private heroesResolved = false;
 
   create(data: StartData): void {
     this.catalog = this.registry.get('catalog');
     this.faceKeys = data.faceKeys || [null, null];
     this.finished = false;
     this.entryShown = false;
+    this.heroesResolved = false;
     this.views.clear();
 
     if (data.mode === 'local') {
@@ -55,7 +75,11 @@ export class GameScene extends Phaser.Scene {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
       this.session = data.session!;
     } else {
-      this.heroes = [data.heroId!, null];
+      this.heroes = [data.heroId!, null]; // corrected to the true per-slot identity once the first snapshot arrives
+      // The lobby's face-upload UI always writes the local player's face to faceKeys[0] ("SET FACE —
+      // P1"), but a guest is always simulation slot 1, not 0 — remap before EntityView ever reads it,
+      // or the guest's own face would try to attach to the host's hero instead of their own.
+      this.faceKeys = [null, (data.faceKeys && data.faceKeys[0]) || null];
       const guest = new GuestSession(wsUrlFromLocation(), data.roomCode!);
       guest.events.onRoom = () => guest.setHero(data.heroId!);
       guest.connect();
@@ -98,11 +122,14 @@ export class GameScene extends Phaser.Scene {
 
   private pollP1(): InputFrame {
     const k = this.keys;
+    // Arrow keys double as P1 movement only in solo play; once a local P2 is present they're P2's
+    // exclusive movement keys (see pollP2), or the same physical key press would move both heroes.
+    const soloArrows = !this.heroes[1] || this.session.mode !== 'local';
     let held = 0;
-    if (k.A.isDown || k.LEFT.isDown) held |= BTN.LEFT;
-    if (k.D.isDown || k.RIGHT.isDown) held |= BTN.RIGHT;
-    if (k.W.isDown || k.UP.isDown) held |= BTN.UP;
-    if (k.S.isDown || k.DOWN.isDown) held |= BTN.DOWN;
+    if (k.A.isDown || (soloArrows && k.LEFT.isDown)) held |= BTN.LEFT;
+    if (k.D.isDown || (soloArrows && k.RIGHT.isDown)) held |= BTN.RIGHT;
+    if (k.W.isDown || (soloArrows && k.UP.isDown)) held |= BTN.UP;
+    if (k.S.isDown || (soloArrows && k.DOWN.isDown)) held |= BTN.DOWN;
     if (k.J.isDown) held |= BTN.LIGHT;
     if (k.K.isDown) held |= BTN.HEAVY;
     if (k.L.isDown) held |= BTN.DASH;
@@ -112,18 +139,25 @@ export class GameScene extends Phaser.Scene {
     held |= touch.held;
     const frame = this.p1Edge.next(held);
     frame.pressed |= touch.pressed;
+    if (this.p1Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
     return frame;
   }
   private pollP2(): InputFrame {
     const k = this.keys;
     let held = 0;
+    if (k.LEFT.isDown) held |= BTN.LEFT;
+    if (k.RIGHT.isDown) held |= BTN.RIGHT;
+    if (k.UP.isDown) held |= BTN.UP;
+    if (k.DOWN.isDown) held |= BTN.DOWN;
     // local co-op P2: arrow keys move, numpad 1/2/3/0 for light/heavy/dash/special
     if (k.NUMPAD_ONE?.isDown) held |= BTN.LIGHT;
     if (k.NUMPAD_TWO?.isDown) held |= BTN.HEAVY;
     if (k.NUMPAD_THREE?.isDown) held |= BTN.DASH;
     if (k.NUMPAD_ZERO?.isDown) held |= BTN.SPECIAL;
     if (k.NUMPAD_FOUR?.isDown) held |= BTN.BLOCK;
-    return this.p2Edge.next(held);
+    const frame = this.p2Edge.next(held);
+    if (this.p2Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
+    return frame;
   }
 
   update(_time: number, dtMs: number): void {
@@ -137,7 +171,29 @@ export class GameScene extends Phaser.Scene {
     this.fx.update();
 
     const snap = this.session.snapshot();
-    if (!snap) return;
+    if (!snap) {
+      // Host is waiting on the guest's hero pick before the World can be built (see HostSession.start).
+      if (!this.waitingText) this.waitingText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'waiting for player 2…', { fontFamily: 'monospace', fontSize: '13px', color: '#9bb1c9' }).setOrigin(0.5).setDepth(35000);
+      return;
+    }
+    if (this.waitingText) { this.waitingText.destroy(); this.waitingText = undefined; }
+    if (this.session.mode !== 'local' && !this.heroesResolved) {
+      // Host: the World was built once the guest's real hero pick arrived (see HostSession.start),
+      // which may differ from the placeholder `data.heroes` guess the lobby passed in before that
+      // happened. Guest: it only ever knew its own pick (`this.heroes` was seeded as [ownHero, null],
+      // and the guest is actually slot 1, not slot 0) — it has never known the host's hero at all.
+      // Either way, read the true per-slot identity back out of the entities themselves.
+      this.heroesResolved = true;
+      const p0 = snap.entities.find((e) => e.kind === 'hero' && e.slot === 0);
+      const p1 = snap.entities.find((e) => e.kind === 'hero' && e.slot === 1);
+      const real: [HeroId, HeroId | null] = [(p0?.arch as HeroId) || this.heroes[0], (p1?.arch as HeroId) || null];
+      if (real[0] !== this.heroes[0] || real[1] !== this.heroes[1]) {
+        this.heroes = real;
+        this.hud.destroy();
+        this.hud = new Hud(this, this.heroes, this.faceKeys);
+        this.showKeyboardHint(!!this.heroes[1]);
+      }
+    }
     if (snap.level !== this.levelIndex && this.session.mode === 'guest') {
       this.levelIndex = snap.level;
       const level = this.catalog.levels[this.levelIndex - 1];

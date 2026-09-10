@@ -66,24 +66,29 @@ export class LocalSession extends BaseSession {
 }
 
 /** Host: runs the authoritative sim, drives P1 locally, applies the latest input received from the
- * guest for P2, and (if connected) broadcasts binary snapshots at 30Hz over a WebSocket. */
+ * guest for P2, and (if connected) broadcasts binary snapshots at 30Hz over a WebSocket.
+ *
+ * The World is intentionally NOT built in the constructor: a host can click "HOST GAME" (which opens
+ * the room) well before the guest joins and reports which hero they picked, and the World needs a
+ * concrete heroId for slot 1 at construction time. Building it early would either omit the guest's
+ * hero entirely or bake in a guessed placeholder that never matches what the guest actually chose —
+ * call start() once ready (typically when the host presses their own START), by which point guestHero
+ * holds whatever the guest already sent, or will apply retroactively if it arrives a moment later. */
 export class HostSession extends BaseSession {
   readonly localSlot = 0;
   readonly mode = 'host' as const;
-  private w: World;
+  private w: World | null = null;
   private acc = 0;
   private tickCount = 0;
   private inputs: [InputFrame, InputFrame] = [EMPTY_INPUT, EMPTY_INPUT];
-  private snap: Snapshot;
+  private snap: Snapshot | null = null;
   private ws: WebSocket | null = null;
   private syncTimer = 0;
+  private pendingHeroes: [number, number, [HeroId, HeroId | null]] | null = null; // [seed, level, heroes] queued if start() was called before guestHero arrived
+  guestHero: HeroId | null = null;
   events: SessionEvents = {};
 
-  constructor(private wsUrl: string, seed: number, level: number, heroes: [HeroId, HeroId | null]) {
-    super();
-    this.w = new World({ seed, level, heroes });
-    this.snap = this.w.snapshot();
-  }
+  constructor(private wsUrl: string) { super(); }
 
   connect(): void {
     const ws = new WebSocket(this.wsUrl);
@@ -100,6 +105,10 @@ export class HostSession extends BaseSession {
     if (msg.t === 'room') this.events.onRoom?.(msg.code);
     else if (msg.t === 'peer') this.events.onPeer?.(msg.joined);
     else if (msg.t === 'error') this.events.onError?.(msg.message);
+    else if (msg.t === 'hero' && msg.slot === 1) {
+      this.guestHero = msg.id;
+      if (this.pendingHeroes) { const [seed, level, heroes] = this.pendingHeroes; this.pendingHeroes = null; this.start(seed, level, [heroes[0], msg.id]); }
+    }
   }
   private onInput(buf: ArrayBuffer): void {
     const { held, pressed } = decodeInput(buf);
@@ -107,7 +116,17 @@ export class HostSession extends BaseSession {
   }
   setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
   setHero(slot: number, id: HeroId): void { this.send({ t: 'hero', slot, id }); }
+
+  /** Builds the World. If coop is intended (heroes[1] set as a placeholder) but the guest's real pick
+   * hasn't arrived yet, waits for it instead of starting with a guessed hero. */
+  start(seed: number, level: number, heroes: [HeroId, HeroId | null]): void {
+    if (heroes[1] && !this.guestHero) { this.pendingHeroes = [seed, level, heroes]; return; }
+    const resolved: [HeroId, HeroId | null] = [heroes[0], heroes[1] ? (this.guestHero || heroes[1]) : null];
+    this.w = new World({ seed, level, heroes: resolved });
+    this.snap = this.w.snapshot();
+  }
   update(dtMs: number): void {
+    if (!this.w) return;
     this.acc += dtMs;
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;
@@ -121,8 +140,8 @@ export class HostSession extends BaseSession {
       }
     }
   }
-  snapshot(): Snapshot { return this.snap; }
-  world(): World { return this.w; }
+  snapshot(): Snapshot | null { return this.snap; }
+  world(): World | null { return this.w; }
   destroy(): void { this.ws?.close(); }
 }
 
