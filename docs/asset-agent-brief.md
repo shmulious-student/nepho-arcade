@@ -2,6 +2,8 @@
 
 This repository now contains three generated source atlases under `public/assets/generated/`. Integrate them into the Phaser game without generating more art unless a quality gate below fails.
 
+All character grids must meet [asset-quality-standard.md](./asset-quality-standard.md), using the supplied hero strip as the acceptance reference.
+
 The active roster is now four selectable heroes: `nepho` and `bruiser` (male); `riva` and `byte` (female). The previous six-hero source files remain as historical references, but code must use only the four active IDs.
 
 ## Files
