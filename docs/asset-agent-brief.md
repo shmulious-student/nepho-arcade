@@ -64,9 +64,9 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 
 ## Background contract
 
-- Pre-slice the two 1×5 vertical atlases into ten named textures. Do not use the older 2×5 atlas for active gameplay.
+- Pre-slice the two original 1×5 vertical atlases into ten named textures; they now contain the swapped level art in-place. Do not use the replacement 1×3 atlas for active gameplay.
 - Level order is authoritative: 1 Rishon LeZion, 2 Refael Eitan Street in Petah Tikva, 3 Barcelona city, 4 Sant Cugat town, 5 HaTikva school, 6 Capoeira Brazilian martial arts gym, 7 basketball gym, 8 theater, 9 candy factory, 10 Catalunya.
-- On level entry, show the matching `entry-extensions` slot first for 1.5–2 seconds with the matching SVG sign overlay, then pan/transition into the normal playable backdrop. Signs are vector overlays to guarantee readable Latin and Hebrew; do not ask the image model to redraw the lettering.
+- On level entry, show the matching `entry-extensions` slot first for 1.5–2 seconds with the matching `entry-signs-*-v2.svg` overlay, then pan/transition into the matching main-backdrop slot. Signs are vector overlays to guarantee readable Latin and Hebrew; do not ask the image model to redraw the lettering.
 - Render three stacked layers: backdrop, optional parallax decal strip, and procedural FX.
 - Keep the central horizontal band readable for combat. Apply a 20–35% navy overlay behind characters where contrast is weak.
 - Swap only the backdrop key and tint/FX profile between levels.

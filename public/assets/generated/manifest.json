@@ -17,8 +17,8 @@
       { "file": "/assets/generated/level-backdrops-01-05.png", "levels": [1,2,3,4,5], "order": ["israel", "petah-tikva-city", "barcelona-city", "sant-cugat-town", "hatikva-school"] },
       { "file": "/assets/generated/level-backdrops-06-10.png", "levels": [6,7,8,9,10], "order": ["martial-arts-gym", "basketball-gym", "theater", "candy-factory", "catalunya"] }
     ], "entryExtensions": [
-      { "file": "/assets/generated/entry-extensions-01-05.png", "signOverlay": "/assets/generated/entry-signs-01-05.svg", "levels": [1,2,3,4,5] },
-      { "file": "/assets/generated/entry-extensions-06-10.png", "signOverlay": "/assets/generated/entry-signs-06-10.svg", "levels": [6,7,8,9,10] }
+      { "file": "/assets/generated/entry-extensions-01-05.png", "signOverlay": "/assets/generated/entry-signs-01-05-v2.svg", "levels": [1,2,3,4,5] },
+      { "file": "/assets/generated/entry-extensions-06-10.png", "signOverlay": "/assets/generated/entry-signs-06-10-v2.svg", "levels": [6,7,8,9,10] }
     ], "replacements": { "file": "/assets/generated/level-replacements-rishon-petachtikva-capoeira.png", "signOverlay": "/assets/generated/level-replacement-signs.svg", "slotLayout": "1x3", "levels": { "1": "rishon-lezion", "2": "refael-eitan-street-petah-tikva", "6": "capoeira-brazilian-martial-arts-gym" } } }
   }
 }
