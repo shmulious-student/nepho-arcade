@@ -1,6 +1,11 @@
 {
   "version": "0.1-generated-pack",
   "policy": "source-atlas; normalize at build time; do not use raw dimensions as gameplay API",
+  "heroes": {
+    "male": ["nepho", "bruiser", "zero"],
+    "female": ["riva", "byte", "sol"],
+    "atlas": { "file": "/assets/generated/hero-roster-atlas.png", "type": "atlas-reference", "columns": 3, "rows": 2, "order": ["nepho", "bruiser", "zero", "riva", "byte", "sol"] }
+  },
   "assets": {
     "heroActions": { "file": "/assets/generated/hero-actions-strip.png", "type": "horizontal-strip", "frames": 8, "order": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] },
     "enemyBossAtlas": { "file": "/assets/generated/enemy-boss-atlas.png", "type": "atlas-reference", "columns": 4, "rows": 3, "order": ["grunt-a", "grunt-b", "grunt-c", "elite-a", "elite-b", "elite-c", "boss-a", "boss-b", "boss-c", "ultra", "boss-detail", "empty"] },

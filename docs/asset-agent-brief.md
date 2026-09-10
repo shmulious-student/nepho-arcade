@@ -2,6 +2,8 @@
 
 This repository now contains three generated source atlases under `public/assets/generated/`. Integrate them into the Phaser game without generating more art unless a quality gate below fails.
 
+The roster now contains six selectable heroes: `nepho`, `bruiser`, and `zero` (male); `riva`, `byte`, and `sol` (female). The roster atlas is `hero-roster-atlas.png`.
+
 ## Files
 
 | File | Purpose | Source dimensions | Runtime treatment |
@@ -9,6 +11,7 @@ This repository now contains three generated source atlases under `public/assets
 | `/assets/generated/hero-actions-strip.png` | Player body/action source | 2172×724 RGBA | Slice into 8 equal source cells, trim transparent bounds, normalize all frames to 96×128 with bottom-center anchor. Use as the shared P1/P2 body. |
 | `/assets/generated/enemy-boss-atlas.png` | Enemy/boss visual source | 1448×1086 RGBA | Use as an art reference atlas first; crop 4×3 slots, then normalize visible figures into `enemy-grunt`, `enemy-elite`, `boss`, and `ultra` textures. Use tint/accessory overlays for variants. |
 | `/assets/generated/level-backdrop-atlas.png` | Ten district background source | 1182×1330 RGB | Crop 2×5 slots. Scale each crop to a 960×540 cover image and preserve a clear combat floor in the bottom 30%. Add a dark translucent gameplay read layer in Phaser. |
+| `/assets/generated/hero-roster-atlas.png` | Six selectable hero body/face-area references | 1536×1024 RGBA | Crop 3×2 slots in manifest order: `nepho`, `bruiser`, `zero`, `riva`, `byte`, `sol`; normalize each hero to the same body frame contract. |
 | `/assets/generated/manifest.json` | Stable source metadata | — | Load by manifest key, never hard-code filenames in gameplay systems. |
 
 ## Recommended Phaser loader
@@ -23,13 +26,16 @@ preload() {
 
 Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing and normalization in `src/assets/assetCatalog.ts` or a build-time preprocessing script. The runtime should consume stable keys such as `player.body.idle`, `enemy.grunt`, `boss.ferryman`, and `level.dockside`.
 
-## Player animation contract
+## Player roster and animation contract
 
-- Use one shared body animation set for P1 and P2.
+- Present a six-card hero select screen: 3 male and 3 female heroes. Each card shows name, color identity, and a short move bias.
+- Use one shared animation timing/state contract for all six heroes, but give each hero a distinct normalized body silhouette and palette. Do not recolor every hero into the same body.
+- Recommended identities: Nepho (balanced burst), Bruiser (heavy damage), Zero (speed/control), Riva (combo mobility), Byte (ranged special), Sol (defense/counter).
+- P1/P2 may choose independently; their selected hero is a simulation `heroId`, never inferred from renderer state.
 - Frame order from the strip: `idle`, `walk`, `attack`, `heavy`, `dash`, `special`, `hurt`, `defeat`.
 - Keep bottom-center at the same world coordinate for every frame.
 - Face the character right in source art; mirror the display sprite when moving left.
-- Use the portrait upload as a separate circular face texture positioned over the head. Do not bake a user portrait into sprite frames.
+- Use the portrait upload as a separate circular face texture positioned over the selected hero's face area. Do not bake a user portrait into sprite frames.
 - Animate the face layer with the body state: idle blink/eye drift, attack squash, special scale pulse, hurt recoil.
 
 ## Enemy and boss contract
@@ -55,6 +61,15 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 4. Create a Phaser texture key `portrait.p1` or `portrait.p2` from the local object URL.
 5. Mask it with a geometry mask and attach it to the player view, not the simulation state.
 6. Revoke the previous object URL when replacing the portrait.
+
+## Hero selection data shape
+
+```ts
+type HeroId = 'nepho'|'bruiser'|'zero'|'riva'|'byte'|'sol';
+type HeroDefinition = { id: HeroId; gender: 'male'|'female'; displayName: string; bodyKey: string; palette: string; moveBias: string };
+```
+
+Keep the portrait attached to `player.face[slot]`; keep `heroId` and gameplay stats in simulation state. The uploaded image changes identity presentation, not hitboxes, animation timing, or network payload size.
 
 ## Low-cost asset rules
 
