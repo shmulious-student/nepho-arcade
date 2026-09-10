@@ -8,7 +8,7 @@ import { Backdrop } from '../Backdrop';
 import { Hud } from '../Hud';
 import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
-import { LEVEL_W, type HeroId } from '../../sim/types';
+import { LEVEL_W, VIEW_W, FLOOR_TOP, type HeroId } from '../../sim/types';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
 
@@ -91,6 +91,13 @@ export class GameScene extends Phaser.Scene {
 
     const level = this.catalog.levels[this.levelIndex - 1];
     this.world = this.add.container(0, 0);
+    // Zoom the game world in (characters/faces read far better on a phone screen) while leaving the
+    // HUD and touch controls — separate top-level objects, not children of this container — at normal
+    // UI scale. Anchored on the combat band (roughly where sprite feet land, not the container's
+    // top-left corner), or zooming would push the floor mostly below the visible canvas.
+    const zoom = 1.28;
+    const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 40;
+    this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.faceKeys);
