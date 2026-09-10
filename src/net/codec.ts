@@ -115,23 +115,23 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
 
 const STATES = [
   'idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'hurt', 'hurtHeavy',
-  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat',
+  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat', 'block',
 ];
 const stateCode = (s: string) => { const i = STATES.indexOf(s); return i < 0 ? 255 : i; };
 const stateName = (i: number) => STATES[i] || 'idle';
 
-// Input packet: guest -> host, 60Hz. 5 bytes.
+// Input packet: guest -> host, 60Hz. 7 bytes. held/pressed are u16 (9 buttons: 4 directions + 5 actions).
 export function encodeInput(clientTick: number, held: number, pressed: number): ArrayBuffer {
-  const buf = new ArrayBuffer(5);
+  const buf = new ArrayBuffer(7);
   const dv = new DataView(buf);
   dv.setUint8(0, 0x49); // 'I'
   dv.setUint16(1, clientTick & 0xffff);
-  dv.setUint8(3, held & 0xff);
-  dv.setUint8(4, pressed & 0xff);
+  dv.setUint16(3, held & 0xffff);
+  dv.setUint16(5, pressed & 0xffff);
   return buf;
 }
 
 export function decodeInput(buf: ArrayBuffer): { clientTick: number; held: number; pressed: number } {
   const dv = new DataView(buf);
-  return { clientTick: dv.getUint16(1), held: dv.getUint8(3), pressed: dv.getUint8(4) };
+  return { clientTick: dv.getUint16(1), held: dv.getUint16(3), pressed: dv.getUint16(5) };
 }

@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
     this.touch = new TouchControls(this);
     this.touch.setVisible(this.sys.game.device.input.touch);
 
-    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO') as any;
+    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR') as any;
     this.showKeyboardHint(!!this.heroes[1]);
 
     this.events.once('shutdown', () => this.cleanup());
@@ -80,8 +80,8 @@ export class GameScene extends Phaser.Scene {
   private showKeyboardHint(withP2: boolean): void {
     if (this.sys.game.device.input.touch) return; // touch controls cover this on mobile
     const lines = withP2
-      ? ['P1  move WASD · light J · heavy K · dash L · special I', 'P2  move ARROWS · light NUM1 · heavy NUM2 · dash NUM3 · special NUM0']
-      : ['MOVE  WASD / ARROWS     LIGHT  J     HEAVY  K     DASH  L     SPECIAL  I'];
+      ? ['P1  move WASD · light J · heavy K · dash L · special I · block U', 'P2  move ARROWS · light NUM1 · heavy NUM2 · dash NUM3 · special NUM0 · block NUM4']
+      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   DASH  L   SPECIAL  I   BLOCK  U'];
     const hint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
       fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
@@ -107,6 +107,7 @@ export class GameScene extends Phaser.Scene {
     if (k.K.isDown) held |= BTN.HEAVY;
     if (k.L.isDown) held |= BTN.DASH;
     if (k.I.isDown) held |= BTN.SPECIAL;
+    if (k.U.isDown) held |= BTN.BLOCK;
     const touch = this.touch.poll();
     held |= touch.held;
     const frame = this.p1Edge.next(held);
@@ -121,6 +122,7 @@ export class GameScene extends Phaser.Scene {
     if (k.NUMPAD_TWO?.isDown) held |= BTN.HEAVY;
     if (k.NUMPAD_THREE?.isDown) held |= BTN.DASH;
     if (k.NUMPAD_ZERO?.isDown) held |= BTN.SPECIAL;
+    if (k.NUMPAD_FOUR?.isDown) held |= BTN.BLOCK;
     return this.p2Edge.next(held);
   }
 

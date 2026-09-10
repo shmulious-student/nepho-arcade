@@ -85,11 +85,28 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     if (e.st >= len) { setState(e, 'idle'); e.pdata = 0; }
     e.st++; clampHero(w, e); return;
   }
+  if (s === 'block') {
+    if (!(held & BTN.BLOCK)) { setState(e, 'idle'); e.st++; clampHero(w, e); return; }
+    // Blocking still allows repositioning (at reduced speed) and free facing, so players can hold guard
+    // while sidestepping into position rather than standing frozen.
+    let mx = 0, my = 0;
+    if (held & BTN.LEFT) mx -= 1; if (held & BTN.RIGHT) mx += 1;
+    if (held & BTN.UP) my -= 1; if (held & BTN.DOWN) my += 1;
+    if (mx !== 0) e.facing = mx > 0 ? 1 : -1;
+    e.x += mx * def.speed * 0.5 * slowMul; e.y += my * def.speed * 0.5 * slowMul * 0.55;
+    e.st++; clampHero(w, e); return;
+  }
 
   if (move && isMove(s)) {
     const t = total(move);
     if (move.iframes && e.st >= move.iframes[0] && e.st <= move.iframes[1]) e.invuln = Math.max(e.invuln, 1);
     if (move.armor && e.st >= move.armor[0] && e.st <= move.armor[1]) e.armor = Math.max(e.armor, 1);
+    // Facing is free to flip during recovery (after the active hit frames), so alternating combo taps
+    // toward whichever side has an enemy reads instantly rather than needing to return to idle first.
+    if (e.st >= move.startup + move.active) {
+      if ((held & BTN.LEFT) && !(held & BTN.RIGHT)) e.facing = -1;
+      else if ((held & BTN.RIGHT) && !(held & BTN.LEFT)) e.facing = 1;
+    }
     // movement during moves
     let spd = move.speed || 0;
     if (s === 'special' && def.special === 'line') spd = e.st >= move.startup && e.st < move.startup + move.active ? 14 : 0;
@@ -119,6 +136,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (held & BTN.LEFT) mx -= 1; if (held & BTN.RIGHT) mx += 1;
   if (held & BTN.UP) my -= 1; if (held & BTN.DOWN) my += 1;
   if (mx !== 0) e.facing = mx > 0 ? 1 : -1;
+  if (held & BTN.BLOCK) { e.pdata = 0; setState(e, 'block'); e.st++; clampHero(w, e); return; }
   const spd = def.speed * slowMul;
   e.x += mx * spd; e.y += my * spd * 0.55;
   if (pressed & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }

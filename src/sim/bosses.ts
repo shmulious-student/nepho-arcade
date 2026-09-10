@@ -119,12 +119,19 @@ export function bossOnHit(w: World, tgt: Entity, att: Entity, hit: Hitbox, dmg: 
     tgt.flash = 3;
     return;
   }
-  if (p?.type === 'armor' && tgt.pphase === 1) { tgt.flash = 3; tgt.hp -= dmg * 0.1; return; }
+  const owner = att.owner >= 0 ? w.byId(att.owner) : att;
+  // Active armor (e.g. The Null's Invert Phase) heavily mitigates damage but must still be able to
+  // finish the boss off — chip damage that crosses zero has to go through the same death check below,
+  // not return early, or the entity goes to negative HP without ever being marked dead.
+  if (p?.type === 'armor' && tgt.pphase === 1) {
+    tgt.flash = 3; tgt.hp -= dmg * 0.1;
+    if (tgt.hp <= 0) finishBossDeath(w, tgt, owner);
+    return;
+  }
   const staggered = p?.type === 'armor' && tgt.pphase === 2;
   tgt.hp -= dmg * (staggered ? 2 : 1);
   tgt.flash = 6;
   tgt.hitstop = Math.max(tgt.hitstop, hit.launch ? 5 : 3);
-  const owner = att.owner >= 0 ? w.byId(att.owner) : att;
   if (owner && owner.kind === 'hero') owner.hitstop = Math.max(owner.hitstop, hit.launch ? 5 : 3);
   tgt.hits++;
   const def = BOSS_DEFS[tgt.arch];
@@ -136,12 +143,14 @@ export function bossOnHit(w: World, tgt: Entity, att: Entity, hit: Hitbox, dmg: 
       setState(tgt, 'hurt'); tgt.aiT = staggered ? 30 : 20; tgt.vx = dir * 3;
     }
   }
-  if (tgt.hp <= 0) {
-    tgt.hp = 0; tgt.dead = true; tgt.pattern = -1;
-    setState(tgt, 'defeat'); tgt.removeAt = w.tick + (tgt.kind === 'boss' ? 150 : 60);
-    w.emit({ type: 'ko', x: tgt.x, y: tgt.y, id: tgt.id, a: tgt.kind === 'boss' ? 1 : 0 });
-    w.onBossKilled(tgt, owner);
-  }
+  if (tgt.hp <= 0) finishBossDeath(w, tgt, owner);
+}
+
+function finishBossDeath(w: World, tgt: Entity, owner: Entity | undefined): void {
+  tgt.hp = 0; tgt.dead = true; tgt.pattern = -1;
+  setState(tgt, 'defeat'); tgt.removeAt = w.tick + (tgt.kind === 'boss' ? 150 : 60);
+  w.emit({ type: 'ko', x: tgt.x, y: tgt.y, id: tgt.id, a: tgt.kind === 'boss' ? 1 : 0 });
+  w.onBossKilled(tgt, owner);
 }
 
 function choosePattern(w: World, e: Entity, target: Entity): number {

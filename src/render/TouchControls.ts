@@ -2,9 +2,10 @@ import Phaser from 'phaser';
 import { BTN, InputEdge, type InputFrame } from '../sim/input';
 import { VIEW_H, VIEW_W } from '../sim/types';
 
-/** Virtual stick (left) + 4 action buttons (right): DASH / SPECIAL top, ATTACK / HEAVY bottom, matching
- * the layout convention of classic arcade co-op cabinets. Pointer-id tracked so multitouch doesn't
- * fight itself. Keyboard input is handled separately in GameScene and merged with this. */
+/** Virtual stick (left) + 5 action buttons (right): DASH / BLOCK top corners, SPECIAL top center,
+ * ATTACK / HEAVY bottom, matching the layout convention of classic arcade co-op cabinets. Pointer-id
+ * tracked so multitouch doesn't fight itself. Keyboard input is handled separately in GameScene and
+ * merged with this. */
 export class TouchControls {
   private scene: Phaser.Scene;
   private container: Phaser.GameObjects.Container;
@@ -26,12 +27,13 @@ export class TouchControls {
     this.stickOrigin = { x: stickX, y: stickY };
     this.container.add([this.stickBase, this.stickNub]);
 
-    const bx = VIEW_W - 92, by = VIEW_H - 96, spread = 46;
+    const bx = VIEW_W - 104, by = VIEW_H - 96, spread = 42;
     const defs: [number, number, number, string, number][] = [
       [bx - spread, by, BTN.LIGHT, 'ATK', 0x75f5dc],
       [bx + spread, by, BTN.HEAVY, 'HVY', 0xff9357],
       [bx, by - spread, BTN.SPECIAL, 'SPC', 0xffcf5c],
-      [bx - spread * 1.7, by - spread * 1.1, BTN.DASH, 'DSH', 0xa4ee42],
+      [bx - spread * 1.75, by - spread * 1.05, BTN.DASH, 'DSH', 0xa4ee42],
+      [bx + spread * 1.75, by - spread * 1.05, BTN.BLOCK, 'BLK', 0x37aaff],
     ];
     for (const [x, y, bit, label, colour] of defs) {
       const g = scene.add.circle(x, y, 26, 0x0b1730, 0.55).setStrokeStyle(2, colour);

@@ -93,6 +93,20 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
     }
     return;
   }
+  // Hero block: facing the attack while holding BLOCK cuts most damage through, mirroring the enemy
+  // guard rule above (knockdown-flagged "breaker" hits and AoEs still get through).
+  if (tgt.kind === 'hero' && tgt.state === 'block' && !hit.knockdown && !hit.radius && tgt.facing === -dirToTarget) {
+    const chip = dmg * 0.25;
+    tgt.hp -= chip;
+    tgt.x += dirToTarget * 3;
+    tgt.flash = 4;
+    w.emit({ type: 'block', x: tgt.x, y: tgt.y, z: 50, id: tgt.id });
+    if (tgt.hp <= 0) {
+      tgt.hp = 0;
+      if (!w.tryRevive(tgt)) { setState(tgt, 'ko'); w.emit({ type: 'ko', x: tgt.x, y: tgt.y, id: tgt.id }); }
+    }
+    return;
+  }
   if (tgt.kind === 'boss' || tgt.kind === 'echo') {
     bossOnHit(w, tgt, att, hit, dmg, dirToTarget);
     if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy);

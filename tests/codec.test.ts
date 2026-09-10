@@ -56,9 +56,9 @@ describe('net codec', () => {
     expect(buf.byteLength).toBeLessThanOrEqual(400);
   });
 
-  it('input round-trips exactly', () => {
-    for (let held = 0; held < 256; held += 17) {
-      for (let pressed = 0; pressed < 256; pressed += 33) {
+  it('input round-trips exactly (9-button u16 mask)', () => {
+    for (let held = 0; held < 512; held += 31) {
+      for (let pressed = 0; pressed < 512; pressed += 61) {
         const buf = encodeInput(1234, held, pressed);
         const d = decodeInput(buf);
         expect(d.clientTick).toBe(1234);
