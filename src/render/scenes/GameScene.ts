@@ -95,7 +95,7 @@ export class GameScene extends Phaser.Scene {
     // HUD and touch controls — separate top-level objects, not children of this container — at normal
     // UI scale. Anchored on the combat band (roughly where sprite feet land, not the container's
     // top-left corner), or zooming would push the floor mostly below the visible canvas.
-    const zoom = 1.28;
+    const zoom = 1.7;
     const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 40;
     this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
