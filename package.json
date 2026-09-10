@@ -1,9 +1,29 @@
 {
   "name": "nepho-arcade",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "scripts": { "dev": "vite", "build": "tsc && vite build" },
-  "dependencies": { "phaser": "^3.90.0" },
-  "devDependencies": { "@types/node": "^22.10.0", "typescript": "^5.7.2", "vite": "^6.0.0" }
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc && vite build && node tools/prune-dist.mjs",
+    "build:assets": "node tools/build-assets.mjs",
+    "test": "vitest run",
+    "test:assets": "node tools/check-assets.mjs",
+    "lan": "node server/index.mjs",
+    "verify": "npm run build:assets && npm run test:assets && npm test && npm run build"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0",
+    "qrcode": "^1.5.4",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/ws": "^8.18.1",
+    "sharp": "^0.35.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.11"
+  }
 }

@@ -1,0 +1,2156 @@
+{
+ "version": 2,
+ "generatedAt": "2026-09-10T03:49:17.089Z",
+ "characters": {
+  "nepho": {
+   "id": "nepho",
+   "kind": "hero",
+   "atlas": "chars/nepho.webp",
+   "data": "chars/nepho.json",
+   "box": {
+    "w": 210,
+    "h": 140
+   },
+   "anchor": {
+    "x": 105,
+    "y": 135
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "dash",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.8707,
+   "skin": [
+    209,
+    149,
+    116
+   ],
+   "outline": [
+    22,
+    25,
+    34
+   ],
+   "head": {
+    "idle": [
+     [
+      -16.5,
+      -78.9,
+      20
+     ],
+     [
+      -14.7,
+      -80.7,
+      21.8
+     ],
+     [
+      -15.6,
+      -79.7,
+      19.2
+     ],
+     [
+      -16.8,
+      -79,
+      20.9
+     ],
+     [
+      -16.8,
+      -80.1,
+      22.6
+     ],
+     [
+      -16.9,
+      -78.1,
+      20
+     ]
+    ],
+    "walk": [
+     [
+      -7.4,
+      -80.7,
+      21.8
+     ],
+     [
+      18.8,
+      -100.5,
+      16.3
+     ],
+     [
+      18.9,
+      -101.1,
+      16.3
+     ],
+     [
+      -3.8,
+      -80.6,
+      21.8
+     ],
+     [
+      -11.7,
+      -81.6,
+      24.4
+     ],
+     [
+      19,
+      -100.8,
+      16.3
+     ]
+    ],
+    "attack": [
+     [
+      -17.7,
+      -79.9,
+      23.5
+     ],
+     [
+      27.7,
+      -79.2,
+      20.9
+     ],
+     [
+      40,
+      -83.7,
+      28.7
+     ],
+     [
+      29.1,
+      -78.2,
+      24.4
+     ],
+     [
+      28.6,
+      -81.6,
+      23.5
+     ],
+     [
+      13,
+      -91.6,
+      17.6
+     ]
+    ],
+    "heavy": [
+     [
+      -4.6,
+      -85.6,
+      20.9
+     ],
+     [
+      23,
+      -79,
+      17.6
+     ],
+     [
+      22.4,
+      -86.3,
+      26.1
+     ],
+     [
+      16.9,
+      -79.3,
+      23.5
+     ],
+     [
+      26.8,
+      -79,
+      27
+     ],
+     [
+      5.4,
+      -85,
+      17.6
+     ]
+    ],
+    "dash": [
+     [
+      18.6,
+      -66.2,
+      23.5
+     ],
+     [
+      17.4,
+      -68.8,
+      17.4
+     ],
+     [
+      16.2,
+      -71.4,
+      23.5
+     ],
+     [
+      30.6,
+      -67.6,
+      16.3
+     ],
+     [
+      10.7,
+      -67.1,
+      21.8
+     ],
+     [
+      -9.3,
+      -66.7,
+      21.8
+     ]
+    ],
+    "special": [
+     [
+      -15.2,
+      -86.2,
+      15.7
+     ],
+     [
+      -6.8,
+      -84,
+      15
+     ],
+     [
+      1.6,
+      -81.8,
+      20
+     ],
+     [
+      13.3,
+      -96.6,
+      26
+     ],
+     [
+      1.8,
+      -84.6,
+      15
+     ],
+     [
+      -9.7,
+      -72.6,
+      20
+     ]
+    ],
+    "hurt": [
+     [
+      -10.9,
+      -88.3,
+      13.1
+     ],
+     [
+      -13.8,
+      -90.3,
+      15.7
+     ],
+     [
+      -29.9,
+      -65.2,
+      15.7
+     ],
+     [
+      16.9,
+      -59.3,
+      15.7
+     ],
+     [
+      27.7,
+      -49.3,
+      18.3
+     ],
+     [
+      28.9,
+      -46.8,
+      14.8
+     ]
+    ],
+    "defeat": [
+     [
+      -16.4,
+      -70.4,
+      18.3
+     ],
+     [
+      -5.4,
+      -58.4,
+      23.5
+     ],
+     [
+      10.8,
+      -52.6,
+      20
+     ],
+     [
+      18.4,
+      -38.5,
+      15
+     ],
+     [
+      18.5,
+      -26.8,
+      17.4
+     ],
+     [
+      10.4,
+      -26.7,
+      26
+     ]
+    ]
+   },
+   "source": "public/assets/generated/hero-nepho-grid.png",
+   "notes": []
+  },
+  "bruiser": {
+   "id": "bruiser",
+   "kind": "hero",
+   "atlas": "chars/bruiser.webp",
+   "data": "chars/bruiser.json",
+   "box": {
+    "w": 208,
+    "h": 151
+   },
+   "anchor": {
+    "x": 104,
+    "y": 141
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "dash",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.8477,
+   "skin": [
+    222,
+    149,
+    100
+   ],
+   "outline": [
+    34,
+    15,
+    8
+   ],
+   "head": {
+    "idle": [
+     [
+      11.7,
+      -102.2,
+      18.6
+     ],
+     [
+      8.9,
+      -101.7,
+      24.6
+     ],
+     [
+      9,
+      -99.7,
+      26.3
+     ],
+     [
+      9.9,
+      -99.2,
+      24.6
+     ],
+     [
+      10.1,
+      -99.1,
+      26.3
+     ],
+     [
+      9.1,
+      -96.4,
+      23.7
+     ]
+    ],
+    "walk": [
+     [
+      11.8,
+      -102.8,
+      23.7
+     ],
+     [
+      16.4,
+      -104.8,
+      18.6
+     ],
+     [
+      19.9,
+      -104.9,
+      19.5
+     ],
+     [
+      22.1,
+      -105.9,
+      18.6
+     ],
+     [
+      22.1,
+      -106.4,
+      18.6
+     ],
+     [
+      15.2,
+      -104.9,
+      19.5
+     ]
+    ],
+    "attack": [
+     [
+      11.8,
+      -100.4,
+      20.3
+     ],
+     [
+      15.9,
+      -96.9,
+      23.7
+     ],
+     [
+      10.6,
+      -96,
+      22.9
+     ],
+     [
+      10.1,
+      -95.2,
+      22.9
+     ],
+     [
+      17.2,
+      -97,
+      17.2
+     ],
+     [
+      10.2,
+      -97.9,
+      24.6
+     ]
+    ],
+    "heavy": [
+     [
+      10.5,
+      -110.4,
+      18.6
+     ],
+     [
+      6.5,
+      -81.5,
+      19.5
+     ],
+     [
+      12.7,
+      -85.3,
+      19.5
+     ],
+     [
+      35,
+      -69,
+      18.6
+     ],
+     [
+      27.7,
+      -91.2,
+      17
+     ],
+     [
+      20.4,
+      -113.4,
+      19.5
+     ]
+    ],
+    "dash": [
+     [
+      44,
+      -86.8,
+      21.2
+     ],
+     [
+      49.5,
+      -87.3,
+      22
+     ],
+     [
+      53,
+      -88,
+      22
+     ],
+     [
+      58.9,
+      -85.7,
+      22.9
+     ],
+     [
+      45.1,
+      -90.2,
+      21.2
+     ],
+     [
+      15.9,
+      -90,
+      21.2
+     ]
+    ],
+    "special": [
+     [
+      6.9,
+      -98.8,
+      18.6
+     ],
+     [
+      4.2,
+      -100.8,
+      19.5
+     ],
+     [
+      7,
+      -103,
+      18.6
+     ],
+     [
+      19.7,
+      -92.3,
+      22
+     ],
+     [
+      18.5,
+      -93.5,
+      28.7
+     ],
+     [
+      17.2,
+      -94.7,
+      22
+     ]
+    ],
+    "hurt": [
+     [
+      4.2,
+      -89.7,
+      13.4
+     ],
+     [
+      12.9,
+      -92.3,
+      17.8
+     ],
+     [
+      32.8,
+      -84.1,
+      19.5
+     ],
+     [
+      14.8,
+      -67,
+      13.6
+     ],
+     [
+      18,
+      -47.6,
+      14.4
+     ],
+     [
+      11.7,
+      -82.8,
+      19.5
+     ]
+    ],
+    "defeat": [
+     [
+      -39.5,
+      -80.1,
+      16.1
+     ],
+     [
+      -52.1,
+      -65.1,
+      16.1
+     ],
+     [
+      -53,
+      -42.9,
+      22.9
+     ],
+     [
+      -54.6,
+      -39.6,
+      20.3
+     ],
+     [
+      -54.4,
+      -37,
+      17
+     ],
+     [
+      -47.1,
+      -35.5,
+      18.6
+     ]
+    ]
+   },
+   "source": "public/assets/generated/hero-bruiser-grid.png",
+   "notes": []
+  },
+  "riva": {
+   "id": "riva",
+   "kind": "hero",
+   "atlas": "chars/riva.webp",
+   "data": "chars/riva.json",
+   "box": {
+    "w": 200,
+    "h": 136
+   },
+   "anchor": {
+    "x": 100,
+    "y": 132
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "dash",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7901,
+   "skin": [
+    202,
+    133,
+    88
+   ],
+   "outline": [
+    30,
+    24,
+    16
+   ],
+   "head": {
+    "idle": [
+     [
+      8.8,
+      -89.3,
+      25.3
+     ],
+     [
+      4.2,
+      -89.3,
+      33.9
+     ],
+     [
+      -0.4,
+      -90.4,
+      19.6
+     ],
+     [
+      14.2,
+      -87.8,
+      19.6
+     ],
+     [
+      9.5,
+      -87.7,
+      26.1
+     ],
+     [
+      7.3,
+      -89,
+      33.2
+     ]
+    ],
+    "walk": [
+     [
+      -1,
+      -89.3,
+      24.5
+     ],
+     [
+      7.4,
+      -86.5,
+      32.4
+     ],
+     [
+      10.1,
+      -87.9,
+      33.2
+     ],
+     [
+      4.5,
+      -90.4,
+      25.3
+     ],
+     [
+      4.3,
+      -87.3,
+      30.8
+     ],
+     [
+      6.2,
+      -88.1,
+      32.4
+     ]
+    ],
+    "attack": [
+     [
+      16,
+      -88.1,
+      20.5
+     ],
+     [
+      5.3,
+      -93.6,
+      26.7
+     ],
+     [
+      17.3,
+      -92.6,
+      26.7
+     ],
+     [
+      31.3,
+      -94,
+      15.4
+     ],
+     [
+      6.4,
+      -92.9,
+      15.4
+     ],
+     [
+      10.5,
+      -89.2,
+      16.6
+     ]
+    ],
+    "heavy": [
+     [
+      0.4,
+      -80.9,
+      23.7
+     ],
+     [
+      15.9,
+      -88.7,
+      33.2
+     ],
+     [
+      13.6,
+      -86,
+      41.1
+     ],
+     [
+      15,
+      -83.6,
+      31.6
+     ],
+     [
+      18,
+      -83.1,
+      29.2
+     ],
+     [
+      21,
+      -82.5,
+      23.7
+     ]
+    ],
+    "dash": [
+     [
+      43.3,
+      -66.3,
+      22.9
+     ],
+     [
+      39.1,
+      -63.1,
+      29.2
+     ],
+     [
+      41,
+      -65.2,
+      21.3
+     ],
+     [
+      40.7,
+      -61.3,
+      30.8
+     ],
+     [
+      40.7,
+      -62.5,
+      23.7
+     ],
+     [
+      38.6,
+      -54,
+      17.8
+     ]
+    ],
+    "special": [
+     [
+      2.7,
+      -87.6,
+      31.6
+     ],
+     [
+      -1.5,
+      -94.3,
+      22.5
+     ],
+     [
+      2.2,
+      -89.7,
+      22.5
+     ],
+     [
+      -5.8,
+      -94.5,
+      30
+     ],
+     [
+      -11.1,
+      -81.8,
+      37.1
+     ],
+     [
+      -2.3,
+      -85,
+      22.5
+     ]
+    ],
+    "hurt": [
+     [
+      -12.7,
+      -84,
+      22.5
+     ],
+     [
+      -20.4,
+      -89,
+      30
+     ],
+     [
+      -10.4,
+      -74.8,
+      30
+     ],
+     [
+      36.8,
+      -53.3,
+      22.9
+     ],
+     [
+      23.5,
+      -47.3,
+      22.5
+     ],
+     [
+      2.6,
+      -40.1,
+      33.2
+     ]
+    ],
+    "defeat": [
+     [
+      1.2,
+      -93.5,
+      25.3
+     ],
+     [
+      2.9,
+      -72.4,
+      30.8
+     ],
+     [
+      27.7,
+      -53.7,
+      23.7
+     ],
+     [
+      -2.9,
+      -31.3,
+      22.9
+     ],
+     [
+      12.2,
+      -26.9,
+      17.8
+     ],
+     [
+      -7.2,
+      -28.4,
+      17.8
+     ]
+    ]
+   },
+   "source": "public/assets/generated/hero-riva-grid.png",
+   "notes": []
+  },
+  "byte": {
+   "id": "byte",
+   "kind": "hero",
+   "atlas": "chars/byte.webp",
+   "data": "chars/byte.json",
+   "box": {
+    "w": 200,
+    "h": 136
+   },
+   "anchor": {
+    "x": 100,
+    "y": 132
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "dash",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7901,
+   "skin": [
+    202,
+    133,
+    88
+   ],
+   "outline": [
+    30,
+    24,
+    16
+   ],
+   "head": {
+    "idle": [
+     [
+      8.8,
+      -89.3,
+      25.3
+     ],
+     [
+      4.2,
+      -89.3,
+      33.9
+     ],
+     [
+      -0.4,
+      -90.4,
+      19.6
+     ],
+     [
+      14.2,
+      -87.8,
+      19.6
+     ],
+     [
+      9.5,
+      -87.7,
+      26.1
+     ],
+     [
+      7.3,
+      -89,
+      33.2
+     ]
+    ],
+    "walk": [
+     [
+      -1,
+      -89.3,
+      24.5
+     ],
+     [
+      7.4,
+      -86.5,
+      32.4
+     ],
+     [
+      10.1,
+      -87.9,
+      33.2
+     ],
+     [
+      4.5,
+      -90.4,
+      25.3
+     ],
+     [
+      4.3,
+      -87.3,
+      30.8
+     ],
+     [
+      6.2,
+      -88.1,
+      32.4
+     ]
+    ],
+    "attack": [
+     [
+      16,
+      -88.1,
+      20.5
+     ],
+     [
+      5.3,
+      -93.6,
+      26.7
+     ],
+     [
+      17.3,
+      -92.6,
+      26.7
+     ],
+     [
+      31.3,
+      -94,
+      15.4
+     ],
+     [
+      6.4,
+      -92.9,
+      15.4
+     ],
+     [
+      10.5,
+      -89.2,
+      16.6
+     ]
+    ],
+    "heavy": [
+     [
+      0.4,
+      -80.9,
+      23.7
+     ],
+     [
+      15.9,
+      -88.7,
+      33.2
+     ],
+     [
+      13.6,
+      -86,
+      41.1
+     ],
+     [
+      15,
+      -83.6,
+      31.6
+     ],
+     [
+      18,
+      -83.1,
+      29.2
+     ],
+     [
+      21,
+      -82.5,
+      23.7
+     ]
+    ],
+    "dash": [
+     [
+      43.3,
+      -66.3,
+      22.9
+     ],
+     [
+      39.1,
+      -63.1,
+      29.2
+     ],
+     [
+      41,
+      -65.2,
+      21.3
+     ],
+     [
+      40.7,
+      -61.3,
+      30.8
+     ],
+     [
+      40.7,
+      -62.5,
+      23.7
+     ],
+     [
+      38.6,
+      -54,
+      17.8
+     ]
+    ],
+    "special": [
+     [
+      2.7,
+      -87.6,
+      31.6
+     ],
+     [
+      -1.5,
+      -94.3,
+      22.5
+     ],
+     [
+      2.2,
+      -89.7,
+      22.5
+     ],
+     [
+      -5.8,
+      -94.5,
+      30
+     ],
+     [
+      -11.1,
+      -81.8,
+      37.1
+     ],
+     [
+      -2.3,
+      -85,
+      22.5
+     ]
+    ],
+    "hurt": [
+     [
+      -12.7,
+      -84,
+      22.5
+     ],
+     [
+      -20.4,
+      -89,
+      30
+     ],
+     [
+      -10.4,
+      -74.8,
+      30
+     ],
+     [
+      36.8,
+      -53.3,
+      22.9
+     ],
+     [
+      23.5,
+      -47.3,
+      22.5
+     ],
+     [
+      2.6,
+      -40.1,
+      33.2
+     ]
+    ],
+    "defeat": [
+     [
+      1.2,
+      -93.5,
+      25.3
+     ],
+     [
+      2.9,
+      -72.4,
+      30.8
+     ],
+     [
+      27.7,
+      -53.7,
+      23.7
+     ],
+     [
+      -2.9,
+      -31.3,
+      22.9
+     ],
+     [
+      12.2,
+      -26.9,
+      17.8
+     ],
+     [
+      -7.2,
+      -28.4,
+      17.8
+     ]
+    ]
+   },
+   "source": "public/assets/generated/hero-riva-grid.png",
+   "notes": [
+    "fallback: riva hue-remapped to pink until a real byte grid is supplied"
+   ],
+   "variantOf": "riva"
+  },
+  "punk": {
+   "id": "punk",
+   "kind": "enemy",
+   "atlas": "chars/punk.webp",
+   "data": "chars/punk.json",
+   "box": {
+    "w": 168,
+    "h": 116
+   },
+   "anchor": {
+    "x": 84,
+    "y": 106
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.5909,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-00-red-punk-grid.png",
+   "notes": []
+  },
+  "chainer": {
+   "id": "chainer",
+   "kind": "enemy",
+   "atlas": "chars/chainer.webp",
+   "data": "chars/chainer.json",
+   "box": {
+    "w": 242,
+    "h": 115
+   },
+   "anchor": {
+    "x": 121,
+    "y": 112
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7482,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-01-hood-chain-grid.png",
+   "notes": []
+  },
+  "brawler": {
+   "id": "brawler",
+   "kind": "enemy",
+   "atlas": "chars/brawler.webp",
+   "data": "chars/brawler.json",
+   "box": {
+    "w": 166,
+    "h": 111
+   },
+   "anchor": {
+    "x": 83,
+    "y": 108
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.642,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-02-orange-brawler-grid.png",
+   "notes": []
+  },
+  "kicker": {
+   "id": "kicker",
+   "kind": "enemy",
+   "atlas": "chars/kicker.webp",
+   "data": "chars/kicker.json",
+   "box": {
+    "w": 254,
+    "h": 111
+   },
+   "anchor": {
+    "x": 127,
+    "y": 106
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.6753,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-03-purple-fighter-grid.png",
+   "notes": [
+    "unbaked checker: opaque 0.982 -> 0.253",
+    "feathered binary alpha"
+   ]
+  },
+  "knight": {
+   "id": "knight",
+   "kind": "enemy",
+   "atlas": "chars/knight.webp",
+   "data": "chars/knight.json",
+   "box": {
+    "w": 228,
+    "h": 128
+   },
+   "anchor": {
+    "x": 114,
+    "y": 125
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7273,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-04-cyan-knight-grid.png",
+   "notes": []
+  },
+  "shield": {
+   "id": "shield",
+   "kind": "enemy",
+   "atlas": "chars/shield.webp",
+   "data": "chars/shield.json",
+   "box": {
+    "w": 162,
+    "h": 134
+   },
+   "anchor": {
+    "x": 81,
+    "y": 128
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7123,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-05-shield-soldier-grid.png",
+   "notes": [
+    "feathered binary alpha"
+   ]
+  },
+  "punk-b": {
+   "id": "punk-b",
+   "kind": "enemy",
+   "atlas": "chars/punk-b.webp",
+   "data": "chars/punk-b.json",
+   "box": {
+    "w": 168,
+    "h": 116
+   },
+   "anchor": {
+    "x": 84,
+    "y": 106
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.5909,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-00-red-punk-grid.png",
+   "notes": [
+    "green variant of punk"
+   ],
+   "variantOf": "punk"
+  },
+  "brawler-b": {
+   "id": "brawler-b",
+   "kind": "enemy",
+   "atlas": "chars/brawler-b.webp",
+   "data": "chars/brawler-b.json",
+   "box": {
+    "w": 166,
+    "h": 111
+   },
+   "anchor": {
+    "x": 83,
+    "y": 108
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.642,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-02-orange-brawler-grid.png",
+   "notes": [
+    "blue variant of brawler"
+   ],
+   "variantOf": "brawler"
+  },
+  "knight-b": {
+   "id": "knight-b",
+   "kind": "enemy",
+   "atlas": "chars/knight-b.webp",
+   "data": "chars/knight-b.json",
+   "box": {
+    "w": 228,
+    "h": 128
+   },
+   "anchor": {
+    "x": 114,
+    "y": 125
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "hurt",
+    "knockback",
+    "defeat"
+   ],
+   "framesPerRow": 6,
+   "scale": 0.7273,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/enemies/enemy-04-cyan-knight-grid.png",
+   "notes": [
+    "crimson variant of knight"
+   ],
+   "variantOf": "knight"
+  },
+  "ferryman": {
+   "id": "ferryman",
+   "kind": "boss",
+   "atlas": "chars/ferryman.webp",
+   "data": "chars/ferryman.json",
+   "box": {
+    "w": 286,
+    "h": 195
+   },
+   "anchor": {
+    "x": 143,
+    "y": 190
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9778,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-00-ferryman-grid.png",
+   "notes": []
+  },
+  "glass-warden": {
+   "id": "glass-warden",
+   "kind": "boss",
+   "atlas": "chars/glass-warden.webp",
+   "data": "chars/glass-warden.json",
+   "box": {
+    "w": 268,
+    "h": 197
+   },
+   "anchor": {
+    "x": 134,
+    "y": 193
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9412,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-01-glass-warden-grid.png",
+   "notes": []
+  },
+  "kilnheart": {
+   "id": "kilnheart",
+   "kind": "boss",
+   "atlas": "chars/kilnheart.webp",
+   "data": "chars/kilnheart.json",
+   "box": {
+    "w": 234,
+    "h": 211
+   },
+   "anchor": {
+    "x": 117,
+    "y": 206
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 1.0414,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-02-kilnheart-grid.png",
+   "notes": [
+    "feathered binary alpha"
+   ]
+  },
+  "monk-zero": {
+   "id": "monk-zero",
+   "kind": "boss",
+   "atlas": "chars/monk-zero.webp",
+   "data": "chars/monk-zero.json",
+   "box": {
+    "w": 294,
+    "h": 187
+   },
+   "anchor": {
+    "x": 147,
+    "y": 182
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9565,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-03-monk-zero-grid.png",
+   "notes": []
+  },
+  "market-king": {
+   "id": "market-king",
+   "kind": "boss",
+   "atlas": "chars/market-king.webp",
+   "data": "chars/market-king.json",
+   "box": {
+    "w": 248,
+    "h": 189
+   },
+   "anchor": {
+    "x": 124,
+    "y": 185
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9312,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-04-market-king-grid.png",
+   "notes": []
+  },
+  "railmaw": {
+   "id": "railmaw",
+   "kind": "boss",
+   "atlas": "chars/railmaw.webp",
+   "data": "chars/railmaw.json",
+   "box": {
+    "w": 284,
+    "h": 192
+   },
+   "anchor": {
+    "x": 142,
+    "y": 187
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 1.0602,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-05-railmaw-grid.png",
+   "notes": []
+  },
+  "crown-runner": {
+   "id": "crown-runner",
+   "kind": "boss",
+   "atlas": "chars/crown-runner.webp",
+   "data": "chars/crown-runner.json",
+   "box": {
+    "w": 274,
+    "h": 186
+   },
+   "anchor": {
+    "x": 137,
+    "y": 183
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9565,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-06-crown-runner-grid.png",
+   "notes": []
+  },
+  "the-null": {
+   "id": "the-null",
+   "kind": "boss",
+   "atlas": "chars/the-null.webp",
+   "data": "chars/the-null.json",
+   "box": {
+    "w": 248,
+    "h": 197
+   },
+   "anchor": {
+    "x": 124,
+    "y": 191
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9944,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-07-the-null-grid.png",
+   "notes": [
+    "feathered binary alpha"
+   ]
+  },
+  "vault-mother": {
+   "id": "vault-mother",
+   "kind": "boss",
+   "atlas": "chars/vault-mother.webp",
+   "data": "chars/vault-mother.json",
+   "box": {
+    "w": 196,
+    "h": 192
+   },
+   "anchor": {
+    "x": 98,
+    "y": 184
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 0.9312,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-08-vault-mother-grid.png",
+   "notes": []
+  },
+  "ultra-signal": {
+   "id": "ultra-signal",
+   "kind": "boss",
+   "atlas": "chars/ultra-signal.webp",
+   "data": "chars/ultra-signal.json",
+   "box": {
+    "w": 276,
+    "h": 236
+   },
+   "anchor": {
+    "x": 138,
+    "y": 219
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 8,
+   "scale": 1.0602,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/bosses/boss-09-ultra-signal-grid.png",
+   "notes": [
+    "feathered binary alpha"
+   ]
+  }
+ },
+ "heroes": [
+  "nepho",
+  "bruiser",
+  "riva",
+  "byte"
+ ],
+ "enemies": [
+  "punk",
+  "chainer",
+  "brawler",
+  "kicker",
+  "knight",
+  "shield",
+  "punk-b",
+  "brawler-b",
+  "knight-b"
+ ],
+ "bosses": [
+  {
+   "id": "ferryman",
+   "name": "Ferryman",
+   "index": 0,
+   "portrait": "portraits/ferryman.webp"
+  },
+  {
+   "id": "glass-warden",
+   "name": "Glass Warden",
+   "index": 1,
+   "portrait": "portraits/glass-warden.webp"
+  },
+  {
+   "id": "kilnheart",
+   "name": "Kilnheart",
+   "index": 2,
+   "portrait": "portraits/kilnheart.webp"
+  },
+  {
+   "id": "monk-zero",
+   "name": "Monk Zero",
+   "index": 3,
+   "portrait": "portraits/monk-zero.webp"
+  },
+  {
+   "id": "market-king",
+   "name": "Market King",
+   "index": 4,
+   "portrait": "portraits/market-king.webp"
+  },
+  {
+   "id": "railmaw",
+   "name": "Railmaw",
+   "index": 5,
+   "portrait": "portraits/railmaw.webp"
+  },
+  {
+   "id": "crown-runner",
+   "name": "Crown Runner",
+   "index": 6,
+   "portrait": "portraits/crown-runner.webp"
+  },
+  {
+   "id": "the-null",
+   "name": "The Null",
+   "index": 7,
+   "portrait": "portraits/the-null.webp"
+  },
+  {
+   "id": "vault-mother",
+   "name": "Vault Mother",
+   "index": 8,
+   "portrait": "portraits/vault-mother.webp"
+  },
+  {
+   "id": "ultra-signal",
+   "name": "Ultra Signal",
+   "index": 9,
+   "portrait": "portraits/ultra-signal.webp"
+  }
+ ],
+ "levels": [
+  {
+   "index": 1,
+   "id": "rishon",
+   "name": "RISHON LEZION",
+   "nameHe": "ראשון לציון",
+   "accent": "#ffcf5c",
+   "bg": "levels/bg-01.webp",
+   "entry": "levels/entry-01.webp",
+   "sign": "levels/sign-01.svg",
+   "signY": 120,
+   "boss": "ferryman",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  },
+  {
+   "index": 2,
+   "id": "petah-tikva",
+   "name": "REFAEL EITAN STREET",
+   "nameHe": "רחוב רפאל איתן · פתח תקווה",
+   "accent": "#75f5dc",
+   "bg": "levels/bg-02.webp",
+   "entry": "levels/entry-02.webp",
+   "sign": "levels/sign-02.svg",
+   "signY": 120,
+   "boss": "glass-warden",
+   "size": {
+    "w": 941,
+    "h": 335
+   }
+  },
+  {
+   "index": 3,
+   "id": "barcelona",
+   "name": "BARCELONA CITY",
+   "nameHe": "ברצלונה",
+   "accent": "#ff75dc",
+   "bg": "levels/bg-03.webp",
+   "entry": "levels/entry-03.webp",
+   "sign": "levels/sign-03.svg",
+   "signY": 119,
+   "boss": "kilnheart",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  },
+  {
+   "index": 4,
+   "id": "sant-cugat",
+   "name": "SANT CUGAT TOWN",
+   "nameHe": "סנט קוגט",
+   "accent": "#bd8cff",
+   "bg": "levels/bg-04.webp",
+   "entry": "levels/entry-04.webp",
+   "sign": "levels/sign-04.svg",
+   "signY": 119,
+   "boss": "monk-zero",
+   "size": {
+    "w": 941,
+    "h": 335
+   }
+  },
+  {
+   "index": 5,
+   "id": "hatikva-school",
+   "name": "HATIKVA SCHOOL",
+   "nameHe": "בית ספר התקווה",
+   "accent": "#ff9357",
+   "bg": "levels/bg-05.webp",
+   "entry": "levels/entry-05.webp",
+   "sign": "levels/sign-05.svg",
+   "signY": 118,
+   "boss": "market-king",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  },
+  {
+   "index": 6,
+   "id": "capoeira-gym",
+   "name": "CAPOEIRA BRAZILIAN GYM",
+   "nameHe": "חדר קפוארה ואומנויות לחימה",
+   "accent": "#75f5dc",
+   "bg": "levels/bg-06.webp",
+   "entry": "levels/entry-06.webp",
+   "sign": "levels/sign-06.svg",
+   "signY": 120,
+   "boss": "railmaw",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  },
+  {
+   "index": 7,
+   "id": "basketball-gym",
+   "name": "BASKETBALL GYM",
+   "nameHe": "אולם כדורסל",
+   "accent": "#ff9357",
+   "bg": "levels/bg-07.webp",
+   "entry": "levels/entry-07.webp",
+   "sign": "levels/sign-07.svg",
+   "signY": 120,
+   "boss": "crown-runner",
+   "size": {
+    "w": 941,
+    "h": 335
+   }
+  },
+  {
+   "index": 8,
+   "id": "theater",
+   "name": "THEATER",
+   "nameHe": "תיאטרון",
+   "accent": "#bd8cff",
+   "bg": "levels/bg-08.webp",
+   "entry": "levels/entry-08.webp",
+   "sign": "levels/sign-08.svg",
+   "signY": 119,
+   "boss": "the-null",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  },
+  {
+   "index": 9,
+   "id": "candy-factory",
+   "name": "CANDY FACTORY",
+   "nameHe": "מפעל ממתקים",
+   "accent": "#ff75dc",
+   "bg": "levels/bg-09.webp",
+   "entry": "levels/entry-09.webp",
+   "sign": "levels/sign-09.svg",
+   "signY": 119,
+   "boss": "vault-mother",
+   "size": {
+    "w": 941,
+    "h": 335
+   }
+  },
+  {
+   "index": 10,
+   "id": "catalunya",
+   "name": "CATALUNYA",
+   "nameHe": "קטלוניה",
+   "accent": "#ffcf5c",
+   "bg": "levels/bg-10.webp",
+   "entry": "levels/entry-10.webp",
+   "sign": "levels/sign-10.svg",
+   "signY": 118,
+   "boss": "ultra-signal",
+   "size": {
+    "w": 941,
+    "h": 334
+   }
+  }
+ ]
+}
