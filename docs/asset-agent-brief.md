@@ -72,6 +72,12 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 - Enemy grids `enemy-00` through `enemy-05` are the active action sources for the first six enemies from the original atlas, in row-major order. Their action rows are `idle`, `walk`, `attack`, `heavy`, `special`, `hurt`, `knockback`, `defeat`.
 - The grids are true RGBA assets. If a viewer displays a checkerboard, that is the transparency preview; never flatten them to RGB during import.
 
+## Completed supporting art
+
+- `ui/ui-icons.svg` contains reusable Dash, Special, Attack, Co-op, Face, and Pause symbols.
+- `environment/props.svg` contains reusable crate, barrel, terminal, barrier, and vertical door props.
+- `fx/combat-fx.svg` contains reusable hit, special, telegraph, and dash-trail source graphics. Prefer Phaser Graphics/particles for the animated runtime versions.
+
 ## Background contract
 
 - Pre-slice the two original 1×5 vertical atlases into ten named textures; they now contain the swapped level art in-place. Do not use the replacement 1×3 atlas for active gameplay.

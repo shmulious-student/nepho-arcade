@@ -20,6 +20,8 @@
       "enemy-05": "/assets/generated/enemies/enemy-05-shield-soldier-grid.png"
     }, "sourceAtlas": "/assets/generated/enemy-boss-atlas.png", "sourceIndices": [0,1,2,3,4,5] }
   },
+  "bossGrids": { "type": "separate-full-grids", "gridRows": 6, "framesPerRow": 8, "frameOrder": ["idle", "approach", "attack", "special", "hurt", "defeat"], "directory": "/assets/generated/bosses/", "files": ["boss-00-ferryman-grid.png", "boss-01-glass-warden-grid.png", "boss-02-kilnheart-grid.png", "boss-03-monk-zero-grid.png", "boss-04-market-king-grid.png", "boss-05-railmaw-grid.png", "boss-06-crown-runner-grid.png", "boss-07-the-null-grid.png", "boss-08-vault-mother-grid.png", "boss-09-ultra-signal-grid.png"] },
+  "vectorArt": { "ui": "/assets/generated/ui/ui-icons.svg", "props": "/assets/generated/environment/props.svg", "combatFx": "/assets/generated/fx/combat-fx.svg" },
   "assets": {
     "heroActions": { "file": "/assets/generated/hero-actions-strip.png", "type": "horizontal-strip", "frames": 8, "order": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] },
     "enemyBossAtlas": { "file": "/assets/generated/enemy-boss-atlas.png", "type": "atlas-reference", "columns": 4, "rows": 3, "order": ["grunt-a", "grunt-b", "grunt-c", "elite-a", "elite-b", "elite-c", "boss-a", "boss-b", "boss-c", "ultra", "boss-detail", "empty"] },
