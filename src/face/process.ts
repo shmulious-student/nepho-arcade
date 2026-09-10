@@ -4,6 +4,11 @@
 
 export interface RGBAImage { width: number; height: number; data: Uint8ClampedArray }
 
+/** Canonical baked size of a face texture — FaceRig.ts scales on-screen size from this, so every
+ * caller must build (and every consumer must read) textures at exactly this size, not a hardcoded
+ * literal that can silently drift out of sync (as 96 vs. 128 did before this constant existed). */
+export const FACE_TEXTURE_SIZE = 128;
+
 export function makeRGBA(width: number, height: number): RGBAImage {
   return { width, height, data: new Uint8ClampedArray(width * height * 4) };
 }
@@ -109,7 +114,7 @@ export interface FacePipelineOptions { gridSize?: number; levels?: number; warmt
 export function buildFaceTexture(src: RGBAImage, cx: number, cy: number, r: number, skin: [number, number, number], outline: [number, number, number], opts: FacePipelineOptions = {}): RGBAImage {
   const gridSize = opts.gridSize ?? 20;
   const levels = opts.levels ?? 6;
-  const outputSize = opts.outputSize ?? 96;
+  const outputSize = opts.outputSize ?? FACE_TEXTURE_SIZE;
   const circle = cropCircle(src, cx, cy, r, gridSize * 6);
   const stylized = stylizeFace(circle, gridSize, levels, skin, outline, opts.warmth);
   return upscaleNearest(stylized, outputSize);

@@ -11,7 +11,14 @@ const PALETTE = { bg: 0x050711, panel: 0x0b1730, line: 0x344861, accent: 0xffcf5
 function addTextureFromDataUrl(scene: Phaser.Scene, key: string, dataUrl: string): Promise<void> {
   return new Promise((resolve) => {
     if (scene.textures.exists(key)) scene.textures.remove(key);
-    scene.textures.once(Phaser.Textures.Events.ADD, () => resolve());
+    scene.textures.once(Phaser.Textures.Events.ADD, (addedKey: string) => {
+      // pixelArt:true in the game config sets the default filter for textures loaded through the
+      // normal preload pipeline, but a texture added dynamically via addBase64 needs it set
+      // explicitly, or WebGL falls back to LINEAR — smoothing the deliberately blocky, posterized
+      // face texture into a blurry smear when FaceRig scales it down onto a hero's head.
+      if (addedKey === key) scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.NEAREST);
+      resolve();
+    });
     scene.textures.addBase64(key, dataUrl);
   });
 }
@@ -64,14 +71,18 @@ export class LobbyScene extends Phaser.Scene {
       this.refreshFacePreview();
     });
 
-    this.statusText = this.add.text(VIEW_W / 2, VIEW_H - 96, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc' }).setOrigin(0.5);
+    // Everything below used to be pinned to the very bottom few pixels (VIEW_H-96..VIEW_H-30) with a
+    // large empty gap above it — fragile even without a viewport bug, since it left almost no margin
+    // for the most important control (START) before the edge of the canvas. Spread across the middle
+    // instead, so a few pixels of viewport miscalculation can never crop it off-screen entirely.
+    this.statusText = this.add.text(VIEW_W / 2, 356, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
 
-    this.add.text(24, VIEW_H - 70, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
-    const levelText = this.add.text(90, VIEW_H - 71, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
-    this.makeButton(24, VIEW_H - 48, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
-    this.makeButton(58, VIEW_H - 48, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.add.text(24, 398, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
+    const levelText = this.add.text(90, 397, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
+    this.makeButton(24, 420, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.makeButton(58, 420, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
 
-    const start = this.makeButton(VIEW_W / 2, VIEW_H - 30, 180, 34, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
+    const start = this.makeButton(VIEW_W / 2, 466, 180, 34, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
     void start;
 
     this.highlightCard();
@@ -131,7 +142,7 @@ export class LobbyScene extends Phaser.Scene {
       QR.toDataURL(url, { margin: 1, width: 128, color: { dark: '#050711', light: '#f3f4e8' } }).then((dataUrl) => {
         addTextureFromDataUrl(this, 'qr', dataUrl).then(() => {
           this.children.getByName('qr')?.destroy();
-          this.add.image(VIEW_W - 74, VIEW_H - 140, 'qr').setName('qr').setScale(0.75);
+          this.add.image(VIEW_W - 74, 280, 'qr').setName('qr').setScale(0.75);
         });
       });
     }).catch(() => {});

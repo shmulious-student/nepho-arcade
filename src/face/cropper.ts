@@ -1,7 +1,7 @@
 // DOM overlay for the portrait upload + crop step. Everything here is local: the file is read with
 // FileReader, drawn to an offscreen canvas, and never sent anywhere. Returns the stylized face
 // texture (already run through face/process.ts) ready to register as a Phaser texture.
-import { makeRGBA, skinCentroid, buildFaceTexture, type RGBAImage } from './process';
+import { makeRGBA, skinCentroid, buildFaceTexture, FACE_TEXTURE_SIZE, type RGBAImage } from './process';
 
 export interface CropperResult { rgba: RGBAImage; dataUrl: string }
 
@@ -113,7 +113,7 @@ export function openFaceCropper(skin: [number, number, number], outline: [number
       const cx = src.width / 2 - panX / s;
       const cy = src.height / 2 - panY / s;
       const r = 110 / s;
-      const styl = buildFaceTexture(src, cx, cy, r, skin, outline, { outputSize: 128 });
+      const styl = buildFaceTexture(src, cx, cy, r, skin, outline, { outputSize: FACE_TEXTURE_SIZE });
       const out = document.createElement('canvas'); out.width = styl.width; out.height = styl.height;
       out.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(styl.data), styl.width, styl.height), 0, 0);
       close({ rgba: styl, dataUrl: out.toDataURL('image/png') });

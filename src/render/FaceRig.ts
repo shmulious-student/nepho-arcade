@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { CharacterEntry } from '../shared/catalog';
 import { heroFrameKey } from './anim';
+import { FACE_TEXTURE_SIZE } from '../face/process';
 import type { EntityView as SimEntityView } from '../sim/types';
 
 /** Renders an uploaded-portrait face texture over a hero body, following the per-frame head anchor
@@ -32,7 +33,7 @@ export class FaceRig {
     const flip = e.facing < 0;
     const fx = sx + (flip ? -dx : dx) * s;
     const fy = sy + dy * s;
-    let scale = (w * 1.18 * s) / 96; // texture is baked at 96px; 1.18x covers hair/hood edge softly
+    let scale = (w * 1.18 * s) / FACE_TEXTURE_SIZE; // 1.18x covers hair/hood edge softly
     let rot = 0;
     let squashX = 1, squashY = 1;
     let tintDark = 1;

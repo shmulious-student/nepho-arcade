@@ -7,7 +7,13 @@
   <link rel="icon" href="data:," />
   <style>
     html, body { margin: 0; padding: 0; background: #050711; color: #f3f4e8; font-family: monospace; overflow: hidden; height: 100%; }
-    #app { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    /* iOS Safari's collapsible toolbar changes the *visible* viewport height after load without
+       firing a normal resize in time for the very first layout — sizing #app against 100vh (which
+       resolves against the taller "layout viewport", including the area the toolbar covers) leaves
+       Phaser's FIT scale computing a canvas taller than what's actually visible, with no scroll to
+       reach the cropped-off bottom. 100dvh tracks the real visible area; keep 100vh only as a
+       fallback for browsers that don't support dvh yet. */
+    #app { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; }
     #app canvas { touch-action: none; }
   </style>
 </head>
