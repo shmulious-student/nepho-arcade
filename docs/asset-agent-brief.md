@@ -10,7 +10,8 @@ The active roster is now four selectable heroes: `nepho` and `bruiser` (male); `
 |---|---|---:|---|
 | `/assets/generated/hero-actions-strip.png` | Player body/action source | 2172×724 RGBA | Slice into 8 equal source cells, trim transparent bounds, normalize all frames to 96×128 with bottom-center anchor. Use as the shared P1/P2 body. |
 | `/assets/generated/enemy-boss-atlas.png` | Enemy/boss visual source | 1448×1086 RGBA | Use as an art reference atlas first; crop 4×3 slots, then normalize visible figures into `enemy-grunt`, `enemy-elite`, `boss`, and `ultra` textures. Use tint/accessory overlays for variants. |
-| `/assets/generated/level-backdrop-atlas.png` | Ten district background source | 1182×1330 RGB | Crop 2×5 slots. Scale each crop to a 960×540 cover image and preserve a clear combat floor in the bottom 30%. Add a dark translucent gameplay read layer in Phaser. |
+| `/assets/generated/level-backdrops-01-05.png` | Level backdrop atlas A | 941×1672 RGB | 1×5 vertical atlas, top-to-bottom: Israel, Petah Tikva city, Barcelona city, Sant Cugat town, HaTikva school. |
+| `/assets/generated/level-backdrops-06-10.png` | Level backdrop atlas B | 941×1672 RGB | 1×5 vertical atlas, top-to-bottom: martial arts gym, basketball gym, theater, candy factory, Catalunya. |
 | `/assets/generated/hero-roster-atlas.png` | Six selectable hero body/face-area references | 1536×1024 RGBA | Crop 3×2 slots in manifest order: `nepho`, `bruiser`, `zero`, `riva`, `byte`, `sol`; use for hero select cards. |
 | `/assets/generated/hero-action-atlas-v2.png` | Six complete hero action strips | 1402×1122 RGBA | Crop 6 rows × 8 columns in manifest order; normalize each row to 96×128 frames. |
 | `/assets/generated/hero-nepho-grid.png` | Nepho full action grid | 1230×1278 RGBA | 8 action rows × 6 frames; normalize to 96×128 frames. |
@@ -57,7 +58,8 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 
 ## Background contract
 
-- Pre-slice all ten atlas cells into named textures.
+- Pre-slice the two 1×5 vertical atlases into ten named textures. Do not use the older 2×5 atlas for active gameplay.
+- Level order is authoritative: 1 Israel, 2 Petah Tikva city, 3 Barcelona city, 4 Sant Cugat town, 5 HaTikva school, 6 martial arts gym, 7 basketball gym, 8 theater, 9 candy factory, 10 Catalunya.
 - Render three stacked layers: backdrop, optional parallax decal strip, and procedural FX.
 - Keep the central horizontal band readable for combat. Apply a 20–35% navy overlay behind characters where contrast is weak.
 - Swap only the backdrop key and tint/FX profile between levels.

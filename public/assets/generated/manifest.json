@@ -13,6 +13,9 @@
   "assets": {
     "heroActions": { "file": "/assets/generated/hero-actions-strip.png", "type": "horizontal-strip", "frames": 8, "order": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] },
     "enemyBossAtlas": { "file": "/assets/generated/enemy-boss-atlas.png", "type": "atlas-reference", "columns": 4, "rows": 3, "order": ["grunt-a", "grunt-b", "grunt-c", "elite-a", "elite-b", "elite-c", "boss-a", "boss-b", "boss-c", "ultra", "boss-detail", "empty"] },
-    "levelBackdropAtlas": { "file": "/assets/generated/level-backdrop-atlas.png", "type": "atlas-reference", "columns": 2, "rows": 5, "order": ["dockside", "skyline", "furnace", "temple", "market", "subway", "rooftops", "null-lab", "core-vault", "last-light"] }
+    "levelBackdropAtlas": { "type": "two-vertical-atlases", "slotLayout": "1x5", "slotOrder": "top-to-bottom", "atlases": [
+      { "file": "/assets/generated/level-backdrops-01-05.png", "levels": [1,2,3,4,5], "order": ["israel", "petah-tikva-city", "barcelona-city", "sant-cugat-town", "hatikva-school"] },
+      { "file": "/assets/generated/level-backdrops-06-10.png", "levels": [6,7,8,9,10], "order": ["martial-arts-gym", "basketball-gym", "theater", "candy-factory", "catalunya"] }
+    ] }
   }
 }
