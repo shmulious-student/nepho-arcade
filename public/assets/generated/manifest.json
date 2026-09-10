@@ -10,6 +10,16 @@
   "bosses": {
     "actions": { "file": "/assets/generated/boss-action-atlas-v2.png", "type": "row-strip-atlas", "rows": 10, "framesPerRow": 6, "order": ["ferryman", "glass-warden", "kilnheart", "monk-zero", "market-king", "railmaw", "crown-runner", "the-null", "vault-mother", "ultra-signal"], "frameOrder": ["idle", "approach", "attack", "special", "hurt", "defeat"] }
   },
+  "enemies": {
+    "actionGrid": { "type": "separate-full-grids", "gridRows": 8, "framesPerRow": 6, "frameOrder": ["idle", "walk", "attack", "heavy", "special", "hurt", "knockback", "defeat"], "files": {
+      "enemy-00": "/assets/generated/enemies/enemy-00-red-punk-grid.png",
+      "enemy-01": "/assets/generated/enemies/enemy-01-hood-chain-grid.png",
+      "enemy-02": "/assets/generated/enemies/enemy-02-orange-brawler-grid.png",
+      "enemy-03": "/assets/generated/enemies/enemy-03-purple-fighter-grid.png",
+      "enemy-04": "/assets/generated/enemies/enemy-04-cyan-knight-grid.png",
+      "enemy-05": "/assets/generated/enemies/enemy-05-shield-soldier-grid.png"
+    }, "sourceAtlas": "/assets/generated/enemy-boss-atlas.png", "sourceIndices": [0,1,2,3,4,5] }
+  },
   "assets": {
     "heroActions": { "file": "/assets/generated/hero-actions-strip.png", "type": "horizontal-strip", "frames": 8, "order": ["idle", "walk", "attack", "heavy", "dash", "special", "hurt", "defeat"] },
     "enemyBossAtlas": { "file": "/assets/generated/enemy-boss-atlas.png", "type": "atlas-reference", "columns": 4, "rows": 3, "order": ["grunt-a", "grunt-b", "grunt-c", "elite-a", "elite-b", "elite-c", "boss-a", "boss-b", "boss-c", "ultra", "boss-detail", "empty"] },

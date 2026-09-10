@@ -25,6 +25,12 @@ The active roster is now four selectable heroes: `nepho` and `bruiser` (male); `
 | `/assets/generated/hero-riva-grid.png` | Riva full action grid | 1214×1295 RGBA | 8 action rows × 6 frames; normalize to 96×128 frames. |
 | `/assets/generated/hero-byte-grid.png` | Byte full action grid | 2172×724 RGBA | Use the source as provided, then normalize into the same 8×6 runtime grid; verify the generated crop before shipping. |
 | `/assets/generated/boss-action-atlas-v2.png` | Ten complete boss action strips | 1214×1295 RGBA | Crop 10 rows × 6 columns in manifest order; normalize each row to 144×176 frames. |
+| `/assets/generated/enemies/enemy-00-red-punk-grid.png` | Enemy 0 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 0; normalize to 80×104 frames. |
+| `/assets/generated/enemies/enemy-01-hood-chain-grid.png` | Enemy 1 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 1; normalize to 80×104 frames. |
+| `/assets/generated/enemies/enemy-02-orange-brawler-grid.png` | Enemy 2 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 2; normalize to 80×104 frames. |
+| `/assets/generated/enemies/enemy-03-purple-fighter-grid.png` | Enemy 3 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 3; normalize to 80×104 frames. |
+| `/assets/generated/enemies/enemy-04-cyan-knight-grid.png` | Enemy 4 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 4; normalize to 80×104 frames. |
+| `/assets/generated/enemies/enemy-05-shield-soldier-grid.png` | Enemy 5 full action grid | RGBA | 8 action rows × 6 frames; extracted from source atlas index 5; normalize to 80×104 frames. |
 | `/assets/generated/manifest.json` | Stable source metadata | — | Load by manifest key, never hard-code filenames in gameplay systems. |
 
 ## Recommended Phaser loader
@@ -61,6 +67,8 @@ Do not make gameplay rules depend on source-atlas pixel dimensions. Put slicing 
 - Level 10 uses the `ultra` visual and a phase deck containing the nine boss attack patterns.
 - Boss action source: `boss-action-atlas-v2.png`; each boss row is independently normalized but shares animation state names `idle`, `approach`, `attack`, `special`, `hurt`, `defeat`.
 - Keep the boss row as the visual source for its matching boss ID; do not recolor one boss into all ten once these strips are integrated.
+- Enemy grids `enemy-00` through `enemy-05` are the active action sources for the first six enemies from the original atlas, in row-major order. Their action rows are `idle`, `walk`, `attack`, `heavy`, `special`, `hurt`, `knockback`, `defeat`.
+- The grids are true RGBA assets. If a viewer displays a checkerboard, that is the transparency preview; never flatten them to RGB during import.
 
 ## Background contract
 
