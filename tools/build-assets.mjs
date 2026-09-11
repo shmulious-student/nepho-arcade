@@ -501,9 +501,9 @@ async function processPortraits(catalog, bossResults, heroResults) {
   for (const id of catalog.heroes) {
     const out = join(OUT, 'cards', `${id}.webp`);
     const dedicated = join(SRC, 'heroes', `${id}-card.png`);
-    if (existsSync(dedicated)) { await sharp(dedicated).resize(256, 256, { fit: 'cover' }).webp({ quality: 85 }).toFile(out); continue; }
+    if (existsSync(dedicated)) { await sharp(dedicated).resize(512, 512, { fit: 'cover' }).webp({ quality: 88 }).toFile(out); continue; }
     const cell = rosterCells[id];
-    if (cell) { await sharp(roster).extract({ left: cell[0] * 512, top: cell[1] * 512, width: 512, height: 512 }).resize(256, 256).webp({ quality: 85 }).toFile(out); continue; }
+    if (cell) { await sharp(roster).extract({ left: cell[0] * 512, top: cell[1] * 512, width: 512, height: 512 }).webp({ quality: 88 }).toFile(out); continue; }
     const res = heroResults[id];
     if (!res) continue;
     const fr = res.json.frames['idle/0'];

@@ -45,13 +45,14 @@ export class LobbyScene extends Phaser.Scene {
   create(): void {
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
-    this.add.image(VIEW_W / 2, 46, 'logo').setDisplaySize(162, 48);
-    this.add.text(VIEW_W / 2, 92, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '16px', color: '#ffcf5c' }).setOrigin(0.5);
+    this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
+    this.add.text(VIEW_W / 2, 68, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
 
-    this.add.text(24, 118, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, 24 + i * 116, 138, 0));
+    this.add.text(24, 88, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    // six cards, 140 wide with 124px art: big enough to actually see the character
+    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, 24 + i * 152, 106, 0));
 
-    const coopBtn = this.makeButton(VIEW_W - 150, 118, 126, 26, 'LAN CO-OP: OFF', () => {
+    const coopBtn = this.makeButton(VIEW_W - 150, 300, 126, 26, 'LAN CO-OP: OFF', () => {
       this.coop = !this.coop;
       coopBtn.text.setText(`LAN CO-OP: ${this.coop ? 'ON' : 'OFF'}`);
       netRow.setVisible(this.coop);
@@ -59,12 +60,12 @@ export class LobbyScene extends Phaser.Scene {
     });
 
     const netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = this.makeButton(VIEW_W - 260, 150, 110, 24, 'HOST GAME', () => this.startAsHost());
-    const joinBtn = this.makeButton(VIEW_W - 140, 150, 110, 24, 'JOIN GAME', () => this.promptJoin());
+    const hostBtn = this.makeButton(VIEW_W - 260, 332, 110, 24, 'HOST GAME', () => this.startAsHost());
+    const joinBtn = this.makeButton(VIEW_W - 140, 332, 110, 24, 'JOIN GAME', () => this.promptJoin());
     netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
 
-    this.add.text(24, 264, 'YOUR FACE (optional)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    const faceBtn = this.makeButton(24, 284, 150, 30, 'SET FACE — P1', async () => {
+    this.add.text(24, 300, 'YOUR FACE (optional)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    const faceBtn = this.makeButton(24, 320, 150, 30, 'SET FACE — P1', async () => {
       const skin = HEROES[this.heroPick[0]].colour;
       const outline = 0x1a1420;
       const res = await openFaceCropper(hexToRgb(0xd39178), hexToRgb(0x16121e));
@@ -79,11 +80,11 @@ export class LobbyScene extends Phaser.Scene {
 
     // Friend: one of the other heroes fights beside you — called in for their special (ASSIST) or
     // along for the whole level as an AI ally (SIDEKICK).
-    this.add.text(200, 264, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    this.makeButton(200, 284, 26, 22, '◀', () => this.cycleFriend(-1));
-    this.friendText = this.add.text(234, 290, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
-    this.makeButton(392, 284, 26, 22, '▶', () => this.cycleFriend(1));
-    const modeBtn = this.makeButton(430, 284, 130, 22, '', () => {
+    this.add.text(200, 300, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    this.makeButton(200, 320, 26, 22, '◀', () => this.cycleFriend(-1));
+    this.friendText = this.add.text(234, 326, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
+    this.makeButton(392, 320, 26, 22, '▶', () => this.cycleFriend(1));
+    const modeBtn = this.makeButton(430, 320, 130, 22, '', () => {
       this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
       modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
     });
@@ -93,7 +94,7 @@ export class LobbyScene extends Phaser.Scene {
     // touch control size, for phones
     if (isTouchDevice(this)) {
       const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
-      const sizeBtn = this.makeButton(VIEW_W - 150, 182, 126, 24, '', () => {
+      const sizeBtn = this.makeButton(VIEW_W - 150, 364, 126, 24, '', () => {
         const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
         try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
         sizeBtn.text.setText(`CONTROLS: ${next}`);
@@ -105,14 +106,14 @@ export class LobbyScene extends Phaser.Scene {
     // large empty gap above it — fragile even without a viewport bug, since it left almost no margin
     // for the most important control (START) before the edge of the canvas. Spread across the middle
     // instead, so a few pixels of viewport miscalculation can never crop it off-screen entirely.
-    this.statusText = this.add.text(VIEW_W / 2, 356, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
+    this.statusText = this.add.text(VIEW_W / 2, 384, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
 
-    this.add.text(24, 398, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
-    const levelText = this.add.text(90, 397, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
-    this.makeButton(24, 420, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
-    this.makeButton(58, 420, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.add.text(24, 402, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
+    const levelText = this.add.text(90, 401, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
+    this.makeButton(24, 424, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.makeButton(58, 424, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
 
-    const start = this.makeButton(VIEW_W / 2, 466, 180, 34, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
+    const start = this.makeButton(VIEW_W / 2, 470, 200, 38, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
     void start;
 
     this.highlightCard();
@@ -121,12 +122,13 @@ export class LobbyScene extends Phaser.Scene {
   private buildHeroCard(id: HeroId, x: number, y: number, slot: number): void {
     const def = HEROES[id];
     const c = this.add.container(x, y);
-    const bg = this.add.rectangle(0, 0, 104, 118, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
-    // cards are square art; show them square (they were being squashed into 84x64)
-    const img = this.add.image(52, 44, `card-${id}`).setDisplaySize(78, 78);
-    const name = this.add.text(52, 90, def.name, { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0.5);
-    const bias = this.add.text(52, 101, def.bias, { fontFamily: 'monospace', fontSize: '7px', color: '#9bb1c9', align: 'center', wordWrap: { width: 96 } }).setOrigin(0.5, 0);
-    c.add([bg, img, name, bias]);
+    const bg = this.add.rectangle(0, 0, 140, 182, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
+    // square art shown square, at 124px so the character reads at a glance
+    const img = this.add.image(70, 70, `card-${id}`).setDisplaySize(124, 124);
+    const tint = this.add.rectangle(70, 134, 124, 2, def.colour).setOrigin(0.5, 0);
+    const name = this.add.text(70, 148, def.name, { fontFamily: 'monospace', fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    const bias = this.add.text(70, 160, def.bias, { fontFamily: 'monospace', fontSize: '8px', color: '#9bb1c9', align: 'center', wordWrap: { width: 130 } }).setOrigin(0.5, 0);
+    c.add([bg, img, tint, name, bias]);
     bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); this.cycleFriend(0); });
     this.cards[id] = c;
     void slot;
