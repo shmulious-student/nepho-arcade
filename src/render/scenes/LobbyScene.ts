@@ -109,9 +109,10 @@ export class LobbyScene extends Phaser.Scene {
     const def = HEROES[id];
     const c = this.add.container(x, y);
     const bg = this.add.rectangle(0, 0, 104, 118, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
-    const img = this.add.image(52, 44, `card-${id}`).setDisplaySize(84, 64);
-    const name = this.add.text(52, 84, def.name, { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0.5);
-    const bias = this.add.text(52, 100, def.bias, { fontFamily: 'monospace', fontSize: '7px', color: '#9bb1c9', align: 'center', wordWrap: { width: 96 } }).setOrigin(0.5, 0);
+    // cards are square art; show them square (they were being squashed into 84x64)
+    const img = this.add.image(52, 44, `card-${id}`).setDisplaySize(78, 78);
+    const name = this.add.text(52, 90, def.name, { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0.5);
+    const bias = this.add.text(52, 101, def.bias, { fontFamily: 'monospace', fontSize: '7px', color: '#9bb1c9', align: 'center', wordWrap: { width: 96 } }).setOrigin(0.5, 0);
     c.add([bg, img, name, bias]);
     bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); this.cycleFriend(0); });
     this.cards[id] = c;

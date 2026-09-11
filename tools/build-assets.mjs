@@ -119,7 +119,7 @@ async function loadCleaned(path, id, notes, { strict = false } = {}) {
   return ops.defringe(img, 2);
 }
 
-function frameDefects(f, rowMedianSize) {
+function frameDefects(f, rowMedianSize, { allowDetached = false } = {}) {
   const out = [];
   if (!f.main) return ['empty'];
   if (f.clipped?.length) out.push(`cut-${f.clipped.join('+')}`);
@@ -127,20 +127,20 @@ function frameDefects(f, rowMedianSize) {
   // a second blob a good fraction of the figure's size, detached from it: a severed limb or shoe
   const gap = (m) => Math.hypot(Math.max(0, m.x0 - f.main.x1, f.main.x0 - m.x1), Math.max(0, m.y0 - f.main.y1, f.main.y0 - m.y1));
   const cellW = f.cell.width / (1 + 2 * 0.35);
-  for (const m of f.comps || []) {
+  if (!allowDetached) for (const m of f.comps || []) {
     if (m === f.main) continue;
     if (m.size >= f.main.size * 0.08 && gap(m) > cellW * 0.04) { out.push('severed-part'); break; }
   }
   return out;
 }
 
-function substituteDefectiveFrames(cells, rowNames) {
+function substituteDefectiveFrames(cells, rowNames, options) {
   const replaced = [];
   const rejected = []; // the original cells, for the review sheet
   cells.forEach((row, r) => {
     const sizes = row.map((f) => (f.main ? f.main.size : 0)).filter(Boolean);
     const med = median(sizes);
-    const bad = row.map((f) => frameDefects(f, med));
+    const bad = row.map((f) => frameDefects(f, med, options));
     const cleanIdx = bad.map((d, i) => (d.length ? -1 : i)).filter((i) => i >= 0);
     if (!cleanIdx.length) { replaced.push(`${rowNames[r]}:no-clean-frame-kept-as-is`); return; }
     row.forEach((f, c) => {
@@ -213,18 +213,22 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   }
   // Per-action overrides: a 3x3 file under actions/<id>/ replaces that one row of the older grid
   // (9 frames where the grid had 6 — the catalog records the count per row).
+  const overriddenRows = new Set();
   for (const [action, path] of source.overrides || []) {
     const r = spec.rows.indexOf(action);
     if (r < 0) { warn(`${id}: actions/${id}/${action}.png does not match a row of this character (${spec.rows.join(', ')})`); continue; }
     const img = await loadCleaned(path, `${id}/${action}`, notes);
     cells[r] = ops.sliceFixed(img, ACTION_GRID.rows, ACTION_GRID.cols).flat();
+    overriddenRows.add(r);
     notes.push(`${action}: row replaced by actions/${id}/${action}.png`);
   }
 
   // Defective frames — art the generator cut at a cell line, a figure most of which is missing, or a
   // severed body part floating on its own — are never shown. Each is replaced, in place, by the
   // nearest clean frame of the same row: the animation gets a held frame instead of a cut body.
-  const replaced = substituteDefectiveFrames(cells, spec.rows);
+  // Per-action sheets intentionally use detached props and effects (balls, microphones, paint and
+  // sound bursts). Only legacy grids treat a detached component as a likely severed body part.
+  const replaced = substituteDefectiveFrames(cells, spec.rows, { allowDetached: source.kind === 'actions' });
   if (replaced.length) notes.push(`${replaced.length} defective source frame(s) replaced by a neighbour: ${replaced.join(' ')}`);
   if (emit) await defectSheet(id, replaced.rejected);
 
@@ -232,6 +236,21 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   const mainH = (m) => (m ? m.y1 - m.y0 + 1 : 0);
   const refH = ov.refHeight || median(cells[0].map((f) => mainH(f.main)).filter(Boolean));
   const scale = (spec.body * supersample) / refH;
+
+  // Override rows come from 682px cells drawn at their own size, not the older grid's, so they need
+  // their own scale. Measure the figure on the first frame of every override row whose first pose is
+  // upright (a flinch, a wind-up, a stance — never a lying getup/defeat) and fit that to the body
+  // height; rows without an upright first frame borrow the character's median override scale.
+  const UPRIGHT_FIRST = new Set(['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockback', 'knockdown', 'approach', 'attack', 'combo', 'guard']);
+  const rowScale = spec.rows.map(() => scale);
+  if (overriddenRows.size) {
+    const measured = [...overriddenRows].filter((r) => UPRIGHT_FIRST.has(spec.rows[r]) && cells[r][0].main).map((r) => (spec.body * supersample) / mainH(cells[r][0].main));
+    const fallback = measured.length ? median(measured) : scale * 0.5; // 0.5: a 682px cell next to a 341px one
+    for (const r of overriddenRows) {
+      rowScale[r] = UPRIGHT_FIRST.has(spec.rows[r]) && cells[r][0].main ? (spec.body * supersample) / mainH(cells[r][0].main) : fallback;
+    }
+    notes.push(`override rows scaled to body height (${[...overriddenRows].map((r) => `${spec.rows[r]}:${rowScale[r].toFixed(3)}`).join(' ')}; base ${scale.toFixed(3)})`);
+  }
 
   // reference face (size/width) from the idle row, so every other pose can be scored against it
   let headRef = null;
@@ -244,11 +263,21 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   // per-row baseline (median bottom of main figure) and per-frame x anchor (legs centre)
   const frames = [];
   for (let r = 0; r < spec.rows.length; r++) {
+    const scale = rowScale[r];
     const bottoms = cells[r].map((f) => (f.main ? f.main.y1 : 0));
-    const baseline = median(bottoms);
+    const rowBaseline = median(bottoms);
     for (let c = 0; c < cells[r].length; c++) {
       const f = cells[r][c];
       const { cell, main, labels } = f;
+      // Feet stay on the floor: a frame whose figure sits a little above or below the row's median
+      // bottom is anchored on its own bottom (the generator's baseline drifts a few px between cells,
+      // which otherwise reads as the character floating or sinking). Only a clearly airborne pose —
+      // feet more than ~15% of the body above the median — keeps the row baseline and its height.
+      let baseline = rowBaseline;
+      if (main) {
+        const lift = rowBaseline - main.y1;
+        if (lift < 0.15 * (spec.body / scale)) baseline = main.y1;
+      }
       let ax = cell.width / 2;
       if (main) {
         const legTop = main.y1 - Math.round((main.y1 - main.y0 + 1) * 0.35);
