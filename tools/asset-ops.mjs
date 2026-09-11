@@ -283,12 +283,22 @@ export function sliceFixed(img, rows, cols, take = cols) {
     for (let c = 0; c < take; c++) {
       const cw = xs[c + 1] - xs[c], ch = ys[r + 1] - ys[r];
       const px = Math.round(cw * CELL_PAD), py = Math.round(ch * CELL_PAD);
-      const x0 = Math.max(0, xs[c] - px), y0 = Math.max(0, ys[r] - py);
-      const x1 = Math.min(img.width, xs[c + 1] + px), y1 = Math.min(img.height, ys[r + 1] + py);
-      const cell = crop(img, x0, y0, x1 - x0, y1 - y0);
+      // Keep the padded window the same size at the outer canvas edges. Clamping the window itself
+      // gives top/left and bottom/right cells different local origins, which makes row-major action
+      // frames acquire different animation anchors. Crop only the in-bounds source area and place it
+      // into a transparent virtual window instead.
+      const x0 = xs[c] - px, y0 = ys[r] - py;
+      const x1 = xs[c + 1] + px, y1 = ys[r + 1] + py;
+      const sx0 = Math.max(0, x0), sy0 = Math.max(0, y0);
+      const sx1 = Math.min(img.width, x1), sy1 = Math.min(img.height, y1);
+      const cell = makeImage(x1 - x0, y1 - y0);
+      blit(cell, crop(img, sx0, sy0, sx1 - sx0, sy1 - sy0), sx0 - x0, sy0 - y0);
       const want = r * cols + c;
       for (let y = 0; y < cell.height; y++) for (let x = 0; x < cell.width; x++) {
-        const g = labels[(y0 + y) * img.width + (x0 + x)];
+        const gx = x0 + x, gy = y0 + y;
+        const g = gx >= 0 && gx < img.width && gy >= 0 && gy < img.height
+          ? labels[gy * img.width + gx]
+          : -1;
         if (g === -1 || owner[g] !== want) cell.data[(y * cell.width + x) * 4 + 3] = 0;
       }
       // re-label within the cell so head detection and anchoring work in local coordinates
