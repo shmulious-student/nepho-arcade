@@ -62,7 +62,7 @@ async function loadRaw(path) {
   const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   return { width: info.width, height: info.height, data: new Uint8Array(data.buffer, data.byteOffset, data.length) };
 }
-async function saveWebp(img, path, quality = 90) {
+async function saveWebp(img, path, quality = 85) {
   await sharp(Buffer.from(img.data.buffer, img.data.byteOffset, img.data.length), { raw: { width: img.width, height: img.height, channels: 4 } })
     .webp({ quality, alphaQuality: 95, effort: 4 }).toFile(path);
 }

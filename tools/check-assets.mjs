@@ -104,7 +104,8 @@ if (existsSync(catalogPath)) {
   }
   for (const b of cat.bosses) check(existsSync(join(OUT, b.portrait)), `portrait ${b.id} missing`);
   for (const h of cat.heroes) check(existsSync(join(OUT, 'cards', `${h}.webp`)), `card ${h} missing`);
-  check(total < 16 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
+  // 20 MB: two full-detail 9-frame hero atlases (~1.5 MB each) on top of the original 16 MB budget
+  check(total < 20 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
   console.log(`runtime pack: ${(total / 1048576).toFixed(1)} MB across characters+levels`);
   const fallbacks = Object.values(cat.characters).filter((c) => (c.notes || []).some((n) => n.startsWith('fallback')));
   for (const f of fallbacks) console.log(`NOTE ${f.id}: ${f.notes.find((n) => n.startsWith('fallback'))}`);
