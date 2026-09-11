@@ -36,8 +36,10 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
   Beating a boss rolls straight into the next level.
 - **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
-  stick plants itself wherever your left thumb lands; the right-hand cluster is ATK / HVY / JMP with
-  SPC above, DSH / BLK in the corners and FRD below, and a thumb can slide from one button to another.
+  stick plants itself wherever your left thumb lands, and a hard **flick** of it is a dash. The right
+  thumb gets three big buttons — HVY · ATK · JMP — with SPC above (it lights up when the meter is
+  full) and a small BLK tucked in the corner. To call your friend, tap their chip on your HUD card.
+  Pick S / M / L controls in the lobby.
 - **LAN co-op:** from the lobby, turn on **LAN CO-OP**, host or join with the 4-letter room code (or
   scan the QR code) — see below.
 

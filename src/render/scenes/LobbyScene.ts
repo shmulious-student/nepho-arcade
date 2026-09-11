@@ -3,6 +3,7 @@ import type { Catalog } from '../../shared/catalog';
 import { HEROES, HERO_IDS } from '../../sim/frameData';
 import type { FriendMode } from '../../sim/friends';
 import { isTouchDevice } from './GameScene';
+import { TouchControls } from '../TouchControls';
 import type { HeroId } from '../../sim/types';
 import { openFaceCropper } from '../../face/cropper';
 import { VIEW_W, VIEW_H } from '../../sim/types';
@@ -88,6 +89,17 @@ export class LobbyScene extends Phaser.Scene {
     });
     modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
     this.cycleFriend(0);
+
+    // touch control size, for phones
+    if (isTouchDevice(this)) {
+      const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
+      const sizeBtn = this.makeButton(VIEW_W - 150, 182, 126, 24, '', () => {
+        const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
+        try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
+        sizeBtn.text.setText(`CONTROLS: ${next}`);
+      });
+      sizeBtn.text.setText(`CONTROLS: ${TouchControls.sizeSetting()}`);
+    }
 
     // Everything below used to be pinned to the very bottom few pixels (VIEW_H-96..VIEW_H-30) with a
     // large empty gap above it — fragile even without a viewport bug, since it left almost no margin

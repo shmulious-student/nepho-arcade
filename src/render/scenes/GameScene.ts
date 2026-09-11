@@ -109,11 +109,13 @@ export class GameScene extends Phaser.Scene {
     // UI scale. Anchored on the combat band (roughly where sprite feet land, not the container's
     // top-left corner), or zooming would push the floor mostly below the visible canvas.
     const zoom = VIEW_ZOOM; // the sim clamps players to the band this leaves visible (VISIBLE_X0..)
-    const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 40;
+    // Pivot low on the combat band so the fight sits in the upper two thirds of the screen — on a
+    // phone the bottom strip is where thumbs and the touch controls live.
+    const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 90;
     this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
     this.fx = new Fx(this, this.world, this.cameras.main);
-    this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends);
+    this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends, isTouchDevice(this));
     this.touch = new TouchControls(this);
     this.touch.setVisible(isTouchDevice(this));
 
@@ -231,7 +233,7 @@ export class GameScene extends Phaser.Scene {
       if (real[0] !== this.heroes[0] || real[1] !== this.heroes[1]) {
         this.heroes = real;
         this.hud.destroy();
-        this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends);
+        this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends, isTouchDevice(this));
         this.showKeyboardHint(!!this.heroes[1]);
       }
     }
@@ -274,6 +276,8 @@ export class GameScene extends Phaser.Scene {
     sequencer.setBossMode(snap.phase === 'boss');
 
     this.hud.update(snap);
+    const me = snap.entities.find((e) => e.kind === 'hero' && e.slot === (this.session.mode === 'guest' ? 1 : 0));
+    if (me) this.touch.setSpecialReady(me.meter >= 0.999);
 
     if (!this.finished && (snap.phase === 'victory' || snap.phase === 'gameover')) {
       this.finished = true;

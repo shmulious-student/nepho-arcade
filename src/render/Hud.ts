@@ -8,7 +8,7 @@ import { VIEW_W, VIEW_H } from '../sim/types';
 interface PlayerHud {
   root: Phaser.GameObjects.Container; hp: Phaser.GameObjects.Rectangle; hpGhost: Phaser.GameObjects.Rectangle;
   meter: Phaser.GameObjects.Rectangle; meterLabel: Phaser.GameObjects.Text; combo: Phaser.GameObjects.Text;
-  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lives: Phaser.GameObjects.Text; lastHp: number; wasReady: boolean;
+  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lives: Phaser.GameObjects.Text; friendMode: string; friendName: string; lastHp: number; wasReady: boolean;
 }
 
 const BAR_W = 220;
@@ -28,7 +28,10 @@ export class Hud {
   private container: Phaser.GameObjects.Container;
   private lastWave = -1;
 
-  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], faceTextureKeys: [string | null, string | null], friends?: FriendSetup) {
+  private touch: boolean;
+
+  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], faceTextureKeys: [string | null, string | null], friends?: FriendSetup, touch = false) {
+    this.touch = touch;
     this.scene = scene;
     this.container = scene.add.container(0, 0).setDepth(30000).setScrollFactor(0);
     for (let slot = 0; slot < 2; slot++) {
@@ -61,9 +64,10 @@ export class Hud {
         friendBar = scene.add.rectangle(59, 62, 0, 3, HEROES[fid].colour).setOrigin(0, 0);
         panel.height = 68; combo.setY(72);
       }
+      const friendMode = friends?.mode ?? 'off', friendName = fid ? HEROES[fid].name : '';
       root.add([panel, chipBg, chip, name, lives, hpBg, hpGhost, hp, meterBg, meter, meterLabel, combo, ...(friend ? [friend, friendBar!] : [])]);
       this.container.add(root);
-      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lives, lastHp: 1, wasReady: false });
+      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lives, friendMode, friendName, lastHp: 1, wasReady: false });
     }
     this.timerText = scene.add.text(VIEW_W / 2, 10, '0:00', { fontFamily: FONT, fontSize: '20px', color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5, 0);
     this.waveText = scene.add.text(VIEW_W / 2, 34, '', { fontFamily: FONT, fontSize: '12px', color: '#9bb1c9', stroke: '#0b1730', strokeThickness: 3 }).setOrigin(0.5, 0);
@@ -92,7 +96,11 @@ export class Hud {
       hud.lives.setText(`♥ ×${s.lives[p.slot] ?? 0}`);
       hud.combo.setText(p.combo > 1 ? `${p.combo} HIT COMBO` : '');
       if (p.combo > 1) hud.combo.setScale(1 + 0.15 * Math.max(0, 1 - ((s.tick % 8) / 8)));
-      if (hud.friendBar) { const r = s.assist[p.slot] ?? 0; hud.friendBar.width = (BAR_W - 2) * r; hud.friend!.setColor(r >= 1 ? '#f3f4e8' : '#6b7a99'); }
+      if (hud.friendBar) {
+        const r = s.assist[p.slot] ?? 0; hud.friendBar.width = (BAR_W - 2) * r; hud.friend!.setColor(r >= 1 ? '#f3f4e8' : '#6b7a99');
+        // on touch the card itself is the call button: say so when it is ready
+        if (this.touch && hud.friendMode === 'assist') hud.friend!.setText(r >= 1 ? `TAP HERE · CALL ${hud.friendName}` : `ASSIST · ${hud.friendName}`);
+      }
     }
     if (s.bossId && s.bossMaxHp > 0) {
       if (!this.bossBar) {
