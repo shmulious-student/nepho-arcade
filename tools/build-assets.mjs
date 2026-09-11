@@ -56,7 +56,7 @@ const BOSS_FILES = ['boss-00-ferryman-grid.png', 'boss-01-glass-warden-grid.png'
   'boss-08-vault-mother-grid.png', 'boss-09-ultra-signal-grid.png'];
 const ENEMY_FILES = ['enemy-00-red-punk-grid.png', 'enemy-01-hood-chain-grid.png', 'enemy-02-orange-brawler-grid.png',
   'enemy-03-purple-fighter-grid.png', 'enemy-04-cyan-knight-grid.png', 'enemy-05-shield-soldier-grid.png'];
-const ENEMY_IDS = ['punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield'];
+const ENEMY_IDS = ['punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield', 'bio-brute', 'gold-sorceress', 'void-demon', 'rainbow-oracle'];
 
 async function loadRaw(path) {
   const { data, info } = await sharp(path).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -555,10 +555,14 @@ async function main() {
     }
   }
   if (want('enemies')) {
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < ENEMY_IDS.length; i++) {
       const id = ENEMY_IDS[i];
-      const pair = [1, 2].map((n) => join(SRC, 'enemies', ENEMY_FILES[i].replace('-grid.png', `-grid-${n}.png`)));
-      const src = resolveSource(id, ENEMY_ACTIONS, pair, join(SRC, 'enemies', ENEMY_FILES[i]));
+      const legacy = ENEMY_FILES[i];
+      const pair = legacy ? [1, 2].map((n) => join(SRC, 'enemies', legacy.replace('-grid.png', `-grid-${n}.png`))) : null;
+      const actionDir = join(SRC, 'actions', id);
+      const completeActions = ENEMY_ACTIONS.every((a) => existsSync(join(actionDir, `${a}.png`)));
+      if (!legacy && !completeActions) { console.log('enemy', id, 'pending (action set incomplete)'); continue; }
+      const src = resolveSource(id, ENEMY_ACTIONS, pair, legacy ? join(SRC, 'enemies', legacy) : null);
       results[id] = await processCharacter(id, src, src.kind === 'pair' ? { ...ENEMY, rows: ENEMY_ROWS_12 } : ENEMY);
       console.log('enemy', id, results[id] ? `ok (${src.kind})` : 'FAILED');
     }
@@ -568,7 +572,7 @@ async function main() {
     results['punk-b'] = await variantFrom(results.punk, 'punk-b', { h0: 335, h1: 25, delta: 120 }, ['green variant of punk']);
     results['brawler-b'] = await variantFrom(results.brawler, 'brawler-b', { h0: 5, h1: 55, delta: 200 }, ['blue variant of brawler']);
     results['knight-b'] = await variantFrom(results.knight, 'knight-b', { h0: 170, h1: 260, delta: 150 }, ['crimson variant of knight']);
-    catalog.enemies = ['punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield', 'punk-b', 'brawler-b', 'knight-b'];
+    catalog.enemies = [...ENEMY_IDS.filter((id) => results[id]), 'punk-b', 'brawler-b', 'knight-b'];
   }
   const bossResults = [];
   if (want('bosses')) {

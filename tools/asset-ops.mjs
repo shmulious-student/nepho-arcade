@@ -328,13 +328,15 @@ export function sliceFixed(img, rows, cols, take = cols) {
           main = local.comps.length ? local.comps.reduce((a, m) => (m.size > a.size ? m : a)) : null;
         }
       }
-      // only edges near the cell line count as clipped — a hard edge mid-cell is a prop, not a cut
-      const near = Math.round(cw * 0.2), lineL = xs[c] - x0, lineR = xs[c + 1] - x0;
+      // Only artwork that actually terminates on the nominal cell line is clipped. A component may
+      // legitimately cross that line because this padded-window slicer preserves frame overflow;
+      // treating that overflow as a defect causes valid action poses to be replaced by held frames.
+      const lineL = xs[c] - x0, lineR = xs[c + 1] - x0;
       const clipped = local.comps.filter((m) => m.size >= 200).flatMap((m) => hardEdges(m, local.labels, cell.width, cw * 0.13)
-        .filter((side) => (side === 'left' ? m.x0 - lineL <= near : lineR - m.x1 <= near)));
-      // the figure itself running into the cell line is the clearest cut of all
-      if (main && main.x0 - lineL <= 3) clipped.push('left');
-      if (main && lineR - 1 - main.x1 <= 3) clipped.push('right');
+        .filter((side) => {
+          const distance = side === 'left' ? m.x0 - lineL : lineR - m.x1;
+          return distance >= 0 && distance <= 1;
+        }));
       row.push({ cell, main, labels: local.labels, comps: local.comps, clipped: [...new Set(clipped)] });
     }
     out.push(row);

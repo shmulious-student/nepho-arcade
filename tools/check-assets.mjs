@@ -31,7 +31,10 @@ async function checkSourceGrid(id, path, rows, cols, { square = false, strict = 
     check(img.width === img.height && po2(img.width), `${id}: must be a square power-of-two canvas (got ${img.width}x${img.height})`);
   }
   const opaque = ops.opaqueRatio(img);
-  check(opaque < 0.40 && opaque > 0.03, `${id}: background must be true RGBA transparent (opaque ratio ${opaque.toFixed(3)})`);
+  // Dense per-action sprites can legitimately occupy just over 40% of a cell (especially heavy
+  // enemies with wide armor). Keep enough headroom to avoid mistaking a real figure for a baked
+  // background while still rejecting checkerboards/mattes that cover most of the sheet.
+  check(opaque < 0.45 && opaque > 0.03, `${id}: background must be true RGBA transparent (opaque ratio ${opaque.toFixed(3)})`);
   const problems = [];
   const cells = ops.sliceFixed(img, rows, cols);
   cells.forEach((row, r) => row.forEach((f, c) => {
