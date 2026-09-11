@@ -102,13 +102,14 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
     }
     return;
   }
-  // Hero block: facing the attack while holding BLOCK cuts most damage through, mirroring the enemy
-  // guard rule above (knockdown-flagged "breaker" hits and AoEs still get through).
-  if (tgt.kind === 'hero' && tgt.state === 'block' && !hit.knockdown && !hit.radius && tgt.facing === -dirToTarget) {
-    const chip = dmg * 0.25;
-    tgt.hp -= chip;
-    tgt.x += dirToTarget * 3;
+  // Hero block: holding BLOCK while facing the attack stops it — no damage, no stun, just a shove back
+  // and a spark; the attacker feels the impact as hitstop. Only an explosion around you (an AoE) gets
+  // through, at a third of its damage. Anything from behind lands in full.
+  if (tgt.kind === 'hero' && tgt.state === 'block' && tgt.facing === -dirToTarget) {
+    if (hit.radius) tgt.hp -= dmg * 0.35;
+    tgt.x += dirToTarget * (heavy ? 6 : 3);
     tgt.flash = 4;
+    if (owner && owner.kind !== 'projectile') owner.hitstop = Math.max(owner.hitstop, 4);
     w.emit({ type: 'block', x: tgt.x, y: tgt.y, z: 50, id: tgt.id });
     if (tgt.hp <= 0) {
       tgt.hp = 0;

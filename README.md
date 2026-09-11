@@ -24,8 +24,9 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Jump:** `SPACE` (touch: JMP). Press light/heavy in the air for a flying kick that floors whoever is
   under it.
 - **Special:** `I` (touch: SPC) once the meter is full.
-- **Block:** `U` (touch: BLK), held. Cuts incoming damage to ~25% while you face the attack; a
-  guard-breaker or AoE still gets through.
+- **Block:** `U` (touch: BLK), held. Stops every attack from the side you face — no damage, no stun —
+  and you can still shuffle and turn while holding it. Explosions around you get through at a third;
+  anything from behind lands in full.
 - **Pause:** `ESC` / `P`, or the ❚❚ button top-right: resume, restart level, back to lobby, sound.
 - **Pickups:** beaten enemies sometimes drop a heart (heals 30%), a coin (+500) or a star (+50% meter);
   walk over them. Clearing a level pays a time bonus and a best-combo bonus.

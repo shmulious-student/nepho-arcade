@@ -173,3 +173,29 @@ describe('dash chord', () => {
     expect(sawAttack).toBe(true);
   });
 });
+
+describe('block', () => {
+  it('stops an attack from the side the hero faces, and not one from behind', () => {
+    const w = world(41);
+    const h = w.players[0]!;
+    h.facing = 1;
+    const front = addEnemy(w, h.x + 40, h.y);
+    front.cooldown = 0; front.facing = -1;
+    const hp0 = h.hp;
+    // hold block facing the enemy while it swings
+    let blocked = 0;
+    for (let i = 0; i < 240; i++) {
+      w.step([hold(BTN.BLOCK), NONE]);
+      for (const ev of w.events) if (ev.type === 'block' && ev.id === h.id) blocked++;
+    }
+    expect(blocked).toBeGreaterThan(0);
+    expect(h.hp).toBe(hp0);
+    expect(h.state).toBe('block');
+    // same swings from behind connect
+    front.dead = true; front.removeAt = w.tick + 1; w.step([NONE, NONE]);
+    const back = addEnemy(w, h.x - 40, h.y);
+    back.cooldown = 0; back.facing = 1;
+    for (let i = 0; i < 240; i++) w.step([hold(BTN.BLOCK), NONE]);
+    expect(h.hp).toBeLessThan(hp0);
+  });
+});
