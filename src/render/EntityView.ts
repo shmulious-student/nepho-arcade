@@ -43,9 +43,9 @@ export class EntityView {
     this.shadow.setScale(Math.max(0.3, 1 - e.z / 220));
     this.shadow.setAlpha(e.hp > 0 ? 0.35 : 0);
     this.body.setFlipX(e.facing < 0);
-    const key = frameKeyFor(e.kind, e.arch, e.state, e.st);
+    const key = frameKeyFor(e.kind, e.arch, e.state, e.st, this.def.framesPerRow);
     if (key !== this.lastKey) { this.body.setFrame(key); this.lastKey = key; }
-    this.body.setScale((e.scale || 1) * (e.kind === 'echo' ? 0.72 : 1));
+    this.body.setScale((e.scale || 1) * (this.def.renderScale ?? 1) * (e.kind === 'echo' ? 0.72 : 1));
     this.body.setDepth(sy);
     this.shadow.setDepth(sy - 1);
     if (e.flash > 0) this.body.setTintFill(0xffffff); else if (e.tint > 0) this.body.setTint(TINTS[e.tint % TINTS.length]); else this.body.clearTint();
@@ -54,8 +54,9 @@ export class EntityView {
       this.hpBar.clear();
       if (e.hp > 0 && e.hp < 1) {
         const w = this.def.kind === 'boss' ? 56 : 30;
-        this.hpBar.fillStyle(0x10182b, 0.8).fillRect(sx - w / 2, sy - this.def.box.h * (this.def.kind === 'boss' ? 0.62 : 0.72), w, 5);
-        this.hpBar.fillStyle(e.hp > 0.35 ? 0x75f5dc : 0xff4f72, 1).fillRect(sx - w / 2, sy - this.def.box.h * (this.def.kind === 'boss' ? 0.62 : 0.72), w * e.hp, 5);
+        const top = sy - this.def.box.h * (this.def.renderScale ?? 1) * (this.def.kind === 'boss' ? 0.62 : 0.72);
+        this.hpBar.fillStyle(0x10182b, 0.8).fillRect(sx - w / 2, top, w, 5);
+        this.hpBar.fillStyle(e.hp > 0.35 ? 0x75f5dc : 0xff4f72, 1).fillRect(sx - w / 2, top, w * e.hp, 5);
       }
       this.hpBar.setDepth(sy);
     }

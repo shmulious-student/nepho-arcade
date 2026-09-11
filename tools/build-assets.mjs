@@ -18,9 +18,23 @@ const only = process.argv.includes('--only') ? process.argv[process.argv.indexOf
 const report = { generatedAt: new Date().toISOString(), sources: {}, characters: {}, warnings: [] };
 const warn = (m) => { console.warn('WARN', m); report.warnings.push(m); };
 
+// `body` is the runtime figure height in world px (what the sim/camera is tuned for). Legacy grids
+// are downsampled straight to it; per-action grids (see ACTION_GRID) keep SUPERSAMPLE× more pixels
+// in the atlas and the renderer scales them back down, so the extra source detail survives the 1.7×
+// world zoom instead of being thrown away at build time.
 const HERO = { kind: 'hero', body: 128, rows: ['idle', 'walk', 'attack', 'heavy', 'dash', 'special', 'hurt', 'defeat'], frames: 6, head: true };
 const ENEMY = { kind: 'enemy', body: 104, rows: ['idle', 'walk', 'attack', 'heavy', 'special', 'hurt', 'knockback', 'defeat'], frames: 6, head: false };
 const BOSS = { kind: 'boss', body: 176, rows: ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'], frames: 8, head: false };
+const SUPERSAMPLE = 1.7;
+
+// Per-action source format (docs/asset-prompts.md): public/assets/generated/actions/<id>/<action>.png,
+// one square power-of-two image per action holding a 3×3 grid of 9 frames read row-major. A character
+// switches to this format only when every action in its list is present, so a half-delivered set never
+// mixes two art styles in one atlas.
+const ACTION_GRID = { rows: 3, cols: 3 };
+const HERO_ACTIONS = ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockdown', 'defeat'];
+const ENEMY_ACTIONS = ['idle', 'walk', 'attack', 'heavy', 'special', 'guard', 'hurt', 'knockback', 'getup', 'defeat'];
+const BOSS_ACTIONS = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'];
 
 const BOSSES = [
   ['ferryman', 'Ferryman'], ['glass-warden', 'Glass Warden'], ['kilnheart', 'Kilnheart'], ['monk-zero', 'Monk Zero'],
@@ -46,6 +60,7 @@ async function savePng(img, path) {
   await sharp(Buffer.from(img.data.buffer, img.data.byteOffset, img.data.length), { raw: { width: img.width, height: img.height, channels: 4 } })
     .png({ compressionLevel: 6 }).toFile(path);
 }
+const nextPo2 = (n) => 2 ** Math.ceil(Math.log2(Math.max(1, n)));
 const median = (arr) => { const s = [...arr].sort((a, b) => a - b); return s.length ? s[(s.length / 2) | 0] : 0; };
 
 function sourceStats(id, img) {
@@ -54,41 +69,149 @@ function sourceStats(id, img) {
   return s;
 }
 
+const HERO_ROWS_12 = ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockdown', 'defeat'];
+const ENEMY_ROWS_12 = ['idle', 'walk', 'approach', 'attack', 'combo', 'heavy', 'special', 'guard', 'hurt', 'knockback', 'getup', 'defeat'];
+
 // ---------- character grids ----------
-async function processCharacter(id, srcPath, spec, opts = {}) {
-  let img = await loadRaw(srcPath);
+// Resolves the best available source for a character, most detailed format first:
+//   { kind: 'actions', files: [[action, path], ...] }  per-action 3×3 grids
+//   { kind: 'pair', files: [part1, part2] }            two 6×6 2048px grids = 12 rows
+//   { kind: 'grid', file }                             one auto-detected legacy grid
+function resolveSource(id, actions, pairFiles, gridFile) {
+  const dir = join(SRC, 'actions', id);
+  if (existsSync(dir)) {
+    const files = actions.map((a) => [a, join(dir, `${a}.png`)]);
+    const missing = files.filter(([, p]) => !existsSync(p)).map(([a]) => a);
+    if (!missing.length) return { kind: 'actions', files };
+    warn(`${id}: actions/${id}/ is incomplete (missing ${missing.join(', ')}); falling back to the older grid`);
+  }
+  if (pairFiles && pairFiles.every((p) => existsSync(p))) return { kind: 'pair', files: pairFiles };
+  return { kind: 'grid', file: gridFile };
+}
+
+async function loadCleaned(path, id, notes, { strict = false } = {}) {
+  let img = await loadRaw(path);
   const stats = sourceStats(id, img);
-  const notes = [];
   if (stats.opaqueRatio > 0.9) {
     img = ops.unbakeChecker(img);
     const after = ops.opaqueRatio(img);
     notes.push(`unbaked checker: opaque ${stats.opaqueRatio} -> ${after.toFixed(3)}`);
-    if (after < 0.15 || after > 0.5) { warn(`${id}: checker unbake failed (opaque ${after.toFixed(3)})`); return null; }
+    if (strict && (after < 0.15 || after > 0.5)) { warn(`${id}: checker unbake failed (opaque ${after.toFixed(3)})`); return null; }
   }
   if (stats.alphaValues <= 2) { img = ops.featherAlpha(img); notes.push('feathered binary alpha'); }
-  img = ops.defringe(img, 2);
+  return ops.defringe(img, 2);
+}
+
+function frameDefects(f, rowMedianSize) {
+  const out = [];
+  if (!f.main) return ['empty'];
+  if (f.clipped?.length) out.push(`cut-${f.clipped.join('+')}`);
+  if (f.main.size < rowMedianSize * 0.55) out.push('partial-figure');
+  // a second blob a good fraction of the figure's size, detached from it: a severed limb or shoe
+  const gap = (m) => Math.hypot(Math.max(0, m.x0 - f.main.x1, f.main.x0 - m.x1), Math.max(0, m.y0 - f.main.y1, f.main.y0 - m.y1));
+  const cellW = f.cell.width / (1 + 2 * 0.35);
+  for (const m of f.comps || []) {
+    if (m === f.main) continue;
+    if (m.size >= f.main.size * 0.08 && gap(m) > cellW * 0.04) { out.push('severed-part'); break; }
+  }
+  return out;
+}
+
+function substituteDefectiveFrames(cells, rowNames) {
+  const replaced = [];
+  const rejected = []; // the original cells, for the review sheet
+  cells.forEach((row, r) => {
+    const sizes = row.map((f) => (f.main ? f.main.size : 0)).filter(Boolean);
+    const med = median(sizes);
+    const bad = row.map((f) => frameDefects(f, med));
+    const cleanIdx = bad.map((d, i) => (d.length ? -1 : i)).filter((i) => i >= 0);
+    if (!cleanIdx.length) { replaced.push(`${rowNames[r]}:no-clean-frame-kept-as-is`); return; }
+    row.forEach((f, c) => {
+      if (!bad[c].length) return;
+      const src = cleanIdx.reduce((a, i) => (Math.abs(i - c) < Math.abs(a - c) ? i : a), cleanIdx[0]);
+      rejected.push({ key: `${rowNames[r]}/${c}`, why: bad[c].join(','), cell: f.cell, from: row[src].cell });
+      row[c] = { ...row[src], substituteFor: c, defects: bad[c] };
+      replaced.push(`${rowNames[r]}/${c}(${bad[c].join(',')})->${src}`);
+    });
+  });
+  return Object.assign(replaced, { rejected });
+}
+
+// Review sheet: every rejected source cell (left) beside the clean frame that stands in for it (right).
+async function defectSheet(id, rejected) {
+  if (!rejected.length) return;
+  const cw = Math.max(...rejected.map((r) => r.cell.width)), ch = Math.max(...rejected.map((r) => r.cell.height));
+  const sheet = ops.makeImage(2 * cw + 12, rejected.length * (ch + 4));
+  rejected.forEach((r, i) => {
+    const oy = i * (ch + 4);
+    ops.drawRect(sheet, 0, oy, cw, ch, [120, 40, 40]);
+    ops.drawRect(sheet, cw + 12, oy, cw, ch, [40, 100, 60]);
+    ops.blit(sheet, r.cell, 0, oy);
+    ops.blit(sheet, r.from, cw + 12, oy);
+  });
+  await savePng(sheet, join(DEBUG, `defects-${id}.png`));
+  writeFileSync(join(DEBUG, `defects-${id}.txt`), rejected.map((r) => `${r.key}: ${r.why}`).join('\n') + '\n');
+}
+
+async function processCharacter(id, source, baseSpec) {
+  const notes = [];
+  let spec = baseSpec;
+  let cells = [];
+  let det = null;
+  let supersample = 1;
+
+  if (source.kind === 'actions') {
+    // one 3×3 grid per action: the 9 cells of each file become one animation row
+    spec = { ...baseSpec, rows: source.files.map(([a]) => a), frames: ACTION_GRID.rows * ACTION_GRID.cols };
+    supersample = SUPERSAMPLE;
+    for (const [action, path] of source.files) {
+      const img = await loadCleaned(path, `${id}/${action}`, notes);
+      cells.push(ops.sliceFixed(img, ACTION_GRID.rows, ACTION_GRID.cols).flat());
+    }
+  } else if (source.kind === 'pair') {
+    // two 6×6 grids: rows 0-5 in part 1, rows 6-11 in part 2
+    for (let part = 0; part < 2; part++) {
+      const img = await loadCleaned(source.files[part], `${id}-p${part + 1}`, notes);
+      cells.push(...ops.sliceFixed(img, 6, 6, spec.frames));
+    }
+  } else {
+    const img = await loadCleaned(source.file, id, notes, { strict: true });
+    if (!img) return null;
+    const ov = overrides[id] || {};
+    det = ops.detectCells(img, spec.rows.length, spec.frames);
+    if (ov.rowBounds) det.rowBounds = ov.rowBounds;
+    if (ov.colBounds) det.colBounds = ov.colBounds;
+    if (det.maxCutOcc > 0.35) warn(`${id}: grid cut occupancy ${det.maxCutOcc.toFixed(2)} (modes ${det.modes})`);
+    for (let r = 0; r < spec.rows.length; r++) {
+      const row = [];
+      for (let c = 0; c < spec.frames; c++) {
+        const cx = det.colBounds[c], cy = det.rowBounds[r];
+        const cell = ops.crop(img, cx, cy, det.colBounds[c + 1] - cx, det.rowBounds[r + 1] - cy);
+        const iso = ops.isolateMain(cell);
+        row.push({ cell: iso.img, main: iso.main, labels: iso.labels });
+      }
+      cells.push(row);
+    }
+  }
+  // Defective frames — art the generator cut at a cell line, a figure most of which is missing, or a
+  // severed body part floating on its own — are never shown. Each is replaced, in place, by the
+  // nearest clean frame of the same row: the animation gets a held frame instead of a cut body.
+  const replaced = substituteDefectiveFrames(cells, spec.rows);
+  if (replaced.length) notes.push(`${replaced.length} defective source frame(s) replaced by a neighbour: ${replaced.join(' ')}`);
+  await defectSheet(id, replaced.rejected);
 
   const ov = overrides[id] || {};
-  const det = ops.detectCells(img, spec.rows.length, spec.frames);
-  if (ov.rowBounds) det.rowBounds = ov.rowBounds;
-  if (ov.colBounds) det.colBounds = ov.colBounds;
-  if (det.maxCutOcc > 0.35) warn(`${id}: grid cut occupancy ${det.maxCutOcc.toFixed(2)} (modes ${det.modes})`);
-
-  // cut + isolate
-  const cells = [];
-  for (let r = 0; r < spec.rows.length; r++) {
-    const row = [];
-    for (let c = 0; c < spec.frames; c++) {
-      const cx = det.colBounds[c], cy = det.rowBounds[r];
-      const cell = ops.crop(img, cx, cy, det.colBounds[c + 1] - cx, det.rowBounds[r + 1] - cy);
-      const iso = ops.isolateMain(cell);
-      row.push({ cell: iso.img, main: iso.main, labels: iso.labels });
-    }
-    cells.push(row);
-  }
   const mainH = (m) => (m ? m.y1 - m.y0 + 1 : 0);
   const refH = ov.refHeight || median(cells[0].map((f) => mainH(f.main)).filter(Boolean));
-  const scale = spec.body / refH;
+  const scale = (spec.body * supersample) / refH;
+
+  // reference face (size/width) from the idle row, so every other pose can be scored against it
+  let headRef = null;
+  if (spec.head) {
+    const refs = cells[0].map((f) => (f.main ? ops.headAnchor(f.cell, f.main, f.labels) : null)).filter((h) => h && h.method === 'skin');
+    if (refs.length) headRef = { size: median(refs.map((h) => h.size)), w: median(refs.map((h) => h.w)) };
+    else warn(`${id}: no reference face found on the idle row`);
+  }
 
   // per-row baseline (median bottom of main figure) and per-frame x anchor (legs centre)
   const frames = [];
@@ -108,7 +231,7 @@ async function processCharacter(id, srcPath, spec, opts = {}) {
         }
         if (n) ax = sx / n;
       }
-      const head = spec.head ? ops.headAnchor(cell, main, labels) : null;
+      const head = spec.head ? ops.headAnchor(cell, main, labels, headRef) : null;
       const scaled = ops.resize(cell, scale);
       const bb = ops.bbox(scaled) || { x: 0, y: 0, w: 1, h: 1 };
       const trimmed = ops.crop(scaled, bb.x, bb.y, bb.w, bb.h);
@@ -132,6 +255,7 @@ async function processCharacter(id, srcPath, spec, opts = {}) {
 
   // head smoothing per row (heroes)
   const headTable = {};
+  const headMethods = {};
   if (spec.head) {
     for (const rowName of spec.rows) {
       const rf = frames.filter((f) => f.row === rowName);
@@ -142,25 +266,30 @@ async function processCharacter(id, srcPath, spec, opts = {}) {
         const w = Math.min(Math.max(f.head.w, mw * 0.75), mw * 1.3);
         return { x: f.head.x, y: f.head.y, w, method: f.head.method };
       });
-      // fill gaps & clamp jumps against neighbours
-      for (let i = 0; i < list.length; i++) {
-        if (!list[i]) { const nb = list[i - 1] || list[i + 1] || { x: 0, y: -spec.body * 0.85, w: mw, method: 'default' }; list[i] = { ...nb, method: 'filled' }; }
-      }
-      for (let i = 1; i < list.length - 1; i++) {
-        const p = list[i - 1], n = list[i + 1], c = list[i];
-        const jump = Math.hypot(c.x - (p.x + n.x) / 2, c.y - (p.y + n.y) / 2);
-        if (jump > mw * 1.1 && !(rowName === 'hurt' || rowName === 'defeat')) { c.x = (p.x + n.x) / 2; c.y = (p.y + n.y) / 2; c.method = 'smoothed'; }
-      }
+      // Frames with no figure in them (a projectile-only special frame: headAnchor found no skin at
+      // all) get no head so the face rig hides rather than floating over the effect. Detected
+      // positions are used as-is — poses legitimately move the head a lot between frames.
+      for (let i = 0; i < list.length; i++) if (!list[i]) list[i] = { method: 'none' };
       const rowOv = ov.head && ov.head[rowName];
+      headMethods[rowName] = list.map((h) => h.method);
       headTable[rowName] = list.map((h, i) => {
         const o = rowOv && rowOv[i];
-        return o ? [o[0], o[1], o[2] ?? h.w] : [+(h.x).toFixed(1), +(h.y).toFixed(1), +(h.w).toFixed(1)];
+        if (o) return [o[0], o[1], o[2] ?? h.w ?? mw];
+        return h.method === 'none' ? null : [+(h.x).toFixed(1), +(h.y).toFixed(1), +(h.w).toFixed(1)];
       });
     }
   }
 
-  // pack
-  const pack = ops.shelfPack(frames.map((f) => ({ key: f.key, w: f.img.width, h: f.img.height })));
+  // pack into a power-of-two atlas: try each width and keep the smallest po2 canvas that fits
+  const items = frames.map((f) => ({ key: f.key, w: f.img.width, h: f.img.height }));
+  let pack = null;
+  for (const w of [1024, 2048, 4096]) {
+    const p = ops.shelfPack(items, w);
+    const po2 = { ...p, width: w, height: nextPo2(p.height) };
+    if (po2.height > 4096) continue;
+    if (!pack || po2.width * po2.height < pack.width * pack.height) pack = po2;
+  }
+  if (!pack) throw new Error(`${id}: frames do not fit a 4096x4096 atlas`);
   const atlas = ops.makeImage(pack.width, pack.height);
   const json = { frames: {}, meta: { app: 'nepho-build-assets', image: `${id}.webp`, size: { w: pack.width, h: pack.height }, scale: '1' } };
   for (const f of frames) {
@@ -182,12 +311,16 @@ async function processCharacter(id, srcPath, spec, opts = {}) {
   // contact sheet
   await contactSheet(id, frames, box, anchor, headTable, spec);
 
+  const rel = (p) => p.replace(ROOT + '/', '');
+  const srcStr = source.kind === 'actions' ? rel(dirname(source.files[0][1])) + '/{' + source.files.map(([a]) => a).join(',') + '}.png'
+    : source.kind === 'pair' ? source.files.map(rel).join(' + ') : rel(source.file);
   const entry = {
     id, kind: spec.kind, atlas: `chars/${id}.webp`, data: `chars/${id}.json`, box, anchor, rows: spec.rows, framesPerRow: spec.frames,
-    scale: +scale.toFixed(4), skin: colours.skin, outline: colours.outline, head: spec.head ? headTable : undefined, source: srcPath.replace(ROOT + '/', ''), notes,
+    scale: +scale.toFixed(4), renderScale: supersample === 1 ? undefined : +(1 / supersample).toFixed(4),
+    skin: colours.skin, outline: colours.outline, head: spec.head ? headTable : undefined, source: srcStr, sourceFormat: source.kind, notes,
   };
-  report.characters[id] = { maxCutOcc: +det.maxCutOcc.toFixed(3), modes: det.modes, scale: entry.scale, box, notes, atlas: [pack.width, pack.height],
-    headMethods: spec.head ? Object.fromEntries(Object.entries(headTable).map(([k]) => [k, frames.filter((f) => f.row === k).map((f) => f.head?.method || 'none')])) : undefined };
+  report.characters[id] = { format: source.kind, maxCutOcc: det ? +det.maxCutOcc.toFixed(3) : 0, modes: det ? det.modes : undefined, scale: entry.scale, box, notes, atlas: [pack.width, pack.height],
+    headMethods: spec.head ? headMethods : undefined };
   return { entry, atlas, json };
 }
 
@@ -201,7 +334,7 @@ async function contactSheet(id, frames, box, anchor, headTable, spec) {
     ops.blit(sheet, f.img, ox + Math.round(anchor.x + f.left), oy + Math.round(anchor.y + f.top));
     ops.drawLine(sheet, ox + anchor.x - 6, oy + anchor.y, ox + anchor.x + 6, oy + anchor.y, [255, 80, 80]);
     ops.drawLine(sheet, ox + anchor.x, oy + anchor.y - 6, ox + anchor.x, oy + anchor.y + 6, [255, 80, 80]);
-    if (headTable[f.row]) {
+    if (headTable[f.row] && headTable[f.row][c]) {
       const [hx, hy, hw] = headTable[f.row][c];
       ops.drawCircle(sheet, ox + anchor.x + hx, oy + anchor.y + hy, hw * 0.55, [80, 255, 120]);
     }
@@ -217,6 +350,20 @@ async function variantFrom(base, id, remap, notes) {
   const entry = { ...base.entry, id, atlas: `chars/${id}.webp`, data: `chars/${id}.json`, variantOf: base.entry.id, notes: [...(base.entry.notes || []), ...notes] };
   if (remap.skin) entry.skin = remap.skin;
   return { entry, atlas: img, json };
+}
+
+// True when two sources are the same art (mean per-channel difference of a 64px thumbnail under 8/255).
+async function nearDuplicate(a, b) {
+  const files = (src) => (src.kind === 'actions' ? src.files.map(([, p]) => p) : src.kind === 'pair' ? src.files : [src.file]);
+  const fa = files(a), fb = files(b);
+  if (fa.length !== fb.length) return false;
+  for (let i = 0; i < fa.length; i++) {
+    const [x, y] = await Promise.all([fa[i], fb[i]].map((f) => sharp(f).resize(64, 64, { fit: 'fill' }).ensureAlpha().raw().toBuffer()));
+    let d = 0;
+    for (let k = 0; k < x.length; k++) d += Math.abs(x[k] - y[k]);
+    if (d / x.length > 8) return false;
+  }
+  return true;
 }
 
 function looksLikeGrid(img, rows, cols) {
@@ -302,27 +449,29 @@ async function main() {
   const want = (group) => !only || only === group;
 
   if (want('heroes')) {
-    for (const id of ['nepho', 'bruiser', 'riva']) {
-      results[id] = await processCharacter(id, join(SRC, `hero-${id}-grid.png`), HERO);
-      console.log('hero', id, 'ok');
+    const heroSrc = {};
+    for (const id of ['nepho', 'bruiser', 'riva', 'byte']) {
+      const src = resolveSource(id, HERO_ACTIONS, [join(SRC, `hero-${id}-grid-1.png`), join(SRC, `hero-${id}-grid-2.png`)], join(SRC, `hero-${id}-grid.png`));
+      heroSrc[id] = src;
+      results[id] = await processCharacter(id, src, src.kind === 'pair' ? { ...HERO, rows: HERO_ROWS_12 } : HERO);
+      console.log('hero', id, results[id] ? `ok (${src.kind})` : 'FAILED');
     }
-    const byteSrc = join(SRC, 'hero-byte-grid.png');
-    let byteRes = null;
-    if (existsSync(byteSrc)) {
-      const img = await loadRaw(byteSrc);
-      if (looksLikeGrid(img, 8, 6)) byteRes = await processCharacter('byte', byteSrc, HERO);
-      else warn('byte: hero-byte-grid.png is not an 8x6 grid; using riva hue-remapped to pink');
+    // Byte's delivered grids have so far been copies of Riva's. Until a real Byte set lands, keep the
+    // roster visually distinct by hue-shifting the duplicate to her pink rather than shipping two Rivas.
+    if (results.byte && results.riva && await nearDuplicate(heroSrc.byte, heroSrc.riva)) {
+      warn('byte: source grids are a duplicate of riva\'s — hue-remapped to pink; see docs/asset-prompts.md');
+      const notes = ['fallback: source is a duplicate of riva, hue-remapped to pink until a real byte set is supplied'];
+      results.byte = await variantFrom(results.byte, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, notes);
+      delete results.byte.entry.variantOf; // it is byte's own (duplicated) art, not a derived atlas
     }
-    if (!byteRes) byteRes = await variantFrom(results.riva, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, ['fallback: riva hue-remapped to pink until a real byte grid is supplied']);
-    results.byte = byteRes;
-    console.log('hero byte', byteRes.entry.variantOf ? '(variant)' : 'ok');
   }
   if (want('enemies')) {
     for (let i = 0; i < 6; i++) {
       const id = ENEMY_IDS[i];
-      let res = await processCharacter(id, join(SRC, 'enemies', ENEMY_FILES[i]), ENEMY);
-      results[id] = res;
-      console.log('enemy', id, res ? 'ok' : 'FAILED');
+      const pair = [1, 2].map((n) => join(SRC, 'enemies', ENEMY_FILES[i].replace('-grid.png', `-grid-${n}.png`)));
+      const src = resolveSource(id, ENEMY_ACTIONS, pair, join(SRC, 'enemies', ENEMY_FILES[i]));
+      results[id] = await processCharacter(id, src, src.kind === 'pair' ? { ...ENEMY, rows: ENEMY_ROWS_12 } : ENEMY);
+      console.log('enemy', id, results[id] ? `ok (${src.kind})` : 'FAILED');
     }
     if (!results.kicker) {
       results.kicker = await variantFrom(results.brawler, 'kicker', { h0: 5, h1: 55, delta: 240 }, ['fallback: brawler hue-shifted to purple because enemy-03 could not be unbaked']);
@@ -336,9 +485,10 @@ async function main() {
   if (want('bosses')) {
     for (let i = 0; i < 10; i++) {
       const id = BOSSES[i][0];
-      const res = await processCharacter(id, join(SRC, 'bosses', BOSS_FILES[i]), BOSS);
+      const src = resolveSource(id, BOSS_ACTIONS, null, join(SRC, 'bosses', BOSS_FILES[i]));
+      const res = await processCharacter(id, src, BOSS);
       results[id] = res; bossResults.push(res);
-      console.log('boss', id, res ? 'ok' : 'FAILED');
+      console.log('boss', id, res ? `ok (${src.kind})` : 'FAILED');
     }
     catalog.bosses = BOSSES.map(([id, name], i) => ({ id, name, index: i, portrait: `portraits/${id}.webp` }));
     await processPortraits(catalog, bossResults);

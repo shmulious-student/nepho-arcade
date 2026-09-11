@@ -42,7 +42,8 @@ export class World {
       const hid = opts.heroes[slot];
       if (!hid) continue;
       const def = HEROES[hid];
-      const e = makeEntity(this.id(), 'hero', hid, 140 + slot * 40, LANE_H * 0.5, def.hp);
+      // inside the zoomed view (the renderer shows roughly the middle 60% of VIEW_W), not at its edge
+      const e = makeEntity(this.id(), 'hero', hid, 300 + slot * 40, LANE_H * 0.5, def.hp);
       e.slot = slot;
       this.entities.push(e);
       this.players[slot] = e;
@@ -146,7 +147,7 @@ export class World {
     hero.hp = Math.round(hero.maxHp * 0.6);
     hero.meter = 0;
     hero.invuln = 90;
-    hero.x = this.cameraX + 90 + slot * 30;
+    hero.x = this.cameraX + 300 + slot * 30;
     hero.y = LANE_H * 0.5;
     hero.combo = 0; hero.comboTimer = 0;
     setState(hero, 'getup');

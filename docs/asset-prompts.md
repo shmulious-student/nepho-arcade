@@ -4,79 +4,231 @@ This machine has no image-generation API, so these are written to hand to any im
 same pipeline that produced the rest of the pack). Drop a corrected file into
 `public/assets/generated/` at the path shown, run `npm run build:assets`, then `npm run test:assets`
 — the pipeline picks it up automatically and the gate confirms it passes. Nothing else in the code
-needs to change; character identity, row order, and frame count are all read from the file itself.
+needs to change; character identity, row order, and frame count are all read from the files.
 
 Every grid must meet `docs/asset-quality-standard.md`: true RGBA transparency (no checkerboard, no
 colored matte baked into the pixels), large game-readable frames with clean separation between cells,
-consistent anatomy/costume/palette/facing/bottom-center anchor across the whole grid, and clearly
+consistent anatomy/costume/palette/facing/bottom-center anchor across the whole set, and clearly
 distinct poses per action — no repeated idle frame standing in for a missing action.
 
-## Required
+---
 
-### 1. `hero-byte-grid.png` — wrong character
+## The per-action format (current target)
 
-The current file is a 2172×724 four-pose strip of the male orange-scarf character (same identity as
-`hero-nepho-grid.png`'s reference sheet), not Byte. The game currently substitutes a hue-shifted Riva.
+One image per character **per action**, holding a **3×3 grid of 9 animation frames** read row-major
+(top-left → top-right, then down). Each file is a **square power-of-two canvas** — **2048×2048**,
+giving 682×682 px per frame, roughly the per-frame detail of
+`public/assets/references/hero-grid-quality-reference.png` (543×724 per figure) with room for effects.
 
-> Pixel-art fighting-game character sheet, 8 rows × 6 columns, true transparent RGBA background (no
-> checkerboard, no matte color baked into the pixels). Character: "Byte" — a female boxer, pink/magenta
-> hair in a undercut ponytail, black sports bra top, magenta fingerless boxing gloves with dark straps,
-> dark athletic pants, confident stance. Match the render style, outline weight, and lighting of the
-> attached reference (`hero-grid-quality-reference.png` in this repo, or row 5 of `hero-action-atlas-v2.png`
-> and card 5 of `hero-roster-atlas.png` for her exact design). Character faces right in every frame;
-> bottom-center anchor point identical across all 48 cells; generous empty margin between cells so
-> effects never bleed into a neighboring frame. Row order top to bottom, 6 frames per row:
-> 1. idle (subtle guard stance, 6-frame breathing loop)
-> 2. walk (6-frame run cycle)
-> 3. attack (jab-cross-hook combo, 6 frames)
-> 4. heavy (a heavier haymaker with wind-up, 6 frames)
-> 5. dash (a forward dash/step, 6 frames)
-> 6. special — Byte's special is a ranged 4-shot volley: draw it as a punching-forward pose with a
->    pink energy projectile launching from the glove, 6 frames showing windup → 3 shots → recovery
-> 7. hurt (flinch/recoil reactions, 6 frames)
-> 8. defeat (knockdown → lying down, 6 frames)
->
-> Output at roughly 1200–1300px square total canvas (~200×160px per cell), matching the resolution of
-> the other three hero grids in this pack.
+```
+public/assets/generated/actions/<character-id>/<action>.png
+```
 
-Save as `public/assets/generated/hero-byte-grid.png`.
+Why per action: an action can be regenerated on its own without touching the rest of the character,
+each file stays inside the resolution ceiling of most image models, and the 9 frames give visibly
+smoother animation than the 6 the older grids carried.
 
-### 2. `enemies/enemy-03-purple-fighter-grid.png` — baked checkerboard
+**What the pipeline does with it.** `tools/build-assets.mjs` picks this format automatically the
+moment `actions/<id>/` contains *every* action in that character's list (a partial set is ignored, so
+a half-delivered character never mixes two art styles in one atlas). It cuts the 9 cells on fixed
+thirds, isolates the figure, normalizes every frame to a shared bottom-center anchor, packs them into
+a power-of-two atlas, and records a `renderScale` so the extra detail survives the game's 1.7× world
+zoom instead of being thrown away at build time. Move timing is authored against a canonical 6-frame
+row and remapped proportionally onto 9 — nothing needs re-authoring per character.
 
-Alpha is 255 (fully opaque) on every pixel — the "transparent" checkerboard is painted directly into
-the RGB values, not real alpha. The pipeline attempts to un-bake it automatically (flood-fill +
-bimodal-block detection) and falls back to a hue-shifted Brawler if that fails; either way, a clean
-regeneration is preferable.
+### Required action list
 
-> Pixel-art fighting-game enemy sheet, 8 rows × 6 columns, true transparent RGBA background (real
-> alpha channel — verify in an editor that shows an actual checkerboard for transparency, not one
-> painted into the pixels). Character: a purple-haired female street fighter in fishnet leggings and
-> a black jacket, fists raised, aggressive stance — same character design as the current
-> `enemy-03-purple-fighter-grid.png` (do not redesign her, just fix the transparency). Facing right,
-> consistent bottom-center anchor, generous margin between cells. Row order, 6 frames per row: idle,
-> walk, attack, heavy, special, hurt, knockback, defeat.
+**Heroes** (12 files each, `actions/<hero>/…`):
 
-Save as `public/assets/generated/enemies/enemy-03-purple-fighter-grid.png`.
+| Action | Frames tell |
+|---|---|
+| `idle` | breathing guard-stance loop |
+| `walk` | full walk/run cycle, loops seamlessly |
+| `dash` | crouch-launch → speed-blurred run (frames 1–7 loop while held) → lunge stop |
+| `light1` | first jab of the light chain |
+| `light2` | second hit, a cross that reads as a follow-up to `light1` |
+| `light3` | chain finisher: a 360° spinning breaker that hits all around |
+| `heavy` | slow wind-up → committed power blow → long recovery |
+| `special` | the hero's signature (see per-hero prompts), windup → release → recovery |
+| `block` | guard held up, absorbing; small flinch, feet planted |
+| `hurt` | flinch (frames 1–3), heavy reel (4–6), airborne crumple (7–9) |
+| `knockdown` | stagger → fall → on the floor → rising to one knee → back on feet |
+| `defeat` | final fall, ending flat on the ground and staying there |
+
+**Bosses** (6 files each, `actions/<boss>/…`): `idle`, `approach`, `attack`, `special`, `hurt`,
+`defeat`.
+
+**Enemies** (10 files each, `actions/<enemy>/…`): `idle`, `walk`, `attack`, `heavy`, `special`,
+`guard`, `hurt`, `knockback`, `getup`, `defeat`.
+
+### Rules that apply to every file
+
+- 2048×2048 RGBA, real alpha — background fully transparent, alpha 0, nothing painted in.
+- 3×3 = 9 frames, read row-major. Every frame is a distinct pose; never pad with a repeated idle.
+- The character faces **right** in every frame. The renderer mirrors for leftward movement.
+- Identical bottom-center anchor in all 9 cells: feet land on the same baseline, body centered on the
+  same vertical axis, so the figure does not slide or bob between frames.
+- Generous empty margin inside each cell. Effects, hair, weapons, and trails must not touch or cross
+  a cell boundary — the pipeline's gate rejects art that overlaps frame edges.
+- Anatomy, costume, and palette identical to the character's other action files. Generate a character's
+  actions in one session, from one description, so the design does not drift between files.
+- The face stays visually coherent and unobstructed on heroes — an uploaded player portrait is
+  composited over it at runtime, and the pipeline auto-detects the head position from the skin tones.
+- No labels, text, UI, frame numbers, borders, scenery, or extra characters anywhere in the image.
+
+### How a delivered set is verified
+
+Drop the files in and run:
+
+```bash
+npm run build:assets && npm run test:assets
+```
+
+`build:assets` prints `hero <id> ok (actions)` when it picked the new set up (`(pair)`/`(grid)` mean
+it is still on the older art — a file is missing or misnamed). `test:assets` then holds every
+per-action file to the rules above and **fails the build**, naming the file and the cell, when:
+
+- the canvas is not a square power-of-two, or the background is not real alpha transparency;
+- a cell is empty;
+- a cell's art is **cut off** — a figure pushed onto the cell line, or an effect ending in a hard
+  straight edge near it (a slash arc chopped flat, a beam that stops dead, a fireball sliced in half).
+
+The same defects in the older grids are listed as notes, not failures — that art is what ships until
+it is regenerated, and this is the list of what regeneration fixes. The check was exercised both
+ways: a clean synthetic set passes, and a set with one figure on the line and one sliced effect fails
+on exactly those two cells.
+
+What the build does with a defective frame it is forced to ship (older grids only): it never shows it.
+The frame is replaced in the atlas by the nearest clean frame of the same row — a held pose instead of
+a cut body — and the build writes `public/game/debug/defects-<id>.png` (rejected cell on the left,
+its stand-in on the right) plus `defects-<id>.txt` listing why each was rejected. Slicing itself never
+cuts anything: the sheet is segmented once, every blob of pixels goes whole to the frame that owns it,
+and only debris the generator left behind (severed crumbs, a stray fragment behind the figure) is
+discarded.
+
+What none of this can judge is style and motion. Review a set in motion before accepting it:
+`npm run dev` then open **`/showcase.html`** — every character plays each atlas row in turn at its
+real anchor (`?row=knockback` starts everyone on one row), so sliding feet, popping and held frames
+are obvious. `public/game/debug/anchors-<id>.png` is the same data as a static contact sheet.
+
+### Prompt template
+
+Fill in the character description and the per-frame beats:
+
+> Pixel-art fighting-game character animation sheet. A 3×3 grid of 9 animation frames, read left to
+> right then top to bottom, on a 2048×2048 canvas with a **true transparent RGBA background** (real
+> alpha channel, not a painted checkerboard, not a matte color). Character: **<description —
+> silhouette, hair, costume, palette, build>**. Match the render style, outline weight, and lighting
+> of the attached reference (`public/assets/references/hero-grid-quality-reference.png`); the figure
+> should fill roughly 70% of each cell's height. The character faces right in every frame. Identical
+> bottom-center anchor in all 9 cells — feet on the same baseline, body on the same vertical axis.
+> Generous empty margin inside each cell; effects and hair must never touch or cross a cell boundary.
+> Action: **<action name>** — <the 9 beats, e.g. "wind-up shoulder drop, step in, fist cocked, launch,
+> contact with impact flash, follow-through, over-extended, recovering, back to stance">. Every frame
+> is a distinct pose. No text, labels, borders, UI, background scenery, or additional characters.
+
+---
+
+## Required now
+
+Three heroes and four bosses, at the per-action format above. Everything else keeps working on its
+current art in the meantime — the pipeline falls back per character, so these can land one at a time.
+
+Known defects in the art currently shipped (all baked into the source PNGs — the build hides them by
+substituting a clean neighbouring frame, `npm run test:assets` lists them, and only regeneration
+restores the missing frames):
+
+- **Byte's grids are a copy of Riva's** (`hero-byte-grid-1/2.png` are pixel-identical to
+  `hero-riva-grid-1/2.png`). The build detects this and hue-shifts her to pink so the roster stays
+  distinct, but she needs her own set — see *Remaining characters* below for her description.
+- Punk is the worst: `knockback` (5 of 6 frames — the flying body cropped by the cell, shoes severed),
+  `defeat` (4 frames are legs only), `special`/`hurt` fireballs sliced in half. 15 frames held.
+- Bruiser `knockdown`/`defeat`: bodies cut at the cell line with a detached glove drawn beside them
+  (8 frames held). Knight `approach`: the thrust beam chopped flat (6 held).
+- Nepho `heavy` frame 4 and `special` frames 3–4: the slash arc and the beam chopped flat.
+- Every boss loses 1–3 frames whose figure is mostly missing (`ferryman attack/hurt/defeat`, …).
+
+### Heroes
+
+Match each hero's existing design; do not redesign them. Their current idle frames are the reference
+for identity — `public/game/debug/anchors-<id>.png` shows every frame the game uses today.
+
+**1. `actions/nepho/` — Nepho** (male, balanced, radial burst special)
+
+> Character: a lean young male fighter, spiky black hair, sleeveless dark-navy tunic over dark
+> trousers, wrapped forearms, a long teal scarf/cape that trails behind him, teal energy accents.
+
+His `special` is a radial burst: hands drawn to the chest gathering teal energy, then a 360° shockwave
+of teal light exploding outward from him, then recovery. His `light3` finisher is a spinning teal
+crescent slash around his whole body.
+
+**2. `actions/bruiser/` — Bruiser** (male, heavy hitter, armored slam)
+
+> Character: a very broad, heavyset male brawler, curly brown hair, orange armored bodysuit with
+> segmented shoulder and knee plates over a dark grey undersuit, a metal belt buckle, huge fists.
+
+His `special` is an armored slam: he plants, gathers orange fire around both fists, then drives them
+down into the ground, throwing a burst of orange flame forward. He is slow and weighty — wind-ups take
+more frames than the recovery.
+
+**3. `actions/riva/` — Riva** (female, combo mobility, line dash)
+
+> Character: an athletic young woman, long dark-brown hair in a high ponytail, white sports top,
+> lime-green cargo pants with a dark panel down one leg, white trainers, fingerless gloves, lime-green
+> energy accents.
+
+Her `special` is a line dash: she coils, then rockets forward wrapped in a lime-green energy spiral,
+leaving a trail. Her animation is faster and lighter than the other two — more frames of travel, fewer
+of wind-up.
+
+### Bosses
+
+The four the player meets first, in level order. Use the current boss art as the design reference
+(`public/game/portraits/<id>.webp` and `public/game/debug/anchors-<id>.png`). Bosses are larger and
+heavier on screen than heroes: telegraph every attack clearly, and make `special` unmistakably
+different from `attack`.
+
+**4. `actions/ferryman/` — Ferryman** (level 1) — a tall hooded figure in a blue armored bodysuit with a
+glowing blue energy blade; `special` is a wide sweeping arc of blue light.
+
+**5. `actions/glass-warden/` — Glass Warden** (level 2) — a heavy armored warden of translucent glass and
+steel plates, refracted highlights; `special` shatters a wall of glass shards forward.
+
+**6. `actions/kilnheart/` — Kilnheart** (level 3) — a red-and-gold armored samurai wreathed in flame with a
+burning blade; `special` is a downward fire slash that erupts along the ground.
+
+**7. `actions/monk-zero/` — Monk Zero** (level 4) — a robed martial-arts monk, spinning-staff and palm-strike
+melee; `special` is a concentrated chi blast from an open palm.
+
+---
 
 ## Optional polish
 
-### 3. Six more enemy/mini-boss grids
+### Remaining characters
 
-`enemy-boss-atlas.png` (in this repo) has twelve full-body reference figures in a 4×3 grid; only the
-first six (row 1 + row 2 cols 1–2) were ever turned into action grids. Slots 6–11 are unused designs:
-a green bio-brawler, a dark-gold sorceress, a purple demon, a red flame samurai, a teal dragon mech,
-and a rainbow queen. Turning any of these into an 8×6 action grid (same format as the existing enemy
-grids) would add roster variety for later levels without any code changes beyond registering the new
-id in `src/sim/enemyAi.ts` and `src/sim/levels.ts`.
+The same per-action spec covers everything else when it is worth regenerating: **Byte** (female,
+ranged four-shot volley — pink/magenta hair in an undercut ponytail, black sports bra, magenta boxing
+gloves; her `special` fires pink energy projectiles from the glove), the six enemies (`punk`,
+`chainer`, `brawler`, `kicker`, `knight`, `shield`), and the six remaining bosses (`market-king`,
+`railmaw`, `crown-runner`, `the-null`, `vault-mother`, `ultra-signal`). Each keeps working on its
+current art until a complete `actions/<id>/` set exists.
 
-### 4. Title wordmark / app icon / splash
+### More enemy variety
+
+`enemy-boss-atlas.png` has twelve full-body reference figures in a 4×3 grid; only the first six were
+ever turned into action grids. Slots 6–11 are unused designs: a green bio-brawler, a dark-gold
+sorceress, a purple demon, a red flame samurai, a teal dragon mech, and a rainbow queen. Turning any
+of these into a per-action set would add roster variety for later levels, needing only a new id in
+`src/sim/enemyAi.ts` and `src/sim/levels.ts`.
+
+### Title wordmark / app icon / splash
 
 The current logo (`public/assets/generated/ui/logo.svg`) is a placeholder line-art wordmark. A proper
 title treatment (transparent PNG or SVG, ~800×240), a 512×512 and 192×192 app icon, and a 1080×1920
 splash image would all drop in at `public/assets/generated/ui/` — reference the palette in
 `docs/graphic-asset-map.md` (`#ffcf5c` accent, `#75f5dc` cyan, `#050711` background).
 
-### 5. Real audio
+### Real audio
 
 The game currently ships with fully procedural Web Audio (see `src/audio/`) — no files needed to
 function. If real SFX/music are ever produced, replace `src/audio/synth.ts`'s oscillator calls with

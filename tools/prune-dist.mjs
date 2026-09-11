@@ -10,6 +10,7 @@ const toPrune = [
   'assets/nepho-hero-keyart.png', // promo key art — never loaded in-scene per the asset brief
   'assets/references', // quality-reference art, build-time only
   'game/debug', // anchor contact sheets + report.json, inspection-only
+  'showcase.html', // dev-only animation review page
 ];
 
 let prunedBytes = 0;

@@ -18,24 +18,29 @@ export interface MoveDef {
 export const total = (m: MoveDef) => m.startup + m.active + m.recovery;
 
 export const HERO_MOVES: Record<string, MoveDef> = {
+  // Rows are the 12-row hero grid (public/assets/generated/hero-*-grid-{1,2}.png): idle walk dash
+  // light1 light2 light3 | heavy special block hurt knockdown defeat. Each light hit owns its own row.
   // Light chain is deliberately snappy and cancels the instant active frames begin (cancelFrom ==
   // startup), so tapping LIGHT on rhythm strings hits together smoothly instead of waiting out recovery.
-  light1: { row: 'attack', frames: [0, 1, 2, 3], startup: 3, active: 3, recovery: 6, hit: { dx: 44, dy: 0, w: 52, h: 90, dmg: 9, hitstun: 14, kb: 1.6 }, cancelFrom: 3, cancelTo: 'light2', specialCancel: true },
-  light2: { row: 'attack', frames: [1, 3, 4], startup: 4, active: 3, recovery: 7, hit: { dx: 46, dy: 0, w: 54, h: 90, dmg: 10, hitstun: 16, kb: 1.8 }, cancelFrom: 4, cancelTo: 'light3', specialCancel: true },
+  light1: { row: 'light1', frames: [0, 1, 2, 3, 4, 5], startup: 3, active: 3, recovery: 6, hit: { dx: 44, dy: 0, w: 52, h: 90, dmg: 9, hitstun: 14, kb: 1.6 }, cancelFrom: 3, cancelTo: 'light2', specialCancel: true },
+  light2: { row: 'light2', frames: [0, 1, 2, 3, 4, 5], startup: 4, active: 3, recovery: 7, hit: { dx: 46, dy: 0, w: 54, h: 90, dmg: 10, hitstun: 16, kb: 1.8 }, cancelFrom: 4, cancelTo: 'light3', specialCancel: true },
   // Combo finisher: a 360 breaker — radius-based so it lands on attackers from both sides at once and
   // (like a special) bypasses enemy guard, rewarding a completed chain when surrounded.
-  light3: { row: 'attack', frames: [0, 4, 5, 5], startup: 6, active: 5, recovery: 14, hit: { dx: 0, dy: 0, w: 0, h: 100, dmg: 18, hitstun: 22, kb: 5, knockdown: true, radius: 84 }, specialCancel: true },
+  light3: { row: 'light3', frames: [0, 1, 2, 3, 4, 5], startup: 6, active: 5, recovery: 14, hit: { dx: 0, dy: 0, w: 0, h: 100, dmg: 18, hitstun: 22, kb: 5, knockdown: true, radius: 84 }, specialCancel: true },
   heavy: { row: 'heavy', frames: [0, 1, 2, 3, 4, 5], startup: 9, active: 4, recovery: 18, hit: { dx: 46, dy: 0, w: 66, h: 110, dmg: 19, hitstun: 26, kb: 2.5, launch: 7 }, specialCancel: true },
-  dash: { row: 'dash', frames: [0, 1, 2, 2], startup: 0, active: 14, recovery: 4, iframes: [1, 9], speed: 7.5, cancelFrom: 4, cancelTo: 'dashAttack' },
-  dashAttack: { row: 'dash', frames: [3, 4, 5], startup: 6, active: 5, recovery: 14, hit: { dx: 40, dy: 0, w: 70, h: 90, dmg: 17, hitstun: 24, kb: 6, knockdown: true }, speed: 3 },
+  // Dash row: 0 crouch-launch, 1-4 speed-blur run (looped while the dash is held), 5 lunge stop.
+  dash: { row: 'dash', frames: [1, 2, 3, 4], startup: 0, active: 14, recovery: 4, iframes: [1, 9], speed: 7.5, cancelFrom: 4, cancelTo: 'dashAttack' },
+  dashAttack: { row: 'dash', frames: [4, 5, 5], startup: 6, active: 5, recovery: 14, hit: { dx: 40, dy: 0, w: 70, h: 90, dmg: 17, hitstun: 24, kb: 6, knockdown: true }, speed: 3 },
   special: { row: 'special', frames: [0, 1, 2, 3, 4, 5], startup: 8, active: 12, recovery: 20, iframes: [0, 24], hit: { dx: 0, dy: 0, w: 0, h: 120, dmg: 50, hitstun: 30, kb: 7, launch: 8, radius: 150 } },
-  block: { row: 'hurt', frames: [0], startup: 0, active: 0, recovery: 1 },
+  block: { row: 'block', frames: [0], startup: 0, active: 0, recovery: 1 },
+  // Hurt row: 0-1 flinch, 2-3 heavy reel, 4-5 crumple (used while airborne after a launch).
   hurt: { row: 'hurt', frames: [0, 1], startup: 0, active: 0, recovery: 14 },
   hurtHeavy: { row: 'hurt', frames: [2, 3], startup: 0, active: 0, recovery: 22 },
   launched: { row: 'hurt', frames: [4, 5], startup: 0, active: 0, recovery: 999 },
-  knockdown: { row: 'defeat', frames: [1, 2, 3, 3], startup: 0, active: 0, recovery: 32 },
-  getup: { row: 'defeat', frames: [3, 2, 1, 0], startup: 0, active: 0, recovery: 16 },
-  ko: { row: 'defeat', frames: [3, 4, 5, 5], startup: 0, active: 0, recovery: 999 },
+  // Knockdown row is a fall-then-rise: 0 stagger, 1 kneel, 2-3 floor, 4 kneel, 5 back on feet.
+  knockdown: { row: 'knockdown', frames: [1, 2, 3, 3], startup: 0, active: 0, recovery: 32 },
+  getup: { row: 'knockdown', frames: [3, 4, 5, 5], startup: 0, active: 0, recovery: 16 },
+  ko: { row: 'defeat', frames: [0, 1, 2, 3, 4, 5], startup: 0, active: 0, recovery: 999 },
   idle: { row: 'idle', frames: [0, 1, 2, 3, 4, 5], startup: 0, active: 0, recovery: 48 },
   walk: { row: 'walk', frames: [0, 1, 2, 3, 4, 5], startup: 0, active: 0, recovery: 36 },
 };

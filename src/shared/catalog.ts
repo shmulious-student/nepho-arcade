@@ -13,9 +13,14 @@ export interface CharacterEntry {
   rows: string[];
   framesPerRow: number;
   scale: number;
+  /** Extra factor the renderer must apply to the sprite: per-action grids are packed at a
+   * supersampled resolution so detail survives the world zoom, and this scales them back to the
+   * gameplay size the sim expects. Absent (treat as 1) for grids packed at 1:1. */
+  renderScale?: number;
   skin: [number, number, number];
   outline: [number, number, number];
-  head?: Record<string, [number, number, number][]>; // per-row array of [dx,dy,width] in box-space, heroes only
+  head?: Record<string, ([number, number, number] | null)[]>; // per-row array of [dx,dy,width] in box-space (null = no figure in frame, hide the face), heroes only
+  sourceFormat?: 'actions' | 'pair' | 'grid';
   variantOf?: string;
   notes: string[];
 }

@@ -4,15 +4,18 @@
 import { HERO_MOVES, total as moveTotal } from '../sim/frameData';
 import { ENEMY_DEFS } from '../sim/enemyAi';
 
-interface Pacing { row: string; ticks: number; loop: boolean }
+interface Pacing { row: string; ticks: number; loop: boolean; frames?: readonly number[] }
 
+// Enemy rows come from the 12-row enemy grid: idle walk approach attack combo heavy special guard
+// hurt knockback getup defeat. The knockback row is airborne (0-3) then landing flat (4-5), so the
+// launched/knockdown states split it; getup has its own row.
 const ENEMY_PACING: Record<string, Pacing> = {
   idle: { row: 'idle', ticks: 48, loop: true },
   walk: { row: 'walk', ticks: 32, loop: true },
   hurt: { row: 'hurt', ticks: 14, loop: false },
-  launched: { row: 'knockback', ticks: 40, loop: false },
-  knockdown: { row: 'knockback', ticks: 36, loop: false },
-  getup: { row: 'knockback', ticks: 14, loop: false },
+  launched: { row: 'knockback', ticks: 24, loop: false, frames: [0, 1, 2, 3] },
+  knockdown: { row: 'knockback', ticks: 36, loop: false, frames: [3, 4, 5, 5] },
+  getup: { row: 'getup', ticks: 14, loop: false },
   defeat: { row: 'defeat', ticks: 70, loop: false },
 };
 
@@ -31,36 +34,46 @@ function pick(frames: readonly number[], st: number, ticks: number, loop: boolea
   return frames[idx];
 }
 
-export function heroFrameKey(state: string, st: number): string {
+// Move tables are authored against a canonical 6-frame row. A character whose source art has more (or
+// fewer) frames per row keeps the same timing: frame f is remapped proportionally onto the row it
+// actually has, so 9-frame rows play all 9 and nothing has to be re-authored per character.
+const CANONICAL_FRAMES = 6;
+function remap(index: number, framesPerRow: number): number {
+  if (framesPerRow === CANONICAL_FRAMES) return index;
+  return Math.round((index * (framesPerRow - 1)) / (CANONICAL_FRAMES - 1));
+}
+const range = (n: number): readonly number[] => Array.from({ length: n }, (_, i) => i);
+
+export function heroFrameKey(state: string, st: number, framesPerRow = CANONICAL_FRAMES): string {
   const m = HERO_MOVES[state];
   if (!m) return 'idle/0';
   // idle/walk loop naturally; dash is now an open-ended sustained run (see fighter.ts) rather than a
   // fixed-duration burst, so it loops too instead of freezing on its last frame once st exceeds it.
   const loop = state === 'idle' || state === 'walk' || state === 'dash';
-  return `${m.row}/${pick(m.frames, st, Math.max(1, moveTotal(m)), loop)}`;
+  // launched/ko hold their state open-endedly (recovery 999); play their frames at a real pace and
+  // rest on the last one rather than stretching them across ~17s.
+  const ticks = state === 'ko' ? 48 : state === 'launched' ? 20 : Math.max(1, moveTotal(m));
+  return `${m.row}/${remap(pick(m.frames, st, ticks, loop), framesPerRow)}`;
 }
 
-const GENERIC6 = [0, 1, 2, 3, 4, 5] as const;
-
-export function enemyFrameKey(arch: string, state: string, st: number): string {
+export function enemyFrameKey(arch: string, state: string, st: number, framesPerRow = CANONICAL_FRAMES): string {
+  const all = range(framesPerRow);
   const def = ENEMY_DEFS[arch];
   if (def) {
     const a = state === 'attack' ? def.attack : state === 'heavy' ? def.heavy : state === 'special' ? def.special : null;
-    if (a) return `${state}/${pick(GENERIC6, st, Math.max(1, a.startup + a.active + a.recovery), false)}`;
+    if (a) return `${state}/${pick(all, st, Math.max(1, a.startup + a.active + a.recovery), false)}`;
   }
   const p = ENEMY_PACING[state] || ENEMY_PACING.idle;
-  return `${p.row}/${pick(GENERIC6, st, p.ticks, p.loop)}`;
+  return `${p.row}/${pick(p.frames ? p.frames.map((f) => remap(f, framesPerRow)) : all, st, p.ticks, p.loop)}`;
 }
 
-const GENERIC8 = [0, 1, 2, 3, 4, 5, 6, 7] as const;
-
-export function bossFrameKey(state: string, st: number): string {
+export function bossFrameKey(state: string, st: number, framesPerRow = 8): string {
   const p = BOSS_PACING[state] || BOSS_PACING.idle;
-  return `${p.row}/${pick(GENERIC8, st, p.ticks, p.loop)}`;
+  return `${p.row}/${pick(range(framesPerRow), st, p.ticks, p.loop)}`;
 }
 
-export function frameKeyFor(kind: string, arch: string, state: string, st: number): string {
-  if (kind === 'hero') return heroFrameKey(state, st);
-  if (kind === 'boss' || kind === 'echo') return bossFrameKey(state, st);
-  return enemyFrameKey(arch, state, st);
+export function frameKeyFor(kind: string, arch: string, state: string, st: number, framesPerRow?: number): string {
+  if (kind === 'hero') return heroFrameKey(state, st, framesPerRow);
+  if (kind === 'boss' || kind === 'echo') return bossFrameKey(state, st, framesPerRow);
+  return enemyFrameKey(arch, state, st, framesPerRow);
 }

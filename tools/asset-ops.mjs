@@ -220,6 +220,140 @@ export function isolateMain(cell, { borderRatio = 0.4, speck = 12 } = {}) {
   return { img: out, main, labels, comps };
 }
 
+// ---------- fixed-grid slicing ----------
+// Cuts a sheet on fixed, evenly spaced cell bounds (no detection).
+//
+// Cell boundaries in generated art are nominal: slashes, trails and muzzle flashes routinely spill
+// into the neighbouring frame. Cutting on the boundary slices effects in half and leaves the severed
+// tail sitting in the next frame. So the sheet is segmented **once, globally**: every connected blob
+// of pixels is assigned whole to the cell its centroid falls in. Each frame is then read from a padded
+// window around its cell showing only its own blobs — an overflowing effect stays intact with the
+// frame that owns it, and no fragment of a neighbour leaks in.
+//
+// Returns rows of { cell, main, labels, clipped } where `clipped` lists the sides ('left'/'right')
+// on which the frame's art ends in a hard straight edge — an effect the generator itself cut off.
+const CELL_PAD = 0.35;
+
+export function sliceFixed(img, rows, cols, take = cols) {
+  const xs = Array.from({ length: cols + 1 }, (_, i) => Math.round((img.width * i) / cols));
+  const ys = Array.from({ length: rows + 1 }, (_, i) => Math.round((img.height * i) / rows));
+  const { labels, comps } = components(img.width, img.height, (i) => img.data[i * 4 + 3] > A_T);
+  const cellOf = (v, bounds) => { let k = bounds.length - 2; while (k > 0 && v < bounds[k]) k--; return k; };
+  // Pass 1: the figure of each cell is the largest blob whose centroid lies in it.
+  const mains = new Array(rows * cols).fill(null);
+  const home = new Int32Array(comps.length).fill(-1);
+  for (const c of comps) {
+    if (c.size < 12) continue;
+    const k = cellOf(c.sy / c.size, ys) * cols + cellOf(c.sx / c.size, xs);
+    home[c.id] = k;
+    if (!mains[k] || c.size > mains[k].size) mains[k] = c;
+  }
+  // Pass 2: every other blob goes with the figure it is nearest to, its own cell's or a neighbour's.
+  // A slash tip that broke off and drifted across the line still sits right next to the figure that
+  // swung it, and far from the one in the cell it landed in.
+  const bboxGap = (a, b) => Math.hypot(Math.max(0, a.x0 - b.x1, b.x0 - a.x1), Math.max(0, a.y0 - b.y1, b.y0 - a.y1));
+  const owner = new Int32Array(comps.length).fill(-1);
+  for (const c of comps) {
+    const k = home[c.id];
+    if (k === -1) continue;
+    if (mains[k] === c) { owner[c.id] = k; continue; }
+    const r = (k / cols) | 0, col = k % cols;
+    // A blob pressed against a cell line, with the neighbour's figure pressed against the same line
+    // from the other side, is the severed half of that figure (a foot or glove the generator drew
+    // across the boundary): it goes back to the neighbour regardless of what else is nearby.
+    const T = 3;
+    const left = col > 0 ? mains[k - 1] : null, right = col < cols - 1 ? mains[k + 1] : null;
+    if (left && c.x0 - xs[col] <= T && xs[col] - 1 - left.x1 <= T) { owner[c.id] = k - 1; continue; }
+    if (right && xs[col + 1] - 1 - c.x1 <= T && right.x0 - xs[col + 1] <= T) { owner[c.id] = k + 1; continue; }
+    let best = k, bestGap = Infinity;
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+      const rr = r + dr, cc = col + dc;
+      if (rr < 0 || rr >= rows || cc < 0 || cc >= cols) continue;
+      const m = mains[rr * cols + cc];
+      if (!m) continue;
+      const g = bboxGap(c, m);
+      if (g < bestGap) { bestGap = g; best = rr * cols + cc; }
+    }
+    owner[c.id] = best;
+  }
+
+  const out = [];
+  for (let r = 0; r < rows; r++) {
+    const row = [];
+    for (let c = 0; c < take; c++) {
+      const cw = xs[c + 1] - xs[c], ch = ys[r + 1] - ys[r];
+      const px = Math.round(cw * CELL_PAD), py = Math.round(ch * CELL_PAD);
+      const x0 = Math.max(0, xs[c] - px), y0 = Math.max(0, ys[r] - py);
+      const x1 = Math.min(img.width, xs[c + 1] + px), y1 = Math.min(img.height, ys[r + 1] + py);
+      const cell = crop(img, x0, y0, x1 - x0, y1 - y0);
+      const want = r * cols + c;
+      for (let y = 0; y < cell.height; y++) for (let x = 0; x < cell.width; x++) {
+        const g = labels[(y0 + y) * img.width + (x0 + x)];
+        if (g === -1 || owner[g] !== want) cell.data[(y * cell.width + x) * 4 + 3] = 0;
+      }
+      // re-label within the cell so head detection and anchoring work in local coordinates
+      let local = components(cell.width, cell.height, (i) => cell.data[i * 4 + 3] > A_T);
+      let main = local.comps.length ? local.comps.reduce((a, m) => (m.size > a.size ? m : a)) : null;
+      // Detached pieces are assigned by their own centroid, so a fragment of the neighbouring frame's
+      // slash — or a stray the generator drew next to the figure — can land in this cell. Two tells:
+      // anything small and far from this frame's figure, and anything sitting *behind* it. Characters
+      // face right and their effects go right or wrap around them, so a detached blob entirely to the
+      // left of the figure is a spill from the frame before, never part of this action.
+      if (main) {
+        const gap = (m) => Math.hypot(Math.max(0, m.x0 - main.x1, main.x0 - m.x1), Math.max(0, m.y0 - main.y1, main.y0 - m.y1));
+        let dropped = false;
+        for (const m of local.comps) {
+          if (m === main) continue;
+          const g = gap(m);
+          const mainCx = main.sx / main.size;
+          const mCx = m.sx / m.size, mainW = main.x1 - main.x0 + 1;
+          const behind = (m.x1 < main.x0 && g > cw * 0.02) || (mCx < mainCx - mainW * 0.3 && m.size < main.size * 0.15);
+          const speck = g > 0 && m.size < main.size * 0.05; // a detached crumb: debris, not an effect
+          if (!behind && !speck && (m.size >= main.size * 0.25 || g <= cw * 0.1)) continue;
+          for (let i = 0; i < cell.width * cell.height; i++) if (local.labels[i] === m.id) cell.data[i * 4 + 3] = 0;
+          dropped = true;
+        }
+        if (dropped) {
+          local = components(cell.width, cell.height, (i) => cell.data[i * 4 + 3] > A_T);
+          main = local.comps.length ? local.comps.reduce((a, m) => (m.size > a.size ? m : a)) : null;
+        }
+      }
+      // only edges near the cell line count as clipped — a hard edge mid-cell is a prop, not a cut
+      const near = Math.round(cw * 0.2), lineL = xs[c] - x0, lineR = xs[c + 1] - x0;
+      const clipped = local.comps.filter((m) => m.size >= 200).flatMap((m) => hardEdges(m, local.labels, cell.width, cw * 0.13)
+        .filter((side) => (side === 'left' ? m.x0 - lineL <= near : lineR - m.x1 <= near)));
+      // the figure itself running into the cell line is the clearest cut of all
+      if (main && main.x0 - lineL <= 3) clipped.push('left');
+      if (main && lineR - 1 - main.x1 <= 3) clipped.push('right');
+      row.push({ cell, main, labels: local.labels, comps: local.comps, clipped: [...new Set(clipped)] });
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+// A blob whose extreme left/right column is densely filled ends in a straight line through the
+// interior of a figure or effect — the signature of art clipped at a cell edge. A natural silhouette's
+// outermost column (a head, a heel, a fist, the tapered tip of a beam) holds only a few pixels.
+// Two tests, either is enough: one long unbroken run, or many pixels in total (a two-toned beam cut
+// flat gives several shorter runs).
+function hardEdges(m, labels, width, minRun) {
+  const h = m.y1 - m.y0 + 1;
+  if (h < 40) return [];
+  const column = (x) => {
+    let best = 0, run = 0, total = 0;
+    for (let y = m.y0; y <= m.y1; y++) {
+      if (labels[y * width + x] === m.id) { total++; run++; if (run > best) best = run; } else run = 0;
+    }
+    return { best, total };
+  };
+  const cut = ({ best, total }) => best >= Math.max(minRun, 0.35 * h) || total >= Math.max(minRun * 0.8, 0.22 * h);
+  const out = [];
+  if (cut(column(m.x0))) out.push('left');
+  if (cut(column(m.x1))) out.push('right');
+  return out;
+}
+
 // Removes a painted white/gray checkerboard background (baked transparency preview).
 export function unbakeChecker(img) {
   const { width, height, data } = img;
@@ -432,35 +566,89 @@ export function resize(img, scale) {
 }
 
 // Head anchor estimation for hero frames. Returns { x, y, w, angle, method } in cell pixel coordinates.
-export function headAnchor(cell, mainComp, labels) {
+const isSkinPx = (data, i) => {
+  if (data[i * 4 + 3] < 200) return false;
+  const [h, s, v] = rgbToHsv(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
+  return h >= 6 && h <= 42 && s >= 0.2 && s <= 0.72 && v >= 0.45;
+};
+
+// Skin blobs of the main figure. The mask is opened (eroded `r` px, then the surviving blobs grown back
+// over the original mask) so a face touching a raised fist or a bare shoulder splits into separate
+// blobs instead of one merged one whose centroid lands on the neck or chest.
+function skinBlobs(cell, mainComp, labels, r = 2) {
   const { width, height, data } = cell;
-  if (!mainComp) return null;
-  const fx0 = mainComp.x0, fy0 = mainComp.y0, fx1 = mainComp.x1, fy1 = mainComp.y1;
-  const fh = fy1 - fy0 + 1;
-  const topLimit = fy0 + Math.round(fh * 0.45);
-  // skin mask within the top 45% of the main component
-  const skin = new Uint8Array(width * height);
-  let count = 0;
-  for (let y = fy0; y <= topLimit; y++) for (let x = fx0; x <= fx1; x++) {
+  const n = width * height;
+  const skin = new Uint8Array(n);
+  for (let y = mainComp.y0; y <= mainComp.y1; y++) for (let x = mainComp.x0; x <= mainComp.x1; x++) {
     const i = y * width + x;
-    if (labels && labels[i] !== mainComp.id) continue;
-    if (data[i * 4 + 3] < 200) continue;
-    const [h, s, v] = rgbToHsv(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
-    if (h >= 6 && h <= 42 && s >= 0.2 && s <= 0.72 && v >= 0.45) { skin[i] = 1; count++; }
+    if ((!labels || labels[i] === mainComp.id) && isSkinPx(data, i)) skin[i] = 1;
   }
-  let best = null;
-  if (count > 0) {
-    const { comps } = components(width, height, (i) => skin[i] === 1);
-    for (const c of comps) if (!best || c.size > best.size) best = c;
+  let core = skin;
+  for (let it = 0; it < r; it++) {
+    const next = new Uint8Array(n);
+    for (let y = 1; y < height - 1; y++) for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      if (!core[i]) continue;
+      let ok = true;
+      for (let dy = -1; dy <= 1 && ok; dy++) for (let dx = -1; dx <= 1; dx++) if (!core[i + dy * width + dx]) { ok = false; break; }
+      if (ok) next[i] = 1;
+    }
+    core = next;
   }
-  if (best && best.size >= 40) {
-    const w = Math.max(best.x1 - best.x0 + 1, best.y1 - best.y0 + 1);
-    return { x: best.sx / best.size, y: best.sy / best.size, w, angle: 0, method: 'skin' };
+  const { labels: lab } = components(width, height, (i) => core[i] === 1);
+  for (let it = 0; it < r; it++) {
+    const src = Int32Array.from(lab);
+    for (let y = 1; y < height - 1; y++) for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      if (!skin[i] || src[i] !== -1) continue;
+      for (let dy = -1; dy <= 1 && lab[i] === -1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const l = src[i + dy * width + dx];
+        if (l !== -1) { lab[i] = l; break; }
+      }
+    }
   }
+  const blobs = new Map();
+  for (let i = 0; i < n; i++) {
+    const l = lab[i];
+    if (l === -1) continue;
+    const x = i % width, y = (i / width) | 0;
+    let b = blobs.get(l);
+    if (!b) { b = { size: 0, x0: x, y0: y, x1: x, y1: y, sx: 0, sy: 0 }; blobs.set(l, b); }
+    b.size++; b.sx += x; b.sy += y;
+    if (x < b.x0) b.x0 = x; if (x > b.x1) b.x1 = x; if (y < b.y0) b.y0 = y; if (y > b.y1) b.y1 = y;
+  }
+  return [...blobs.values()].map((b) => {
+    const bw = b.x1 - b.x0 + 1, bh = b.y1 - b.y0 + 1;
+    return { ...b, cx: b.sx / b.size, cy: b.sy / b.size, w: Math.max(bw, bh), aspect: Math.min(bw, bh) / Math.max(bw, bh) };
+  });
+}
+
+// Finds the face of the main figure. Heroes have bare arms, so "largest skin blob" is usually a forearm;
+// instead the face is scored as the highest-topped, most compact skin blob whose size matches `ref`
+// (the hero's reference face, measured on the idle row): fists are far too small, arms and torsos too
+// big and elongated. Without `ref` (the reference pass) size is ignored beyond a minimum.
+export function headAnchor(cell, mainComp, labels, ref = null) {
+  if (!mainComp) return null;
+  const { width, data } = cell;
+  const fh = mainComp.y1 - mainComp.y0 + 1;
+  const minSize = ref ? ref.size * 0.3 : 60;
+  const blobs = skinBlobs(cell, mainComp, labels);
+  // No skin anywhere means no figure (a projectile-only frame), not a hidden face: report no head.
+  if (blobs.reduce((n, b) => n + b.size, 0) < (ref ? ref.size * 0.1 : 20)) return null;
+  let best = null, bestScore = Infinity;
+  for (const b of blobs) {
+    if (b.size < minSize) continue;
+    const top = (b.y0 - mainComp.y0) / fh;
+    if (top > 0.55) continue;
+    const sizePen = ref ? Math.abs(Math.log(b.size / ref.size)) : 0;
+    const score = top * 4 + sizePen * 0.6 + (1 - b.aspect) * 0.8;
+    if (score < bestScore) { bestScore = score; best = b; }
+  }
+  if (best) return { x: best.cx, y: best.cy, w: best.w, size: best.size, angle: 0, method: 'skin' };
   // silhouette fallback: the topmost 18% of figure rows
   const band = Math.max(4, Math.round(fh * 0.18));
   let sx = 0, sy = 0, n = 0, minX = width, maxX = 0;
-  for (let y = fy0; y < fy0 + band; y++) for (let x = fx0; x <= fx1; x++) {
+  for (let y = mainComp.y0; y < mainComp.y0 + band; y++) for (let x = mainComp.x0; x <= mainComp.x1; x++) {
     const i = y * width + x;
     if (labels && labels[i] !== mainComp.id) continue;
     if (data[i * 4 + 3] < 200) continue;

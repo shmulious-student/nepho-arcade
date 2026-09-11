@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nepho — character showcase</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0b1020; color: #cfd8ea; font: 12px/1.4 ui-monospace, Menlo, monospace; }
+  header { padding: 10px 14px; display: flex; gap: 16px; align-items: center; border-bottom: 1px solid #1d2740; position: sticky; top: 0; background: #0b1020; z-index: 1; }
+  header b { color: #75f5dc; }
+  header label { display: flex; gap: 6px; align-items: center; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; padding: 10px; }
+  .card { background: #10182b; border: 1px solid #1d2740; border-radius: 6px; padding: 6px; }
+  .card canvas { width: 100%; image-rendering: pixelated; background: #141c30; border-radius: 4px; display: block; }
+  .card .t { display: flex; justify-content: space-between; margin-top: 4px; }
+  .card .t .row { color: #ffcf5c; }
+  .card .t .src { color: #6b7a99; }
+  .warn { color: #ff4f72; }
+</style>
+</head>
+<body>
+<header>
+  <b>NEPHO</b> character showcase — every atlas row, in sequence
+  <label>fps <input id="fps" type="number" value="10" min="1" max="30" style="width:4em"></label>
+  <label>row hold <input id="hold" type="number" value="2" min="1" max="6" style="width:3em"> loops</label>
+  <label><input id="only" placeholder="filter id…"></label>
+  <span id="status"></span>
+</header>
+<div id="grid"></div>
+<script>
+// Plays every character in public/game/catalog.json straight from the runtime atlases, one row after
+// another, drawing each frame at its real anchor so the eye catches sliding, popping, and cut frames.
+// Serves as the review surface for a freshly built pack: `npm run dev` then open /showcase.html.
+const $ = (s) => document.querySelector(s);
+const state = { fps: 10, hold: 2 };
+$('#fps').oninput = (e) => { state.fps = +e.target.value || 10; };
+$('#hold').oninput = (e) => { state.hold = +e.target.value || 2; };
+
+async function loadChar(id, def) {
+  const [json, img] = await Promise.all([
+    fetch(`/game/${def.data}`).then((r) => r.json()),
+    new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = `/game/${def.atlas}`; }),
+  ]);
+  return { id, def, json, img };
+}
+
+function makeCard(c) {
+  const rs = c.def.renderScale ?? 1;
+  const W = Math.ceil(c.def.box.w * rs) + 20, H = Math.ceil(c.def.box.h * rs) + 30;
+  const card = document.createElement('div'); card.className = 'card';
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const t = document.createElement('div'); t.className = 't';
+  t.innerHTML = `<span><b>${c.id}</b> <span class="src">${c.def.sourceFormat || 'grid'} · ${c.def.framesPerRow}/row</span></span><span class="row"></span>`;
+  card.append(cv, t);
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const rowEl = t.querySelector('.row');
+  // ?row=<name> starts every character on that row (a review of e.g. knockback across the roster)
+  const startRow = new URLSearchParams(location.search).get('row');
+  let rowIdx = Math.max(0, c.def.rows.indexOf(startRow)), frame = 0, loops = 0, missing = 0;
+  return {
+    card,
+    tick() {
+      const rows = c.def.rows, row = rows[rowIdx];
+      const key = `${row}/${frame}`;
+      const fr = c.json.frames[key];
+      ctx.clearRect(0, 0, W, H);
+      // floor line at the anchor, so feet sliding between frames is visible
+      const ax = 10 + c.def.anchor.x * rs, ay = 10 + c.def.anchor.y * rs;
+      ctx.strokeStyle = '#2a3554'; ctx.beginPath(); ctx.moveTo(0, ay + 0.5); ctx.lineTo(W, ay + 0.5); ctx.stroke();
+      if (fr) {
+        const s = fr.spriteSourceSize;
+        ctx.drawImage(c.img, fr.frame.x, fr.frame.y, fr.frame.w, fr.frame.h, 10 + s.x * rs, 10 + s.y * rs, fr.frame.w * rs, fr.frame.h * rs);
+      } else missing++;
+      ctx.fillStyle = '#ff4f72'; ctx.fillRect(ax - 3, ay - 1, 6, 2); ctx.fillRect(ax - 1, ay - 3, 2, 6);
+      rowEl.textContent = `${row} ${frame + 1}/${c.def.framesPerRow}` + (missing ? ` · ${missing} MISSING` : '');
+      if (++frame >= c.def.framesPerRow) {
+        frame = 0;
+        if (++loops >= state.hold) { loops = 0; rowIdx = (rowIdx + 1) % rows.length; }
+      }
+    },
+  };
+}
+
+(async () => {
+  const cat = await fetch('/game/catalog.json').then((r) => r.json());
+  const ids = [...cat.heroes, ...cat.enemies, ...cat.bosses.map((b) => b.id)];
+  const cards = [];
+  for (const id of ids) {
+    try { cards.push(makeCard(await loadChar(id, cat.characters[id]))); }
+    catch (e) { const d = document.createElement('div'); d.className = 'card warn'; d.textContent = `${id}: failed to load (${e})`; $('#grid').append(d); }
+  }
+  const apply = () => {
+    const f = $('#only').value.trim();
+    $('#grid').replaceChildren(...cards.filter((c) => !f || c.card.textContent.includes(f)).map((c) => c.card));
+  };
+  $('#only').oninput = apply; apply();
+  $('#status').textContent = `${cards.length} characters · ${ids.length - cards.length} failed`;
+  let last = 0;
+  const loop = (t) => { if (t - last >= 1000 / state.fps) { last = t; for (const c of cards) c.tick(); } requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
