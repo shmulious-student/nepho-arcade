@@ -20,10 +20,10 @@ export const VISIBLE_X0 = Math.round((VIEW_W - VISIBLE_W) / 2); // 198
 export type HeroState =
   | 'idle' | 'walk' | 'light1' | 'light2' | 'light3' | 'heavy' | 'dash' | 'dashAttack' | 'special'
   | 'jump' | 'jumpAttack'
-  | 'hurt' | 'hurtHeavy' | 'launched' | 'knockdown' | 'getup' | 'ko';
+  | 'hurt' | 'hurtHeavy' | 'stunned' | 'launched' | 'knockdown' | 'getup' | 'ko';
 
-export type EnemyState = 'idle' | 'walk' | 'attack' | 'heavy' | 'special' | 'hurt' | 'launched' | 'knockdown' | 'getup' | 'defeat';
-export type BossState = 'idle' | 'approach' | 'attack' | 'special' | 'hurt' | 'defeat';
+export type EnemyState = 'idle' | 'walk' | 'attack' | 'heavy' | 'special' | 'hurt' | 'stunned' | 'launched' | 'knockdown' | 'getup' | 'defeat';
+export type BossState = 'idle' | 'approach' | 'attack' | 'special' | 'hurt' | 'stunned' | 'defeat';
 
 export interface Hitbox {
   dx: number; // offset in facing direction from entity x
@@ -61,6 +61,10 @@ export interface Entity {
   comboTimer: number;
   comboStep: number; // hero: which light in the chain
   cooldown: number; // enemy/boss attack cooldown
+  hitStreak: number; // hits taken in the current streak window (stun trigger)
+  streakT: number; // ticks left before the streak forgets
+  stunCd: number; // ticks before this entity can be stunned again
+  regenLock: number; // heroes: ticks since the last damage before regen may resume
   ai: number; // ai sub-state / pattern index
   aiT: number; // ai timer
   target: number; // target entity id
@@ -82,7 +86,7 @@ export interface Entity {
 }
 
 export interface SimEvent {
-  type: 'hit' | 'ko' | 'special' | 'telegraph' | 'spawn' | 'bossPhase' | 'levelPhase' | 'dash' | 'launch' | 'heal' | 'block' | 'shake' | 'summon' | 'paint' | 'note' | 'pickup';
+  type: 'hit' | 'ko' | 'special' | 'telegraph' | 'spawn' | 'bossPhase' | 'levelPhase' | 'dash' | 'launch' | 'heal' | 'block' | 'shake' | 'summon' | 'paint' | 'note' | 'pickup' | 'stun';
   x: number; y: number; z?: number;
   a?: number; // param a (e.g. damage, radius)
   b?: number; // param b (e.g. ticks)

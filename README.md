@@ -28,6 +28,12 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   and you can still shuffle and turn while holding it. Explosions around you get through at a third;
   anything from behind lands in full.
 - **Pause:** `ESC` / `P`, or the ❚❚ button top-right: resume, restart level, back to lobby, sound.
+- **Lives & CONTINUE?:** two extra lives per level, then a CONTINUE? countdown — press anything to get
+  back into the same fight with full health; let it run out and the run ends. HP only trickles back
+  after five seconds without taking a hit, so a bad fight can be lost.
+- **Stun:** a long unbroken streak of hits (seven-plus in a couple of seconds) dazes anyone —
+  enemies, bosses, or you — for two seconds, wide open to 1.5× damage. Rare, and never twice in a
+  row on the same target.
 - **Pickups:** beaten enemies sometimes drop a heart (heals 30%), a coin (+500) or a star (+50% meter);
   walk over them. Clearing a level pays a time bonus and a best-combo bonus.
 - **Friend:** `H` (touch: tap your HUD card). In the lobby you pick one of the other heroes as your friend and how

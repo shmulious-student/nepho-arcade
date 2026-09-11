@@ -2,6 +2,7 @@ import { BTN, type InputFrame } from './input';
 import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, total, type MoveDef } from './frameData';
 import { LANE_H, VISIBLE_X0, VISIBLE_W, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
+import { STUN_TICKS } from './combat';
 import type { World } from './world';
 
 const MOVE_STATES = new Set(['light1', 'light2', 'light3', 'heavy', 'dashAttack', 'special']);
@@ -86,6 +87,9 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (e.flash > 0) e.flash--;
   if (e.slow > 0) e.slow--;
   if (e.comboTimer > 0) { e.comboTimer--; if (e.comboTimer === 0) e.combo = 0; }
+  if (e.streakT > 0) { e.streakT--; if (e.streakT === 0) e.hitStreak = 0; }
+  if (e.stunCd > 0) e.stunCd--;
+  if (e.regenLock > 0) e.regenLock--;
   const def = HEROES[e.arch as HeroId];
   const held = input.held;
   const pressed = input.pressed;
@@ -118,6 +122,11 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     if (e.st >= 8 && up) { e.pdata = 0; e.facing = up; startMove(w, e, 'dash'); return; }
     if (e.st >= total(HERO_MOVES.getup)) setState(e, 'idle');
     e.st++; return;
+  }
+  if (s === 'stunned') {
+    // dazed: no input for two seconds, unless a hit knocks the hero out of it first
+    if (e.st >= STUN_TICKS) { setState(e, 'idle'); e.pdata = 0; }
+    e.st++; clampHero(w, e); return;
   }
   if (s === 'hurt' || s === 'hurtHeavy') {
     e.x += e.vx; e.vx *= 0.85;

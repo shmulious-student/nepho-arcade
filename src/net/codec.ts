@@ -4,7 +4,7 @@ import type { Snapshot, EntityView, SimEvent, LevelPhase, Kind } from '../sim/ty
 
 const PHASES: LevelPhase[] = ['entry', 'wave', 'go', 'boss', 'clear', 'gameover', 'victory'];
 const KINDS: Kind[] = ['hero', 'enemy', 'boss', 'echo', 'projectile', 'hazard', 'pickup'];
-const EVENT_TYPES: SimEvent['type'][] = ['hit', 'ko', 'special', 'telegraph', 'spawn', 'bossPhase', 'levelPhase', 'dash', 'launch', 'heal', 'block', 'shake', 'summon', 'paint', 'note', 'pickup'];
+const EVENT_TYPES: SimEvent['type'][] = ['hit', 'ko', 'special', 'telegraph', 'spawn', 'bossPhase', 'levelPhase', 'dash', 'launch', 'heal', 'block', 'shake', 'summon', 'paint', 'note', 'pickup', 'stun'];
 const SHAPES: NonNullable<SimEvent['shape']>[] = ['circle', 'line', 'stripe', 'ring'];
 
 // arch strings are interned to small integers so entity records stay fixed-size.
@@ -129,7 +129,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
 
 const STATES = [
   'idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'hurt', 'hurtHeavy',
-  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat', 'block', 'jump', 'jumpAttack',
+  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat', 'block', 'jump', 'jumpAttack', 'stunned',
 ];
 const stateCode = (s: string) => { const i = STATES.indexOf(s); return i < 0 ? 255 : i; };
 const stateName = (i: number) => STATES[i] || 'idle';

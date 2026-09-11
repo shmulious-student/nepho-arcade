@@ -123,7 +123,7 @@ export function stepFriends(w: World, inputs: [InputFrame, InputFrame]): void {
         continue;
       }
       stepHero(w, e, frame(e, isHurt(e) ? 0 : fightInput(w, e, true)));
-      if ((e.state === 'idle' || e.state === 'walk') && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.0012);
+      if (e.regenLock === 0 && (e.state === 'idle' || e.state === 'walk') && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.0006);
       continue;
     }
 

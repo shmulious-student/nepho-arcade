@@ -4,9 +4,9 @@ import { HERO_MOVES } from '../src/sim/frameData';
 import { ENEMY_DEFS } from '../src/sim/enemyAi';
 import type { HeroState, EnemyState, BossState } from '../src/sim/types';
 
-const HERO_STATES: HeroState[] = ['idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'jump', 'jumpAttack', 'hurt', 'hurtHeavy', 'launched', 'knockdown', 'getup', 'ko'];
-const ENEMY_STATES: EnemyState[] = ['idle', 'walk', 'attack', 'heavy', 'special', 'hurt', 'launched', 'knockdown', 'getup', 'defeat'];
-const BOSS_STATES: BossState[] = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'];
+const HERO_STATES: HeroState[] = ['idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'jump', 'jumpAttack', 'hurt', 'hurtHeavy', 'stunned', 'launched', 'knockdown', 'getup', 'ko'];
+const ENEMY_STATES: EnemyState[] = ['idle', 'walk', 'attack', 'heavy', 'special', 'hurt', 'stunned', 'launched', 'knockdown', 'getup', 'defeat'];
+const BOSS_STATES: BossState[] = ['idle', 'approach', 'attack', 'special', 'hurt', 'stunned', 'defeat'];
 
 // Rows the asset pipeline emits for each source format (see tools/build-assets.mjs).
 const HERO_ROWS = ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockdown', 'defeat'];

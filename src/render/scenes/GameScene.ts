@@ -106,7 +106,11 @@ export class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
     this.buildPause();
-    if (import.meta.env.DEV && new URLSearchParams(location.search).has('boss')) this.session.world()?.debugSkipToBoss();
+    if (import.meta.env.DEV) {
+      const q = new URLSearchParams(location.search);
+      if (q.has('boss')) this.session.world()?.debugSkipToBoss();
+      if (q.has('ko')) this.session.world()?.debugKnockOut();
+    }
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
 
@@ -135,6 +139,7 @@ export class GameScene extends Phaser.Scene {
       case 'bossPhase': synth.bossPhase(); break;
       case 'heal': synth.heal(); break;
       case 'pickup': synth.heal(); break;
+      case 'stun': synth.launch(); break;
     }
   }
 
@@ -326,6 +331,7 @@ export class GameScene extends Phaser.Scene {
         if (this.session.mode !== 'guest') this.time.delayedCall(2200, () => this.nextLevel(score));
         return;
       }
+      if (snap.phase === 'gameover') { this.showContinue(score); return; }
       this.time.delayedCall(900, () => {
         this.scene.start('Results', {
           result: snap.phase, level: this.levelIndex, score,
@@ -333,6 +339,49 @@ export class GameScene extends Phaser.Scene {
         });
       });
     }
+  }
+
+  /** CONTINUE? 9…0 — any key or tap puts the heroes back in the fight; the count running out ends
+   * the run. A LAN guest only watches: the host decides. */
+  private showContinue(score: [number, number]): void {
+    const cx = VIEW_W / 2, cy = 250;
+    const veil = this.add.rectangle(0, 0, VIEW_W, 540, 0x050711, 0.6).setOrigin(0, 0);
+    const title = this.add.text(cx, cy - 60, 'CONTINUE?', { fontFamily: 'monospace', fontSize: '40px', color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8, letterSpacing: 6 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
+    const num = this.add.text(cx, cy + 10, '9', { fontFamily: 'monospace', fontSize: '64px', color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8 }).setOrigin(0.5);
+    const hint = this.add.text(cx, cy + 70, this.session.mode === 'guest' ? 'waiting for the host…' : 'press any button', { fontFamily: 'monospace', fontSize: '14px', color: '#9bb1c9' }).setOrigin(0.5);
+    const group = this.add.container(0, 0, [veil, title, num, hint]).setDepth(48000).setScrollFactor(0);
+    let count = 9, resolved = false;
+    const finish = () => {
+      if (resolved) return; resolved = true;
+      group.destroy(); ticker.remove();
+      this.input.keyboard!.off('keydown', go); this.input.off('pointerdown', go);
+      this.scene.start('Results', { result: 'gameover', level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: false });
+    };
+    const go = () => {
+      if (resolved || this.session.mode === 'guest') return;
+      const w = this.session.world();
+      if (!w || !w.continueRun()) return;
+      resolved = true;
+      group.destroy(); ticker.remove();
+      this.input.keyboard!.off('keydown', go); this.input.off('pointerdown', go);
+      this.finished = false;
+      sequencer.start(this.levelIndex);
+      synth.heal();
+    };
+    const ticker = this.time.addEvent({ delay: 1000, repeat: 9, callback: () => {
+      count--;
+      if (count < 0) { finish(); return; }
+      num.setText(`${count}`); num.setScale(1.4); this.tweens.add({ targets: num, scale: 1, duration: 300, ease: 'Back.Out' });
+      synth.uiClick();
+    } });
+    // a guest's world may come back to life on its own when the host continues
+    if (this.session.mode === 'guest') {
+      const poll = this.time.addEvent({ delay: 200, loop: true, callback: () => {
+        const s = this.session.snapshot();
+        if (s && s.phase !== 'gameover' && !resolved) { resolved = true; group.destroy(); ticker.remove(); poll.remove(); this.finished = false; }
+      } });
+    }
+    this.time.delayedCall(400, () => { if (!resolved) { this.input.keyboard!.on('keydown', go); this.input.on('pointerdown', go); } });
   }
 
   private nextLevel(score: [number, number]): void {

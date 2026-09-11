@@ -181,7 +181,10 @@ export function stepBoss(w: World, e: Entity): void {
   const def = BOSS_DEFS[e.arch];
   const enrage = w.enraged ? 1.25 : 1;
   const spd = def.speed * enrage * (e.kind === 'echo' ? 1.1 : 1);
+  if (e.streakT > 0) { e.streakT--; if (e.streakT === 0) e.hitStreak = 0; }
+  if (e.stunCd > 0) e.stunCd--;
   if (e.state === 'defeat') { e.st++; return; }
+  if (e.state === 'stunned') { if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 30; e.pattern = -1; } e.st++; return; }
   if (e.state === 'hurt') {
     e.x += e.vx; e.vx *= 0.85;
     if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 20; }

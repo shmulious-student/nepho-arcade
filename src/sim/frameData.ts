@@ -42,6 +42,7 @@ export const HERO_MOVES: Record<string, MoveDef> = {
   // Hurt row: 0-1 flinch, 2-3 heavy reel, 4-5 crumple (used while airborne after a launch).
   hurt: { row: 'hurt', frames: [0, 1], startup: 0, active: 0, recovery: 14 },
   hurtHeavy: { row: 'hurt', frames: [2, 3], startup: 0, active: 0, recovery: 22 },
+  stunned: { row: 'hurt', frames: [0, 1, 0, 2], startup: 0, active: 0, recovery: 30 },
   launched: { row: 'hurt', frames: [4, 5], startup: 0, active: 0, recovery: 999 },
   // Knockdown row is a fall-then-rise: 0 stagger, 1 kneel, 2-3 floor, 4 kneel, 5 back on feet.
   knockdown: { row: 'knockdown', frames: [1, 2, 3, 3], startup: 0, active: 0, recovery: 32 },

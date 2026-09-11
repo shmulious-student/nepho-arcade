@@ -60,6 +60,8 @@ export function stepEnemy(w: World, e: Entity): void {
   if (e.armor > 0) e.armor--;
   if (e.slow > 0) e.slow--;
   if (e.cooldown > 0) e.cooldown--;
+  if (e.streakT > 0) { e.streakT--; if (e.streakT === 0) e.hitStreak = 0; }
+  if (e.stunCd > 0) e.stunCd--;
   // A token is held only while genuinely mid-attack; release it the instant the enemy leaves that
   // state for any reason (finished, interrupted into hurt/launched, or killed) so an interrupted
   // attacker can never permanently starve the shared attack-token pool.
@@ -83,6 +85,7 @@ export function stepEnemy(w: World, e: Entity): void {
   }
   if (s === 'knockdown') { e.invuln = 2; if (e.st >= 36) { setState(e, 'getup'); e.invuln = 14; } e.st++; return; }
   if (s === 'getup') { if (e.st >= 14) { setState(e, 'idle'); e.cooldown = 20; } e.st++; return; }
+  if (s === 'stunned') { if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 30; } e.st++; return; }
   if (s === 'hurt') {
     e.x += e.vx; e.vx *= 0.85;
     const len = e.pdata >> 8 || 14;

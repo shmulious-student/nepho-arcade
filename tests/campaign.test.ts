@@ -19,16 +19,19 @@ const CEIL_S = 260; // catches a level dragging on well past a reasonable boss-f
 function playLevel(seed: number, level: number, heroes: ['nepho', 'byte' | null]) {
   const w = new World({ seed, level, heroes: heroes as any });
   const b0 = makeBot(); const b1 = makeBot();
-  let t = 0;
-  while (!w.isFinished() && t < MAX_TICKS) {
+  let t = 0, continues = 0;
+  while (t < MAX_TICKS) {
+    if (w.isFinished()) {
+      // like a player at the CONTINUE? screen: at most two continues per level
+      if (w.result === 'gameover' && continues < 2 && w.continueRun()) { continues++; continue; }
+      break;
+    }
     const i0: InputFrame = w.players[0] ? botInput(w, 0, b0) : { held: 0, pressed: 0 };
     const i1: InputFrame = w.players[1] ? botInput(w, 1, b1) : { held: 0, pressed: 0 };
     w.step([i0, i1]);
     t++;
-    // heroes shouldn't both be perma-KO'd with no progress; bail if truly stuck
-    if (t > 60 * 15 && w.heroes().every((h) => h.state === 'ko')) break;
   }
-  return { ticks: t, seconds: t / 60, finished: w.isFinished(), result: w.result, score: w.score };
+  return { ticks: t, seconds: t / 60, finished: w.isFinished(), result: w.result, score: w.score, continues };
 }
 
 describe('full 10-level campaign (reference bot)', () => {

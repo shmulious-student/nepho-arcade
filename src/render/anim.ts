@@ -13,6 +13,7 @@ const ENEMY_PACING: Record<string, Pacing> = {
   idle: { row: 'idle', ticks: 48, loop: true },
   walk: { row: 'walk', ticks: 32, loop: true },
   hurt: { row: 'hurt', ticks: 14, loop: false },
+  stunned: { row: 'hurt', ticks: 24, loop: true, frames: [0, 1] },
   launched: { row: 'knockback', ticks: 24, loop: false, frames: [0, 1, 2, 3] },
   knockdown: { row: 'knockback', ticks: 36, loop: false, frames: [3, 4, 5, 5] },
   getup: { row: 'getup', ticks: 14, loop: false },
@@ -25,6 +26,7 @@ const BOSS_PACING: Record<string, Pacing> = {
   attack: { row: 'attack', ticks: 50, loop: false },
   special: { row: 'special', ticks: 70, loop: false },
   hurt: { row: 'hurt', ticks: 20, loop: false },
+  stunned: { row: 'hurt', ticks: 30, loop: true },
   defeat: { row: 'defeat', ticks: 150, loop: false },
 };
 

@@ -199,3 +199,54 @@ describe('block', () => {
     expect(h.hp).toBeLessThan(hp0);
   });
 });
+
+describe('stun', () => {
+  it('a long unbroken streak of hits dazes an enemy for two seconds, then not again for a while', async () => {
+    const { STUN_TICKS } = await import('../src/sim/combat');
+    const w = world(51);
+    const h = w.players[0]!;
+    const punk = addEnemy(w, h.x + 40, h.y);
+    punk.hp = punk.maxHp = 10000; // survives the streak
+    let stunAt = -1, stuns = 0;
+    for (let t = 0; t < 60 * 14; t++) {
+      w.step([t % 8 === 0 ? press(BTN.LIGHT) : NONE, NONE]);
+      for (const ev of w.events) if (ev.type === 'stun' && ev.id === punk.id) { stuns++; if (stunAt < 0) stunAt = t; }
+      if (stunAt >= 0 && t === stunAt + 1) expect(punk.state).toBe('stunned');
+      if (stunAt >= 0 && t === stunAt + STUN_TICKS + 40) expect(punk.state).not.toBe('stunned');
+    }
+    expect(stuns).toBeGreaterThanOrEqual(1);
+    expect(stuns).toBeLessThanOrEqual(2); // 14s of constant hitting: at most once per cooldown window
+    expect(stunAt).toBeGreaterThan(30); // it takes a real streak, not a couple of hits
+  });
+});
+
+describe('regen and continue', () => {
+  it('HP does not regenerate for five seconds after a hit, then only trickles', () => {
+    const w = world(61);
+    const h = w.players[0]!;
+    h.hp = h.maxHp * 0.5; h.regenLock = 300;
+    // nobody around to interfere: clear the wave so only regen moves the number
+    const quiet = () => { w.director.queue = []; for (const e of w.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = w.tick + 1; } };
+    for (let i = 0; i < 299; i++) { quiet(); w.step([NONE, NONE]); }
+    expect(h.hp).toBeLessThanOrEqual(h.maxHp * 0.5 + 0.01);
+    for (let i = 0; i < 600; i++) { quiet(); w.step([NONE, NONE]); }
+    expect(h.hp).toBeGreaterThan(h.maxHp * 0.5);
+    expect(h.hp).toBeLessThan(h.maxHp * 0.85); // ten seconds of standing still: nowhere near full
+  });
+
+  it('CONTINUE? puts a KO\'d player back in the same fight with fresh lives', () => {
+    const w = world(62);
+    const h = w.players[0]!;
+    w.lives = [0, 0];
+    h.hp = 0; h.state = 'ko';
+    w.step([NONE, NONE]);
+    expect(w.isFinished()).toBe(true);
+    expect(w.snapshot().phase).toBe('gameover');
+    expect(w.continueRun()).toBe(true);
+    expect(w.isFinished()).toBe(false);
+    expect(w.snapshot().phase).not.toBe('gameover');
+    expect(h.hp).toBe(h.maxHp);
+    expect(w.lives[0]).toBe(2);
+    expect(w.continueRun()).toBe(false); // nothing to continue from
+  });
+});

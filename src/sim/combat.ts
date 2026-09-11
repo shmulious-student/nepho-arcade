@@ -68,6 +68,24 @@ export function resolveHits(w: World): void {
   }
 }
 
+// A streak of hits in a short window dazes the target for two seconds — rare on purpose: it takes a
+// long unbroken run of hits, and once it has happened it cannot happen again for a while.
+export const STUN_TICKS = 120;
+const STUN_WINDOW = 140; // ticks a streak stays alive between hits
+const STUN_COOLDOWN = 900; // ticks before the same target can be stunned again
+const stunThreshold = (e: Entity) => (e.kind === 'boss' || e.kind === 'echo' ? 12 : e.kind === 'hero' ? 8 : 7);
+
+function countStreak(w: World, tgt: Entity): boolean {
+  if (tgt.stunCd > 0 || tgt.state === 'stunned' || tgt.state === 'ko' || tgt.state === 'defeat') return false;
+  tgt.hitStreak++; tgt.streakT = STUN_WINDOW;
+  if (tgt.hitStreak < stunThreshold(tgt)) return false;
+  tgt.hitStreak = 0; tgt.stunCd = STUN_COOLDOWN;
+  setState(tgt, 'stunned'); tgt.aiT = STUN_TICKS; tgt.pdata = STUN_TICKS << 8; tgt.vx = 0;
+  if (tgt.kind === 'enemy') w.releaseAttackToken(tgt.id);
+  w.emit({ type: 'stun', x: tgt.x, y: tgt.y, z: tgt.z + (tgt.kind === 'boss' ? 180 : 120), id: tgt.id, a: STUN_TICKS });
+  return true;
+}
+
 export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void {
   const owner = att.owner >= 0 ? w.byId(att.owner) : att;
   // A friend's hits are support, not the main event: less damage, half the shove, and no launching
@@ -78,6 +96,7 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
   }
   const heavy = !!(hit.launch || hit.knockdown || hit.dmg >= 12);
   let dmg = hit.dmg * (owner?.dmgMul ?? 1);
+  if (tgt.state === 'stunned') dmg *= 1.5; // a dazed target is wide open
   if (owner?.kind === 'hero') dmg *= HEROES[owner.arch as HeroId].dmgMul;
   const dirToTarget: 1 | -1 = tgt.x >= att.x ? 1 : -1;
 
@@ -106,7 +125,7 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
   // and a spark; the attacker feels the impact as hitstop. Only an explosion around you (an AoE) gets
   // through, at a third of its damage. Anything from behind lands in full.
   if (tgt.kind === 'hero' && tgt.state === 'block' && tgt.facing === -dirToTarget) {
-    if (hit.radius) tgt.hp -= dmg * 0.35;
+    if (hit.radius) { tgt.hp -= dmg * 0.35; tgt.regenLock = 300; }
     tgt.x += dirToTarget * (heavy ? 6 : 3);
     tgt.flash = 4;
     if (owner && owner.kind !== 'projectile') owner.hitstop = Math.max(owner.hitstop, 4);
@@ -118,6 +137,7 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
     return;
   }
   if (tgt.kind === 'boss' || tgt.kind === 'echo') {
+    if (countStreak(w, tgt)) { tgt.hp -= dmg; w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + 80, a: Math.round(dmg), heavy, id: tgt.id }); if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy); return; }
     bossOnHit(w, tgt, att, hit, dmg, dirToTarget);
     if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy);
     w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + 80, a: Math.round(dmg), heavy, id: tgt.id });
@@ -125,7 +145,9 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
   }
   tgt.hp -= dmg;
   tgt.flash = 6;
-  const stunned = tgt.armor <= 0;
+  if (tgt.kind === 'hero') tgt.regenLock = 300; // five seconds without a hit before HP creeps back
+  const dazed = tgt.hp > 0 && countStreak(w, tgt);
+  const stunned = tgt.armor <= 0 && !dazed; // a fresh daze replaces the ordinary flinch
   if (tgt.kind === 'hero') tgt.meter = Math.min(METER_MAX, tgt.meter + METER_PER_TAKEN);
   w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + (tgt.kind === 'hero' ? 70 : 60), a: Math.round(dmg), heavy, id: tgt.id });
   const stop = heavy ? HITSTOP_HEAVY : HITSTOP_LIGHT;

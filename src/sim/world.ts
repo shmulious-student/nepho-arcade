@@ -13,7 +13,7 @@ import { LEVELS, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './le
 import { HEROES } from './frameData';
 import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
-import { LANE_H, LEVEL_W, VIEW_W, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
+import { LANE_H, LEVEL_W, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
 export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number] }
 
@@ -40,7 +40,8 @@ export class World {
   private maxAttackers = 2;
   private done = false;
   result: 'victory' | 'gameover' | null = null;
-  lives: [number, number] = [5, 5]; // extra continues beyond the current life, per hero slot — generous margin for human play, not just bot viability
+  lives: [number, number] = [2, 2]; // extra lives per hero slot; after those it is the CONTINUE? countdown
+  private phaseBeforeGameOver: LevelPhase = 'wave';
 
   constructor(opts: WorldOptions) {
     this.rng = new Rng(opts.seed);
@@ -181,6 +182,28 @@ export class World {
     if (e.kind === 'boss') this.bossDefeated = true;
   }
 
+  /** CONTINUE? — the arcade continue: everyone back on their feet with full health and a fresh set
+   * of lives, the fight resumes where it stopped. Score is kept. */
+  continueRun(): boolean {
+    if (!this.done || this.result !== 'gameover') return false;
+    this.done = false; this.result = null;
+    this.lives = [2, 2];
+    for (const h of this.heroes()) {
+      h.hp = h.maxHp; h.meter = 0; h.invuln = 120; h.hitStreak = 0; h.regenLock = 0;
+      h.x = this.cameraX + VISIBLE_X0 + 100 + h.slot * 40; h.y = LANE_H * 0.5; h.z = 0; h.vz = 0; h.vx = 0;
+      setState(h, 'getup');
+      this.emit({ type: 'heal', x: h.x, y: h.y, id: h.id });
+    }
+    this.setPhase(this.phaseBeforeGameOver === 'gameover' ? 'wave' : this.phaseBeforeGameOver);
+    return true;
+  }
+
+  /** Dev helper: lose immediately (used by `?ko` on the dev server to see the CONTINUE? screen). */
+  debugKnockOut(): void {
+    this.lives = [0, 0];
+    for (const h of this.heroes()) { h.hp = 0; setState(h, 'ko'); }
+  }
+
   /** Dev helper: jump straight to the boss fight (used by `?boss` on the dev server). */
   debugSkipToBoss(): void {
     for (const e of this.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = this.tick + 1; }
@@ -213,9 +236,9 @@ export class World {
 
     for (const h of this.heroes()) if (!isDown(h) && h.state !== 'ko') stepHero(this, h, inputs[h.slot] || { held: 0, pressed: 0 });
     for (const h of this.heroes()) if (isDown(h) || h.state === 'ko') stepHero(this, h, { held: 0, pressed: 0 });
-    // Modest passive regen while safely idle/walking (not mid-attack, mid-hitstun, or downed) — a
-    // forgiving-arcade convention so a level is rarely lost to slow chip damage between real threats.
-    for (const h of this.heroes()) if ((h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.002);
+    // A slow trickle of HP, and only after five seconds without taking a hit — enough to recover
+    // between waves, never enough to shrug off a fight. Losing has to stay possible.
+    for (const h of this.heroes()) if (h.regenLock === 0 && (h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0004);
     stepFriends(this, inputs);
 
     for (const e of this.entities) {
@@ -237,6 +260,7 @@ export class World {
     if (!this.done && this.heroes().length > 0 && this.heroes().every((h) => h.state === 'ko')) {
       this.done = true;
       this.result = 'gameover';
+      this.phaseBeforeGameOver = this.phase;
       this.setPhase('gameover');
     }
 
