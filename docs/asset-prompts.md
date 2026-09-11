@@ -29,8 +29,9 @@ each file stays inside the resolution ceiling of most image models, and the 9 fr
 smoother animation than the 6 the older grids carried.
 
 **What the pipeline does with it.** `tools/build-assets.mjs` picks this format automatically the
-moment `actions/<id>/` contains *every* action in that character's list (a partial set is ignored, so
-a half-delivered character never mixes two art styles in one atlas). It cuts the 9 cells on fixed
+moment `actions/<id>/` contains *every* action in that character's list. A partial set is applied as
+row overrides on top of the character's older grid (that row gets 9 frames), which is how a single
+broken action is repaired without regenerating the character. It cuts the 9 cells on fixed
 thirds, isolates the figure, normalizes every frame to a shared bottom-center anchor, packs them into
 a power-of-two atlas, and records a `renderScale` so the extra detail survives the game's 1.7× world
 zoom instead of being thrown away at build time. Move timing is authored against a canonical 6-frame
@@ -134,6 +135,9 @@ Fill in the character description and the per-frame beats:
 **First: the two new lead heroes, Eviatar and Omri** — full pack with photo-based character sheets,
 all 12 action prompts each and the hero cards in [hero-prompts-eviatar-omri.md](./hero-prompts-eviatar-omri.md).
 They ship on recoloured stand-ins (Bruiser / Nepho) until their sets land.
+
+**Second: the frames the quality pass rejected** — one per-action file per broken action (a partial
+set patches just that row of the older grid) plus Byte in full: [fix-prompts-quality-pass.md](./fix-prompts-quality-pass.md).
 
 Then three heroes and four bosses, at the per-action format above. Everything else keeps working on its
 current art in the meantime — the pipeline falls back per character, so these can land one at a time.

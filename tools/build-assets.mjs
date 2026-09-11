@@ -93,7 +93,11 @@ function resolveSource(id, actions, pairFiles, gridFile) {
     const files = actions.map((a) => [a, join(dir, `${a}.png`)]);
     const missing = files.filter(([, p]) => !existsSync(p)).map(([a]) => a);
     if (!missing.length) return { kind: 'actions', files };
-    warn(`${id}: actions/${id}/ is incomplete (missing ${missing.join(', ')}); falling back to the older grid`);
+    // a partial set patches the older grid row by row — the way to fix just the broken actions
+    const overrides = files.filter(([, p]) => existsSync(p));
+    if (overrides.length) console.log(`${id}: ${overrides.length} action override(s) on top of the older grid: ${overrides.map(([a]) => a).join(', ')}`);
+    const base = pairFiles && pairFiles.every((p) => existsSync(p)) ? { kind: 'pair', files: pairFiles } : { kind: 'grid', file: gridFile };
+    return { ...base, overrides };
   }
   if (pairFiles && pairFiles.every((p) => existsSync(p))) return { kind: 'pair', files: pairFiles };
   return { kind: 'grid', file: gridFile };
@@ -207,6 +211,16 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
       cells.push(row);
     }
   }
+  // Per-action overrides: a 3x3 file under actions/<id>/ replaces that one row of the older grid
+  // (9 frames where the grid had 6 — the catalog records the count per row).
+  for (const [action, path] of source.overrides || []) {
+    const r = spec.rows.indexOf(action);
+    if (r < 0) { warn(`${id}: actions/${id}/${action}.png does not match a row of this character (${spec.rows.join(', ')})`); continue; }
+    const img = await loadCleaned(path, `${id}/${action}`, notes);
+    cells[r] = ops.sliceFixed(img, ACTION_GRID.rows, ACTION_GRID.cols).flat();
+    notes.push(`${action}: row replaced by actions/${id}/${action}.png`);
+  }
+
   // Defective frames — art the generator cut at a cell line, a figure most of which is missing, or a
   // severed body part floating on its own — are never shown. Each is replaced, in place, by the
   // nearest clean frame of the same row: the animation gets a held frame instead of a cut body.
@@ -232,7 +246,7 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   for (let r = 0; r < spec.rows.length; r++) {
     const bottoms = cells[r].map((f) => (f.main ? f.main.y1 : 0));
     const baseline = median(bottoms);
-    for (let c = 0; c < spec.frames; c++) {
+    for (let c = 0; c < cells[r].length; c++) {
       const f = cells[r][c];
       const { cell, main, labels } = f;
       let ax = cell.width / 2;
@@ -330,8 +344,11 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   const rel = (p) => p.replace(ROOT + '/', '');
   const srcStr = source.kind === 'actions' ? rel(dirname(source.files[0][1])) + '/{' + source.files.map(([a]) => a).join(',') + '}.png'
     : source.kind === 'pair' ? source.files.map(rel).join(' + ') : rel(source.file);
+  // rows that do not have the character's usual frame count (per-action overrides carry 9)
+  const frameCounts = Object.fromEntries(spec.rows.map((row, r) => [row, cells[r].length]).filter(([, n]) => n !== spec.frames));
   const entry = {
     id, kind: spec.kind, atlas: `chars/${id}.webp`, data: `chars/${id}.json`, box, anchor, rows: spec.rows, framesPerRow: spec.frames,
+    frameCounts: Object.keys(frameCounts).length ? frameCounts : undefined,
     scale: +scale.toFixed(4), renderScale: supersample === 1 ? undefined : +(1 / supersample).toFixed(4),
     skin: colours.skin, outline: colours.outline, head: spec.head ? headTable : undefined, source: srcStr, sourceFormat: source.kind, notes,
   };
@@ -341,7 +358,7 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
 }
 
 async function contactSheet(id, frames, box, anchor, headTable, spec) {
-  const cols = spec.frames, rows = spec.rows.length;
+  const cols = Math.max(spec.frames, ...frames.map((f) => f.index + 1)), rows = spec.rows.length;
   const sheet = ops.makeImage(cols * (box.w + 4), rows * (box.h + 4));
   for (const f of frames) {
     const r = spec.rows.indexOf(f.row), c = f.index;

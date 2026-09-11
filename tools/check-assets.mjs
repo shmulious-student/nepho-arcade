@@ -46,7 +46,14 @@ async function checkSourcesFor(id, c) {
   if (c.variantOf) return; // recolours share their base's source art
   if (c.sourceFormat === 'actions') {
     for (const row of c.rows) await checkSourceGrid(`${id}/${row}`, join(SRC, 'actions', id, `${row}.png`), 3, 3, { square: true, strict: true });
-  } else if (c.sourceFormat === 'pair') {
+    return;
+  }
+  // per-action overrides on an older grid are held to the same standard as a full set
+  for (const row of Object.keys(c.frameCounts || {})) {
+    const p = join(SRC, 'actions', id, `${row}.png`);
+    if (existsSync(p)) await checkSourceGrid(`${id}/${row}`, p, 3, 3, { square: true, strict: true });
+  }
+  if (c.sourceFormat === 'pair') {
     for (const [i, rel] of c.source.split(' + ').entries()) {
       const path = join(ROOT, rel);
       if (!existsSync(path)) { fail.push(`${id}:${i + 1}: source grid missing at ${path}`); continue; }
@@ -79,14 +86,16 @@ if (existsSync(catalogPath)) {
     if (existsSync(data)) {
       const j = JSON.parse(readFileSync(data, 'utf8'));
       check(po2(j.meta.size.w) && po2(j.meta.size.h), `${id}: atlas ${j.meta.size.w}x${j.meta.size.h} is not power-of-two`);
+      const countOf = (row) => c.frameCounts?.[row] ?? c.framesPerRow;
+      const want = c.rows.reduce((a, row) => a + countOf(row), 0);
       const n = Object.keys(j.frames).length;
-      check(n === c.rows.length * c.framesPerRow, `${id}: ${n} frames, expected ${c.rows.length * c.framesPerRow}`);
-      for (const row of c.rows) for (let i = 0; i < c.framesPerRow; i++) check(!!j.frames[`${row}/${i}`], `${id}: frame ${row}/${i} missing`);
+      check(n === want, `${id}: ${n} frames, expected ${want}`);
+      for (const row of c.rows) for (let i = 0; i < countOf(row); i++) check(!!j.frames[`${row}/${i}`], `${id}: frame ${row}/${i} missing`);
       for (const f of Object.values(j.frames)) check(f.frame.w > 8 && f.frame.h > 8, `${id}: degenerate frame`);
     }
     if (c.kind === 'hero') {
       check(!!c.head, `${id}: head anchors missing`);
-      for (const row of c.rows) check(c.head?.[row]?.length === c.framesPerRow, `${id}: head anchors for ${row}`);
+      for (const row of c.rows) check(c.head?.[row]?.length === (c.frameCounts?.[row] ?? c.framesPerRow), `${id}: head anchors for ${row}`);
     }
   }
   for (const l of cat.levels) for (const k of ['bg', 'entry', 'sign']) {

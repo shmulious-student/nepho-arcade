@@ -21,7 +21,7 @@ export class FaceRig {
   }
 
   update(e: SimEntityView, sx: number, sy: number, body: Phaser.GameObjects.Sprite): void {
-    const key = heroFrameKey(e.state, e.st, this.def.framesPerRow);
+    const key = heroFrameKey(e.state, e.st, this.def);
     const [row, idxStr] = key.split('/');
     const idx = Number(idxStr);
     const rowHeads = this.def.head?.[row];

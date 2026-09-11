@@ -73,8 +73,8 @@ function makeCard(c) {
         ctx.drawImage(c.img, fr.frame.x, fr.frame.y, fr.frame.w, fr.frame.h, 10 + s.x * rs, 10 + s.y * rs, fr.frame.w * rs, fr.frame.h * rs);
       } else missing++;
       ctx.fillStyle = '#ff4f72'; ctx.fillRect(ax - 3, ay - 1, 6, 2); ctx.fillRect(ax - 1, ay - 3, 2, 6);
-      rowEl.textContent = `${row} ${frame + 1}/${c.def.framesPerRow}` + (missing ? ` · ${missing} MISSING` : '');
-      if (++frame >= c.def.framesPerRow) {
+      rowEl.textContent = `${row} ${frame + 1}/${c.def.frameCounts?.[row] ?? c.def.framesPerRow}` + (missing ? ` · ${missing} MISSING` : '');
+      if (++frame >= (c.def.frameCounts?.[row] ?? c.def.framesPerRow)) {
         frame = 0;
         if (++loops >= state.hold) { loops = 0; rowIdx = (rowIdx + 1) % rows.length; }
       }

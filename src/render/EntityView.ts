@@ -43,7 +43,7 @@ export class EntityView {
     this.shadow.setScale(Math.max(0.3, 1 - e.z / 220));
     this.shadow.setAlpha(e.hp > 0 ? 0.35 : 0);
     this.body.setFlipX(e.facing < 0);
-    const key = frameKeyFor(e.kind, e.arch, e.state, e.st, this.def.framesPerRow);
+    const key = frameKeyFor(e.kind, e.arch, e.state, e.st, this.def);
     if (key !== this.lastKey) { this.body.setFrame(key); this.lastKey = key; }
     this.body.setScale((e.scale || 1) * (this.def.renderScale ?? 1) * (e.kind === 'echo' ? 0.72 : 1));
     this.body.setDepth(sy);

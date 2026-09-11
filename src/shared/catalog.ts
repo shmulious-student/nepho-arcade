@@ -17,6 +17,8 @@ export interface CharacterEntry {
    * supersampled resolution so detail survives the world zoom, and this scales them back to the
    * gameplay size the sim expects. Absent (treat as 1) for grids packed at 1:1. */
   renderScale?: number;
+  /** Rows whose frame count differs from framesPerRow (a per-action override carries 9 frames). */
+  frameCounts?: Record<string, number>;
   skin: [number, number, number];
   outline: [number, number, number];
   head?: Record<string, ([number, number, number] | null)[]>; // per-row array of [dx,dy,width] in box-space (null = no figure in frame, hide the face), heroes only
