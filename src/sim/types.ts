@@ -111,6 +111,7 @@ export interface Snapshot {
   go: boolean; // show GO arrow
   enrage: boolean;
   assist: [number, number]; // per player: friend readiness 0..1 (assist cooldown / sidekick up)
+  lives: [number, number]; // continues left per player
 }
 
 export interface EntityView {

@@ -23,7 +23,7 @@ const MAX_EVENTS = 20;
 export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   const entities = s.entities.slice(0, MAX_ENTITIES);
   const events = s.events.slice(0, MAX_EVENTS);
-  const buf = new ArrayBuffer(21 + entities.length * 15 + events.length * 6); // header(21) + entity(15 each) + event(6 each)
+  const buf = new ArrayBuffer(23 + entities.length * 15 + events.length * 6); // header(23) + entity(15 each) + event(6 each)
   const dv = new DataView(buf);
   let o = 0;
   dv.setUint8(o, 0x53); o += 1; // 'S'
@@ -40,6 +40,8 @@ export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   dv.setUint8(o, archIndex(s.bossId)); o += 1;
   dv.setUint8(o, Math.round(Math.max(0, Math.min(1, s.assist[0])) * 255)); o += 1;
   dv.setUint8(o, Math.round(Math.max(0, Math.min(1, s.assist[1])) * 255)); o += 1;
+  dv.setUint8(o, Math.max(0, Math.min(255, s.lives[0]))); o += 1;
+  dv.setUint8(o, Math.max(0, Math.min(255, s.lives[1]))); o += 1;
   dv.setUint8(o, entities.length); o += 1;
   dv.setUint8(o, events.length); o += 1;
   for (const e of entities) {
@@ -82,6 +84,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
   const bossMaxHp = dv.getUint16(o); o += 2;
   const bossId = archName(dv.getUint8(o)); o += 1;
   const assist: [number, number] = [dv.getUint8(o) / 255, dv.getUint8(o + 1) / 255]; o += 2;
+  const lives: [number, number] = [dv.getUint8(o), dv.getUint8(o + 1)]; o += 2;
   const nEntities = dv.getUint8(o); o += 1;
   const nEvents = dv.getUint8(o); o += 1;
   const entities: EntityView[] = [];
@@ -113,7 +116,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
     const shapeIdx = dv.getUint8(o); o += 1;
     events.push({ type, x, y, a, shape: shapeIdx > 0 ? SHAPES[shapeIdx - 1] : undefined });
   }
-  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist };
+  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist, lives };
 }
 
 const STATES = [

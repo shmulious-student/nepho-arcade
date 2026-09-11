@@ -8,6 +8,7 @@ interface ResultsData {
   score: [number, number];
   heroes: [HeroId, HeroId | null];
   faceKeys: [string | null, string | null];
+  friends?: import('../../sim/friends').FriendSetup;
   isLastLevel: boolean;
 }
 
@@ -39,11 +40,11 @@ export class ResultsScene extends Phaser.Scene {
 
     if (won && !campaignDone) {
       btn(VIEW_W / 2, 300, `NEXT LEVEL: ${data.level + 1}`, () => {
-        this.scene.start('Game', { mode: 'local', level: data.level + 1, heroes: data.heroes, faceKeys: data.faceKeys, seed: Math.floor(Math.random() * 1e9) });
+        this.scene.start('Game', { mode: 'local', level: data.level + 1, heroes: data.heroes, faceKeys: data.faceKeys, friends: data.friends, seed: Math.floor(Math.random() * 1e9) });
       });
     } else if (!won) {
       btn(VIEW_W / 2, 300, 'RETRY LEVEL', () => {
-        this.scene.start('Game', { mode: 'local', level: data.level, heroes: data.heroes, faceKeys: data.faceKeys, seed: Math.floor(Math.random() * 1e9) });
+        this.scene.start('Game', { mode: 'local', level: data.level, heroes: data.heroes, faceKeys: data.faceKeys, friends: data.friends, seed: Math.floor(Math.random() * 1e9) });
       });
     }
     btn(VIEW_W / 2, 346, 'BACK TO LOBBY', () => this.scene.start('Lobby'));

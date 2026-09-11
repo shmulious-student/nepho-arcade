@@ -1,7 +1,7 @@
 // Deterministic simulation world. No Phaser import. step(inputs) advances exactly one 60Hz tick.
 import { Rng } from './rng';
 import { makeEntity, setState, isDown } from './entity';
-import { stepHero } from './fighter';
+import { stepHero, clampHero } from './fighter';
 import { stepEnemy } from './enemyAi';
 import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, BOSS_ORDER, setDeck } from './bosses';
 import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from './friends';
@@ -98,6 +98,7 @@ export class World {
     const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * LEVELS[this.level - 1].hpMul));
     e.facing = side === 'right' ? -1 : 1;
     e.guard = !!def.guard;
+    e.cooldown = 75; // sizes the player up for a beat before the first swing
     this.entities.push(e);
     return e;
   }
@@ -205,6 +206,10 @@ export class World {
 
     resolveHits(this);
     stepDirector(this, this.director);
+    // The camera may have moved this tick, and a downed / KO'd hero skips its own clamp: keep every
+    // player and friend inside the visible band no matter what state they are in.
+    for (const h of this.allies()) clampHero(this, h);
+    for (const h of this.heroes()) clampHero(this, h);
 
     if (!this.done && this.heroes().length > 0 && this.heroes().every((h) => h.state === 'ko')) {
       this.done = true;
@@ -239,6 +244,7 @@ export class World {
       bossId: boss?.arch || '',
       score: this.score,
       assist: assistReadiness(this),
+      lives: [this.lives[0], this.lives[1]],
       credits: this.credits,
       entities: this.entities.map(viewOf),
       events: this.events,

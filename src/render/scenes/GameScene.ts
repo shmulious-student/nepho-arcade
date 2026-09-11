@@ -13,6 +13,12 @@ import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
 
+/** Phaser's boot-time touch flag misses some browsers/emulations; ask the platform too. */
+export function isTouchDevice(scene: Phaser.Scene): boolean {
+  if (scene.sys.game.device.input.touch) return true;
+  try { return navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches; } catch { return false; }
+}
+
 interface StartData {
   mode: 'local' | 'host' | 'guest';
   level?: number;
@@ -109,7 +115,7 @@ export class GameScene extends Phaser.Scene {
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends);
     this.touch = new TouchControls(this);
-    this.touch.setVisible(this.sys.game.device.input.touch);
+    this.touch.setVisible(isTouchDevice(this));
 
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
@@ -120,7 +126,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private showKeyboardHint(withP2: boolean): void {
-    if (this.sys.game.device.input.touch) return; // touch controls cover this on mobile
+    if (isTouchDevice(this)) return; // touch controls cover this on mobile
     const lines = withP2
       ? ['P1  move WASD · light J · heavy K · jump SPACE · dash L · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · jump NUM6 · dash NUM3 · special NUM0 · block NUM4 · friend NUM5']
       : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   JUMP  SPACE   DASH  L   SPECIAL  I   BLOCK  U   FRIEND  H'];
@@ -234,6 +240,8 @@ export class GameScene extends Phaser.Scene {
       this.levelIndex = snap.level;
       this.finished = false;
       this.entryShown = false;
+      for (const v of this.views.values()) v.destroy();
+      this.views.clear(); // entity ids restart at 1 in the new world; a stale view would wear the wrong sprite
       const level = this.catalog.levels[this.levelIndex - 1];
       this.backdrop.destroy();
       this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
@@ -283,7 +291,7 @@ export class GameScene extends Phaser.Scene {
       this.time.delayedCall(900, () => {
         this.scene.start('Results', {
           result: snap.phase, level: this.levelIndex, score,
-          heroes: this.heroes, faceKeys: this.faceKeys, isLastLevel: this.levelIndex >= 10,
+          heroes: this.heroes, faceKeys: this.faceKeys, friends: this.friends, isLastLevel: this.levelIndex >= 10,
         });
       });
     }

@@ -129,7 +129,6 @@ export function stepEnemy(w: World, e: Entity): void {
 
   // attack decision
   const inLane = Math.abs(dy) <= LANE_TOL;
-  if (e.st < 75 && e.cooldown <= 0) e.cooldown = 75 - e.st; // a freshly spawned enemy sizes the player up before swinging
   if (e.cooldown <= 0 && inLane && !isHurt(target) && target.state !== 'ko' && e.ai === 0) {
     let choice: string | null = null;
     if (def.special && adx <= def.special.range && adx > def.attack.range * 0.7 && w.rng.chance(def.specialChance)) choice = 'special';

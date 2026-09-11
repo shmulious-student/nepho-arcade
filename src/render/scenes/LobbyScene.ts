@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES, HERO_IDS } from '../../sim/frameData';
 import type { FriendMode } from '../../sim/friends';
+import { isTouchDevice } from './GameScene';
 import type { HeroId } from '../../sim/types';
 import { openFaceCropper } from '../../face/cropper';
 import { VIEW_W, VIEW_H } from '../../sim/types';
@@ -212,6 +213,13 @@ export class LobbyScene extends Phaser.Scene {
   }
 
   private tryStart(): void {
+    // On a phone, START is the user gesture that lets us go full screen and lock to landscape
+    // (both best-effort: browsers that refuse simply carry on windowed).
+    if (isTouchDevice(this)) {
+      try { if (!this.scale.isFullscreen) this.scale.startFullscreen(); } catch { /* not allowed here */ }
+      const o = (screen as any).orientation;
+      if (o && typeof o.lock === 'function') o.lock('landscape').catch(() => {});
+    }
     const heroes: [HeroId, HeroId | null] = this.coop ? [this.heroPick[0], this.heroPick[1] || pickOther(this.heroPick[0])] : [this.heroPick[0], null];
     // P2's friend is whoever is left over once both players and P1's friend are taken
     const p2Friend = heroes[1] ? HERO_IDS.find((h) => h !== heroes[0] && h !== heroes[1] && h !== this.friendPick) || null : null;

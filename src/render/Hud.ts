@@ -8,7 +8,7 @@ import { VIEW_W, VIEW_H } from '../sim/types';
 interface PlayerHud {
   root: Phaser.GameObjects.Container; hp: Phaser.GameObjects.Rectangle; hpGhost: Phaser.GameObjects.Rectangle;
   meter: Phaser.GameObjects.Rectangle; meterLabel: Phaser.GameObjects.Text; combo: Phaser.GameObjects.Text;
-  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lastHp: number; wasReady: boolean;
+  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lives: Phaser.GameObjects.Text; lastHp: number; wasReady: boolean;
 }
 
 const BAR_W = 220;
@@ -46,6 +46,7 @@ export class Hud {
         ? scene.add.image(29, 29, faceKey).setDisplaySize(42, 42)
         : scene.add.text(29, 29, def.name[0], { fontFamily: FONT, fontSize: '22px', color: '#0b1730', fontStyle: 'bold' }).setOrigin(0.5);
       const name = scene.add.text(58, 6, def.name, { fontFamily: FONT, fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' });
+      const lives = scene.add.text(58 + BAR_W, 6, '', { fontFamily: FONT, fontSize: '11px', color: '#9bb1c9' }).setOrigin(1, 0);
       const hpBg = scene.add.rectangle(58, 22, BAR_W, 14, 0x050711, 0.9).setOrigin(0, 0).setStrokeStyle(1, 0x344861);
       const hpGhost = scene.add.rectangle(59, 23, BAR_W - 2, 12, 0xff4f72, 0.6).setOrigin(0, 0);
       const hp = scene.add.rectangle(59, 23, BAR_W - 2, 12, def.colour).setOrigin(0, 0);
@@ -60,9 +61,9 @@ export class Hud {
         friendBar = scene.add.rectangle(59, 62, 0, 3, HEROES[fid].colour).setOrigin(0, 0);
         panel.height = 68; combo.setY(72);
       }
-      root.add([panel, chipBg, chip, name, hpBg, hpGhost, hp, meterBg, meter, meterLabel, combo, ...(friend ? [friend, friendBar!] : [])]);
+      root.add([panel, chipBg, chip, name, lives, hpBg, hpGhost, hp, meterBg, meter, meterLabel, combo, ...(friend ? [friend, friendBar!] : [])]);
       this.container.add(root);
-      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lastHp: 1, wasReady: false });
+      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lives, lastHp: 1, wasReady: false });
     }
     this.timerText = scene.add.text(VIEW_W / 2, 10, '0:00', { fontFamily: FONT, fontSize: '20px', color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5, 0);
     this.waveText = scene.add.text(VIEW_W / 2, 34, '', { fontFamily: FONT, fontSize: '12px', color: '#9bb1c9', stroke: '#0b1730', strokeThickness: 3 }).setOrigin(0.5, 0);
@@ -88,6 +89,7 @@ export class Hud {
       else hud.meter.fillColor = 0xffcf5c;
       if (ready && !hud.wasReady) this.pop(hud.meterLabel);
       hud.wasReady = ready;
+      hud.lives.setText(`♥ ×${s.lives[p.slot] ?? 0}`);
       hud.combo.setText(p.combo > 1 ? `${p.combo} HIT COMBO` : '');
       if (p.combo > 1) hud.combo.setScale(1 + 0.15 * Math.max(0, 1 - ((s.tick % 8) / 8)));
       if (hud.friendBar) { const r = s.assist[p.slot] ?? 0; hud.friendBar.width = (BAR_W - 2) * r; hud.friend!.setColor(r >= 1 ? '#f3f4e8' : '#6b7a99'); }

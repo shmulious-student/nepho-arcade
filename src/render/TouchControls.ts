@@ -13,6 +13,7 @@ export class TouchControls {
   private stickNub: Phaser.GameObjects.Arc;
   private stickPointerId: number | null = null;
   private stickOrigin = { x: 0, y: 0 };
+  private stickHome = { x: 0, y: 0 };
   private stickVec = { x: 0, y: 0 };
   private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; pointerId: number | null; x: number; y: number; r: number }[] = [];
   private edge = new InputEdge();
@@ -21,31 +22,34 @@ export class TouchControls {
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.container = scene.add.container(0, 0).setDepth(40000).setScrollFactor(0);
-    const stickX = 78, stickY = VIEW_H - 90;
-    this.stickBase = scene.add.circle(stickX, stickY, 46, 0x0b1730, 0.5).setStrokeStyle(2, 0x344861);
-    this.stickNub = scene.add.circle(stickX, stickY, 22, 0x14243d, 0.8).setStrokeStyle(2, 0x75f5dc);
+    // The stick is floating: it plants itself wherever the thumb first lands on the left half of the
+    // screen, so a player never has to find a small fixed pad by feel. Shown at a resting spot idle.
+    const stickX = 96, stickY = VIEW_H - 96;
+    this.stickHome = { x: stickX, y: stickY };
+    this.stickBase = scene.add.circle(stickX, stickY, 52, 0x0b1730, 0.4).setStrokeStyle(2, 0x344861);
+    this.stickNub = scene.add.circle(stickX, stickY, 24, 0x14243d, 0.8).setStrokeStyle(2, 0x75f5dc);
     this.stickOrigin = { x: stickX, y: stickY };
     this.container.add([this.stickBase, this.stickNub]);
 
     // Thumb cluster: the two attacks and jump under the thumb, dash/block/special/friend around them.
-    const bx = VIEW_W - 110, by = VIEW_H - 100, spread = 46;
+    const bx = VIEW_W - 120, by = VIEW_H - 105, spread = 50;
     const defs: [number, number, number, string, number][] = [
       [bx - spread, by, BTN.LIGHT, 'ATK', 0x75f5dc],
       [bx + spread, by, BTN.HEAVY, 'HVY', 0xff9357],
-      [bx, by + spread * 0.9, BTN.JUMP, 'JMP', 0xf3f4e8],
+      [bx, by + 48, BTN.JUMP, 'JMP', 0xf3f4e8],
       [bx, by - spread, BTN.SPECIAL, 'SPC', 0xffcf5c],
-      [bx - spread * 1.8, by - spread * 1.05, BTN.DASH, 'DSH', 0xa4ee42],
-      [bx + spread * 1.8, by - spread * 1.05, BTN.BLOCK, 'BLK', 0x37aaff],
-      [bx - spread * 1.8, by + spread * 0.6, BTN.ASSIST, 'FRD', 0xff76c8],
+      [bx - 95, by - 55, BTN.DASH, 'DSH', 0xa4ee42],
+      [bx + 95, by - 55, BTN.BLOCK, 'BLK', 0x37aaff],
+      [bx - 110, by + 30, BTN.ASSIST, 'FRD', 0xff76c8],
     ];
     for (const [x, y, bit, label, colour] of defs) {
-      const g = scene.add.circle(x, y, 26, 0x0b1730, 0.55).setStrokeStyle(2, colour);
-      const t = scene.add.text(x, y, label, { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' }).setOrigin(0.5);
+      const g = scene.add.circle(x, y, 28, 0x0b1730, 0.55).setStrokeStyle(2, colour);
+      const t = scene.add.text(x, y, label, { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
       this.container.add([g, t]);
-      this.buttons.push({ g, label: t, bit, pointerId: null, x, y, r: 30 });
+      this.buttons.push({ g, label: t, bit, pointerId: null, x, y, r: 34 });
     }
 
-    scene.input.addPointer(2);
+    scene.input.addPointer(4); // stick + up to four fingers on the buttons
     scene.input.on('pointerdown', this.onDown, this);
     scene.input.on('pointermove', this.onMove, this);
     scene.input.on('pointerup', this.onUp, this);
@@ -54,21 +58,44 @@ export class TouchControls {
 
   private onDown(p: Phaser.Input.Pointer): void {
     if (!this.visible) return;
-    const dStick = Phaser.Math.Distance.Between(p.x, p.y, this.stickOrigin.x, this.stickOrigin.y);
-    if (this.stickPointerId === null && dStick < 70) { this.stickPointerId = p.id; this.updateStick(p); return; }
+    if (this.stickPointerId === null && p.x < VIEW_W * 0.45 && p.y > VIEW_H * 0.25) {
+      // plant the stick under the thumb
+      this.stickPointerId = p.id;
+      this.stickOrigin = { x: p.x, y: p.y };
+      this.stickBase.setPosition(p.x, p.y).setAlpha(1);
+      this.updateStick(p);
+      return;
+    }
+    this.pressAt(p);
+  }
+  private onMove(p: Phaser.Input.Pointer): void {
+    if (p.id === this.stickPointerId) { this.updateStick(p); return; }
+    // a thumb sliding from one button onto another switches buttons (ATK -> HVY without lifting)
+    for (const b of this.buttons) if (b.pointerId === p.id && Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) >= b.r + 6) { b.pointerId = null; b.g.setFillStyle(0x0b1730, 0.55); }
+    this.pressAt(p);
+  }
+  private pressAt(p: Phaser.Input.Pointer): void {
+    if (this.buttons.some((b) => b.pointerId === p.id)) return;
+    let best: typeof this.buttons[number] | null = null, bd = Infinity;
     for (const b of this.buttons) {
       if (b.pointerId !== null) continue;
-      if (Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) < b.r) { b.pointerId = p.id; b.g.setFillStyle(0x1c2f4d, 0.9); }
+      const d = Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y);
+      if (d < b.r && d < bd) { bd = d; best = b; }
     }
+    if (best) { best.pointerId = p.id; best.g.setFillStyle(0x1c2f4d, 0.9); }
   }
-  private onMove(p: Phaser.Input.Pointer): void { if (p.id === this.stickPointerId) this.updateStick(p); }
   private onUp(p: Phaser.Input.Pointer): void {
-    if (p.id === this.stickPointerId) { this.stickPointerId = null; this.stickVec = { x: 0, y: 0 }; this.stickNub.setPosition(this.stickOrigin.x, this.stickOrigin.y); }
+    if (p.id === this.stickPointerId) {
+      this.stickPointerId = null; this.stickVec = { x: 0, y: 0 };
+      this.stickOrigin = { ...this.stickHome };
+      this.stickBase.setPosition(this.stickHome.x, this.stickHome.y).setAlpha(0.6);
+      this.stickNub.setPosition(this.stickHome.x, this.stickHome.y);
+    }
     for (const b of this.buttons) if (b.pointerId === p.id) { b.pointerId = null; b.g.setFillStyle(0x0b1730, 0.55); }
   }
   private updateStick(p: Phaser.Input.Pointer): void {
     const dx = p.x - this.stickOrigin.x, dy = p.y - this.stickOrigin.y;
-    const d = Math.min(30, Math.hypot(dx, dy));
+    const d = Math.min(34, Math.hypot(dx, dy));
     const a = Math.atan2(dy, dx);
     this.stickNub.setPosition(this.stickOrigin.x + Math.cos(a) * d, this.stickOrigin.y + Math.sin(a) * d);
     this.stickVec = { x: (Math.hypot(dx, dy) > 8 ? Math.cos(a) : 0), y: (Math.hypot(dx, dy) > 8 ? Math.sin(a) : 0) };

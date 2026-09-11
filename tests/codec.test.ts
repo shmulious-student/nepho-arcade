@@ -25,6 +25,7 @@ function randomSnapshot(rng: Rng): Snapshot {
     cameraX: rng.int(0, 1500), timer: +rng.range(0, 200).toFixed(1), bossHp: rng.next(), bossMaxHp: rng.int(0, 5000),
     bossId: rng.pick(ARCHES), score: [0, 0], credits: 0, entities, events: [], go: rng.chance(0.5), enrage: rng.chance(0.5),
     assist: [rng.next(), rng.next()],
+    lives: [rng.int(0, 5), rng.int(0, 5)],
   };
 }
 
@@ -40,6 +41,7 @@ describe('net codec', () => {
       expect(decoded.entities.length).toBe(Math.min(s.entities.length, 40));
       expect(Math.abs(decoded.assist[0] - s.assist[0])).toBeLessThan(0.01);
       expect(Math.abs(decoded.assist[1] - s.assist[1])).toBeLessThan(0.01);
+      expect(decoded.lives).toEqual(s.lives);
       for (let j = 0; j < decoded.entities.length; j++) {
         const a = s.entities[j], b = decoded.entities[j];
         expect(b.kind).toBe(a.kind);

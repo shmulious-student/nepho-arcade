@@ -35,6 +35,9 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - Attacks are forgiving on purpose: light hits reach a little behind you, a press during a move is
   buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
   Beating a boss rolls straight into the next level.
+- **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
+  stick plants itself wherever your left thumb lands; the right-hand cluster is ATK / HVY / JMP with
+  SPC above, DSH / BLK in the corners and FRD below, and a thumb can slide from one button to another.
 - **LAN co-op:** from the lobby, turn on **LAN CO-OP**, host or join with the 4-letter room code (or
   scan the QR code) — see below.
 
