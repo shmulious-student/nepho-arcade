@@ -1,9 +1,9 @@
-import { HEROES, HITSTOP_HEAVY, HITSTOP_LIGHT, METER_MAX, METER_PER_HIT, METER_PER_TAKEN, COMBO_WINDOW } from './frameData';
+import { HEROES, HITSTOP_HEAVY, HITSTOP_LIGHT, METER_MAX, METER_PER_HIT, METER_PER_TAKEN, COMBO_WINDOW, HITSTUN_SHIFT } from './frameData';
 import { LANE_TOL, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
 import { heroActiveHit } from './fighter';
 import { enemyActiveHit } from './enemyAi';
-import { bossActiveHit, bossOnHit } from './bosses';
+import { bossActiveHit, bossOnHit, bossDeath } from './bosses';
 import type { World } from './world';
 
 export function activeHitbox(e: Entity): Hitbox | null {
@@ -45,13 +45,15 @@ function overlaps(att: Entity, hit: Hitbox, tgt: Entity): boolean {
 }
 
 function targetsOf(w: World, att: Entity): Entity[] {
-  const hostileToHeroes = att.kind === 'enemy' || att.kind === 'boss' || att.kind === 'echo' || ((att.kind === 'projectile' || att.kind === 'hazard') && att.slot < 0);
+  // Sides are carried on the entity itself (a projectile or hazard inherits its thrower's), so a
+  // friend's volley is on the heroes' side even though a friend has no player slot.
+  const hostileToHeroes = !att.friendly;
   return w.entities.filter((t) => !t.dead && t.id !== att.id && t.hp > 0 && (hostileToHeroes ? t.kind === 'hero' : (t.kind === 'enemy' || t.kind === 'boss' || t.kind === 'echo')));
 }
 
 export function resolveHits(w: World): void {
   for (const att of w.entities) {
-    if (att.dead && att.kind !== 'hazard') continue;
+    if (att.dead) continue;
     if (att.hitstop > 0) continue;
     const hit = activeHitbox(att);
     if (!hit) continue;
@@ -80,14 +82,23 @@ function countStreak(w: World, tgt: Entity): boolean {
   tgt.hitStreak++; tgt.streakT = STUN_WINDOW;
   if (tgt.hitStreak < stunThreshold(tgt)) return false;
   tgt.hitStreak = 0; tgt.stunCd = STUN_COOLDOWN;
-  setState(tgt, 'stunned'); tgt.aiT = STUN_TICKS; tgt.pdata = STUN_TICKS << 8; tgt.vx = 0;
-  if (tgt.kind === 'enemy') w.releaseAttackToken(tgt.id);
+  setState(tgt, 'stunned'); tgt.aiT = STUN_TICKS; tgt.vx = 0;
+  if (tgt.kind === 'enemy') { w.releaseAttackToken(tgt.id); tgt.ai = 0; }
+  // a dazed boss drops whatever it was doing: an active pattern must not keep hitting from a daze
+  if (tgt.kind === 'boss' || tgt.kind === 'echo') { tgt.pattern = -1; tgt.pphase = 0; tgt.pt = 0; }
   w.emit({ type: 'stun', x: tgt.x, y: tgt.y, z: tgt.z + (tgt.kind === 'boss' ? 180 : 120), id: tgt.id, a: STUN_TICKS });
   return true;
 }
 
+/** Who gets the credit (and whose multipliers apply) for a hit: the thrower of a projectile or
+ * hazard, otherwise the attacker itself. A friend also carries its player's id in `owner`, but its
+ * own swings are its own — they must not be read as the player's. */
+export function attackerOf(w: World, att: Entity): Entity | undefined {
+  return (att.kind === 'projectile' || att.kind === 'hazard') && att.owner >= 0 ? w.byId(att.owner) : att;
+}
+
 export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void {
-  const owner = att.owner >= 0 ? w.byId(att.owner) : att;
+  const owner = attackerOf(w, att);
   // A friend's hits are support, not the main event: less damage, half the shove, and no launching
   // or flooring outside their special — so they soften enemies up for the player instead of
   // punting them off the screen.
@@ -137,7 +148,14 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
     return;
   }
   if (tgt.kind === 'boss' || tgt.kind === 'echo') {
-    if (countStreak(w, tgt)) { tgt.hp -= dmg; w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + 80, a: Math.round(dmg), heavy, id: tgt.id }); if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy); return; }
+    if (countStreak(w, tgt)) {
+      // the hit that dazes the boss still has to be able to finish it
+      tgt.hp -= dmg;
+      w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + 80, a: Math.round(dmg), heavy, id: tgt.id });
+      if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy);
+      if (tgt.hp <= 0) bossDeath(w, tgt, owner);
+      return;
+    }
     bossOnHit(w, tgt, att, hit, dmg, dirToTarget);
     if (owner?.kind === 'hero') rewardHero(w, owner, tgt, dmg, heavy);
     w.emit({ type: 'hit', x: tgt.x, y: tgt.y, z: tgt.z + 80, a: Math.round(dmg), heavy, id: tgt.id });
@@ -170,7 +188,7 @@ export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void 
     else if (hit.knockdown) { setState(tgt, 'launched'); tgt.vz = 3.5; tgt.vx = dirToTarget * hit.kb; tgt.z = Math.max(tgt.z, 1); }
     else {
       const st = tgt.kind === 'hero' && hit.hitstun > 20 ? 'hurtHeavy' : 'hurt';
-      setState(tgt, st); tgt.vx = dirToTarget * hit.kb * 0.8; tgt.pdata = hit.hitstun << 8;
+      setState(tgt, st); tgt.vx = dirToTarget * hit.kb * 0.8; tgt.pdata = hit.hitstun << HITSTUN_SHIFT;
       // Brief mercy invulnerability on entering hurtstun: without it, an overlapping multi-hit source
       // (e.g. several orbiting hazards) can chain-stun a hero from full HP to zero with no way to escape.
       // 30 ticks (0.5s) — deliberately longer than a 34-tick hazard re-hit interval (orbiting damage

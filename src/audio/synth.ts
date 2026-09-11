@@ -5,7 +5,8 @@ export class Synth {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   private unlocked = false;
-  muted = false;
+  static readonly MUTE_KEY = 'nepho.muted';
+  muted = ((): boolean => { try { return localStorage.getItem(Synth.MUTE_KEY) === '1'; } catch { return false; } })();
 
   ensure(): AudioContext | null {
     if (this.unlocked) return this.ctx;
@@ -23,7 +24,10 @@ export class Synth {
     const ctx = this.ensure();
     if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
   }
-  setMuted(m: boolean): void { this.muted = m; if (this.master) this.master.gain.value = m ? 0 : 0.5; }
+  setMuted(m: boolean): void {
+    this.muted = m; if (this.master) this.master.gain.value = m ? 0 : 0.5;
+    try { localStorage.setItem(Synth.MUTE_KEY, m ? '1' : '0'); } catch { /* private mode */ }
+  }
 
   private tone(freq: number, dur: number, type: OscillatorType, gain: number, glideTo?: number): void {
     const ctx = this.ctx; if (!ctx || !this.master || this.muted) return;

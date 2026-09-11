@@ -129,7 +129,7 @@ export class World {
 
   spawnProjectile(owner: Entity, arch: string, x: number, y: number, z: number, vx: number, hit: import('./types').Hitbox): Entity {
     const e = makeEntity(this.id(), 'projectile', arch, x, y, 1);
-    e.owner = owner.id; e.slot = owner.slot; e.z = z; e.vx = vx; e.ttl = 90; e.facing = vx >= 0 ? 1 : -1;
+    e.owner = owner.id; e.slot = owner.slot; e.friendly = owner.friendly; e.z = z; e.vx = vx; e.ttl = 90; e.facing = vx >= 0 ? 1 : -1;
     this.entities.push(e);
     registerProjectileHit(e.id, hit);
     return e;
@@ -137,7 +137,7 @@ export class World {
 
   spawnHazard(owner: Entity, arch: string, x: number, y: number, tele: number, active: number, hit: import('./types').Hitbox, colour: number, speed = 0, phase01 = 0): Entity {
     const e = makeEntity(this.id(), 'hazard', arch, x, y, 1);
-    e.owner = owner.id; e.pt = tele; e.aiT = tele + active; e.vx = speed; e.vy = phase01; e.pphase = tele > 0 ? 0 : 1;
+    e.owner = owner.id; e.friendly = owner.friendly; e.pt = tele; e.aiT = tele + active; e.vx = speed; e.vy = phase01; e.pphase = tele > 0 ? 0 : 1;
     e.scale = hit.radius || hit.w || 1; // the renderer draws the hazard's footprint from this
     this.entities.push(e);
     registerHazardHit(e.id, hit);
@@ -234,14 +234,17 @@ export class World {
     this.events = [];
     if (this.director.bossTick > BOSS_ENRAGE_TICKS && this.phase === 'boss') this.enraged = true;
 
-    for (const h of this.heroes()) if (!isDown(h) && h.state !== 'ko') stepHero(this, h, inputs[h.slot] || { held: 0, pressed: 0 });
-    for (const h of this.heroes()) if (isDown(h) || h.state === 'ko') stepHero(this, h, { held: 0, pressed: 0 });
+    // A hero on the floor or out cold takes no input; one getting up does (the get-up dash).
+    for (const h of this.heroes()) stepHero(this, h, (isDown(h) && h.state !== 'getup') || h.state === 'ko' ? { held: 0, pressed: 0 } : inputs[h.slot] || { held: 0, pressed: 0 });
     // A slow trickle of HP, and only after five seconds without taking a hit — enough to recover
     // between waves, never enough to shrug off a fight. Losing has to stay possible.
     for (const h of this.heroes()) if (h.regenLock === 0 && (h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0004);
     stepFriends(this, inputs);
 
     for (const e of this.entities) {
+      // a spent projectile / hazard / pickup is waiting for removal at the end of the tick: stepping
+      // it again would push its removal tick out again, and it would never leave the world
+      if (e.dead && (e.kind === 'projectile' || e.kind === 'hazard' || e.kind === 'pickup')) continue;
       if (e.kind === 'enemy') stepEnemy(this, e);
       else if (e.kind === 'boss' || e.kind === 'echo') stepBoss(this, e);
       else if (e.kind === 'projectile') stepProjectile(this, e);

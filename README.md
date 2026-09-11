@@ -27,7 +27,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Block:** `U` (touch: BLK), held. Stops every attack from the side you face — no damage, no stun —
   and you can still shuffle and turn while holding it. Explosions around you get through at a third;
   anything from behind lands in full.
-- **Pause:** `ESC` / `P`, or the ❚❚ button top-right: resume, restart level, back to lobby, sound.
+- **Pause:** `ESC` / `P`, or the ❚❚ button top-right: resume, restart level, back to lobby, sound
+  (the sound setting and your best score are remembered by the browser).
 - **Lives & CONTINUE?:** two extra lives per level, then a CONTINUE? countdown — press anything to get
   back into the same fight with full health; let it run out and the run ends. HP only trickles back
   after five seconds without taking a hit, so a bad fight can be lost.
@@ -40,7 +41,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
   in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
   floored) — or **OFF**.
-- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4`/`5`/`6` (light/heavy/dash/special/block/friend/jump).
+- **Local 2-player:** turn on **2P KEYBOARD** in the lobby and pick P2's hero. P2 uses arrow keys +
+  Numpad `1`/`2`/`3`/`0`/`4`/`5`/`6` (light/heavy/dash/special/block/friend/jump).
 - Attacks are forgiving on purpose: light hits reach a little behind you, a press during a move is
   buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
   Beating a boss rolls straight into the next level.
@@ -67,8 +69,11 @@ src/shared/    catalog.ts — types + loader for the asset pipeline's manifest.
 tools/         asset pipeline (build-assets.mjs, asset-ops.mjs) and CI-style gates (check-assets.mjs).
 server/        LAN relay + static server (server/index.mjs).
 tests/         vitest: determinism, frame-data invariants, codec round-trip, friends, pickups, fuzz,
-               and a full 10-level bot campaign that verifies every level is actually won (not just
-               finished) in both 1P and 2P.
+               a full 10-level bot campaign that verifies every level is actually won (not just
+               finished) in both 1P and 2P, and an invariants sweep (every level in several
+               hero / co-op / friend configurations) that checks the sim on every tick: no NaN, no
+               entity left alive at zero HP or lingering past removal, no hero standing at zero HP,
+               and no enemy or boss slipping back out of the visible band once it has entered it.
 ```
 
 Run `npm run verify` to do everything CI would: rebuild the asset pack, run its gates, run every
@@ -95,10 +100,15 @@ pipeline attempts to un-bake. Drop in a corrected master and rebuild — nothing
 `npm run lan` starts `server/index.mjs`, a small generic two-peer WebSocket room relay plus a static
 file server (serves `dist/` if built, else falls back to `public/`). It prints both a `localhost` and
 a LAN IP URL. The **host** picks HOST GAME to get a 4-letter room code and a QR code encoding the LAN
-join URL; the **guest**, on the same Wi-Fi, opens that URL (or types the code under JOIN GAME) and
-picks a hero. The host is authoritative: it runs the real simulation and broadcasts compact binary
+join URL; the **guest**, on the same Wi-Fi, opens that URL (the room is filled in for them — or they
+type the code under JOIN GAME), picks a hero and presses START. If the host's room goes away
+mid-game the guest is told and returned to the lobby. The host is authoritative: it runs the real simulation and broadcasts compact binary
 snapshots at 30Hz; the guest sends 60Hz input and interpolates between snapshots for smooth motion.
 Solo and local-2P play need no server at all.
+
+On the dev server (`npm run dev`) two query flags help with testing: `?boss` skips straight to the
+level's boss and `?ko` opens the CONTINUE? screen; the live sim is reachable from the console as
+`__nephoWorld()` and `window.__nephoHeld = <BTN mask>` forces P1 input.
 
 ## Known gaps / next steps
 

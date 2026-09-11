@@ -30,7 +30,10 @@ export class LobbyScene extends Phaser.Scene {
 
   private catalog!: Catalog;
   private heroPick: [HeroId, HeroId | null] = ['eviatar', null];
-  private coop = false;
+  private coop = false; // LAN co-op
+  private local2p = false; // two players on one keyboard (no touch equivalent)
+  private p2Text!: Phaser.GameObjects.Text;
+  private p2Row!: Phaser.GameObjects.Container;
   private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
   private friendPick: HeroId = 'omri';
@@ -54,13 +57,50 @@ export class LobbyScene extends Phaser.Scene {
       this.coop = !this.coop;
       coopBtn.text.setText(`LAN CO-OP: ${this.coop ? 'ON' : 'OFF'}`);
       netRow.setVisible(this.coop);
-      if (!this.coop) { this.netMode = 'local'; this.roomCode = null; }
+      if (this.coop && this.local2p) setLocal2p(false);
+      if (!this.coop) {
+        this.netMode = 'local'; this.roomCode = null;
+        this.registry.get('pendingHostSession')?.destroy(); this.registry.remove('pendingHostSession');
+        this.children.getByName('qr')?.destroy(); this.statusText.setText('');
+      }
     });
+
+    // Two players on one keyboard (arrows + numpad for P2): a keyboard-only option, so it is not
+    // offered on a phone. Exclusive with LAN co-op.
+    let local2pBtn: { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } | null = null;
+    const setLocal2p = (on: boolean) => {
+      this.local2p = on;
+      local2pBtn?.text.setText(`2P KEYBOARD: ${on ? 'ON' : 'OFF'}`);
+      this.p2Row.setVisible(on);
+      if (on && !this.heroPick[1]) this.heroPick[1] = pickOther(this.heroPick[0]);
+      if (!on) this.heroPick[1] = null;
+      this.cycleP2(0); this.cycleFriend(0);
+    };
+    this.p2Row = this.add.container(0, 0).setVisible(false);
+    const p2Label = this.add.text(VIEW_W - 290, 348 - 14, 'PLAYER 2', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    const p2Prev = this.makeButton(VIEW_W - 290, 348, 26, 22, '◀', () => this.cycleP2(-1));
+    this.p2Text = this.add.text(VIEW_W - 258, 354, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
+    const p2Next = this.makeButton(VIEW_W - 176, 348, 26, 22, '▶', () => this.cycleP2(1));
+    this.p2Row.add([p2Label, p2Prev.g, p2Prev.text, this.p2Text, p2Next.g, p2Next.text]);
+    if (!isTouchDevice(this)) {
+      local2pBtn = this.makeButton(VIEW_W - 290, 316, 126, 26, '2P KEYBOARD: OFF', () => {
+        setLocal2p(!this.local2p);
+        if (this.local2p && this.coop) coopBtn.g.emit('pointerdown');
+      });
+    }
 
     const netRow = this.add.container(0, 0).setVisible(false);
     const hostBtn = this.makeButton(VIEW_W - 260, 348, 110, 24, 'HOST GAME', () => this.startAsHost());
     const joinBtn = this.makeButton(VIEW_W - 140, 348, 110, 24, 'JOIN GAME', () => this.promptJoin());
     netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
+
+    // Arriving through the host's QR code / join link (?join=CODE): the room is already known, so
+    // the guest only has to pick a hero and press START.
+    const joinCode = new URLSearchParams(location.search).get('join')?.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') ?? '';
+    if (joinCode.length === 4) {
+      this.coop = true; coopBtn.text.setText('LAN CO-OP: ON'); netRow.setVisible(true);
+      this.netMode = 'guest'; this.roomCode = joinCode;
+    }
 
     // Friend: one of the other heroes fights beside you — called in for their special (ASSIST) or
     // along for the whole level as an AI ally (SIDEKICK).
@@ -91,6 +131,7 @@ export class LobbyScene extends Phaser.Scene {
     // for the most important control (START) before the edge of the canvas. Spread across the middle
     // instead, so a few pixels of viewport miscalculation can never crop it off-screen entirely.
     this.statusText = this.add.text(VIEW_W / 2, 392, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
+    if (this.netMode === 'guest' && this.roomCode) this.statusText.setText(`joining room ${this.roomCode} — pick your hero and press START`);
 
     this.add.text(24, 412, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
     const levelText = this.add.text(90, 411, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
@@ -113,14 +154,24 @@ export class LobbyScene extends Phaser.Scene {
     const name = this.add.text(90, 178, def.name, { fontFamily: 'monospace', fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
     const bias = this.add.text(90, 188, def.bias, { fontFamily: 'monospace', fontSize: '8px', color: '#9bb1c9', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
     c.add([bg, img, tint, name, bias]);
-    bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); this.cycleFriend(0); });
+    bg.on('pointerdown', () => { this.heroPick[0] = id; if (this.heroPick[1] === id) this.heroPick[1] = pickOther(id); this.highlightCard(); this.cycleP2(0); this.cycleFriend(0); });
     this.cards[id] = c;
     void slot;
   }
 
-  /** Moves the friend pick by `dir` among the heroes the player is not playing. */
-  private cycleFriend(dir: number): void {
+  /** Moves P2's hero by `dir` among the heroes P1 is not playing. */
+  private cycleP2(dir: number): void {
+    if (!this.local2p) return;
     const pool = HERO_IDS.filter((h) => h !== this.heroPick[0]);
+    let i = pool.indexOf(this.heroPick[1]!);
+    if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
+    this.heroPick[1] = pool[i];
+    this.p2Text.setText(HEROES[this.heroPick[1]].name);
+  }
+
+  /** Moves the friend pick by `dir` among the heroes nobody is playing. */
+  private cycleFriend(dir: number): void {
+    const pool = HERO_IDS.filter((h) => h !== this.heroPick[0] && h !== this.heroPick[1]);
     let i = pool.indexOf(this.friendPick);
     if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
     this.friendPick = pool[i];
@@ -198,7 +249,7 @@ export class LobbyScene extends Phaser.Scene {
       if (code.length !== 4) { input.focus(); return; }
       this.netMode = 'guest';
       this.roomCode = code;
-      this.statusText.setText(`joining room ${this.roomCode}…`);
+      this.statusText.setText(`joining room ${this.roomCode} — pick your hero and press START`);
       close();
     };
     input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
@@ -216,7 +267,8 @@ export class LobbyScene extends Phaser.Scene {
       const o = (screen as any).orientation;
       if (o && typeof o.lock === 'function') o.lock('landscape').catch(() => {});
     }
-    const heroes: [HeroId, HeroId | null] = this.coop ? [this.heroPick[0], this.heroPick[1] || pickOther(this.heroPick[0])] : [this.heroPick[0], null];
+    const twoPlayers = this.coop || this.local2p;
+    const heroes: [HeroId, HeroId | null] = twoPlayers ? [this.heroPick[0], this.heroPick[1] || pickOther(this.heroPick[0])] : [this.heroPick[0], null];
     // P2's friend is whoever is left over once both players and P1's friend are taken
     const p2Friend = heroes[1] ? HERO_IDS.find((h) => h !== heroes[0] && h !== heroes[1] && h !== this.friendPick) || null : null;
     const friends = { friends: [this.friendPick, p2Friend] as [HeroId | null, HeroId | null], mode: this.friendMode };

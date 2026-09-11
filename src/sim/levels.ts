@@ -27,7 +27,7 @@ export const LEVELS: LevelDef[] = [
 ];
 
 export const ENTRY_TICKS = 150;
-export const CLEAR_TICKS = 300;
+export const CLEAR_TICKS = 210; // the boss's fall and a beat to breathe before the tally
 export const BOSS_ENRAGE_TICKS = 75 * 60;
 export const BOSS_HP_BASE = 260;
 export const BOSS_HP_PER_LEVEL = 34;

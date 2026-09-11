@@ -1,6 +1,7 @@
 import { GRAVITY } from './frameData';
-import { LANE_H, LANE_TOL, type Entity, type Hitbox } from './types';
+import { LANE_H, LANE_TOL, VISIBLE_X0, VISIBLE_W, BOSS_EDGE, type Entity, type Hitbox } from './types';
 import { setState } from './entity';
+import { applyHit, attackerOf } from './combat';
 import type { World } from './world';
 
 export type PatternType = 'melee' | 'projectile' | 'dash' | 'aoe' | 'ring' | 'summon' | 'orbit' | 'blink' | 'beam' | 'zone' | 'armor' | 'split' | 'wall' | 'reflect' | 'pull';
@@ -114,18 +115,21 @@ export function bossActiveHit(e: Entity): Hitbox | null {
 export function bossOnHit(w: World, tgt: Entity, att: Entity, hit: Hitbox, dmg: number, dir: 1 | -1): void {
   const p = currentPattern(tgt);
   if (p?.type === 'reflect' && tgt.pphase === 1) {
-    const owner = att.owner >= 0 ? w.byId(att.owner) : att;
-    if (owner && owner.kind === 'hero' && owner.invuln <= 0) { owner.hp -= dmg * 0.5; owner.flash = 6; owner.meter += 2; w.emit({ type: 'hit', x: owner.x, y: owner.y, z: 70, a: Math.round(dmg * 0.5), heavy: false, id: owner.id }); }
+    // The blow comes back at whoever threw it, as a real hit: it goes through the ordinary damage
+    // path so a hero at low health is knocked out properly instead of being left standing at
+    // negative HP, untargetable and unkillable.
+    const owner = attackerOf(w, att);
+    if (owner && owner.kind === 'hero' && owner.invuln <= 0) applyHit(w, tgt, { dx: 0, dy: 0, w: 0, h: 0, dmg: dmg * 0.5, hitstun: 12, kb: 2 }, owner);
     tgt.flash = 3;
     return;
   }
-  const owner = att.owner >= 0 ? w.byId(att.owner) : att;
+  const owner = attackerOf(w, att);
   // Active armor (e.g. The Null's Invert Phase) heavily mitigates damage but must still be able to
   // finish the boss off — chip damage that crosses zero has to go through the same death check below,
   // not return early, or the entity goes to negative HP without ever being marked dead.
   if (p?.type === 'armor' && tgt.pphase === 1) {
     tgt.flash = 3; tgt.hp -= dmg * 0.1;
-    if (tgt.hp <= 0) finishBossDeath(w, tgt, owner);
+    if (tgt.hp <= 0) bossDeath(w, tgt, owner);
     return;
   }
   const staggered = p?.type === 'armor' && tgt.pphase === 2;
@@ -143,10 +147,10 @@ export function bossOnHit(w: World, tgt: Entity, att: Entity, hit: Hitbox, dmg: 
       setState(tgt, 'hurt'); tgt.aiT = staggered ? 30 : 20; tgt.vx = dir * 3;
     }
   }
-  if (tgt.hp <= 0) finishBossDeath(w, tgt, owner);
+  if (tgt.hp <= 0) bossDeath(w, tgt, owner);
 }
 
-function finishBossDeath(w: World, tgt: Entity, owner: Entity | undefined): void {
+export function bossDeath(w: World, tgt: Entity, owner: Entity | undefined): void {
   tgt.hp = 0; tgt.dead = true; tgt.pattern = -1;
   setState(tgt, 'defeat'); tgt.removeAt = w.tick + (tgt.kind === 'boss' ? 150 : 60);
   w.emit({ type: 'ko', x: tgt.x, y: tgt.y, id: tgt.id, a: tgt.kind === 'boss' ? 1 : 0 });
@@ -163,7 +167,9 @@ function choosePattern(w: World, e: Entity, target: Entity): number {
     if (i === e.pdata && list.length > 1) return; // don't repeat
     if (p.range && !(adx <= p.range && inLane)) return;
     if ((p.type === 'dash' || p.type === 'beam' || p.type === 'projectile') && !inLane) return;
-    if (p.type === 'split' && e.hp > e.maxHp * 0.6) return;
+    // splitting is the boss's trick, not its echoes' — an echo that split again would multiply
+    // without end; summoning is the same story
+    if ((p.type === 'split' || p.type === 'summon') && (e.kind === 'echo' || (p.type === 'split' && e.hp > e.maxHp * 0.6))) return;
     cands.push(i); weights.push(p.weight);
   });
   if (!cands.length) return -1;
@@ -184,11 +190,11 @@ export function stepBoss(w: World, e: Entity): void {
   if (e.streakT > 0) { e.streakT--; if (e.streakT === 0) e.hitStreak = 0; }
   if (e.stunCd > 0) e.stunCd--;
   if (e.state === 'defeat') { e.st++; return; }
-  if (e.state === 'stunned') { if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 30; e.pattern = -1; } e.st++; return; }
+  if (e.state === 'stunned') { if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 30; e.pattern = -1; } e.st++; clampBoss(w, e); return; }
   if (e.state === 'hurt') {
     e.x += e.vx; e.vx *= 0.85;
     if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 20; }
-    e.st++; return;
+    e.st++; clampBoss(w, e); return;
   }
   const target = w.nearestHero(e);
   if (!target) { setState(e, 'idle'); e.st++; return; }
@@ -208,7 +214,10 @@ export function stepBoss(w: World, e: Entity): void {
   e.facing = dx >= 0 ? 1 : -1;
   const want = 110 * (e.scale || 1);
   let mx = 0, my = 0;
-  if (Math.abs(dx) > want) mx = Math.sign(dx); else if (Math.abs(dx) < want * 0.6) mx = -Math.sign(dx);
+  const bandMin = w.cameraX + VISIBLE_X0 + BOSS_EDGE, bandMax = w.cameraX + VISIBLE_X0 + VISIBLE_W - BOSS_EDGE;
+  // still off screen (walking in from its spawn point, or pushed out): come into view first
+  if (e.x > bandMax) mx = -1; else if (e.x < bandMin) mx = 1;
+  else if (Math.abs(dx) > want) mx = Math.sign(dx); else if (Math.abs(dx) < want * 0.6) mx = -Math.sign(dx);
   if (Math.abs(dy) > 4) my = Math.sign(dy);
   e.x += mx * spd; e.y += my * spd * 0.6;
   setState(e, mx !== 0 || my !== 0 ? 'approach' : 'idle');
@@ -245,13 +254,14 @@ function aoePoints(w: World, e: Entity, p: Pattern, target: Entity): [number, nu
   const n = p.count || 3;
   const pts: [number, number][] = [];
   if (p.name === 'Coin Rain') {
-    for (let i = 0; i < n; i++) pts.push([w.cameraX + 120 + (i + 0.5) * (720 / n) + w.rng.range(-40, 40), w.rng.range(10, LANE_H - 10)]);
+    for (let i = 0; i < n; i++) pts.push([w.cameraX + VISIBLE_X0 + 40 + (i + 0.5) * ((VISIBLE_W - 80) / n) + w.rng.range(-30, 30), w.rng.range(10, LANE_H - 10)]);
   } else if (p.name === 'Rainbow Pillar' || p.name === 'Eruption') {
     for (let i = 0; i < n; i++) pts.push([target.x + (i - (n - 1) / 2) * 150 + w.rng.range(-20, 20), target.y]);
   } else {
     for (let i = 0; i < n; i++) { const t = w.heroes()[i % Math.max(1, w.heroes().length)] || target; pts.push([t.x + w.rng.range(-60, 60), t.y + w.rng.range(-20, 20)]); }
   }
-  return pts.map(([x, y]) => [Math.max(w.cameraX + 40, Math.min(w.cameraX + 920, x)), Math.max(0, Math.min(LANE_H, y))]);
+  // every blast lands where the player can see it coming
+  return pts.map(([x, y]) => [Math.max(w.cameraX + VISIBLE_X0 + 30, Math.min(w.cameraX + VISIBLE_X0 + VISIBLE_W - 30, x)), Math.max(0, Math.min(LANE_H, y))]);
 }
 
 function runPattern(w: World, e: Entity, target: Entity, enrage: number): void {
@@ -267,7 +277,7 @@ function runPattern(w: World, e: Entity, target: Entity, enrage: number): void {
     switch (p.type) {
       case 'dash': {
         e.x += e.facing * (p.speed || 8) * enrage;
-        if (e.x < w.cameraX + 30 || e.x > w.cameraX + 930) { e.facing = e.facing === 1 ? -1 : 1; e.pdata++; }
+        if (e.x < w.cameraX + VISIBLE_X0 + BOSS_EDGE || e.x > w.cameraX + VISIBLE_X0 + VISIBLE_W - BOSS_EDGE) { e.facing = e.facing === 1 ? -1 : 1; }
         if (p.count && e.pt % Math.floor(p.active / p.count) === 0 && e.pt < p.active) { e.attackId++; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); }
         break;
       }
@@ -320,8 +330,14 @@ function onActiveStart(w: World, e: Entity, p: Pattern, target: Entity): void {
   }
 }
 
+/** True once the boss has walked into the visible band from its spawn point off the right edge. */
+const bossInView = (w: World, e: Entity) => e.x >= w.cameraX + VISIBLE_X0 - 30 && e.x <= w.cameraX + VISIBLE_X0 + VISIBLE_W + 30;
+
 export function clampBoss(w: World, e: Entity): void {
-  const minX = w.cameraX + 40, maxX = w.cameraX + 920;
+  // once on screen a boss stays on screen: no pattern starts from where the player cannot see it
+  const tight = bossInView(w, e);
+  const minX = tight ? w.cameraX + VISIBLE_X0 + BOSS_EDGE : w.cameraX + 40;
+  const maxX = tight ? w.cameraX + VISIBLE_X0 + VISIBLE_W - BOSS_EDGE : w.cameraX + 920;
   if (e.x < minX) e.x = minX; if (e.x > maxX) e.x = maxX;
   if (e.y < 0) e.y = 0; if (e.y > LANE_H) e.y = LANE_H;
 }

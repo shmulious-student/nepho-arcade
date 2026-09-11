@@ -1,6 +1,6 @@
 import { BTN, type InputFrame } from './input';
-import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, total, type MoveDef } from './frameData';
-import { LANE_H, VISIBLE_X0, VISIBLE_W, type Entity, type Hitbox, type HeroId } from './types';
+import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, HITSTUN_SHIFT, total, type MoveDef } from './frameData';
+import { LANE_H, VISIBLE_X0, VISIBLE_W, HERO_EDGE, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
 import { STUN_TICKS } from './combat';
 import type { World } from './world';
@@ -130,7 +130,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   }
   if (s === 'hurt' || s === 'hurtHeavy') {
     e.x += e.vx; e.vx *= 0.85;
-    const len = e.pdata >> 8 || total(move!); // hitstun stored in high bits
+    const len = e.pdata >> HITSTUN_SHIFT || total(move!); // hitstun stored in high bits
     if (e.st >= len) { setState(e, 'idle'); e.pdata = 0; }
     e.st++; clampHero(w, e); return;
   }
@@ -228,7 +228,10 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (held & BTN.UP) my -= 1; if (held & BTN.DOWN) my += 1;
   if (mx !== 0) e.facing = mx > 0 ? 1 : -1;
   if (held & BTN.BLOCK) { e.pdata = 0; setState(e, 'block'); e.st++; clampHero(w, e); return; }
-  const spd = def.speed * slowMul;
+  // A friend walks no faster than the player it follows: a quicker friend would keep catching up
+  // and stopping behind them, flickering between walk and idle all the way across the level.
+  const owner = e.slot < 0 && e.owner >= 0 ? w.byId(e.owner) : null;
+  const spd = (owner ? Math.min(def.speed, HEROES[owner.arch as HeroId].speed) : def.speed) * slowMul;
   e.x += mx * spd; e.y += my * spd * 0.55;
   if (pressed & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
   if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); e.st++; clampHero(w, e); return; }
@@ -243,7 +246,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
 }
 
 export function clampHero(w: World, e: Entity): void {
-  const minX = w.cameraX + VISIBLE_X0 + 22, maxX = w.cameraX + VISIBLE_X0 + VISIBLE_W - 22;
+  const minX = w.cameraX + VISIBLE_X0 + HERO_EDGE, maxX = w.cameraX + VISIBLE_X0 + VISIBLE_W - HERO_EDGE;
   if (e.x < minX) e.x = minX; if (e.x > maxX) e.x = maxX;
   if (e.y < 0) e.y = 0; if (e.y > LANE_H) e.y = LANE_H;
 }

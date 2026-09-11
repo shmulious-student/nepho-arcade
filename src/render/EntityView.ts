@@ -52,7 +52,8 @@ export class EntityView {
     this.drawStars(e, sx, sy, tick);
     if (this.hpBar) {
       this.hpBar.clear();
-      if (e.hp > 0 && e.hp < 1) {
+      // a boss has the named bar in the HUD; the little floating one is for enemies and echoes
+      if (e.hp > 0 && e.hp < 1 && e.kind !== 'boss') {
         const w = this.def.kind === 'boss' ? 56 : 30;
         const top = sy - this.def.box.h * (this.def.renderScale ?? 1) * (this.def.kind === 'boss' ? 0.62 : 0.72);
         this.hpBar.fillStyle(0x10182b, 0.8).fillRect(sx - w / 2, top, w, 5);

@@ -69,6 +69,7 @@ export class GameScene extends Phaser.Scene {
     this.finished = false;
     this.entryShown = false;
     this.heroesResolved = false;
+    this.netLostShown = false;
     this.views.clear();
 
     if (data.mode === 'local') {
@@ -81,6 +82,7 @@ export class GameScene extends Phaser.Scene {
       this.heroes = [data.heroId!, null]; // corrected to the true per-slot identity once the first snapshot arrives
       const guest = new GuestSession(wsUrlFromLocation(), data.roomCode!);
       guest.events.onRoom = () => guest.setHero(data.heroId!);
+      guest.events.onError = (m) => this.netLost(m);
       guest.connect();
       this.session = guest;
       this.levelIndex = 1; // guest learns the real level from the first snapshot
@@ -110,12 +112,22 @@ export class GameScene extends Phaser.Scene {
       const q = new URLSearchParams(location.search);
       if (q.has('boss')) this.session.world()?.debugSkipToBoss();
       if (q.has('ko')) this.session.world()?.debugKnockOut();
+      (window as any).__nephoWorld = () => this.session.world(); // dev console access to the live sim
     }
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
 
     this.events.once('shutdown', () => { sequencer.stop(); this.cleanup(); });
   }
+
+  /** The LAN link is gone: say so, then back to the lobby. */
+  private netLost(message: string): void {
+    if (this.netLostShown) return;
+    this.netLostShown = true;
+    this.add.text(VIEW_W / 2, 250, `${message}\nback to the lobby…`, { fontFamily: 'monospace', fontSize: '16px', color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000).setScrollFactor(0);
+    this.time.delayedCall(2200, () => { this.session.destroy(); this.scene.start('Lobby'); });
+  }
+  private netLostShown = false;
 
   private showKeyboardHint(withP2: boolean): void {
     if (isTouchDevice(this)) return; // touch controls cover this on mobile
@@ -153,7 +165,9 @@ export class GameScene extends Phaser.Scene {
     // ⏸ in the top-right corner, comfortably tappable
     const g = this.add.circle(0, 0, 18, 0x0b1730, 0.7).setStrokeStyle(2, 0x344861).setInteractive({ useHandCursor: true });
     const t = this.add.text(0, -1, '❚❚', { fontFamily: 'monospace', fontSize: '12px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
-    this.pauseBtn = this.add.container(VIEW_W - 30, 28, [g, t]).setDepth(45000).setScrollFactor(0);
+    // below the P2 card when there is (or may be) a second player, whose card owns the top-right corner
+    const twoCards = this.session.mode !== 'local' || !!this.heroes[1];
+    this.pauseBtn = this.add.container(VIEW_W - 30, twoCards ? 104 : 28, [g, t]).setDepth(45000).setScrollFactor(0);
     g.on('pointerdown', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-ESC', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-P', () => this.setPaused(!this.pause.open));
@@ -161,6 +175,7 @@ export class GameScene extends Phaser.Scene {
 
   private setPaused(paused: boolean): void {
     if (paused === this.pause.open) return;
+    if (this.finished) return; // the level is over (clear banner / CONTINUE?): nothing to pause
     if (paused) this.pause.show(); else this.pause.hide();
     this.session.setPaused(paused);
     this.touch.setVisible(!paused && isTouchDevice(this));
@@ -200,6 +215,7 @@ export class GameScene extends Phaser.Scene {
     if (k.SPACE.isDown) held |= BTN.JUMP;
     const touch = this.touch.poll();
     held |= touch.held;
+    if (import.meta.env.DEV) held |= (window as any).__nephoHeld | 0; // dev console: force a held mask
     const frame = this.p1Edge.next(held);
     frame.pressed |= touch.pressed;
     if (import.meta.env.DEV) (window as any).__nephoInput = { keys: held & ~touch.held, touch: touch.held };
@@ -308,9 +324,12 @@ export class GameScene extends Phaser.Scene {
     for (const [id, hv] of this.hazards) {
       if (!seen.has(id) || hv.staleSince(snap.tick)) { hv.destroy(); this.hazards.delete(id); }
     }
+    // A Container draws its children in insertion order and ignores their depth unless told to
+    // sort: without this, whoever spawned last is drawn on top, not whoever stands nearest the camera.
+    this.world.sort('depth');
     for (const ev of snap.events) { this.fx.handle(ev, snap.cameraX); this.playSfx(ev); }
-    sequencer.start(this.levelIndex);
-    sequencer.setBossMode(snap.phase === 'boss');
+    if (!this.finished) { sequencer.start(this.levelIndex); sequencer.setBossMode(snap.phase === 'boss'); } // the level's end stops the music
+
 
     this.hud.update(snap);
     const me = snap.entities.find((e) => e.kind === 'hero' && e.slot === (this.session.mode === 'guest' ? 1 : 0));
@@ -332,12 +351,7 @@ export class GameScene extends Phaser.Scene {
         return;
       }
       if (snap.phase === 'gameover') { this.showContinue(score); return; }
-      this.time.delayedCall(900, () => {
-        this.scene.start('Results', {
-          result: snap.phase, level: this.levelIndex, score,
-          heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10,
-        });
-      });
+      this.time.delayedCall(900, () => this.toResults(snap.phase as 'victory' | 'gameover', score));
     }
   }
 
@@ -355,12 +369,15 @@ export class GameScene extends Phaser.Scene {
       if (resolved) return; resolved = true;
       group.destroy(); ticker.remove();
       this.input.keyboard!.off('keydown', go); this.input.off('pointerdown', go);
-      this.scene.start('Results', { result: 'gameover', level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: false });
+      this.toResults('gameover', score);
     };
     const go = () => {
       if (resolved || this.session.mode === 'guest') return;
       const w = this.session.world();
       if (!w || !w.continueRun()) return;
+      // the cached snapshot still says 'gameover' until the next tick: refresh it now, or the very
+      // next update() would open a second CONTINUE? over the game that just resumed
+      this.session.refreshSnapshot();
       resolved = true;
       group.destroy(); ticker.remove();
       this.input.keyboard!.off('keydown', go); this.input.off('pointerdown', go);
@@ -382,6 +399,14 @@ export class GameScene extends Phaser.Scene {
       } });
     }
     this.time.delayedCall(400, () => { if (!resolved) { this.input.keyboard!.on('keydown', go); this.input.on('pointerdown', go); } });
+  }
+
+  /** The run is over: a LAN session has nothing more to do, so it is closed here and the results
+   * screen only offers the way back to the lobby. */
+  private toResults(result: 'victory' | 'gameover', score: [number, number]): void {
+    const mode = this.session.mode;
+    if (mode !== 'local') this.session.destroy();
+    this.scene.start('Results', { result, level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10, mode });
   }
 
   private nextLevel(score: [number, number]): void {

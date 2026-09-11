@@ -22,6 +22,9 @@ export interface Session {
   setInput(slot: number, input: InputFrame): void;
   update(dtMs: number): void;
   snapshot(): Snapshot | null;
+  /** Re-reads the snapshot from the world right now, without waiting for the next tick — for
+   * changes made to the world from outside the tick loop (the CONTINUE? revive). */
+  refreshSnapshot(): void;
   world(): World | null; // only present for local/host — guests have no authoritative world
   /** Freezes the simulation (local and host only; a guest cannot pause the host). */
   setPaused(paused: boolean): void;
@@ -40,6 +43,7 @@ abstract class BaseSession implements Session {
   setInput(_slot: number, _input: InputFrame): void {}
   update(_dtMs: number): void {}
   snapshot(): Snapshot | null { return null; }
+  refreshSnapshot(): void {}
   world(): World | null { return null; }
   destroy(): void {}
 }
@@ -69,6 +73,7 @@ export class LocalSession extends BaseSession {
     }
   }
   snapshot(): Snapshot { return this.snap; }
+  refreshSnapshot(): void { this.snap = this.w.snapshot(); }
   world(): World { return this.w; }
 }
 
@@ -106,6 +111,7 @@ export class HostSession extends BaseSession {
       if (typeof ev.data === 'string') this.onControl(JSON.parse(ev.data));
       else this.onInput(ev.data as ArrayBuffer);
     };
+    ws.onerror = () => this.events.onError?.('could not reach the LAN server');
   }
   private send(msg: Msg) { if (this.ws && this.ws.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg)); }
   private onControl(msg: Msg): void {
@@ -149,6 +155,7 @@ export class HostSession extends BaseSession {
     }
   }
   snapshot(): Snapshot | null { return this.snap; }
+  refreshSnapshot(): void { if (this.w) this.snap = this.w.snapshot(); }
   world(): World | null { return this.w; }
   destroy(): void { this.ws?.close(); }
 }
@@ -170,6 +177,8 @@ export class GuestSession extends BaseSession {
   events: SessionEvents = {};
   private readonly interpDelay = 100; // ms, ~3 broadcast intervals of buffer
 
+  private closing = false;
+
   constructor(private wsUrl: string, private code: string) { super(); }
 
   connect(): void {
@@ -181,6 +190,10 @@ export class GuestSession extends BaseSession {
       if (typeof ev.data === 'string') this.onControl(JSON.parse(ev.data));
       else this.onSnapshot(ev.data as ArrayBuffer);
     };
+    // the host closing its room (or the Wi-Fi dropping) must not leave the guest staring at a
+    // frozen frame with no explanation
+    ws.onclose = () => { if (!this.closing) this.events.onError?.('connection to the host was lost'); };
+    ws.onerror = () => { if (!this.closing) this.events.onError?.('could not reach the host'); };
   }
   private send(msg: Msg) { if (this.ws && this.ws.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg)); }
   private onControl(msg: Msg): void {
@@ -228,7 +241,7 @@ export class GuestSession extends BaseSession {
     this.renderSnap = { ...this.latest, entities };
   }
   snapshot(): Snapshot | null { return this.renderSnap || this.latest; }
-  destroy(): void { this.ws?.close(); }
+  destroy(): void { this.closing = true; this.ws?.close(); }
 }
 
 export function wsUrlFromLocation(): string {

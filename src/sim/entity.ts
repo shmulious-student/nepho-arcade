@@ -6,6 +6,7 @@ export function makeEntity(id: number, kind: Kind, arch: string, x: number, y: n
     state: 'idle', st: 0, hitstop: 0, invuln: 0, armor: 0, flash: 0, attackId: 0, hitBy: {},
     combo: 0, comboTimer: 0, comboStep: 0, cooldown: 0, hitStreak: 0, streakT: 0, stunCd: 0, regenLock: 0, ai: 0, aiT: 0, target: -1, dead: false, removeAt: 0,
     scale: 1, tint: 0, owner: -1, ttl: 0, dmgMul: 1, slow: 0, pattern: -1, pphase: 0, pt: 0, pdata: 0, phase: 0, hits: 0, guard: false,
+    friendly: kind === 'hero',
   };
 }
 

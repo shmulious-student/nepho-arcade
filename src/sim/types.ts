@@ -16,6 +16,12 @@ export const LANE_TOL = 16; // |dy| tolerance for hits
 export const VIEW_ZOOM = 1.7;
 export const VISIBLE_W = Math.round(VIEW_W / VIEW_ZOOM); // 565
 export const VISIBLE_X0 = Math.round((VIEW_W - VISIBLE_W) / 2); // 198
+// How far inside the visible band a character's centre must stay so its whole sprite is on screen:
+// heroes are the widest and get the most room; enemies and bosses a little less, so a cornered
+// player still has someone to hit on either side.
+export const HERO_EDGE = 46;
+export const ENEMY_EDGE = 16;
+export const BOSS_EDGE = 36;
 
 export type HeroState =
   | 'idle' | 'walk' | 'light1' | 'light2' | 'light3' | 'heavy' | 'dash' | 'dashAttack' | 'special'
@@ -83,6 +89,7 @@ export interface Entity {
   phase: number; // boss hp phase
   hits: number; // hits landed in current attack
   guard: boolean; // knight blocks frontal hits
+  friendly: boolean; // on the heroes' side: heroes, friends, and what they throw
 }
 
 export interface SimEvent {

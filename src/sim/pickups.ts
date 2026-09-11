@@ -3,7 +3,7 @@
 // collected by any player who walks over them. Plain entities of kind 'pickup'; `ttl` counts down,
 // and `st` mirrors the remaining time (capped to a byte) so the renderer can blink without new fields.
 import { GRAVITY, METER_MAX } from './frameData';
-import type { Entity } from './types';
+import { HERO_EDGE, VISIBLE_X0, VISIBLE_W, type Entity } from './types';
 import { makeEntity } from './entity';
 import type { World } from './world';
 
@@ -33,7 +33,14 @@ export function spawnPickup(w: World, kind: PickupKind, x: number, y: number): E
 export function stepPickup(w: World, p: Entity): void {
   if (p.dead) return; // collected or expired; waiting for removal at the end of the tick
   // a little hop out of the enemy, then rest on the floor
-  if (p.z > 0 || p.vz > 0) { p.z += p.vz; p.vz -= GRAVITY; p.x += p.vx; if (p.z <= 0) { p.z = 0; p.vz = 0; p.vx = 0; } }
+  if (p.z > 0 || p.vz > 0) {
+    p.z += p.vz; p.vz -= GRAVITY; p.x += p.vx;
+    if (p.z <= 0) {
+      p.z = 0; p.vz = 0; p.vx = 0;
+      // it lands where a player can actually walk to it, never just past the edge of the screen
+      p.x = Math.max(w.cameraX + VISIBLE_X0 + HERO_EDGE, Math.min(w.cameraX + VISIBLE_X0 + VISIBLE_W - HERO_EDGE, p.x));
+    }
+  }
   p.ttl--;
   p.st = Math.min(255, p.ttl);
   if (p.ttl <= 0) { p.dead = true; p.removeAt = w.tick + 1; return; }

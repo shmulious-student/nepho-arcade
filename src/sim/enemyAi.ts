@@ -1,5 +1,5 @@
-import { GRAVITY } from './frameData';
-import { LANE_H, LANE_TOL, VISIBLE_X0, VISIBLE_W, type Entity, type Hitbox } from './types';
+import { GRAVITY, HITSTUN_SHIFT } from './frameData';
+import { LANE_H, LANE_TOL, VISIBLE_X0, VISIBLE_W, ENEMY_EDGE, type Entity, type Hitbox } from './types';
 import { setState, isHurt } from './entity';
 import type { World } from './world';
 
@@ -39,6 +39,10 @@ export const ENEMY_DEFS: Record<string, EnemyDef> = {
 ENEMY_DEFS['punk-b'] = { ...ENEMY_DEFS.punk, id: 'punk-b', hp: 52, speed: 2.3 };
 ENEMY_DEFS['brawler-b'] = { ...ENEMY_DEFS.brawler, id: 'brawler-b', hp: 104 };
 ENEMY_DEFS['knight-b'] = { ...ENEMY_DEFS.knight, id: 'knight-b', hp: 96 };
+ENEMY_DEFS['bio-brute'] = { ...ENEMY_DEFS.brawler, id: 'bio-brute', name: 'Bio-Brute', hp: 118, speed: 1.25, weight: 2.0, heavyChance: 0.5, specialChance: 0.25, cooldown: [82, 150] };
+ENEMY_DEFS['gold-sorceress'] = { ...ENEMY_DEFS.chainer, id: 'gold-sorceress', name: 'Gold Sorceress', hp: 68, speed: 1.9, weight: 1.1, heavyChance: 0.25, specialChance: 0.35, cooldown: [70, 132] };
+ENEMY_DEFS['void-demon'] = { ...ENEMY_DEFS.brawler, id: 'void-demon', name: 'Void Demon', hp: 126, speed: 1.15, weight: 2.1, heavyChance: 0.55, specialChance: 0.2, cooldown: [90, 165] };
+ENEMY_DEFS['rainbow-oracle'] = { ...ENEMY_DEFS.kicker, id: 'rainbow-oracle', name: 'Rainbow Oracle', hp: 74, speed: 2.2, weight: 1.0, heavyChance: 0.2, specialChance: 0.4, cooldown: [58, 118] };
 
 const attackOf = (def: EnemyDef, state: string): EnemyAttack | null =>
   state === 'attack' ? def.attack : state === 'heavy' ? def.heavy : state === 'special' ? def.special || null : null;
@@ -81,16 +85,16 @@ export function stepEnemy(w: World, e: Entity): void {
       if (e.hp <= 0) { setState(e, 'defeat'); e.dead = true; w.emit({ type: 'ko', x: e.x, y: e.y, id: e.id }); }
       else setState(e, 'knockdown');
     }
-    e.st++; clampEnemy(w, e, inView(w, e)); return;
+    e.st++; clampEnemy(w, e); return;
   }
   if (s === 'knockdown') { e.invuln = 2; if (e.st >= 36) { setState(e, 'getup'); e.invuln = 14; } e.st++; return; }
   if (s === 'getup') { if (e.st >= 14) { setState(e, 'idle'); e.cooldown = 20; } e.st++; return; }
   if (s === 'stunned') { if (e.st >= e.aiT) { setState(e, 'idle'); e.cooldown = 30; } e.st++; return; }
   if (s === 'hurt') {
     e.x += e.vx; e.vx *= 0.85;
-    const len = e.pdata >> 8 || 14;
+    const len = e.pdata >> HITSTUN_SHIFT || 14;
     if (e.st >= len) { setState(e, 'idle'); e.pdata = 0; }
-    e.st++; clampEnemy(w, e, inView(w, e)); return;
+    e.st++; clampEnemy(w, e); return;
   }
   const atk = attackOf(def, s);
   if (atk) {
@@ -116,7 +120,9 @@ export function stepEnemy(w: World, e: Entity): void {
   // flank side by id parity, preferred distance = attack range * 0.8
   const side = (e.id % 2 === 0) ? -1 : 1;
   const preferSide = adx > 200 ? (dx > 0 ? -1 : 1) : (Math.sign(-dx) || side);
-  const desiredX = target.x + preferSide * def.attack.range * 0.68;
+  // the spot it wants is always somewhere on screen: a long-reach enemy never settles just past the
+  // edge and pokes at a cornered player from where they cannot see it
+  const desiredX = Math.max(w.cameraX + VISIBLE_X0 + ENEMY_EDGE, Math.min(w.cameraX + VISIBLE_X0 + VISIBLE_W - ENEMY_EDGE, target.x + preferSide * def.attack.range * 0.68));
   const laneOffset = ((e.id * 37) % 21) - 10;
   const desiredY = Math.max(0, Math.min(LANE_H, target.y + laneOffset));
   let mx = 0, my = 0;
@@ -150,14 +156,17 @@ export function stepEnemy(w: World, e: Entity): void {
   clampEnemy(w, e);
 }
 
-/** True once the enemy has come inside the visible band (before that it is still walking in). */
+/** True once the enemy has come inside the visible band (before that it is still walking in). The
+ * margin is wider than the band clampEnemy holds it to, so once inside it can never slip back out. */
 const inView = (w: World, e: Entity) => e.x >= w.cameraX + VISIBLE_X0 - 30 && e.x <= w.cameraX + VISIBLE_X0 + VISIBLE_W + 30;
 
-export function clampEnemy(w: World, e: Entity, tight = false): void {
-  // an enemy being knocked around never leaves the visible band; one still walking in from
-  // off-screen keeps the wide margin
-  const minX = tight ? w.cameraX + VISIBLE_X0 - 50 : w.cameraX - 120;
-  const maxX = tight ? w.cameraX + VISIBLE_X0 + VISIBLE_W + 50 : w.cameraX + 960 + 120;
+export function clampEnemy(w: World, e: Entity): void {
+  // An enemy that has entered the visible band never leaves it again — not by walking, flanking or
+  // being knocked around — so nothing ever swings at the player from off-screen. One still walking
+  // in from its spawn point keeps the wide margin until it arrives.
+  const tight = inView(w, e);
+  const minX = tight ? w.cameraX + VISIBLE_X0 + ENEMY_EDGE : w.cameraX - 120;
+  const maxX = tight ? w.cameraX + VISIBLE_X0 + VISIBLE_W - ENEMY_EDGE : w.cameraX + 960 + 120;
   if (e.x < minX) e.x = minX; if (e.x > maxX) e.x = maxX;
   if (e.y < 0) e.y = 0; if (e.y > LANE_H) e.y = LANE_H;
 }

@@ -89,4 +89,7 @@ export const COMBO_WINDOW = 45;
 export const HITSTOP_LIGHT = 3;
 export const HITSTOP_HEAVY = 5;
 export const GRAVITY = 0.5;
+// Hurt state keeps its hitstun length in the high bits of `pdata`, above every input bit that can be
+// buffered there (BTN.JUMP is bit 10) — a press during hitstun must never change how long it lasts.
+export const HITSTUN_SHIFT = 12;
 export const JUMP_VZ = 9.5; // ~85px apex, ~38 ticks in the air

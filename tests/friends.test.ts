@@ -75,6 +75,23 @@ describe('friends', () => {
   });
 });
 
+describe('sidekick follow', () => {
+  it('a faster sidekick shadows the player without flickering between walk and idle', () => {
+    // Omri (3.1) following Eviatar (2.4): he used to catch up, stop, fall behind and set off again
+    // every few ticks
+    const w = new World({ seed: 3, level: 1, heroes: ['eviatar', null], friends: { friends: ['omri', null], mode: 'sidekick' } });
+    runUntil(w, () => friendsOf(w).length > 0, 60 * 20);
+    const f = friendsOf(w)[0];
+    let transitions = 0, last = f.state;
+    for (let t = 0; t < 600; t++) {
+      for (const e of w.entities) if (e.kind === 'enemy') { e.dead = true; e.hp = 0; e.removeAt = w.tick + 1; } // nothing to fight: only follow
+      w.step([{ held: t < 300 ? BTN.LEFT : BTN.RIGHT, pressed: 0 }, NONE]);
+      if (f.state !== last) { transitions++; last = f.state; }
+    }
+    expect(transitions).toBeLessThan(8);
+  });
+});
+
 describe('sidekick balance', () => {
   it('a sidekick hits for less and never launches or floors with a normal hit', () => {
     const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['nepho', null], mode: 'sidekick' } });
@@ -87,11 +104,11 @@ describe('sidekick balance', () => {
       w.step([NONE, NONE]);
       for (const ev of w.events) {
         if (ev.type === 'hit' && ev.id !== w.players[0]!.id && ev.id !== f.id) hits++;
-        if (ev.type === 'launch') launched++;
+        // only the special (rare, needs a crowd) may launch; a heavy from a sidekick never does
+        if (ev.type === 'launch' && f.state !== 'special') launched++;
       }
     }
     expect(hits).toBeGreaterThan(0);
-    // heavies alone can't launch anymore; only the special (rare, needs a crowd) could
-    expect(launched).toBeLessThanOrEqual(2);
+    expect(launched).toBe(0);
   });
 });

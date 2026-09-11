@@ -67,10 +67,14 @@ function fightInput(w: World, e: Entity, aggressive: boolean): number {
   // a sidekick fights *beside* the player: only enemies near the player are fair game
   if (target && owner && Math.abs(target.x - owner.x) > LEASH) target = null;
   if (!target || !aggressive) {
-    // nothing to do: shadow the player, a step behind
+    // Nothing to do: shadow the player, a step behind. `ai` latches whether the friend is on the
+    // move — it sets off once it has fallen well behind and keeps walking until it is right on the
+    // spot, rather than stuttering between walk and idle at the edge of a narrow band.
     if (!owner) return 0;
     const tx = owner.x - owner.facing * 60;
-    return Math.abs(tx - e.x) > 30 || Math.abs(owner.y - e.y) > 14 ? moveTo(e, tx, owner.y, 24) : 0;
+    const ddx = Math.abs(tx - e.x), ddy = Math.abs(owner.y - e.y);
+    if (ddx > 36 || ddy > 16) e.ai = 1; else if (ddx <= 8 && ddy <= 6) e.ai = 0;
+    return e.ai ? moveTo(e, tx, owner.y, 6) : 0;
   }
   const dx = target.x - e.x, dy = target.y - e.y;
   const inRange = Math.abs(dx) <= 58 && Math.abs(dy) <= 12;
