@@ -89,3 +89,19 @@ describe('hero', () => {
     expect(back.hp).toBeLessThan(b0);
   });
 });
+
+describe('level flow', () => {
+  it('clearing a level reports victory in the snapshot, and the score carries into the next world', () => {
+    const w = world(4);
+    w.score = [1234, 0];
+    w.bossDefeated = true;
+    w.setPhase('boss');
+    for (let i = 0; i < 70 && !w.isFinished(); i++) w.step([NONE, NONE]);
+    for (let i = 0; i < 400 && !w.isFinished(); i++) w.step([NONE, NONE]);
+    expect(w.isFinished()).toBe(true);
+    expect(w.snapshot().phase).toBe('victory');
+    const next = new World({ seed: 5, level: 2, heroes: ['eviatar', null], score: w.score });
+    expect(next.level).toBe(2);
+    expect(next.score).toEqual([1234, 0]);
+  });
+});

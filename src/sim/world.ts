@@ -177,7 +177,8 @@ export class World {
 
   completeLevel(): void {
     this.done = true;
-    this.result = this.level >= 10 ? 'victory' : 'victory';
+    this.result = 'victory';
+    this.setPhase('victory'); // the renderer keys the level-clear / next-level flow off the snapshot phase
   }
 
   isFinished(): boolean { return this.done; }
