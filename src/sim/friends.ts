@@ -58,9 +58,14 @@ function moveTo(e: Entity, tx: number, ty: number, stop: number): number {
   return held;
 }
 
+/** How far from the player a sidekick will go to pick a fight; beyond it they fall back to them. */
+const LEASH = 240;
+
 function fightInput(w: World, e: Entity, aggressive: boolean): number {
   const owner = w.byId(e.owner);
-  const target = nearestEnemy(w, e);
+  let target = nearestEnemy(w, e);
+  // a sidekick fights *beside* the player: only enemies near the player are fair game
+  if (target && owner && Math.abs(target.x - owner.x) > LEASH) target = null;
   if (!target || !aggressive) {
     // nothing to do: shadow the player, a step behind
     if (!owner) return 0;
@@ -70,12 +75,15 @@ function fightInput(w: World, e: Entity, aggressive: boolean): number {
   const dx = target.x - e.x, dy = target.y - e.y;
   const inRange = Math.abs(dx) <= 58 && Math.abs(dy) <= 12;
   if (!inRange) return moveTo(e, target.x - Math.sign(dx || 1) * 44, target.y, 8);
-  // in range and facing: attack in a steady rhythm; a heavy every fourth swing, the special when charged
+  // In range and facing. A sidekick jabs at an unhurried pace — about one swing a second, a heavy
+  // now and then — so the player, not the helper, is the one clearing the screen. The special only
+  // comes out when there is a crowd worth it.
   let held = 0;
   if ((dx > 0 && e.facing < 0) || (dx < 0 && e.facing > 0)) held |= dx > 0 ? BTN.RIGHT : BTN.LEFT;
-  if (e.meter >= METER_MAX) return held | BTN.SPECIAL;
-  const beat = w.tick % 10 < 4;
-  if (beat) held |= (w.tick % 40) < 10 ? BTN.HEAVY : BTN.LIGHT;
+  const crowd = w.entities.filter((t) => !t.dead && t.hp > 0 && ENEMY_KINDS.has(t.kind) && Math.abs(t.x - e.x) < 140 && Math.abs(t.y - e.y) < 30).length;
+  if (e.meter >= METER_MAX && crowd >= 3) return held | BTN.SPECIAL;
+  const beat = w.tick % 26 < 3;
+  if (beat) held |= (w.tick % 130) < 26 ? BTN.HEAVY : BTN.LIGHT;
   return held;
 }
 

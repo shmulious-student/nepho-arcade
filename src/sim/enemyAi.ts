@@ -1,5 +1,5 @@
 import { GRAVITY } from './frameData';
-import { LANE_H, LANE_TOL, type Entity, type Hitbox } from './types';
+import { LANE_H, LANE_TOL, VISIBLE_X0, VISIBLE_W, type Entity, type Hitbox } from './types';
 import { setState, isHurt } from './entity';
 import type { World } from './world';
 
@@ -79,7 +79,7 @@ export function stepEnemy(w: World, e: Entity): void {
       if (e.hp <= 0) { setState(e, 'defeat'); e.dead = true; w.emit({ type: 'ko', x: e.x, y: e.y, id: e.id }); }
       else setState(e, 'knockdown');
     }
-    e.st++; clampEnemy(w, e); return;
+    e.st++; clampEnemy(w, e, inView(w, e)); return;
   }
   if (s === 'knockdown') { e.invuln = 2; if (e.st >= 36) { setState(e, 'getup'); e.invuln = 14; } e.st++; return; }
   if (s === 'getup') { if (e.st >= 14) { setState(e, 'idle'); e.cooldown = 20; } e.st++; return; }
@@ -87,7 +87,7 @@ export function stepEnemy(w: World, e: Entity): void {
     e.x += e.vx; e.vx *= 0.85;
     const len = e.pdata >> 8 || 14;
     if (e.st >= len) { setState(e, 'idle'); e.pdata = 0; }
-    e.st++; clampEnemy(w, e); return;
+    e.st++; clampEnemy(w, e, inView(w, e)); return;
   }
   const atk = attackOf(def, s);
   if (atk) {
@@ -148,8 +148,14 @@ export function stepEnemy(w: World, e: Entity): void {
   clampEnemy(w, e);
 }
 
-export function clampEnemy(w: World, e: Entity): void {
-  const minX = w.cameraX - 120, maxX = w.cameraX + 960 + 120;
+/** True once the enemy has come inside the visible band (before that it is still walking in). */
+const inView = (w: World, e: Entity) => e.x >= w.cameraX + VISIBLE_X0 - 30 && e.x <= w.cameraX + VISIBLE_X0 + VISIBLE_W + 30;
+
+export function clampEnemy(w: World, e: Entity, tight = false): void {
+  // an enemy being knocked around never leaves the visible band; one still walking in from
+  // off-screen keeps the wide margin
+  const minX = tight ? w.cameraX + VISIBLE_X0 - 50 : w.cameraX - 120;
+  const maxX = tight ? w.cameraX + VISIBLE_X0 + VISIBLE_W + 50 : w.cameraX + 960 + 120;
   if (e.x < minX) e.x = minX; if (e.x > maxX) e.x = maxX;
   if (e.y < 0) e.y = 0; if (e.y > LANE_H) e.y = LANE_H;
 }

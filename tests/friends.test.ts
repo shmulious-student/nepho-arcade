@@ -74,3 +74,24 @@ describe('friends', () => {
     expect(w.result).toBe('victory');
   });
 });
+
+describe('sidekick balance', () => {
+  it('a sidekick hits for less and never launches or floors with a normal hit', () => {
+    const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['bruiser', null], mode: 'sidekick' } });
+    runUntil(w, () => friendsOf(w).length > 0, 60 * 20);
+    const f = friendsOf(w)[0];
+    // count launch events on enemies while the sidekick swings for a while with the player idle
+    // (a kill also sends an enemy flying, but that is not a 'launch' event)
+    let launched = 0, hits = 0;
+    for (let t = 0; t < 60 * 40; t++) {
+      w.step([NONE, NONE]);
+      for (const ev of w.events) {
+        if (ev.type === 'hit' && ev.id !== w.players[0]!.id && ev.id !== f.id) hits++;
+        if (ev.type === 'launch') launched++;
+      }
+    }
+    expect(hits).toBeGreaterThan(0);
+    // heavies alone can't launch anymore; only the special (rare, needs a crowd) could
+    expect(launched).toBeLessThanOrEqual(2);
+  });
+});

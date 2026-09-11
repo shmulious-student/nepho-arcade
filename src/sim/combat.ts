@@ -69,6 +69,12 @@ export function resolveHits(w: World): void {
 
 export function applyHit(w: World, att: Entity, hit: Hitbox, tgt: Entity): void {
   const owner = att.owner >= 0 ? w.byId(att.owner) : att;
+  // A friend's hits are support, not the main event: less damage, half the shove, and no launching
+  // or flooring outside their special — so they soften enemies up for the player instead of
+  // punting them off the screen.
+  if (owner?.kind === 'hero' && owner.slot < 0 && att.state !== 'special') {
+    hit = { ...hit, dmg: hit.dmg * 0.6, kb: hit.kb * 0.5, launch: undefined, knockdown: hit.radius ? hit.knockdown : false };
+  }
   const heavy = !!(hit.launch || hit.knockdown || hit.dmg >= 12);
   let dmg = hit.dmg * (owner?.dmgMul ?? 1);
   if (owner?.kind === 'hero') dmg *= HEROES[owner.arch as HeroId].dmgMul;
