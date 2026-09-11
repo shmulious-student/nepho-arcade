@@ -3,7 +3,7 @@ import { World } from '../src/sim/world';
 import { makeBot, botInput } from '../src/sim/bot';
 import type { InputFrame } from '../src/sim/input';
 
-function runBotTicks(seed: number, level: number, heroes: ['nepho', 'riva' | null], ticks: number) {
+function runBotTicks(seed: number, level: number, heroes: ['nepho', 'byte' | null], ticks: number) {
   const w = new World({ seed, level, heroes: heroes as any });
   const b0 = makeBot(); const b1 = makeBot();
   const hashes: number[] = [];
@@ -24,8 +24,8 @@ describe('sim determinism', () => {
   });
 
   it('same seed + same inputs -> identical hash trajectory (2P)', () => {
-    const a = runBotTicks(555, 3, ['nepho', 'riva'], 3000);
-    const b = runBotTicks(555, 3, ['nepho', 'riva'], 3000);
+    const a = runBotTicks(555, 3, ['nepho', 'byte'], 3000);
+    const b = runBotTicks(555, 3, ['nepho', 'byte'], 3000);
     expect(a).toEqual(b);
   });
 

@@ -497,7 +497,7 @@ async function processPortraits(catalog, bossResults, heroResults) {
   // square, any size); otherwise riva/byte come from the roster atlas (3x2, 512 cells) and anyone
   // else gets a crop of their own idle frame so a new hero is never card-less.
   const roster = join(SRC, 'hero-roster-atlas.png');
-  const rosterCells = { nepho: [0, 0], bruiser: [1, 0], riva: [0, 1], byte: [1, 1] };
+  const rosterCells = { nepho: [0, 0], byte: [1, 1] };
   for (const id of catalog.heroes) {
     const out = join(OUT, 'cards', `${id}.webp`);
     const dedicated = join(SRC, 'heroes', `${id}-card.png`);
@@ -521,19 +521,20 @@ async function processPortraits(catalog, bossResults, heroResults) {
 
 // ---------- main ----------
 async function main() {
-  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: ['eviatar', 'omri', 'nepho', 'bruiser', 'riva', 'byte'], enemies: [], bosses: [], levels: [] };
+  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: ['eviatar', 'omri', 'nepho', 'byte'], enemies: [], bosses: [], levels: [] };
   const results = {};
   const want = (group) => !only || only === group;
 
   if (want('heroes')) {
     const heroSrc = {};
     const heroSource = (id) => resolveSource(id, HERO_ACTIONS, [join(SRC, `hero-${id}-grid-1.png`), join(SRC, `hero-${id}-grid-2.png`)], join(SRC, `hero-${id}-grid.png`));
-    for (const id of ['nepho', 'bruiser', 'riva', 'byte', 'eviatar', 'omri']) {
+    for (const id of ['nepho', 'byte', 'eviatar', 'omri']) {
       const src = heroSource(id);
       const stand = HERO_STAND_INS[id];
       if (stand && !hasAnySource(src)) {
-        // no art delivered yet: recolour the stand-in's already-built atlas into this hero's palette
-        results[id] = await variantFrom(results[stand.from], id, stand.remap, [`placeholder: ${stand.from} recoloured until a real ${id} set is supplied (docs/hero-prompts-eviatar-omri.md)`]);
+        // no art delivered yet: build the stand-in's grid in memory and recolour it into this hero's palette
+        const base = await processCharacter(stand.from, heroSource(stand.from), { ...HERO, rows: HERO_ROWS_12 }, { emit: false });
+        results[id] = await variantFrom(base, id, stand.remap, [`placeholder: ${stand.from} recoloured until a real ${id} set is supplied (docs/hero-prompts-eviatar-omri.md)`]);
         warn(`${id}: no source art yet — shipping a recoloured ${stand.from} as a stand-in`);
         console.log('hero', id, `stand-in (${stand.from})`);
         continue;
@@ -544,7 +545,9 @@ async function main() {
     }
     // Byte's delivered grids have so far been copies of Riva's. Until a real Byte set lands, keep the
     // roster visually distinct by hue-shifting the duplicate to her pink rather than shipping two Rivas.
-    if (heroSrc.byte && heroSrc.riva && await nearDuplicate(heroSrc.byte, heroSrc.riva)) {
+    // Byte's delivered grids are a copy of Riva's (a retired hero whose grids stay in the tree as the
+    // reference for this check).
+    if (heroSrc.byte && await nearDuplicate(heroSrc.byte, heroSource('riva'))) {
       warn('byte: source grids are a duplicate of riva\'s — hue-remapped to pink; see docs/asset-prompts.md');
       const notes = ['fallback: source is a duplicate of riva, hue-remapped to pink until a real byte set is supplied'];
       results.byte = await variantFrom(results.byte, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, notes);

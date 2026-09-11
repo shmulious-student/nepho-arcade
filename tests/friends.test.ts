@@ -67,7 +67,7 @@ describe('friends', () => {
   });
 
   it('a level is still winnable with a sidekick along (bot player)', () => {
-    const w = new World({ seed: 9001, level: 1, heroes: ['omri', null], friends: { friends: ['bruiser', null], mode: 'sidekick' } });
+    const w = new World({ seed: 9001, level: 1, heroes: ['omri', null], friends: { friends: ['nepho', null], mode: 'sidekick' } });
     const b = makeBot();
     let t = 0;
     while (!w.isFinished() && t < 60 * 60 * 6) { w.step([botInput(w, 0, b), NONE]); t++; }
@@ -77,7 +77,7 @@ describe('friends', () => {
 
 describe('sidekick balance', () => {
   it('a sidekick hits for less and never launches or floors with a normal hit', () => {
-    const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['bruiser', null], mode: 'sidekick' } });
+    const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['nepho', null], mode: 'sidekick' } });
     runUntil(w, () => friendsOf(w).length > 0, 60 * 20);
     const f = friendsOf(w)[0];
     // count launch events on enemies while the sidekick swings for a while with the player idle

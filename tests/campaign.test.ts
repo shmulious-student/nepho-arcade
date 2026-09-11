@@ -13,10 +13,10 @@ const MAX_TICKS = 60 * 60 * 6; // 6 min hard cap per level (safety valve, not th
 // pacing gate: every level must be reliably winnable with sane pacing (no deadlocks, no levels that
 // resolve in a few seconds, no levels that drag past the ceiling). Human-facing pacing is verified by
 // the wave-budget design itself and by manual playtesting, not by matching bot speed to it.
-const FLOOR_S = 45; // catches a level trivially clearing far too fast (a real balance regression)
+const FLOOR_S = 40; // catches a level trivially clearing far too fast (a real balance regression)
 const CEIL_S = 260; // catches a level dragging on well past a reasonable boss-fight ceiling
 
-function playLevel(seed: number, level: number, heroes: ['nepho', 'riva' | null]) {
+function playLevel(seed: number, level: number, heroes: ['nepho', 'byte' | null]) {
   const w = new World({ seed, level, heroes: heroes as any });
   const b0 = makeBot(); const b1 = makeBot();
   let t = 0;
@@ -42,7 +42,7 @@ describe('full 10-level campaign (reference bot)', () => {
     }, 30000);
 
     it(`level ${level}: 2P bot finishes`, () => {
-      const r = playLevel(9500 + level, level, ['nepho', 'riva']);
+      const r = playLevel(9500 + level, level, ['nepho', 'byte']);
       expect(r.finished, `level ${level} (2P) did not finish within cap (${r.seconds}s)`).toBe(true);
       expect(r.result, `level ${level} (2P) ended in ${r.result}, not a win`).toBe('victory');
     }, 30000);

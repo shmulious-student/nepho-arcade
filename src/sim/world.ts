@@ -5,6 +5,8 @@ import { stepHero, clampHero } from './fighter';
 import { stepEnemy } from './enemyAi';
 import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, BOSS_ORDER, setDeck } from './bosses';
 import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from './friends';
+import { rollDrop, stepPickup } from './pickups';
+import { LEVEL_TARGET_SECONDS } from './levels';
 import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit, hazardHit as getHazardHit, forgetHazard } from './combat';
 import { makeDirector, stepDirector, type DirectorState } from './director';
 import { LEVELS, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
@@ -170,7 +172,9 @@ export class World {
     return true;
   }
 
-  onEnemyKilled(_e: Entity, _by?: Entity): void { this.credits += 5; }
+  maxCombo: [number, number] = [0, 0];
+  levelBonus: [number, number] = [0, 0]; // what completeLevel added, for the clear tally
+  onEnemyKilled(e: Entity, _by?: Entity): void { this.credits += 5; rollDrop(this, e); }
   onBossKilled(e: Entity, _by?: Entity): void {
     this.credits += e.kind === 'boss' ? 50 : 20;
     if (e.kind === 'boss') this.bossDefeated = true;
@@ -179,6 +183,14 @@ export class World {
   completeLevel(): void {
     this.done = true;
     this.result = 'victory';
+    // clear bonus: finishing under the target time pays, and so does the best combo of the level
+    const seconds = this.director.levelTick / 60;
+    const timeBonus = Math.max(0, Math.round(LEVEL_TARGET_SECONDS - seconds)) * 10;
+    for (let slot = 0; slot < 2; slot++) {
+      if (!this.players[slot]) continue;
+      this.levelBonus[slot] = timeBonus + this.maxCombo[slot] * 40;
+      this.score[slot] += this.levelBonus[slot];
+    }
     this.setPhase('victory'); // the renderer keys the level-clear / next-level flow off the snapshot phase
   }
 
@@ -202,7 +214,9 @@ export class World {
       else if (e.kind === 'boss' || e.kind === 'echo') stepBoss(this, e);
       else if (e.kind === 'projectile') stepProjectile(this, e);
       else if (e.kind === 'hazard') stepHazard(this, e);
+      else if (e.kind === 'pickup') stepPickup(this, e);
     }
+    for (const h of this.heroes()) if (h.combo > this.maxCombo[h.slot]) this.maxCombo[h.slot] = h.combo;
 
     resolveHits(this);
     stepDirector(this, this.director);
@@ -245,6 +259,7 @@ export class World {
       score: this.score,
       assist: assistReadiness(this),
       lives: [this.lives[0], this.lives[1]],
+      maxCombo: [this.maxCombo[0], this.maxCombo[1]],
       credits: this.credits,
       entities: this.entities.map(viewOf),
       events: this.events,

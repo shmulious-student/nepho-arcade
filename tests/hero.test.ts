@@ -100,8 +100,39 @@ describe('level flow', () => {
     for (let i = 0; i < 400 && !w.isFinished(); i++) w.step([NONE, NONE]);
     expect(w.isFinished()).toBe(true);
     expect(w.snapshot().phase).toBe('victory');
+    // the clear bonus (time + best combo) is added on completion, then the total carries over
+    expect(w.score[0]).toBeGreaterThan(1234);
+    expect(w.levelBonus[0]).toBe(w.score[0] - 1234);
     const next = new World({ seed: 5, level: 2, heroes: ['eviatar', null], score: w.score });
     expect(next.level).toBe(2);
-    expect(next.score).toEqual([1234, 0]);
+    expect(next.score).toEqual(w.score);
+  });
+});
+
+describe('pickups', () => {
+  it('a beaten enemy can drop a pickup that heals / pays / charges when walked over', async () => {
+    const { spawnPickup } = await import('../src/sim/pickups');
+    const w = world(21);
+    const h = w.players[0]!;
+    h.hp = Math.round(h.maxHp * 0.4); h.meter = 0;
+    const heart = spawnPickup(w, 'heart', h.x + 60, h.y);
+    const coin = spawnPickup(w, 'coin', h.x + 110, h.y);
+    const star = spawnPickup(w, 'star', h.x + 160, h.y);
+    expect(w.snapshot().entities.filter((e) => e.kind === 'pickup').length).toBe(3);
+    const score0 = w.score[0];
+    for (let i = 0; i < 40 && !star.dead; i++) w.step([hold(BTN.RIGHT), NONE]);
+    for (let i = 0; i < 80 && !star.dead; i++) w.step([hold(BTN.RIGHT), NONE]);
+    expect(heart.dead && coin.dead && star.dead).toBe(true);
+    expect(h.hp).toBeGreaterThan(h.maxHp * 0.6);
+    expect(w.score[0]).toBe(score0 + 500);
+    expect(h.meter).toBeGreaterThanOrEqual(50);
+  });
+
+  it('an uncollected pickup expires', async () => {
+    const { spawnPickup, PICKUP_TTL } = await import('../src/sim/pickups');
+    const w = world(22);
+    const p = spawnPickup(w, 'coin', w.players[0]!.x + 400, 0);
+    for (let i = 0; i < PICKUP_TTL + 5; i++) w.step([NONE, NONE]);
+    expect(w.entities.includes(p)).toBe(false);
   });
 });

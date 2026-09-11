@@ -23,7 +23,8 @@ export class Fx {
     const sx = worldToScreenX(ev.x, cameraX);
     const sy = worldToScreenY(ev.y, ev.z || 40);
     switch (ev.type) {
-      case 'hit': this.spark(sx, sy, ev.heavy ? 0xffcf5c : 0x75f5dc, ev.heavy ? 14 : 8); if (ev.heavy) this.shake(4); break;
+      case 'hit': this.spark(sx, sy, ev.heavy ? 0xffcf5c : 0x75f5dc, ev.heavy ? 14 : 8); if (ev.heavy) this.shake(4); if (ev.a) this.floatText(sx, sy - 24, `${ev.a}`, ev.heavy ? '#ffcf5c' : '#f3f4e8', ev.heavy ? 15 : 12); break;
+      case 'pickup': { const label = ['+HP', '+500', '+METER'][ev.a ?? 0] || '+'; const c = [0xff4f72, 0xffcf5c, 0x75f5dc][ev.a ?? 0] || 0xffffff; this.spark(sx, sy, c, 10); this.floatText(sx, sy - 20, label, Phaser.Display.Color.IntegerToColor(c).rgba, 14); break; }
       case 'block': this.spark(sx, sy, 0x9bb1c9, 6); break;
       case 'ko': this.burst(sx, sy, ev.a ? 0xff4f72 : 0xffcf5c, ev.a ? 22 : 14); this.shake(ev.a ? 8 : 3); break;
       case 'special': { const h = HEROES[HERO_IDS[ev.a ?? 0]]; this.ring(sx, sy, h?.colour ?? 0x75f5dc, 90); this.shake(6); break; }
@@ -66,6 +67,12 @@ export class Fx {
   }
   private trail(x: number, y: number): void {
     for (let i = 0; i < 5; i++) this.particles.push({ g: this.newGfx(), x: x - i * 4, y, vx: 0, vy: 0, life: i * 2, total: 12, colour: 0x75f5dc, r: 6 - i });
+  }
+  // a number / label that drifts up and fades — damage on hit, what a pickup gave
+  private floatText(x: number, y: number, text: string, colour: string, size: number): void {
+    const t = this.scene.add.text(x, y, text, { fontFamily: 'monospace', fontSize: `${size}px`, color: colour, fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5).setDepth(9600);
+    this.container.add(t);
+    this.scene.tweens.add({ targets: t, y: y - 34, alpha: 0, duration: 650, ease: 'Cubic.Out', onComplete: () => t.destroy() });
   }
   private newGfx(): Phaser.GameObjects.Graphics { const g = this.scene.add.graphics(); this.container.add(g); g.setDepth(9500); return g; }
   private shake(amt: number): void { this.camera.shake(110, Math.min(0.02, amt * 0.0015)); }

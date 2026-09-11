@@ -1,12 +1,11 @@
 # Nepho: Circuit Breakers
 
 A browser-based mobile 2D arcade beat-em-up starring **Eviatar** (basketball kit, magic paint
-markers, paint-splash special) and **Omri** (capoeira, a microphone, sonic-beat special), with Nepho,
-Bruiser, Riva and Byte as the friends who fight beside them — all six playable. Old-school side-scrolling co-op action — light/heavy
+markers, paint-splash special) and **Omri** (capoeira, a microphone, sonic-beat special), with Nepho
+and Byte as the friends who fight beside them — all four playable. Old-school side-scrolling co-op action — light/heavy
 combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
 final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins
-over LAN from their own phone. Upload a photo and your face rides on your character's head, animated
-with the body — blinking, flinching, pulsing on your special.
+over LAN from their own phone.
 
 ```bash
 npm install
@@ -27,7 +26,10 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Special:** `I` (touch: SPC) once the meter is full.
 - **Block:** `U` (touch: BLK), held. Cuts incoming damage to ~25% while you face the attack; a
   guard-breaker or AoE still gets through.
-- **Friend:** `H` (touch: FRD). In the lobby you pick one of the other heroes as your friend and how
+- **Pause:** `ESC` / `P`, or the ❚❚ button top-right: resume, restart level, back to lobby, sound.
+- **Pickups:** beaten enemies sometimes drop a heart (heals 30%), a coin (+500) or a star (+50% meter);
+  walk over them. Clearing a level pays a time bonus and a best-combo bonus.
+- **Friend:** `H` (touch: tap your HUD card). In the lobby you pick one of the other heroes as your friend and how
   they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
   in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
   floored) — or **OFF**.
@@ -51,15 +53,13 @@ src/sim/       deterministic simulation — fixed 60Hz tick, seeded RNG, no Phas
                director, and world.step(inputs) -> Snapshot. This is the single source of truth for
                both local play and the network host.
 src/render/    Phaser 3 scenes and view layer. Reads Snapshots only — never touches sim internals
-               directly. EntityView/FaceRig/Fx/Backdrop/Hud/TouchControls/anim.ts.
+               directly. EntityView/Fx/Backdrop/Hud/TouchControls/PauseMenu/PickupView/anim.ts.
 src/net/       binary snapshot/input codec + Local/Host/Guest Session classes.
-src/face/      local-only portrait processing (crop, posterize, skin-tone blend, outline) and the
-               DOM upload/crop modal. The photo never leaves the device.
 src/audio/     procedural Web Audio — SFX and a per-level chiptune sequencer. No audio files.
 src/shared/    catalog.ts — types + loader for the asset pipeline's manifest.
 tools/         asset pipeline (build-assets.mjs, asset-ops.mjs) and CI-style gates (check-assets.mjs).
 server/        LAN relay + static server (server/index.mjs).
-tests/         vitest: determinism, frame-data invariants, codec round-trip, face-pixel assertions,
+tests/         vitest: determinism, frame-data invariants, codec round-trip, friends, pickups, fuzz,
                and a full 10-level bot campaign that verifies every level is actually won (not just
                finished) in both 1P and 2P.
 ```
@@ -73,7 +73,7 @@ vitest suite, and produce a production build.
 grids, ten boss grids, backdrops, bilingual sign SVGs). `npm run build:assets` slices and normalizes
 them into `public/game/` — the only thing the running game ever loads. Re-run it any time a master is
 replaced; the pipeline auto-detects grid layout (even inconsistent cell sizes), trims per-frame boxes,
-defringes matte halos, and computes a per-frame head anchor for the face rig. `public/game/debug/`
+defringes matte halos, and computes a per-frame head anchor (kept in the catalog for future use). `public/game/debug/`
 gets a labeled contact sheet per character for a human to sanity-check the head anchors — it's
 gitignored and stripped from `dist/` (see `tools/prune-dist.mjs`).
 

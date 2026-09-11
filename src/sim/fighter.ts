@@ -11,8 +11,6 @@ export const isMove = (s: string) => MOVE_STATES.has(s);
 export function heroSpecialHit(heroId: HeroId): Hitbox | null {
   switch (HEROES[heroId].special) {
     case 'burst': return { dx: 0, dy: 0, w: 0, h: 140, dmg: 50, hitstun: 30, kb: 7, launch: 8, radius: 150 };
-    case 'slam': return { dx: 0, dy: 0, w: 0, h: 140, dmg: 68, hitstun: 34, kb: 8, knockdown: true, radius: 125 };
-    case 'line': return { dx: 30, dy: 0, w: 90, h: 120, dmg: 44, hitstun: 30, kb: 6, knockdown: true };
     case 'volley': return null;
     // a fan of paint thrown forward: wide, floors the whole front line
     case 'splash': return { dx: 60, dy: 0, w: 190, h: 150, dmg: 58, hitstun: 32, kb: 9, knockdown: true };
@@ -52,12 +50,11 @@ function startMove(w: World, e: Entity, state: string): void {
   if (state === 'special') {
     e.meter = 0;
     w.emit({ type: 'special', x: e.x, y: e.y, id: e.id, a: HERO_IDS_INDEX[e.arch as HeroId] });
-    if (HEROES[e.arch as HeroId].special === 'slam') e.armor = 40;
   }
   if (state === 'dash') w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id });
 }
 
-const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, bruiser: 3, riva: 4, byte: 5 };
+const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, byte: 3 };
 
 /** True if a live enemy/boss/echo is close ahead of `e` in its current lane — used to auto-engage
  * (end the dash into a dash-attack) when running into someone, per the "dash doesn't end until you
@@ -159,7 +156,6 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     }
     // movement during moves
     let spd = move.speed || 0;
-    if (s === 'special' && def.special === 'line') spd = e.st >= move.startup && e.st < move.startup + move.active ? 14 : 0;
     if (spd) e.x += e.facing * spd * slowMul;
     // byte volley spawns projectiles during the active window
     if (s === 'special' && def.special === 'volley' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 3 === 0) {

@@ -1,8 +1,8 @@
 // Core simulation types. No Phaser imports allowed in src/sim.
 
-export type Kind = 'hero' | 'enemy' | 'boss' | 'echo' | 'projectile' | 'hazard';
+export type Kind = 'hero' | 'enemy' | 'boss' | 'echo' | 'projectile' | 'hazard' | 'pickup';
 
-export type HeroId = 'eviatar' | 'omri' | 'nepho' | 'bruiser' | 'riva' | 'byte';
+export type HeroId = 'eviatar' | 'omri' | 'nepho' | 'byte';
 
 export const TICK_RATE = 60;
 export const LEVEL_W = 1520; // world width of one level (backdrop scaled to 540 tall)
@@ -82,7 +82,7 @@ export interface Entity {
 }
 
 export interface SimEvent {
-  type: 'hit' | 'ko' | 'special' | 'telegraph' | 'spawn' | 'bossPhase' | 'levelPhase' | 'dash' | 'launch' | 'heal' | 'block' | 'shake' | 'summon' | 'paint' | 'note';
+  type: 'hit' | 'ko' | 'special' | 'telegraph' | 'spawn' | 'bossPhase' | 'levelPhase' | 'dash' | 'launch' | 'heal' | 'block' | 'shake' | 'summon' | 'paint' | 'note' | 'pickup';
   x: number; y: number; z?: number;
   a?: number; // param a (e.g. damage, radius)
   b?: number; // param b (e.g. ticks)
@@ -112,6 +112,7 @@ export interface Snapshot {
   enrage: boolean;
   assist: [number, number]; // per player: friend readiness 0..1 (assist cooldown / sidekick up)
   lives: [number, number]; // continues left per player
+  maxCombo: [number, number];
 }
 
 export interface EntityView {

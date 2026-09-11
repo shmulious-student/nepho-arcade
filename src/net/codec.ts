@@ -3,16 +3,17 @@
 import type { Snapshot, EntityView, SimEvent, LevelPhase, Kind } from '../sim/types';
 
 const PHASES: LevelPhase[] = ['entry', 'wave', 'go', 'boss', 'clear', 'gameover', 'victory'];
-const KINDS: Kind[] = ['hero', 'enemy', 'boss', 'echo', 'projectile', 'hazard'];
-const EVENT_TYPES: SimEvent['type'][] = ['hit', 'ko', 'special', 'telegraph', 'spawn', 'bossPhase', 'levelPhase', 'dash', 'launch', 'heal', 'block', 'shake', 'summon', 'paint', 'note'];
+const KINDS: Kind[] = ['hero', 'enemy', 'boss', 'echo', 'projectile', 'hazard', 'pickup'];
+const EVENT_TYPES: SimEvent['type'][] = ['hit', 'ko', 'special', 'telegraph', 'spawn', 'bossPhase', 'levelPhase', 'dash', 'launch', 'heal', 'block', 'shake', 'summon', 'paint', 'note', 'pickup'];
 const SHAPES: NonNullable<SimEvent['shape']>[] = ['circle', 'line', 'stripe', 'ring'];
 
 // arch strings are interned to small integers so entity records stay fixed-size.
 const ARCH_TABLE = [
-  'eviatar', 'omri', 'nepho', 'bruiser', 'riva', 'byte',
+  'eviatar', 'omri', 'nepho', 'byte',
   'punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield', 'punk-b', 'brawler-b', 'knight-b',
   'ferryman', 'glass-warden', 'kilnheart', 'monk-zero', 'market-king', 'railmaw', 'crown-runner', 'the-null', 'vault-mother', 'ultra-signal',
   'hook', 'hook-return', 'shard', 'bolt', 'blast', 'ring', 'orb', 'fog', 'smoke', 'wall',
+  'heart', 'coin', 'star',
 ];
 const archIndex = (a: string) => { const i = ARCH_TABLE.indexOf(a); return i < 0 ? 255 : i; };
 const archName = (i: number) => ARCH_TABLE[i] || 'unknown';
@@ -23,7 +24,7 @@ const MAX_EVENTS = 20;
 export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   const entities = s.entities.slice(0, MAX_ENTITIES);
   const events = s.events.slice(0, MAX_EVENTS);
-  const buf = new ArrayBuffer(23 + entities.length * 15 + events.length * 6); // header(23) + entity(15 each) + event(6 each)
+  const buf = new ArrayBuffer(25 + entities.length * 15 + events.length * 6); // header(25) + entity(15 each) + event(6 each)
   const dv = new DataView(buf);
   let o = 0;
   dv.setUint8(o, 0x53); o += 1; // 'S'
@@ -42,6 +43,8 @@ export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   dv.setUint8(o, Math.round(Math.max(0, Math.min(1, s.assist[1])) * 255)); o += 1;
   dv.setUint8(o, Math.max(0, Math.min(255, s.lives[0]))); o += 1;
   dv.setUint8(o, Math.max(0, Math.min(255, s.lives[1]))); o += 1;
+  dv.setUint8(o, Math.min(255, s.maxCombo[0])); o += 1;
+  dv.setUint8(o, Math.min(255, s.maxCombo[1])); o += 1;
   dv.setUint8(o, entities.length); o += 1;
   dv.setUint8(o, events.length); o += 1;
   for (const e of entities) {
@@ -85,6 +88,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
   const bossId = archName(dv.getUint8(o)); o += 1;
   const assist: [number, number] = [dv.getUint8(o) / 255, dv.getUint8(o + 1) / 255]; o += 2;
   const lives: [number, number] = [dv.getUint8(o), dv.getUint8(o + 1)]; o += 2;
+  const maxCombo: [number, number] = [dv.getUint8(o), dv.getUint8(o + 1)]; o += 2;
   const nEntities = dv.getUint8(o); o += 1;
   const nEvents = dv.getUint8(o); o += 1;
   const entities: EntityView[] = [];
@@ -116,7 +120,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
     const shapeIdx = dv.getUint8(o); o += 1;
     events.push({ type, x, y, a, shape: shapeIdx > 0 ? SHAPES[shapeIdx - 1] : undefined });
   }
-  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist, lives };
+  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist, lives, maxCombo };
 }
 
 const STATES = [

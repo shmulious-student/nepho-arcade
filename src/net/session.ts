@@ -23,6 +23,9 @@ export interface Session {
   update(dtMs: number): void;
   snapshot(): Snapshot | null;
   world(): World | null; // only present for local/host — guests have no authoritative world
+  /** Freezes the simulation (local and host only; a guest cannot pause the host). */
+  setPaused(paused: boolean): void;
+  readonly paused: boolean;
   destroy(): void;
 }
 
@@ -31,6 +34,8 @@ const SNAPSHOT_EVERY = 2; // 30Hz broadcast from a 60Hz sim
 
 abstract class BaseSession implements Session {
   abstract readonly localSlot: number;
+  paused = false;
+  setPaused(paused: boolean): void { this.paused = paused; }
   abstract readonly mode: 'local' | 'host' | 'guest';
   setInput(_slot: number, _input: InputFrame): void {}
   update(_dtMs: number): void {}
@@ -55,6 +60,7 @@ export class LocalSession extends BaseSession {
   }
   setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
   update(dtMs: number): void {
+    if (this.paused) { this.acc = 0; return; }
     this.acc += dtMs;
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;
@@ -128,6 +134,7 @@ export class HostSession extends BaseSession {
   }
   update(dtMs: number): void {
     if (!this.w) return;
+    if (this.paused) { this.acc = 0; return; }
     this.acc += dtMs;
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;

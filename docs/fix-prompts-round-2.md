@@ -21,6 +21,15 @@ watch it on `/showcase.html?row=walk`.
 
 ---
 
+## 0. White fill in enclosed gaps — applies to BOTH walk files (and any redo)
+
+The current walk files paint flat white into every enclosed pocket of background: the gap between
+Eviatar's arm and torso, the inside of Omri's microphone-cable loops. In the game these read as
+white blobs flashing on every step. Add this line, bold, to every request below:
+
+> **Every enclosed gap — between an arm and the body, between the legs, inside the microphone cable
+> loop, inside the ball-and-hand — is transparent background, never filled white or any colour.**
+
 ## 1. `actions/eviatar/walk.png` — the walk cycle does not step
 
 Problem in the current file: only one leg moves; the other stays planted, so in motion he hops on
@@ -44,7 +53,9 @@ one foot. A walk cycle has to alternate legs.
 > right legs swap roles every two frames.** Arms swing opposite to the legs. Body bobs up a few
 > pixels on the passing frames (2, 6) and down on the contact frames (1, 3, 5, 7). Identical
 > bottom-centre anchor in all 9 cells — the grounded foot always lands on the same baseline. Generous
-> empty margin inside each cell; nothing touches a cell boundary.
+> empty margin inside each cell; nothing touches a cell boundary. **Every enclosed gap — between the
+> arm and the body, between the legs, between ball and hand — is transparent background, never filled
+> white.**
 
 ## 2. `actions/omri/walk.png` — the walk cycle does not step
 
@@ -68,7 +79,25 @@ swinging — but it must still alternate legs.
 > **Each frame must show a clearly different leg position from the frame before it; the left and
 > right legs swap roles every two frames.** Curly hair bounces with the step. Identical bottom-centre
 > anchor in all 9 cells — the grounded foot always on the same baseline. Generous empty margin inside
-> each cell; nothing touches a cell boundary.
+> each cell; nothing touches a cell boundary. **Every enclosed gap — between an arm and the body,
+> between the legs, and the inside of every microphone-cable loop — is transparent background, never
+> filled white.**
+
+## 2b. `actions/omri/idle.png` — attack poses crept into the idle loop
+
+Problem: frames 5 and 6 of the current file are a high kick and a lunge. Idle must be a loop the
+character can sit in forever.
+
+> Pixel-art fighting-game character animation sheet. A **3×3 grid of 9 animation frames, read left
+> to right then top to bottom, on a 2048×2048 canvas with a true transparent RGBA background**.
+> [style block] Character: OMRI, exactly as in the attached sheet, standing and facing RIGHT in the
+> capoeira **ginga** — the rocking ready stance — holding the microphone loosely in his right hand.
+> This is a **calm, seamless idle loop with NO kicks, NO punches and NO lunges**: the nine frames
+> rock his weight from the back foot to the front foot and back, arms swaying in a loose guard, hair
+> bouncing a little, the mic cable swinging gently, a faint red music note drifting up on frames 4
+> and 8. Frame 9 matches frame 1 so the loop closes. Both feet stay on the ground in every frame.
+> Identical bottom-centre anchor in all 9 cells; generous empty margin; nothing touches a cell
+> boundary.
 
 ## 3. Check after the walk files land
 
@@ -79,6 +108,6 @@ same frame block and name the row.
 
 ## 4. Still open from the quality-pass pack (unchanged)
 
-Bruiser (dash, special, knockdown, defeat), Byte (full set), Knight (approach, knockback, getup,
-defeat), Riva/Shield/Brawler/Kicker (1 each) and the boss rows in
-`docs/fix-prompts-quality-pass.md` — Nepho's and Punk's were delivered and are in.
+Byte (full set), Knight (approach, knockback, getup, defeat), Shield/Brawler/Kicker (1 each) and
+the boss rows in `docs/fix-prompts-quality-pass.md` — Nepho's and Punk's were delivered and are in.
+Bruiser and Riva have left the roster; skip theirs.

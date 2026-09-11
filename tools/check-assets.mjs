@@ -69,7 +69,7 @@ const catalogPath = join(OUT, 'catalog.json');
 check(existsSync(catalogPath), 'catalog.json missing (run npm run build:assets)');
 if (existsSync(catalogPath)) {
   const cat = JSON.parse(readFileSync(catalogPath, 'utf8'));
-  check(cat.heroes.length === 6, 'six heroes expected');
+  check(cat.heroes.length === 4, 'four heroes expected');
   check(cat.enemies.length >= 6, 'at least six enemies expected');
   check(cat.bosses.length === 10, 'ten bosses expected');
   check(cat.levels.length === 10, 'ten levels expected');

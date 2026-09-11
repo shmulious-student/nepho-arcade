@@ -14,7 +14,7 @@ interface PlayerHud {
 const BAR_W = 220;
 const FONT = 'monospace';
 
-/** In-canvas arcade HUD, sized for a phone held sideways: a card per player (portrait, name, a fat
+/** In-canvas arcade HUD, sized for a phone held sideways: a card per player (portrait chip, name, a fat
  * HP bar with a damage ghost, a special meter that lights up when ready, the friend chip and combo
  * counter), the level clock and wave in the middle, a named boss bar, GO prompt and level banners.
  * Drawn at UI scale, outside the zoomed world container. */
@@ -30,7 +30,7 @@ export class Hud {
 
   private touch: boolean;
 
-  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], faceTextureKeys: [string | null, string | null], friends?: FriendSetup, touch = false) {
+  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], friends?: FriendSetup, touch = false) {
     this.touch = touch;
     this.scene = scene;
     this.container = scene.add.container(0, 0).setDepth(30000).setScrollFactor(0);
@@ -42,12 +42,9 @@ export class Hud {
       const x = right ? VIEW_W - 14 - (BAR_W + 62) : 14;
       const root = scene.add.container(x, 10);
       const panel = scene.add.rectangle(0, 0, BAR_W + 62, 58, 0x0b1730, 0.72).setOrigin(0, 0).setStrokeStyle(1, 0x344861);
-      // portrait chip: the uploaded face, else a colour tile with the hero's initial
-      const faceKey = faceTextureKeys[slot];
+      // portrait chip: the hero's card art
       const chipBg = scene.add.rectangle(29, 29, 44, 44, def.colour, 1).setStrokeStyle(2, 0xf3f4e8);
-      const chip = faceKey
-        ? scene.add.image(29, 29, faceKey).setDisplaySize(42, 42)
-        : scene.add.text(29, 29, def.name[0], { fontFamily: FONT, fontSize: '22px', color: '#0b1730', fontStyle: 'bold' }).setOrigin(0.5);
+      const chip = scene.add.image(29, 29, def.cardKey).setDisplaySize(42, 42);
       const name = scene.add.text(58, 6, def.name, { fontFamily: FONT, fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' });
       const lives = scene.add.text(58 + BAR_W, 6, '', { fontFamily: FONT, fontSize: '11px', color: '#9bb1c9' }).setOrigin(1, 0);
       const hpBg = scene.add.rectangle(58, 22, BAR_W, 14, 0x050711, 0.9).setOrigin(0, 0).setStrokeStyle(1, 0x344861);

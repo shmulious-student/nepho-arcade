@@ -5,7 +5,6 @@ import type { FriendMode } from '../../sim/friends';
 import { isTouchDevice } from './GameScene';
 import { TouchControls } from '../TouchControls';
 import type { HeroId } from '../../sim/types';
-import { openFaceCropper } from '../../face/cropper';
 import { VIEW_W, VIEW_H } from '../../sim/types';
 import { synth } from '../../audio/synth';
 
@@ -32,7 +31,6 @@ export class LobbyScene extends Phaser.Scene {
   private catalog!: Catalog;
   private heroPick: [HeroId, HeroId | null] = ['eviatar', null];
   private coop = false;
-  private faceKeys: [string | null, string | null] = [null, null];
   private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
   private friendPick: HeroId = 'omri';
@@ -48,11 +46,11 @@ export class LobbyScene extends Phaser.Scene {
     this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
     this.add.text(VIEW_W / 2, 68, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
 
-    this.add.text(24, 88, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    // six cards, 140 wide with 124px art: big enough to actually see the character
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, 24 + i * 152, 106, 0));
+    this.add.text((VIEW_W - (4 * 196 - 16)) / 2, 84, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    // four cards, 180 wide with 160px art, centred
+    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, (VIEW_W - (4 * 196 - 16)) / 2 + i * 196, 100, 0));
 
-    const coopBtn = this.makeButton(VIEW_W - 150, 300, 126, 26, 'LAN CO-OP: OFF', () => {
+    const coopBtn = this.makeButton(VIEW_W - 150, 316, 126, 26, 'LAN CO-OP: OFF', () => {
       this.coop = !this.coop;
       coopBtn.text.setText(`LAN CO-OP: ${this.coop ? 'ON' : 'OFF'}`);
       netRow.setVisible(this.coop);
@@ -60,31 +58,17 @@ export class LobbyScene extends Phaser.Scene {
     });
 
     const netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = this.makeButton(VIEW_W - 260, 332, 110, 24, 'HOST GAME', () => this.startAsHost());
-    const joinBtn = this.makeButton(VIEW_W - 140, 332, 110, 24, 'JOIN GAME', () => this.promptJoin());
+    const hostBtn = this.makeButton(VIEW_W - 260, 348, 110, 24, 'HOST GAME', () => this.startAsHost());
+    const joinBtn = this.makeButton(VIEW_W - 140, 348, 110, 24, 'JOIN GAME', () => this.promptJoin());
     netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
-
-    this.add.text(24, 300, 'YOUR FACE (optional)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    const faceBtn = this.makeButton(24, 320, 150, 30, 'SET FACE — P1', async () => {
-      const skin = HEROES[this.heroPick[0]].colour;
-      const outline = 0x1a1420;
-      const res = await openFaceCropper(hexToRgb(0xd39178), hexToRgb(0x16121e));
-      void skin; void outline;
-      if (!res) return;
-      const key = 'face-p1';
-      await addTextureFromDataUrl(this, key, res.dataUrl);
-      this.faceKeys[0] = key;
-      faceBtn.text.setText('FACE SET — P1 ✓');
-      this.refreshFacePreview();
-    });
 
     // Friend: one of the other heroes fights beside you — called in for their special (ASSIST) or
     // along for the whole level as an AI ally (SIDEKICK).
-    this.add.text(200, 300, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    this.makeButton(200, 320, 26, 22, '◀', () => this.cycleFriend(-1));
-    this.friendText = this.add.text(234, 326, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
-    this.makeButton(392, 320, 26, 22, '▶', () => this.cycleFriend(1));
-    const modeBtn = this.makeButton(430, 320, 130, 22, '', () => {
+    this.add.text(24, 316, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    this.makeButton(24, 336, 26, 22, '◀', () => this.cycleFriend(-1));
+    this.friendText = this.add.text(58, 342, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
+    this.makeButton(216, 336, 26, 22, '▶', () => this.cycleFriend(1));
+    const modeBtn = this.makeButton(254, 336, 130, 22, '', () => {
       this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
       modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
     });
@@ -94,7 +78,7 @@ export class LobbyScene extends Phaser.Scene {
     // touch control size, for phones
     if (isTouchDevice(this)) {
       const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
-      const sizeBtn = this.makeButton(VIEW_W - 150, 364, 126, 24, '', () => {
+      const sizeBtn = this.makeButton(VIEW_W - 150, 380, 126, 24, '', () => {
         const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
         try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
         sizeBtn.text.setText(`CONTROLS: ${next}`);
@@ -106,14 +90,14 @@ export class LobbyScene extends Phaser.Scene {
     // large empty gap above it — fragile even without a viewport bug, since it left almost no margin
     // for the most important control (START) before the edge of the canvas. Spread across the middle
     // instead, so a few pixels of viewport miscalculation can never crop it off-screen entirely.
-    this.statusText = this.add.text(VIEW_W / 2, 384, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
+    this.statusText = this.add.text(VIEW_W / 2, 392, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
 
-    this.add.text(24, 402, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
-    const levelText = this.add.text(90, 401, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
-    this.makeButton(24, 424, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
-    this.makeButton(58, 424, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.add.text(24, 412, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
+    const levelText = this.add.text(90, 411, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
+    this.makeButton(24, 434, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    this.makeButton(58, 434, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
 
-    const start = this.makeButton(VIEW_W / 2, 470, 200, 38, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
+    const start = this.makeButton(VIEW_W / 2, 480, 200, 38, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
     void start;
 
     this.highlightCard();
@@ -122,12 +106,12 @@ export class LobbyScene extends Phaser.Scene {
   private buildHeroCard(id: HeroId, x: number, y: number, slot: number): void {
     const def = HEROES[id];
     const c = this.add.container(x, y);
-    const bg = this.add.rectangle(0, 0, 140, 182, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
-    // square art shown square, at 124px so the character reads at a glance
-    const img = this.add.image(70, 70, `card-${id}`).setDisplaySize(124, 124);
-    const tint = this.add.rectangle(70, 134, 124, 2, def.colour).setOrigin(0.5, 0);
-    const name = this.add.text(70, 148, def.name, { fontFamily: 'monospace', fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
-    const bias = this.add.text(70, 160, def.bias, { fontFamily: 'monospace', fontSize: '8px', color: '#9bb1c9', align: 'center', wordWrap: { width: 130 } }).setOrigin(0.5, 0);
+    const bg = this.add.rectangle(0, 0, 180, 204, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
+    // square art shown square, at 160px so the character reads at a glance
+    const img = this.add.image(90, 84, `card-${id}`).setDisplaySize(160, 160);
+    const tint = this.add.rectangle(90, 166, 160, 2, def.colour).setOrigin(0.5, 0);
+    const name = this.add.text(90, 178, def.name, { fontFamily: 'monospace', fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    const bias = this.add.text(90, 188, def.bias, { fontFamily: 'monospace', fontSize: '8px', color: '#9bb1c9', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
     c.add([bg, img, tint, name, bias]);
     bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); this.cycleFriend(0); });
     this.cards[id] = c;
@@ -150,8 +134,6 @@ export class LobbyScene extends Phaser.Scene {
       bg.setStrokeStyle(2, id === this.heroPick[0] ? PALETTE.cyan : PALETTE.line);
     }
   }
-
-  private refreshFacePreview(): void {}
 
   private makeButton(x: number, y: number, w: number, h: number, label: string, onClick: () => void, fill = 0x14243d, textColour: number = PALETTE.text): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } {
     const g = this.add.rectangle(x, y, w, h, fill).setOrigin(w > 150 ? 0.5 : 0, 0).setStrokeStyle(1, PALETTE.line).setInteractive({ useHandCursor: true });
@@ -239,18 +221,17 @@ export class LobbyScene extends Phaser.Scene {
     const p2Friend = heroes[1] ? HERO_IDS.find((h) => h !== heroes[0] && h !== heroes[1] && h !== this.friendPick) || null : null;
     const friends = { friends: [this.friendPick, p2Friend] as [HeroId | null, HeroId | null], mode: this.friendMode };
     if (this.netMode === 'guest' && this.roomCode) {
-      this.scene.start('Game', { mode: 'guest', roomCode: this.roomCode, heroId: heroes[0], faceKeys: this.faceKeys });
+      this.scene.start('Game', { mode: 'guest', roomCode: this.roomCode, heroId: heroes[0] });
       return;
     }
     if (this.netMode === 'host') {
       const session = this.registry.get('pendingHostSession');
       session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes, friends);
-      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, faceKeys: this.faceKeys, friends });
+      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, friends });
       return;
     }
-    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, faceKeys: this.faceKeys, seed: Math.floor(Math.random() * 1e9), friends });
+    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, seed: Math.floor(Math.random() * 1e9), friends });
   }
 }
 
-function pickOther(a: HeroId): HeroId { return HERO_IDS.find((h) => h !== a) || 'riva'; }
-function hexToRgb(hex: number): [number, number, number] { return [(hex >> 16) & 0xff, (hex >> 8) & 0xff, hex & 0xff]; }
+function pickOther(a: HeroId): HeroId { return HERO_IDS.find((h) => h !== a) || 'byte'; }

@@ -13,7 +13,7 @@ describe('random-input fuzz', () => {
   for (const [level, mode, coop] of configs) {
     it(`level ${level}, friends ${mode}, ${coop ? '2P' : '1P'}`, () => {
       const rng = new Rng(100 + level);
-      const w = new World({ seed: 500 + level, level, heroes: ['eviatar', coop ? 'omri' : null], friends: { friends: ['nepho', coop ? 'riva' : null], mode } });
+      const w = new World({ seed: 500 + level, level, heroes: ['eviatar', coop ? 'omri' : null], friends: { friends: ['nepho', coop ? 'byte' : null], mode } });
       let prev = [0, 0];
       for (let t = 0; t < 60 * 60 && !w.isFinished(); t++) {
         const held = [0, 1].map((i) => (rng.chance(0.15) ? rng.int(0, ALL) : prev[i]));

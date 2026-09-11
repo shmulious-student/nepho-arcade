@@ -3,21 +3,19 @@ import type { CharacterEntry } from '../shared/catalog';
 import { frameKeyFor } from './anim';
 import type { EntityView as SimEntityView } from '../sim/types';
 import { FLOOR_TOP } from '../sim/types';
-import { FaceRig } from './FaceRig';
 
 const TINTS = [0xffffff, 0x75f5dc, 0x37aaff, 0xff8f40, 0xbd8cff, 0xffcf5c, 0xff4f72, 0xff76c8, 0xa4ee42, 0xedf6ff];
 
 export function worldToScreenX(x: number, cameraX: number): number { return x - cameraX; }
 export function worldToScreenY(y: number, z: number): number { return FLOOR_TOP + y * 0.62 - z; }
 
-/** One rendered character: body sprite (+ shadow), and for heroes an attached FaceRig. */
+/** One rendered character: body sprite (+ shadow), plus an hp bar for enemies and bosses. */
 export class EntityView {
   readonly id: number;
   private scene: Phaser.Scene;
   private def: CharacterEntry;
   body: Phaser.GameObjects.Sprite;
   shadow: Phaser.GameObjects.Ellipse;
-  face: FaceRig | null = null;
   hpBar?: Phaser.GameObjects.Graphics;
   private lastKey = '';
   private seenTick = 0;
@@ -60,10 +58,8 @@ export class EntityView {
       }
       this.hpBar.setDepth(sy);
     }
-    if (this.face) this.face.update(e, sx, sy, this.body);
   }
 
-  attachFace(rig: FaceRig): void { this.face = rig; }
   staleSince(tick: number): boolean { return tick - this.seenTick > 3; }
-  destroy(): void { this.body.destroy(); this.shadow.destroy(); this.hpBar?.destroy(); this.face?.destroy(); }
+  destroy(): void { this.body.destroy(); this.shadow.destroy(); this.hpBar?.destroy(); }
 }

@@ -13,6 +13,7 @@ export function activeHitbox(e: Entity): Hitbox | null {
     case 'boss': case 'echo': return bossActiveHit(e);
     case 'projectile': return e.ttl > 0 && e.pphase === 1 ? projectileHit(e) : null;
     case 'hazard': return e.pphase === 1 ? (hazardHit(e.id) || null) : null;
+    case 'pickup': return null;
   }
 }
 

@@ -3,11 +3,12 @@ import type { Catalog } from '../../shared/catalog';
 import { LocalSession, HostSession, GuestSession, wsUrlFromLocation, type Session } from '../../net/session';
 import { BTN, InputEdge, type InputFrame } from '../../sim/input';
 import { EntityView } from '../EntityView';
-import { FaceRig } from '../FaceRig';
 import { Backdrop } from '../Backdrop';
 import { Hud } from '../Hud';
 import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
+import { PauseMenu } from '../PauseMenu';
+import { PickupView } from '../PickupView';
 import { LEVEL_W, VIEW_W, VIEW_ZOOM, FLOOR_TOP, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
@@ -27,7 +28,6 @@ interface StartData {
   session?: HostSession;
   roomCode?: string;
   heroId?: HeroId;
-  faceKeys: [string | null, string | null];
   friends?: FriendSetup;
   score?: [number, number]; // carried over from the previous level
 }
@@ -54,16 +54,18 @@ export class GameScene extends Phaser.Scene {
   private session!: Session;
   private world!: Phaser.GameObjects.Container;
   private views = new Map<number, EntityView>();
+  private pickups = new Map<number, PickupView>();
   private backdrop!: Backdrop;
   private hud!: Hud;
   private fx!: Fx;
   private touch!: TouchControls;
+  private pause!: PauseMenu;
+  private pauseBtn!: Phaser.GameObjects.Container;
   private p1Edge = new InputEdge();
   private p2Edge = new InputEdge();
   private p1Dash = new DoubleTapDash();
   private p2Dash = new DoubleTapDash();
   private heroes: [HeroId, HeroId | null] = ['eviatar', null];
-  private faceKeys: [string | null, string | null] = [null, null];
   private levelIndex = 1;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private finished = false;
@@ -75,7 +77,6 @@ export class GameScene extends Phaser.Scene {
 
   create(data: StartData): void {
     this.catalog = this.registry.get('catalog');
-    this.faceKeys = data.faceKeys || [null, null];
     this.friends = data.friends;
     this.startData = data;
     this.finished = false;
@@ -91,10 +92,6 @@ export class GameScene extends Phaser.Scene {
       this.session = data.session!;
     } else {
       this.heroes = [data.heroId!, null]; // corrected to the true per-slot identity once the first snapshot arrives
-      // The lobby's face-upload UI always writes the local player's face to faceKeys[0] ("SET FACE —
-      // P1"), but a guest is always simulation slot 1, not 0 — remap before EntityView ever reads it,
-      // or the guest's own face would try to attach to the host's hero instead of their own.
-      this.faceKeys = [null, (data.faceKeys && data.faceKeys[0]) || null];
       const guest = new GuestSession(wsUrlFromLocation(), data.roomCode!);
       guest.events.onRoom = () => guest.setHero(data.heroId!);
       guest.connect();
@@ -104,7 +101,7 @@ export class GameScene extends Phaser.Scene {
 
     const level = this.catalog.levels[this.levelIndex - 1];
     this.world = this.add.container(0, 0);
-    // Zoom the game world in (characters/faces read far better on a phone screen) while leaving the
+    // Zoom the game world in (characters read far better on a phone screen) while leaving the
     // HUD and touch controls — separate top-level objects, not children of this container — at normal
     // UI scale. Anchored on the combat band (roughly where sprite feet land, not the container's
     // top-left corner), or zooming would push the floor mostly below the visible canvas.
@@ -115,12 +112,13 @@ export class GameScene extends Phaser.Scene {
     this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
     this.fx = new Fx(this, this.world, this.cameras.main);
-    this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends, isTouchDevice(this));
+    this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
     this.touch = new TouchControls(this);
     this.touch.setVisible(isTouchDevice(this));
 
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
+    this.buildPause();
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
 
@@ -148,15 +146,44 @@ export class GameScene extends Phaser.Scene {
       case 'ko': synth.ko(); break;
       case 'bossPhase': synth.bossPhase(); break;
       case 'heal': synth.heal(); break;
+      case 'pickup': synth.heal(); break;
     }
+  }
+
+  private buildPause(): void {
+    const canPause = this.session.mode !== 'guest';
+    this.pause = new PauseMenu(this, {
+      resume: () => this.setPaused(false),
+      restart: () => { this.setPaused(false); this.scene.start('Game', { ...this.startData, seed: Math.floor(Math.random() * 1e9) }); },
+      lobby: () => { this.setPaused(false); this.session.destroy(); this.scene.start('Lobby'); },
+    }, { canPause, touch: isTouchDevice(this) });
+    // ⏸ in the top-right corner, comfortably tappable
+    const g = this.add.circle(0, 0, 18, 0x0b1730, 0.7).setStrokeStyle(2, 0x344861).setInteractive({ useHandCursor: true });
+    const t = this.add.text(0, -1, '❚❚', { fontFamily: 'monospace', fontSize: '12px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    this.pauseBtn = this.add.container(VIEW_W - 30, 28, [g, t]).setDepth(45000).setScrollFactor(0);
+    g.on('pointerdown', () => this.setPaused(!this.pause.open));
+    this.input.keyboard!.on('keydown-ESC', () => this.setPaused(!this.pause.open));
+    this.input.keyboard!.on('keydown-P', () => this.setPaused(!this.pause.open));
+  }
+
+  private setPaused(paused: boolean): void {
+    if (paused === this.pause.open) return;
+    if (paused) this.pause.show(); else this.pause.hide();
+    this.session.setPaused(paused);
+    this.touch.setVisible(!paused && isTouchDevice(this));
+    if (paused) sequencer.stop(); else sequencer.start(this.levelIndex);
   }
 
   private cleanup(): void {
     for (const v of this.views.values()) v.destroy();
     this.views.clear();
+    for (const v of this.pickups.values()) v.destroy();
+    this.pickups.clear();
     this.backdrop?.destroy();
     this.hud?.destroy();
     this.touch?.setVisible(false);
+    this.pause?.destroy();
+    this.pauseBtn?.destroy();
   }
 
   private pollP1(): InputFrame {
@@ -204,6 +231,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, dtMs: number): void {
+    if (this.pause.open && this.session.mode !== 'guest') return; // frozen: nothing to poll or draw
     if (this.session.mode !== 'guest') {
       this.session.setInput(0, this.pollP1());
       if (this.heroes[1] && this.session.mode === 'local') this.session.setInput(1, this.pollP2());
@@ -233,7 +261,7 @@ export class GameScene extends Phaser.Scene {
       if (real[0] !== this.heroes[0] || real[1] !== this.heroes[1]) {
         this.heroes = real;
         this.hud.destroy();
-        this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends, isTouchDevice(this));
+        this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
         this.showKeyboardHint(!!this.heroes[1]);
       }
     }
@@ -256,20 +284,26 @@ export class GameScene extends Phaser.Scene {
     const seen = new Set<number>();
     for (const e of snap.entities) {
       seen.add(e.id);
+      if (e.kind === 'pickup') {
+        let pv = this.pickups.get(e.id);
+        if (!pv) { pv = new PickupView(this, e, this.world); this.pickups.set(e.id, pv); }
+        pv.update(e, snap.cameraX, snap.tick);
+        continue;
+      }
       let view = this.views.get(e.id);
       if (!view) {
         const def = this.catalog.characters[e.arch];
         if (!def) continue;
         view = new EntityView(this, e.id, def, this.world);
         this.views.set(e.id, view);
-        if (e.kind === 'hero' && this.faceKeys[e.slot]) {
-          view.attachFace(new FaceRig(this, this.faceKeys[e.slot]!, def, this.world));
-        }
       }
       view.update(e, snap.cameraX, snap.tick);
     }
     for (const [id, view] of this.views) {
       if (!seen.has(id) || view.staleSince(snap.tick)) { view.destroy(); this.views.delete(id); }
+    }
+    for (const [id, pv] of this.pickups) {
+      if (!seen.has(id) || pv.staleSince(snap.tick)) { pv.destroy(); this.pickups.delete(id); }
     }
     for (const ev of snap.events) { this.fx.handle(ev, snap.cameraX); this.playSfx(ev); }
     sequencer.start(this.levelIndex);
@@ -288,14 +322,16 @@ export class GameScene extends Phaser.Scene {
       if (snap.phase === 'victory' && this.levelIndex < 10) {
         // Beating the boss rolls straight into the next level — a banner, then the next stage's title
         // card — rather than dropping back to a menu between every level.
-        this.hud.banner(`LEVEL ${this.levelIndex} CLEAR`, this.catalog.levels[this.levelIndex].name);
+        const w = this.session.world();
+        const tally = w ? `TIME ${Math.floor(snap.timer / 60)}:${Math.floor(snap.timer % 60).toString().padStart(2, '0')} · BEST COMBO ${snap.maxCombo[0]} · BONUS +${w.levelBonus[0]}` : this.catalog.levels[this.levelIndex].name;
+        this.hud.banner(`LEVEL ${this.levelIndex} CLEAR`, tally);
         if (this.session.mode !== 'guest') this.time.delayedCall(2200, () => this.nextLevel(score));
         return;
       }
       this.time.delayedCall(900, () => {
         this.scene.start('Results', {
           result: snap.phase, level: this.levelIndex, score,
-          heroes: this.heroes, faceKeys: this.faceKeys, friends: this.friends, isLastLevel: this.levelIndex >= 10,
+          heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10,
         });
       });
     }

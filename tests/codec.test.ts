@@ -26,6 +26,7 @@ function randomSnapshot(rng: Rng): Snapshot {
     bossId: rng.pick(ARCHES), score: [0, 0], credits: 0, entities, events: [], go: rng.chance(0.5), enrage: rng.chance(0.5),
     assist: [rng.next(), rng.next()],
     lives: [rng.int(0, 5), rng.int(0, 5)],
+    maxCombo: [rng.int(0, 40), rng.int(0, 40)],
   };
 }
 
