@@ -27,14 +27,16 @@ export class TouchControls {
     this.stickOrigin = { x: stickX, y: stickY };
     this.container.add([this.stickBase, this.stickNub]);
 
-    const bx = VIEW_W - 104, by = VIEW_H - 96, spread = 42;
+    // Thumb cluster: the two attacks and jump under the thumb, dash/block/special/friend around them.
+    const bx = VIEW_W - 110, by = VIEW_H - 100, spread = 46;
     const defs: [number, number, number, string, number][] = [
       [bx - spread, by, BTN.LIGHT, 'ATK', 0x75f5dc],
       [bx + spread, by, BTN.HEAVY, 'HVY', 0xff9357],
+      [bx, by + spread * 0.9, BTN.JUMP, 'JMP', 0xf3f4e8],
       [bx, by - spread, BTN.SPECIAL, 'SPC', 0xffcf5c],
-      [bx - spread * 1.75, by - spread * 1.05, BTN.DASH, 'DSH', 0xa4ee42],
-      [bx + spread * 1.75, by - spread * 1.05, BTN.BLOCK, 'BLK', 0x37aaff],
-      [bx, by + spread * 0.95, BTN.ASSIST, 'FRD', 0xff76c8],
+      [bx - spread * 1.8, by - spread * 1.05, BTN.DASH, 'DSH', 0xa4ee42],
+      [bx + spread * 1.8, by - spread * 1.05, BTN.BLOCK, 'BLK', 0x37aaff],
+      [bx - spread * 1.8, by + spread * 0.6, BTN.ASSIST, 'FRD', 0xff76c8],
     ];
     for (const [x, y, bit, label, colour] of defs) {
       const g = scene.add.circle(x, y, 26, 0x0b1730, 0.55).setStrokeStyle(2, colour);

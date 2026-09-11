@@ -96,7 +96,7 @@ export function stepEnemy(w: World, e: Entity): void {
     if (atk.speed && e.st >= atk.startup && e.st < atk.startup + atk.active) e.x += e.facing * atk.speed * slowMul;
     if (e.st >= t) {
       setState(e, 'idle');
-      const [a, b] = def.cooldown; e.cooldown = w.rng.int(a, b);
+      const [a, b] = def.cooldown; e.cooldown = Math.round(w.rng.int(a, b) * 1.35);
       if (def.evasive) { e.ai = 1; e.aiT = 24; } // retreat
       w.releaseAttackToken(e.id);
     }
@@ -129,6 +129,7 @@ export function stepEnemy(w: World, e: Entity): void {
 
   // attack decision
   const inLane = Math.abs(dy) <= LANE_TOL;
+  if (e.st < 75 && e.cooldown <= 0) e.cooldown = 75 - e.st; // a freshly spawned enemy sizes the player up before swinging
   if (e.cooldown <= 0 && inLane && !isHurt(target) && target.state !== 'ko' && e.ai === 0) {
     let choice: string | null = null;
     if (def.special && adx <= def.special.range && adx > def.attack.range * 0.7 && w.rng.chance(def.specialChance)) choice = 'special';

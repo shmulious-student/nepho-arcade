@@ -1,0 +1,91 @@
+import { describe, it, expect } from 'vitest';
+import { World } from '../src/sim/world';
+import { BTN, type InputFrame } from '../src/sim/input';
+import { VISIBLE_X0, VISIBLE_W, LANE_H } from '../src/sim/types';
+import { makeEntity } from '../src/sim/entity';
+import { ENEMY_DEFS } from '../src/sim/enemyAi';
+
+const NONE: InputFrame = { held: 0, pressed: 0 };
+const press = (b: number): InputFrame => ({ held: b, pressed: b });
+const hold = (b: number): InputFrame => ({ held: b, pressed: 0 });
+
+function world(seed = 1) {
+  const w = new World({ seed, level: 1, heroes: ['eviatar', null] });
+  // skip the entry cinematic so the hero can act
+  while (w.phase === 'entry') w.step([NONE, NONE]);
+  return w;
+}
+function addEnemy(w: World, x: number, y: number) {
+  const e = makeEntity(9000 + x, 'enemy', 'punk', x, y, ENEMY_DEFS.punk.hp);
+  e.cooldown = 9999; // never attacks; it is a target
+  w.entities.push(e);
+  return e;
+}
+
+describe('hero', () => {
+  it('can never leave the visible band of the zoomed view', () => {
+    const w = world();
+    const h = w.players[0]!;
+    for (let i = 0; i < 400; i++) w.step([hold(BTN.LEFT), NONE]);
+    expect(h.x).toBeGreaterThanOrEqual(w.cameraX + VISIBLE_X0);
+    for (let i = 0; i < 800; i++) w.step([hold(BTN.RIGHT), NONE]);
+    expect(h.x).toBeLessThanOrEqual(w.cameraX + VISIBLE_X0 + VISIBLE_W);
+    expect(h.y).toBeGreaterThanOrEqual(0);
+    expect(h.y).toBeLessThanOrEqual(LANE_H);
+  });
+
+  it('jumps: leaves the ground, comes back down, and a mid-air press turns into a flying kick that lands', () => {
+    const w = world();
+    const h = w.players[0]!;
+    const punk = addEnemy(w, h.x + 50, h.y);
+    w.step([press(BTN.JUMP), NONE]);
+    expect(h.state).toBe('jump');
+    let apex = 0;
+    for (let i = 0; i < 8; i++) { w.step([NONE, NONE]); apex = Math.max(apex, h.z); }
+    expect(apex).toBeGreaterThan(30);
+    w.step([press(BTN.LIGHT), NONE]);
+    expect(h.state).toBe('jumpAttack');
+    const hp0 = punk.hp;
+    let t = 0;
+    while (h.state === 'jumpAttack' && t++ < 80) w.step([NONE, NONE]);
+    expect(h.z).toBe(0);
+    expect(h.state).toBe('idle');
+    expect(punk.hp).toBeLessThan(hp0);
+  });
+
+  it('a light press buffered during a move starts the next hit the moment the move ends', () => {
+    const w = world();
+    const h = w.players[0]!;
+    w.step([press(BTN.HEAVY), NONE]);
+    expect(h.state).toBe('heavy');
+    // press again mid-recovery, then release: the follow-up must fire without another press
+    for (let i = 0; i < 20; i++) w.step([NONE, NONE]);
+    w.step([press(BTN.LIGHT), NONE]);
+    let sawLight = false;
+    for (let i = 0; i < 20; i++) { w.step([NONE, NONE]); if (h.state === 'light1') sawLight = true; }
+    expect(sawLight).toBe(true);
+  });
+
+  it('turns to face an enemy at its back when attacking with nothing in front', () => {
+    const w = world();
+    const h = w.players[0]!;
+    h.facing = 1;
+    addEnemy(w, h.x - 45, h.y);
+    w.step([press(BTN.LIGHT), NONE]);
+    expect(h.state).toBe('light1');
+    expect(h.facing).toBe(-1);
+  });
+
+  it('a light hit connects on an enemy pressed against the hero from behind', () => {
+    const w = world();
+    const h = w.players[0]!;
+    h.facing = 1;
+    const front = addEnemy(w, h.x + 40, h.y);
+    const back = addEnemy(w, h.x - 26, h.y + 8);
+    const f0 = front.hp, b0 = back.hp;
+    w.step([press(BTN.LIGHT), NONE]);
+    for (let i = 0; i < 12; i++) w.step([NONE, NONE]);
+    expect(front.hp).toBeLessThan(f0);
+    expect(back.hp).toBeLessThan(b0);
+  });
+});

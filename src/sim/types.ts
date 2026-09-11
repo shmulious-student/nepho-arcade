@@ -11,9 +11,15 @@ export const VIEW_H = 540;
 export const LANE_H = 120; // depth band, world y in [0, LANE_H]
 export const FLOOR_TOP = 380; // screen y of world y = 0
 export const LANE_TOL = 16; // |dy| tolerance for hits
+// The renderer zooms the world in around the combat band; only the middle VISIBLE_W of VIEW_W is on
+// screen. The sim keeps players inside that band so they can never walk out of view.
+export const VIEW_ZOOM = 1.7;
+export const VISIBLE_W = Math.round(VIEW_W / VIEW_ZOOM); // 565
+export const VISIBLE_X0 = Math.round((VIEW_W - VISIBLE_W) / 2); // 198
 
 export type HeroState =
   | 'idle' | 'walk' | 'light1' | 'light2' | 'light3' | 'heavy' | 'dash' | 'dashAttack' | 'special'
+  | 'jump' | 'jumpAttack'
   | 'hurt' | 'hurtHeavy' | 'launched' | 'knockdown' | 'getup' | 'ko';
 
 export type EnemyState = 'idle' | 'walk' | 'attack' | 'heavy' | 'special' | 'hurt' | 'launched' | 'knockdown' | 'getup' | 'defeat';

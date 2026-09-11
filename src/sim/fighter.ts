@@ -1,10 +1,11 @@
 import { BTN, type InputFrame } from './input';
-import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, total, type MoveDef } from './frameData';
-import { LANE_H, type Entity, type Hitbox, type HeroId } from './types';
+import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, total, type MoveDef } from './frameData';
+import { LANE_H, VISIBLE_X0, VISIBLE_W, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
 import type { World } from './world';
 
 const MOVE_STATES = new Set(['light1', 'light2', 'light3', 'heavy', 'dashAttack', 'special']);
+// jumpAttack is an attack too, but airborne: it is stepped by the jump branch, not the move branch
 export const isMove = (s: string) => MOVE_STATES.has(s);
 
 export function heroSpecialHit(heroId: HeroId): Hitbox | null {
@@ -29,7 +30,21 @@ export function heroActiveHit(e: Entity): Hitbox | null {
   return m.hit;
 }
 
+/** Turns the hero toward the nearer live enemy when nothing is in reach in front but something is
+ * behind — so a combo thrown with an enemy at your back lands instead of whiffing into thin air. */
+function autoFace(w: World, e: Entity): void {
+  let front = Infinity, back = Infinity;
+  for (const t of w.entities) {
+    if (t.dead || t.hp <= 0 || (t.kind !== 'enemy' && t.kind !== 'boss' && t.kind !== 'echo')) continue;
+    if (Math.abs(t.y - e.y) > 24) continue;
+    const d = (t.x - e.x) * e.facing;
+    if (d >= 0) front = Math.min(front, d); else back = Math.min(back, -d);
+  }
+  if (front > 110 && back <= 110) e.facing = e.facing === 1 ? -1 : 1;
+}
+
 function startMove(w: World, e: Entity, state: string): void {
+  if (state === 'light1' || state === 'heavy') autoFace(w, e);
   setState(e, state);
   e.attackId++;
   e.hits = 0;
@@ -69,7 +84,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   const held = input.held;
   const pressed = input.pressed;
   // buffer button presses during moves so cancels feel responsive
-  e.pdata |= pressed & (BTN.LIGHT | BTN.HEAVY | BTN.DASH | BTN.SPECIAL);
+  e.pdata |= pressed & (BTN.LIGHT | BTN.HEAVY | BTN.DASH | BTN.SPECIAL | BTN.JUMP);
 
   const s = e.state;
   const move: MoveDef | undefined = HERO_MOVES[s];
@@ -125,6 +140,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     }
     if (e.pdata & (BTN.LIGHT | BTN.HEAVY) || (e.st > 3 && enemyAhead(w, e))) { e.pdata = 0; startMove(w, e, 'dashAttack'); return; }
     if (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
+    if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; e.st++; clampHero(w, e); return; }
     e.x += e.facing * HERO_MOVES.dash.speed! * slowMul;
     // Holding up/down actively steers the dash into a diagonal run, not just a light drift.
     if (held & BTN.UP) e.y -= 2.2 * slowMul; if (held & BTN.DOWN) e.y += 2.2 * slowMul;
@@ -161,7 +177,30 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     // cancels
     if (move.cancelFrom !== undefined && e.st >= move.cancelFrom && (e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }
     if (move.specialCancel && e.st >= move.startup && (e.pdata & BTN.SPECIAL) && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
-    if (e.st >= t - 1) { setState(e, 'idle'); e.pdata = 0; }
+    if (e.st >= t - 1) {
+      // A press buffered during recovery starts its move the instant this one ends, instead of being
+      // thrown away — the difference between a chain that flows and one that needs perfect timing.
+      const next = (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) ? 'special' : (e.pdata & BTN.LIGHT) ? 'light1' : (e.pdata & BTN.HEAVY) ? 'heavy' : (e.pdata & BTN.DASH) ? 'dash' : null;
+      e.pdata = 0;
+      if (next) { startMove(w, e, next); return; }
+      setState(e, 'idle');
+    }
+    e.st++; clampHero(w, e); return;
+  }
+
+  if (s === 'jump' || s === 'jumpAttack') {
+    e.z += e.vz; e.vz -= GRAVITY;
+    // steer in the air, at walking speed; the kick keeps the momentum it launched with
+    let mx = 0;
+    if (held & BTN.LEFT) mx -= 1; if (held & BTN.RIGHT) mx += 1;
+    if (mx !== 0 && s === 'jump') e.facing = mx > 0 ? 1 : -1;
+    e.x += mx * def.speed * 0.9 * slowMul;
+    if (s === 'jump' && (e.pdata & (BTN.LIGHT | BTN.HEAVY))) { e.pdata = 0; setState(e, 'jumpAttack'); e.attackId++; e.hits = 0; }
+    if (e.z <= 0) {
+      e.z = 0; e.vz = 0;
+      setState(e, 'idle');
+      e.pdata &= ~BTN.JUMP;
+    }
     e.st++; clampHero(w, e); return;
   }
 
@@ -174,6 +213,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   const spd = def.speed * slowMul;
   e.x += mx * spd; e.y += my * spd * 0.55;
   if (pressed & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
+  if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); e.st++; clampHero(w, e); return; }
   if (pressed & BTN.DASH) { e.pdata = 0; startMove(w, e, 'dash'); return; }
   if (pressed & BTN.HEAVY) { e.pdata = 0; startMove(w, e, 'heavy'); return; }
   if (pressed & BTN.LIGHT) { e.pdata = 0; startMove(w, e, 'light1'); return; }
@@ -184,7 +224,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
 }
 
 export function clampHero(w: World, e: Entity): void {
-  const minX = w.cameraX + 24, maxX = w.cameraX + 960 - 24;
+  const minX = w.cameraX + VISIBLE_X0 + 22, maxX = w.cameraX + VISIBLE_X0 + VISIBLE_W - 22;
   if (e.x < minX) e.x = minX; if (e.x > maxX) e.x = maxX;
   if (e.y < 0) e.y = 0; if (e.y > LANE_H) e.y = LANE_H;
 }

@@ -13,7 +13,7 @@ import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
 import { LANE_H, LEVEL_W, VIEW_W, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
-export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup }
+export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number] }
 
 export class World {
   tick = 0;
@@ -54,6 +54,7 @@ export class World {
       this.players[slot] = e;
     }
     this.maxAttackers = this.playerCount() > 1 ? 2 : 1;
+    if (opts.score) this.score = [opts.score[0], opts.score[1]];
     if (opts.friends) {
       this.friendMode = opts.friends.mode;
       // a friend is never the same hero as either player
@@ -191,7 +192,7 @@ export class World {
     for (const h of this.heroes()) if (isDown(h) || h.state === 'ko') stepHero(this, h, { held: 0, pressed: 0 });
     // Modest passive regen while safely idle/walking (not mid-attack, mid-hitstun, or downed) — a
     // forgiving-arcade convention so a level is rarely lost to slow chip damage between real threats.
-    for (const h of this.heroes()) if ((h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0012);
+    for (const h of this.heroes()) if ((h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.002);
     stepFriends(this, inputs);
 
     for (const e of this.entities) {

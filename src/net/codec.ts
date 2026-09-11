@@ -118,7 +118,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
 
 const STATES = [
   'idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'hurt', 'hurtHeavy',
-  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat', 'block',
+  'launched', 'knockdown', 'getup', 'ko', 'attack', 'approach', 'defeat', 'block', 'jump', 'jumpAttack',
 ];
 const stateCode = (s: string) => { const i = STATES.indexOf(s); return i < 0 ? 255 : i; };
 const stateName = (i: number) => STATES[i] || 'idle';

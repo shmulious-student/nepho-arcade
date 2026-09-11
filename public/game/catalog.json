@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-11T15:46:49.218Z",
+ "generatedAt": "2026-09-11T16:10:01.781Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -2599,12 +2599,12 @@
    "atlas": "chars/punk.webp",
    "data": "chars/punk.json",
    "box": {
-    "w": 164,
-    "h": 138
+    "w": 638,
+    "h": 559
    },
    "anchor": {
-    "x": 82,
-    "y": 123
+    "x": 319,
+    "y": 496
    },
    "rows": [
     "idle",
@@ -2621,6 +2621,13 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "frameCounts": {
+    "special": 9,
+    "hurt": 9,
+    "knockback": 9,
+    "getup": 9,
+    "defeat": 9
+   },
    "scale": 0.5417,
    "skin": [
     0,
@@ -2635,7 +2642,16 @@
    "source": "public/assets/generated/enemies/enemy-00-red-punk-grid-1.png + public/assets/generated/enemies/enemy-00-red-punk-grid-2.png",
    "sourceFormat": "pair",
    "notes": [
-    "15 defective source frame(s) replaced by a neighbour: special/2(cut-right)->1 special/3(cut-right)->4 hurt/2(cut-right)->1 hurt/3(cut-right)->4 knockback/1(cut-right)->0 knockback/2(cut-left+right)->0 knockback/3(cut-right)->0 knockback/4(cut-left+right)->0 knockback/5(cut-left)->0 getup/3(cut-left)->2 defeat/1(cut-left)->0 defeat/2(cut-right)->0 defeat/3(cut-left)->0 defeat/4(cut-left)->0 defeat/5(cut-left)->0"
+    "feathered binary alpha",
+    "special: row replaced by actions/punk/special.png",
+    "feathered binary alpha",
+    "hurt: row replaced by actions/punk/hurt.png",
+    "feathered binary alpha",
+    "knockback: row replaced by actions/punk/knockback.png",
+    "feathered binary alpha",
+    "getup: row replaced by actions/punk/getup.png",
+    "feathered binary alpha",
+    "defeat: row replaced by actions/punk/defeat.png"
    ]
   },
   "chainer": {
@@ -2867,12 +2883,12 @@
    "atlas": "chars/punk-b.webp",
    "data": "chars/punk-b.json",
    "box": {
-    "w": 164,
-    "h": 138
+    "w": 638,
+    "h": 559
    },
    "anchor": {
-    "x": 82,
-    "y": 123
+    "x": 319,
+    "y": 496
    },
    "rows": [
     "idle",
@@ -2889,6 +2905,13 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "frameCounts": {
+    "special": 9,
+    "hurt": 9,
+    "knockback": 9,
+    "getup": 9,
+    "defeat": 9
+   },
    "scale": 0.5417,
    "skin": [
     0,
@@ -2903,7 +2926,16 @@
    "source": "public/assets/generated/enemies/enemy-00-red-punk-grid-1.png + public/assets/generated/enemies/enemy-00-red-punk-grid-2.png",
    "sourceFormat": "pair",
    "notes": [
-    "15 defective source frame(s) replaced by a neighbour: special/2(cut-right)->1 special/3(cut-right)->4 hurt/2(cut-right)->1 hurt/3(cut-right)->4 knockback/1(cut-right)->0 knockback/2(cut-left+right)->0 knockback/3(cut-right)->0 knockback/4(cut-left+right)->0 knockback/5(cut-left)->0 getup/3(cut-left)->2 defeat/1(cut-left)->0 defeat/2(cut-right)->0 defeat/3(cut-left)->0 defeat/4(cut-left)->0 defeat/5(cut-left)->0",
+    "feathered binary alpha",
+    "special: row replaced by actions/punk/special.png",
+    "feathered binary alpha",
+    "hurt: row replaced by actions/punk/hurt.png",
+    "feathered binary alpha",
+    "knockback: row replaced by actions/punk/knockback.png",
+    "feathered binary alpha",
+    "getup: row replaced by actions/punk/getup.png",
+    "feathered binary alpha",
+    "defeat: row replaced by actions/punk/defeat.png",
     "green variant of punk"
    ],
    "variantOf": "punk"

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { HERO_MOVES, total } from '../src/sim/frameData';
 
 describe('hero frame data invariants', () => {
-  const OPEN_ENDED = new Set(['launched', 'ko']); // physics/AI-driven, not fixed-length
+  const OPEN_ENDED = new Set(['launched', 'ko', 'jump', 'jumpAttack']); // physics-driven (airborne until landing), not fixed-length
   const moves = Object.entries(HERO_MOVES);
   it('every combat move has startup >= 0 and total <= 60 ticks (arcade pace)', () => {
     for (const [name, m] of moves) {

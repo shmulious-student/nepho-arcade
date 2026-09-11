@@ -48,9 +48,9 @@ export class LocalSession extends BaseSession {
   private inputs: [InputFrame, InputFrame] = [EMPTY_INPUT, EMPTY_INPUT];
   private snap: Snapshot;
 
-  constructor(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup) {
+  constructor(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup, score?: [number, number]) {
     super();
-    this.w = new World({ seed, level, heroes, friends });
+    this.w = new World({ seed, level, heroes, friends, score });
     this.snap = this.w.snapshot();
   }
   setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
@@ -120,10 +120,10 @@ export class HostSession extends BaseSession {
 
   /** Builds the World. If coop is intended (heroes[1] set as a placeholder) but the guest's real pick
    * hasn't arrived yet, waits for it instead of starting with a guessed hero. */
-  start(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup): void {
+  start(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup, score?: [number, number]): void {
     if (heroes[1] && !this.guestHero) { this.pendingHeroes = [seed, level, heroes, friends]; return; }
     const resolved: [HeroId, HeroId | null] = [heroes[0], heroes[1] ? (this.guestHero || heroes[1]) : null];
-    this.w = new World({ seed, level, heroes: resolved, friends });
+    this.w = new World({ seed, level, heroes: resolved, friends, score });
     this.snap = this.w.snapshot();
   }
   update(dtMs: number): void {

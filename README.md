@@ -22,6 +22,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Dash:** `L`, or double-tap a direction. A dash is a sustained run, not a burst — it keeps going
   until you tap the opposite direction, run into an enemy (auto-attacks on contact), or cancel into
   an attack. Hold up/down while dashing to angle it diagonally.
+- **Jump:** `SPACE` (touch: JMP). Press light/heavy in the air for a flying kick that floors whoever is
+  under it.
 - **Special:** `I` (touch: SPC) once the meter is full.
 - **Block:** `U` (touch: BLK), held. Cuts incoming damage to ~25% while you face the attack; a
   guard-breaker or AoE still gets through.
@@ -29,7 +31,10 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
   in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
   floored) — or **OFF**.
-- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4`/`5` (light/heavy/dash/special/block/friend).
+- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4`/`5`/`6` (light/heavy/dash/special/block/friend/jump).
+- Attacks are forgiving on purpose: light hits reach a little behind you, a press during a move is
+  buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
+  Beating a boss rolls straight into the next level.
 - **LAN co-op:** from the lobby, turn on **LAN CO-OP**, host or join with the 4-letter room code (or
   scan the QR code) — see below.
 

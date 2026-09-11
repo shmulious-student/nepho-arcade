@@ -28,8 +28,10 @@ function queueWave(w: World, d: DirectorState, wave: WaveDef): void {
   const list: string[] = [];
   for (const s of wave.spawns) for (let k = 0; k < Math.ceil(s.n * mul); k++) list.push(s.arch);
   // interleave archetypes so the wave feels mixed
+  // Spawns trickle in, mostly from the front, with a beat between them: the wave builds up rather
+  // than storming the players the moment it starts.
   for (const arch of shuffle(w, list)) {
-    d.queue.push({ arch, side: i % 2 === 0 ? 'right' : 'left', at: w.tick + 10 + i * 34 });
+    d.queue.push({ arch, side: i % 3 === 2 ? 'left' : 'right', at: w.tick + 45 + i * 70 });
     i++;
   }
 }

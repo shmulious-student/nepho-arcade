@@ -4,7 +4,7 @@ import { HERO_MOVES } from '../src/sim/frameData';
 import { ENEMY_DEFS } from '../src/sim/enemyAi';
 import type { HeroState, EnemyState, BossState } from '../src/sim/types';
 
-const HERO_STATES: HeroState[] = ['idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'hurt', 'hurtHeavy', 'launched', 'knockdown', 'getup', 'ko'];
+const HERO_STATES: HeroState[] = ['idle', 'walk', 'light1', 'light2', 'light3', 'heavy', 'dash', 'dashAttack', 'special', 'jump', 'jumpAttack', 'hurt', 'hurtHeavy', 'launched', 'knockdown', 'getup', 'ko'];
 const ENEMY_STATES: EnemyState[] = ['idle', 'walk', 'attack', 'heavy', 'special', 'hurt', 'launched', 'knockdown', 'getup', 'defeat'];
 const BOSS_STATES: BossState[] = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'];
 

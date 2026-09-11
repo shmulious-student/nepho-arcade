@@ -8,7 +8,7 @@ import { Backdrop } from '../Backdrop';
 import { Hud } from '../Hud';
 import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
-import { LEVEL_W, VIEW_W, FLOOR_TOP, type HeroId } from '../../sim/types';
+import { LEVEL_W, VIEW_W, VIEW_ZOOM, FLOOR_TOP, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
@@ -23,6 +23,7 @@ interface StartData {
   heroId?: HeroId;
   faceKeys: [string | null, string | null];
   friends?: FriendSetup;
+  score?: [number, number]; // carried over from the previous level
 }
 
 /** Converts a quick double-press of the same direction into a synthesized DASH, the classic
@@ -64,11 +65,13 @@ export class GameScene extends Phaser.Scene {
   private waitingText?: Phaser.GameObjects.Text;
   private heroesResolved = false;
   private friends?: FriendSetup;
+  private startData!: StartData;
 
   create(data: StartData): void {
     this.catalog = this.registry.get('catalog');
     this.faceKeys = data.faceKeys || [null, null];
     this.friends = data.friends;
+    this.startData = data;
     this.finished = false;
     this.entryShown = false;
     this.heroesResolved = false;
@@ -76,7 +79,7 @@ export class GameScene extends Phaser.Scene {
 
     if (data.mode === 'local') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
-      this.session = new LocalSession(data.seed!, data.level!, data.heroes!, data.friends);
+      this.session = new LocalSession(data.seed!, data.level!, data.heroes!, data.friends, data.score);
     } else if (data.mode === 'host') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
       this.session = data.session!;
@@ -99,7 +102,7 @@ export class GameScene extends Phaser.Scene {
     // HUD and touch controls — separate top-level objects, not children of this container — at normal
     // UI scale. Anchored on the combat band (roughly where sprite feet land, not the container's
     // top-left corner), or zooming would push the floor mostly below the visible canvas.
-    const zoom = 1.7;
+    const zoom = VIEW_ZOOM; // the sim clamps players to the band this leaves visible (VISIBLE_X0..)
     const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 40;
     this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
@@ -108,7 +111,7 @@ export class GameScene extends Phaser.Scene {
     this.touch = new TouchControls(this);
     this.touch.setVisible(this.sys.game.device.input.touch);
 
-    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE') as any;
+    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
@@ -119,8 +122,8 @@ export class GameScene extends Phaser.Scene {
   private showKeyboardHint(withP2: boolean): void {
     if (this.sys.game.device.input.touch) return; // touch controls cover this on mobile
     const lines = withP2
-      ? ['P1  move WASD · light J · heavy K · dash L · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · dash NUM3 · special NUM0 · block NUM4 · friend NUM5']
-      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   DASH  L   SPECIAL  I   BLOCK  U   FRIEND  H'];
+      ? ['P1  move WASD · light J · heavy K · jump SPACE · dash L · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · jump NUM6 · dash NUM3 · special NUM0 · block NUM4 · friend NUM5']
+      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   JUMP  SPACE   DASH  L   SPECIAL  I   BLOCK  U   FRIEND  H'];
     const hint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
       fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
@@ -164,6 +167,7 @@ export class GameScene extends Phaser.Scene {
     if (k.I.isDown) held |= BTN.SPECIAL;
     if (k.U.isDown) held |= BTN.BLOCK;
     if (k.H.isDown) held |= BTN.ASSIST;
+    if (k.SPACE.isDown) held |= BTN.JUMP;
     const touch = this.touch.poll();
     held |= touch.held;
     const frame = this.p1Edge.next(held);
@@ -185,6 +189,7 @@ export class GameScene extends Phaser.Scene {
     if (k.NUMPAD_ZERO?.isDown) held |= BTN.SPECIAL;
     if (k.NUMPAD_FOUR?.isDown) held |= BTN.BLOCK;
     if (k.NUMPAD_FIVE?.isDown) held |= BTN.ASSIST;
+    if (k.NUMPAD_SIX?.isDown) held |= BTN.JUMP;
     const frame = this.p2Edge.next(held);
     if (this.p2Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
     return frame;
@@ -225,7 +230,10 @@ export class GameScene extends Phaser.Scene {
       }
     }
     if (snap.level !== this.levelIndex && this.session.mode === 'guest') {
+      // the host rolled into the next level: rebuild the stage and arm the finish logic again
       this.levelIndex = snap.level;
+      this.finished = false;
+      this.entryShown = false;
       const level = this.catalog.levels[this.levelIndex - 1];
       this.backdrop.destroy();
       this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
@@ -264,12 +272,32 @@ export class GameScene extends Phaser.Scene {
       sequencer.stop();
       if (snap.phase === 'victory') synth.victory(); else synth.gameOver();
       const world = this.session.world();
+      const score = world ? world.score : snap.score;
+      if (snap.phase === 'victory' && this.levelIndex < 10) {
+        // Beating the boss rolls straight into the next level — a banner, then the next stage's title
+        // card — rather than dropping back to a menu between every level.
+        this.hud.banner(`LEVEL ${this.levelIndex} CLEAR`, this.catalog.levels[this.levelIndex].name);
+        if (this.session.mode !== 'guest') this.time.delayedCall(2200, () => this.nextLevel(score));
+        return;
+      }
       this.time.delayedCall(900, () => {
         this.scene.start('Results', {
-          result: snap.phase, level: this.levelIndex, score: world ? world.score : snap.score,
+          result: snap.phase, level: this.levelIndex, score,
           heroes: this.heroes, faceKeys: this.faceKeys, isLastLevel: this.levelIndex >= 10,
         });
       });
     }
+  }
+
+  private nextLevel(score: [number, number]): void {
+    const level = this.levelIndex + 1;
+    const seed = Math.floor(Math.random() * 1e9);
+    if (this.session.mode === 'host') {
+      const session = this.session as HostSession;
+      session.start(seed, level, this.heroes, this.friends, score);
+      this.scene.start('Game', { ...this.startData, mode: 'host', session, level, heroes: this.heroes, score });
+      return;
+    }
+    this.scene.start('Game', { ...this.startData, mode: 'local', level, heroes: this.heroes, seed, score });
   }
 }

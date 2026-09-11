@@ -33,7 +33,9 @@ function overlaps(att: Entity, hit: Hitbox, tgt: Entity): boolean {
     const d = Math.hypot(tgt.x - att.x, (tgt.y - att.y) * 1.6);
     return d <= hit.radius + tw * 0.5 && tgt.z < hit.h;
   }
-  if (Math.abs(tgt.y - (att.y + hit.dy)) > LANE_TOL + (hit.h > 100 ? 4 : 0)) return false;
+  // heroes get a more forgiving depth tolerance than enemies: a hit that looks like it connects should
+  const laneTol = LANE_TOL + (hit.h > 100 ? 4 : 0) + (att.kind === 'hero' ? 10 : 0);
+  if (Math.abs(tgt.y - (att.y + hit.dy)) > laneTol) return false;
   const x0 = att.facing === 1 ? att.x + hit.dx - hit.w * 0.5 : att.x - hit.dx - hit.w * 0.5;
   const x1 = x0 + hit.w;
   if (tgt.x + tw * 0.5 < x0 || tgt.x - tw * 0.5 > x1) return false;
