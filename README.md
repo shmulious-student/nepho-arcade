@@ -1,6 +1,8 @@
 # Nepho: Circuit Breakers
 
-A browser-based mobile 2D arcade beat-em-up. Old-school side-scrolling co-op action — light/heavy
+A browser-based mobile 2D arcade beat-em-up starring **Eviatar** (basketball kit, magic paint
+markers, paint-splash special) and **Omri** (capoeira, a microphone, sonic-beat special), with Nepho,
+Bruiser, Riva and Byte as the friends who fight beside them — all six playable. Old-school side-scrolling co-op action — light/heavy
 combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
 final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins
 over LAN from their own phone. Upload a photo and your face rides on your character's head, animated
@@ -23,7 +25,11 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Special:** `I` (touch: SPC) once the meter is full.
 - **Block:** `U` (touch: BLK), held. Cuts incoming damage to ~25% while you face the attack; a
   guard-breaker or AoE still gets through.
-- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4` (light/heavy/dash/special/block).
+- **Friend:** `H` (touch: FRD). In the lobby you pick one of the other heroes as your friend and how
+  they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
+  in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
+  floored) — or **OFF**.
+- **Local 2-player:** P2 uses arrow keys + Numpad `1`/`2`/`3`/`0`/`4`/`5` (light/heavy/dash/special/block/friend).
 - **LAN co-op:** from the lobby, turn on **LAN CO-OP**, host or join with the 4-letter room code (or
   scan the QR code) — see below.
 

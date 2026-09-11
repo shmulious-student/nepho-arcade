@@ -4,6 +4,7 @@ import { makeEntity, setState, isDown } from './entity';
 import { stepHero } from './fighter';
 import { stepEnemy } from './enemyAi';
 import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, BOSS_ORDER, setDeck } from './bosses';
+import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from './friends';
 import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit, hazardHit as getHazardHit, forgetHazard } from './combat';
 import { makeDirector, stepDirector, type DirectorState } from './director';
 import { LEVELS, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
@@ -12,7 +13,7 @@ import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
 import { LANE_H, LEVEL_W, VIEW_W, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
-export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; }
+export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup }
 
 export class World {
   tick = 0;
@@ -22,6 +23,10 @@ export class World {
   cameraX = 0;
   entities: Entity[] = [];
   players: (Entity | null)[] = [null, null];
+  friendMode: FriendMode = 'off';
+  friendIds: [HeroId | null, HeroId | null] = [null, null];
+  friends: (Entity | null)[] = [null, null]; // live friend entity per player slot
+  assistCd: [number, number] = [0, 0];
   events: SimEvent[] = [];
   score: [number, number] = [0, 0];
   credits = 0;
@@ -49,9 +54,17 @@ export class World {
       this.players[slot] = e;
     }
     this.maxAttackers = this.playerCount() > 1 ? 2 : 1;
+    if (opts.friends) {
+      this.friendMode = opts.friends.mode;
+      // a friend is never the same hero as either player
+      this.friendIds = opts.friends.friends.map((f) => (f && !opts.heroes.includes(f) ? f : null)) as [HeroId | null, HeroId | null];
+    }
   }
 
   private id(): number { return this.nextId++; }
+  nextEntityId(): number { return this.id(); }
+  /** Heroes plus any live friends — what enemies pick their targets from. */
+  allies(): Entity[] { return [...this.heroes(), ...this.friends.filter((f): f is Entity => !!f && f.state !== 'ko')]; }
   byId(id: number): Entity | undefined { return this.entities.find((e) => e.id === id); }
   playerCount(): number { return this.players.filter(Boolean).length; }
   heroes(): Entity[] { return this.players.filter((p): p is Entity => !!p); }
@@ -63,7 +76,7 @@ export class World {
 
   nearestHero(from: Entity): Entity | undefined {
     let best: Entity | undefined, bd = Infinity;
-    for (const h of this.heroes()) {
+    for (const h of this.allies()) {
       if (h.state === 'ko') continue;
       const d = Math.hypot(h.x - from.x, (h.y - from.y) * 1.6);
       if (d < bd) { bd = d; best = h; }
@@ -179,6 +192,7 @@ export class World {
     // Modest passive regen while safely idle/walking (not mid-attack, mid-hitstun, or downed) — a
     // forgiving-arcade convention so a level is rarely lost to slow chip damage between real threats.
     for (const h of this.heroes()) if ((h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0012);
+    stepFriends(this, inputs);
 
     for (const e of this.entities) {
       if (e.kind === 'enemy') stepEnemy(this, e);
@@ -198,7 +212,7 @@ export class World {
 
     // remove dead/expired non-hero entities
     this.entities = this.entities.filter((e) => {
-      if (e.kind === 'hero') return true;
+      if (e.kind === 'hero' && e.slot >= 0) return true;
       if (e.removeAt && this.tick >= e.removeAt) { if (e.kind === 'projectile') forgetProjectile(e.id); if (e.kind === 'hazard') forgetHazard(e.id); return false; }
       return true;
     });
@@ -222,6 +236,7 @@ export class World {
       bossMaxHp: boss?.maxHp || 0,
       bossId: boss?.arch || '',
       score: this.score,
+      assist: assistReadiness(this),
       credits: this.credits,
       entities: this.entities.map(viewOf),
       events: this.events,

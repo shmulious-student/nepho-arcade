@@ -13,6 +13,10 @@ export function heroSpecialHit(heroId: HeroId): Hitbox | null {
     case 'slam': return { dx: 0, dy: 0, w: 0, h: 140, dmg: 68, hitstun: 34, kb: 8, knockdown: true, radius: 125 };
     case 'line': return { dx: 30, dy: 0, w: 90, h: 120, dmg: 44, hitstun: 30, kb: 6, knockdown: true };
     case 'volley': return null;
+    // a fan of paint thrown forward: wide, floors the whole front line
+    case 'splash': return { dx: 60, dy: 0, w: 190, h: 150, dmg: 58, hitstun: 32, kb: 9, knockdown: true };
+    // a sonic shockwave in every direction, on the beat
+    case 'wave': return { dx: 0, dy: 0, w: 0, h: 140, dmg: 46, hitstun: 30, kb: 7, launch: 9, radius: 170 };
   }
 }
 
@@ -38,7 +42,7 @@ function startMove(w: World, e: Entity, state: string): void {
   if (state === 'dash') w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id });
 }
 
-const HERO_IDS_INDEX: Record<HeroId, number> = { nepho: 0, bruiser: 1, riva: 2, byte: 3 };
+const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, bruiser: 3, riva: 4, byte: 5 };
 
 /** True if a live enemy/boss/echo is close ahead of `e` in its current lane — used to auto-engage
  * (end the dash into a dash-attack) when running into someone, per the "dash doesn't end until you
@@ -144,6 +148,15 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     // byte volley spawns projectiles during the active window
     if (s === 'special' && def.special === 'volley' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 3 === 0) {
       w.spawnProjectile(e, 'bolt', e.x + e.facing * 30, e.y, e.z + 50, e.facing * 11, { dx: 0, dy: 0, w: 30, h: 40, dmg: 12, hitstun: 18, kb: 3, knockdown: (e.st - move.startup) >= 9 });
+    }
+    // eviatar's paint fan: splats land across the front line as the marker sweeps through the active window
+    if (s === 'special' && def.special === 'splash' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 2 === 0) {
+      const k = (e.st - move.startup) / 2;
+      w.emit({ type: 'paint', x: e.x + e.facing * (40 + k * 24), y: e.y + ((k % 3) - 1) * 14, z: 30 + (k % 2) * 30, id: e.id, a: k });
+    }
+    // omri's sonic beat: three pulses on the beat, each a ring of sound from the microphone
+    if (s === 'special' && def.special === 'wave' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 4 === 0) {
+      w.emit({ type: 'note', x: e.x, y: e.y, z: 50, id: e.id, a: (e.st - move.startup) / 4 });
     }
     // cancels
     if (move.cancelFrom !== undefined && e.st >= move.cancelFrom && (e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }

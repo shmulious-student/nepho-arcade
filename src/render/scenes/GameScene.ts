@@ -9,6 +9,7 @@ import { Hud } from '../Hud';
 import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
 import { LEVEL_W, VIEW_W, FLOOR_TOP, type HeroId } from '../../sim/types';
+import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
 
@@ -21,6 +22,7 @@ interface StartData {
   roomCode?: string;
   heroId?: HeroId;
   faceKeys: [string | null, string | null];
+  friends?: FriendSetup;
 }
 
 /** Converts a quick double-press of the same direction into a synthesized DASH, the classic
@@ -53,7 +55,7 @@ export class GameScene extends Phaser.Scene {
   private p2Edge = new InputEdge();
   private p1Dash = new DoubleTapDash();
   private p2Dash = new DoubleTapDash();
-  private heroes: [HeroId, HeroId | null] = ['nepho', null];
+  private heroes: [HeroId, HeroId | null] = ['eviatar', null];
   private faceKeys: [string | null, string | null] = [null, null];
   private levelIndex = 1;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -61,10 +63,12 @@ export class GameScene extends Phaser.Scene {
   private entryShown = false;
   private waitingText?: Phaser.GameObjects.Text;
   private heroesResolved = false;
+  private friends?: FriendSetup;
 
   create(data: StartData): void {
     this.catalog = this.registry.get('catalog');
     this.faceKeys = data.faceKeys || [null, null];
+    this.friends = data.friends;
     this.finished = false;
     this.entryShown = false;
     this.heroesResolved = false;
@@ -72,7 +76,7 @@ export class GameScene extends Phaser.Scene {
 
     if (data.mode === 'local') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
-      this.session = new LocalSession(data.seed!, data.level!, data.heroes!);
+      this.session = new LocalSession(data.seed!, data.level!, data.heroes!, data.friends);
     } else if (data.mode === 'host') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
       this.session = data.session!;
@@ -100,11 +104,11 @@ export class GameScene extends Phaser.Scene {
     this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
     this.fx = new Fx(this, this.world, this.cameras.main);
-    this.hud = new Hud(this, this.heroes, this.faceKeys);
+    this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends);
     this.touch = new TouchControls(this);
     this.touch.setVisible(this.sys.game.device.input.touch);
 
-    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR') as any;
+    this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE') as any;
     this.showKeyboardHint(!!this.heroes[1]);
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
@@ -115,8 +119,8 @@ export class GameScene extends Phaser.Scene {
   private showKeyboardHint(withP2: boolean): void {
     if (this.sys.game.device.input.touch) return; // touch controls cover this on mobile
     const lines = withP2
-      ? ['P1  move WASD · light J · heavy K · dash L · special I · block U', 'P2  move ARROWS · light NUM1 · heavy NUM2 · dash NUM3 · special NUM0 · block NUM4']
-      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   DASH  L   SPECIAL  I   BLOCK  U'];
+      ? ['P1  move WASD · light J · heavy K · dash L · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · dash NUM3 · special NUM0 · block NUM4 · friend NUM5']
+      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   DASH  L   SPECIAL  I   BLOCK  U   FRIEND  H'];
     const hint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
       fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
@@ -159,6 +163,7 @@ export class GameScene extends Phaser.Scene {
     if (k.L.isDown) held |= BTN.DASH;
     if (k.I.isDown) held |= BTN.SPECIAL;
     if (k.U.isDown) held |= BTN.BLOCK;
+    if (k.H.isDown) held |= BTN.ASSIST;
     const touch = this.touch.poll();
     held |= touch.held;
     const frame = this.p1Edge.next(held);
@@ -179,6 +184,7 @@ export class GameScene extends Phaser.Scene {
     if (k.NUMPAD_THREE?.isDown) held |= BTN.DASH;
     if (k.NUMPAD_ZERO?.isDown) held |= BTN.SPECIAL;
     if (k.NUMPAD_FOUR?.isDown) held |= BTN.BLOCK;
+    if (k.NUMPAD_FIVE?.isDown) held |= BTN.ASSIST;
     const frame = this.p2Edge.next(held);
     if (this.p2Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
     return frame;
@@ -214,7 +220,7 @@ export class GameScene extends Phaser.Scene {
       if (real[0] !== this.heroes[0] || real[1] !== this.heroes[1]) {
         this.heroes = real;
         this.hud.destroy();
-        this.hud = new Hud(this, this.heroes, this.faceKeys);
+        this.hud = new Hud(this, this.heroes, this.faceKeys, this.friends);
         this.showKeyboardHint(!!this.heroes[1]);
       }
     }

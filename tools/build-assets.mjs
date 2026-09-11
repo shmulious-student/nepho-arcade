@@ -36,6 +36,16 @@ const HERO_ACTIONS = ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'hea
 const ENEMY_ACTIONS = ['idle', 'walk', 'attack', 'heavy', 'special', 'guard', 'hurt', 'knockback', 'getup', 'defeat'];
 const BOSS_ACTIONS = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'];
 
+// Heroes whose art has not been delivered yet ship as a recolour of an older hero's grid, so the
+// roster is playable end to end while the real sets are generated (docs/hero-prompts-eviatar-omri.md).
+// Eviatar (tall, strong; green + blue) stands in on Bruiser's build shifted to green; Omri (lean,
+// fast; red + white) on Nepho's shifted to red.
+const HERO_STAND_INS = {
+  eviatar: { from: 'bruiser', remap: { h0: 5, h1: 55, delta: 110 } },
+  omri: { from: 'nepho', remap: { h0: 150, h1: 200, delta: 180 } },
+};
+const hasAnySource = (src) => src.kind !== 'grid' || existsSync(src.file);
+
 const BOSSES = [
   ['ferryman', 'Ferryman'], ['glass-warden', 'Glass Warden'], ['kilnheart', 'Kilnheart'], ['monk-zero', 'Monk Zero'],
   ['market-king', 'Market King'], ['railmaw', 'Railmaw'], ['crown-runner', 'Crown Runner'], ['the-null', 'The Null'],
@@ -93,6 +103,9 @@ async function loadCleaned(path, id, notes, { strict = false } = {}) {
   let img = await loadRaw(path);
   const stats = sourceStats(id, img);
   if (stats.opaqueRatio > 0.9) {
+    // a flat matte (magenta from a model without alpha) is keyed; anything else is a baked checker
+    const keyed = ops.keyOutFlat(img);
+    if (keyed && keyed.keyed > 0.3) { img = keyed.img; notes.push(`keyed out flat matte rgb(${keyed.key})`); return ops.defringe(img, 2); }
     img = ops.unbakeChecker(img);
     const after = ops.opaqueRatio(img);
     notes.push(`unbaked checker: opaque ${stats.opaqueRatio} -> ${after.toFixed(3)}`);
@@ -153,7 +166,8 @@ async function defectSheet(id, rejected) {
   writeFileSync(join(DEBUG, `defects-${id}.txt`), rejected.map((r) => `${r.key}: ${r.why}`).join('\n') + '\n');
 }
 
-async function processCharacter(id, source, baseSpec) {
+// `emit: false` builds the atlas in memory only — for a grid that is just the base of a recolour.
+async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   const notes = [];
   let spec = baseSpec;
   let cells = [];
@@ -198,7 +212,7 @@ async function processCharacter(id, source, baseSpec) {
   // nearest clean frame of the same row: the animation gets a held frame instead of a cut body.
   const replaced = substituteDefectiveFrames(cells, spec.rows);
   if (replaced.length) notes.push(`${replaced.length} defective source frame(s) replaced by a neighbour: ${replaced.join(' ')}`);
-  await defectSheet(id, replaced.rejected);
+  if (emit) await defectSheet(id, replaced.rejected);
 
   const ov = overrides[id] || {};
   const mainH = (m) => (m ? m.y1 - m.y0 + 1 : 0);
@@ -301,15 +315,17 @@ async function processCharacter(id, source, baseSpec) {
       sourceSize: { w: box.w, h: box.h },
     };
   }
-  await saveWebp(atlas, join(OUT, 'chars', `${id}.webp`));
-  writeFileSync(join(OUT, 'chars', `${id}.json`), JSON.stringify(json));
+  if (emit) {
+    await saveWebp(atlas, join(OUT, 'chars', `${id}.webp`));
+    writeFileSync(join(OUT, 'chars', `${id}.json`), JSON.stringify(json));
+  }
 
   // colours from idle/0 head region
   const idle0 = frames[0];
   const colours = spec.head ? ops.sampleColours(idle0.cellRef.cell, idle0.cellRef.main ? ops.headAnchor(idle0.cellRef.cell, idle0.cellRef.main, idle0.cellRef.labels) : null) : { skin: [0, 0, 0], outline: [0, 0, 0] };
 
   // contact sheet
-  await contactSheet(id, frames, box, anchor, headTable, spec);
+  if (emit) await contactSheet(id, frames, box, anchor, headTable, spec);
 
   const rel = (p) => p.replace(ROOT + '/', '');
   const srcStr = source.kind === 'actions' ? rel(dirname(source.files[0][1])) + '/{' + source.files.map(([a]) => a).join(',') + '}.png'
@@ -419,7 +435,7 @@ async function processLevels(catalog) {
 }
 
 // ---------- portraits & cards ----------
-async function processPortraits(catalog, bossResults) {
+async function processPortraits(catalog, bossResults, heroResults) {
   for (const [i, res] of bossResults.entries()) {
     if (!res) continue;
     const key = 'idle/0';
@@ -431,11 +447,26 @@ async function processPortraits(catalog, bossResults) {
     ops.blit(boxImg, small, Math.round((160 - small.width) / 2), 160 - small.height);
     await saveWebp(boxImg, join(OUT, 'portraits', `${BOSSES[i][0]}.webp`));
   }
-  // hero cards from the roster atlas (3x2, 512 cells): nepho(0,0) bruiser(1,0) riva(0,1) byte(1,1)
+  // hero select cards. A dedicated card image wins (public/assets/generated/heroes/<id>-card.png,
+  // square, any size); otherwise riva/byte come from the roster atlas (3x2, 512 cells) and anyone
+  // else gets a crop of their own idle frame so a new hero is never card-less.
   const roster = join(SRC, 'hero-roster-atlas.png');
-  const cards = { nepho: [0, 0], bruiser: [1, 0], riva: [0, 1], byte: [1, 1] };
-  for (const [id, [cx, cy]] of Object.entries(cards)) {
-    await sharp(roster).extract({ left: cx * 512, top: cy * 512, width: 512, height: 512 }).resize(256, 256).webp({ quality: 85 }).toFile(join(OUT, 'cards', `${id}.webp`));
+  const rosterCells = { nepho: [0, 0], bruiser: [1, 0], riva: [0, 1], byte: [1, 1] };
+  for (const id of catalog.heroes) {
+    const out = join(OUT, 'cards', `${id}.webp`);
+    const dedicated = join(SRC, 'heroes', `${id}-card.png`);
+    if (existsSync(dedicated)) { await sharp(dedicated).resize(256, 256, { fit: 'cover' }).webp({ quality: 85 }).toFile(out); continue; }
+    const cell = rosterCells[id];
+    if (cell) { await sharp(roster).extract({ left: cell[0] * 512, top: cell[1] * 512, width: 512, height: 512 }).resize(256, 256).webp({ quality: 85 }).toFile(out); continue; }
+    const res = heroResults[id];
+    if (!res) continue;
+    const fr = res.json.frames['idle/0'];
+    const img = ops.crop(res.atlas, fr.frame.x, fr.frame.y, fr.frame.w, fr.frame.h);
+    const sc = 200 / Math.max(img.width, img.height);
+    const small = ops.resize(img, sc);
+    const boxImg = ops.makeImage(256, 256);
+    ops.blit(boxImg, small, Math.round((256 - small.width) / 2), 236 - small.height);
+    await saveWebp(boxImg, out);
   }
   await sharp(join(ROOT, 'public/assets/nepho-hero-keyart.png')).resize({ width: 640 }).webp({ quality: 80 }).toFile(join(OUT, 'ui', 'keyart.webp'));
   const logo = join(SRC, 'ui/logo.svg');
@@ -444,21 +475,30 @@ async function processPortraits(catalog, bossResults) {
 
 // ---------- main ----------
 async function main() {
-  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: ['nepho', 'bruiser', 'riva', 'byte'], enemies: [], bosses: [], levels: [] };
+  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: ['eviatar', 'omri', 'nepho', 'bruiser', 'riva', 'byte'], enemies: [], bosses: [], levels: [] };
   const results = {};
   const want = (group) => !only || only === group;
 
   if (want('heroes')) {
     const heroSrc = {};
-    for (const id of ['nepho', 'bruiser', 'riva', 'byte']) {
-      const src = resolveSource(id, HERO_ACTIONS, [join(SRC, `hero-${id}-grid-1.png`), join(SRC, `hero-${id}-grid-2.png`)], join(SRC, `hero-${id}-grid.png`));
+    const heroSource = (id) => resolveSource(id, HERO_ACTIONS, [join(SRC, `hero-${id}-grid-1.png`), join(SRC, `hero-${id}-grid-2.png`)], join(SRC, `hero-${id}-grid.png`));
+    for (const id of ['nepho', 'bruiser', 'riva', 'byte', 'eviatar', 'omri']) {
+      const src = heroSource(id);
+      const stand = HERO_STAND_INS[id];
+      if (stand && !hasAnySource(src)) {
+        // no art delivered yet: recolour the stand-in's already-built atlas into this hero's palette
+        results[id] = await variantFrom(results[stand.from], id, stand.remap, [`placeholder: ${stand.from} recoloured until a real ${id} set is supplied (docs/hero-prompts-eviatar-omri.md)`]);
+        warn(`${id}: no source art yet — shipping a recoloured ${stand.from} as a stand-in`);
+        console.log('hero', id, `stand-in (${stand.from})`);
+        continue;
+      }
       heroSrc[id] = src;
       results[id] = await processCharacter(id, src, src.kind === 'pair' ? { ...HERO, rows: HERO_ROWS_12 } : HERO);
       console.log('hero', id, results[id] ? `ok (${src.kind})` : 'FAILED');
     }
     // Byte's delivered grids have so far been copies of Riva's. Until a real Byte set lands, keep the
     // roster visually distinct by hue-shifting the duplicate to her pink rather than shipping two Rivas.
-    if (results.byte && results.riva && await nearDuplicate(heroSrc.byte, heroSrc.riva)) {
+    if (heroSrc.byte && heroSrc.riva && await nearDuplicate(heroSrc.byte, heroSrc.riva)) {
       warn('byte: source grids are a duplicate of riva\'s — hue-remapped to pink; see docs/asset-prompts.md');
       const notes = ['fallback: source is a duplicate of riva, hue-remapped to pink until a real byte set is supplied'];
       results.byte = await variantFrom(results.byte, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, notes);
@@ -491,7 +531,7 @@ async function main() {
       console.log('boss', id, res ? `ok (${src.kind})` : 'FAILED');
     }
     catalog.bosses = BOSSES.map(([id, name], i) => ({ id, name, index: i, portrait: `portraits/${id}.webp` }));
-    await processPortraits(catalog, bossResults);
+    await processPortraits(catalog, bossResults, results);
   }
   if (want('levels')) await processLevels(catalog);
 

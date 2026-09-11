@@ -68,7 +68,7 @@ describe('animation frame keys', () => {
   });
 
   it('frameKeyFor dispatches on kind', () => {
-    expect(parse(frameKeyFor('hero', 'nepho', 'light1', 4)).row).toBe('light1');
+    expect(parse(frameKeyFor('hero', 'eviatar', 'light1', 4)).row).toBe('light1');
     expect(parse(frameKeyFor('enemy', 'punk', 'walk', 4)).row).toBe('walk');
     expect(parse(frameKeyFor('boss', 'ferryman', 'approach', 4)).row).toBe('approach');
   });

@@ -53,19 +53,29 @@ export interface HeroDef {
   hp: number;
   speed: number;
   dmgMul: number;
-  special: 'burst' | 'slam' | 'line' | 'volley';
+  special: 'burst' | 'slam' | 'line' | 'volley' | 'splash' | 'wave';
   colour: number;
+  /** second identity colour, used by effects that alternate (paint splats, music notes) */
+  colour2?: number;
   cardKey: string;
 }
 
 export const HEROES: Record<HeroId, HeroDef> = {
+  // Eviatar (11): tall and strong, green-and-blue basketball kit, fights with magic paint markers. Hits hard for his
+  // speed; his special throws a wide fan of paint that floors everything in front of him.
+  eviatar: { id: 'eviatar', name: 'EVIATAR', gender: 'male', bias: 'Power · paint splash', hp: 160, speed: 2.4, dmgMul: 1.2, special: 'splash', colour: 0x3ddc84, colour2: 0x37aaff, cardKey: 'card-eviatar' },
+  // Omri (9): lean capoeira fighter in red and white, with a microphone. Fastest hero; his special is a three-beat
+  // sonic shockwave that launches everyone around him.
+  omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 115, speed: 3.1, dmgMul: 0.9, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
   nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 130, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
   bruiser: { id: 'bruiser', name: 'BRUISER', gender: 'male', bias: 'Heavy hitter · armored slam', hp: 165, speed: 2.2, dmgMul: 1.3, special: 'slam', colour: 0xff9357, cardKey: 'card-bruiser' },
   riva: { id: 'riva', name: 'RIVA', gender: 'female', bias: 'Combo mobility · line dash', hp: 120, speed: 3.0, dmgMul: 0.9, special: 'line', colour: 0xa4ee42, cardKey: 'card-riva' },
   byte: { id: 'byte', name: 'BYTE', gender: 'female', bias: 'Ranged · four-shot volley', hp: 120, speed: 2.7, dmgMul: 0.95, special: 'volley', colour: 0xff76c8, cardKey: 'card-byte' },
 };
 
-export const HERO_IDS: HeroId[] = ['nepho', 'bruiser', 'riva', 'byte'];
+// Eviatar and Omri lead the roster; the other four are their friends — playable too, and the pool an
+// assist / sidekick is chosen from.
+export const HERO_IDS: HeroId[] = ['eviatar', 'omri', 'nepho', 'bruiser', 'riva', 'byte'];
 
 export const METER_MAX = 100;
 export const METER_PER_HIT = 8;

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES, HERO_IDS } from '../../sim/frameData';
+import type { FriendMode } from '../../sim/friends';
 import type { HeroId } from '../../sim/types';
 import { openFaceCropper } from '../../face/cropper';
 import { VIEW_W, VIEW_H } from '../../sim/types';
@@ -27,11 +28,14 @@ export class LobbyScene extends Phaser.Scene {
   constructor() { super('Lobby'); }
 
   private catalog!: Catalog;
-  private heroPick: [HeroId, HeroId | null] = ['nepho', null];
+  private heroPick: [HeroId, HeroId | null] = ['eviatar', null];
   private coop = false;
   private faceKeys: [string | null, string | null] = [null, null];
   private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
+  private friendPick: HeroId = 'omri';
+  private friendMode: FriendMode = 'assist';
+  private friendText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
   private netMode: 'local' | 'host' | 'guest' = 'local';
   private roomCode: string | null = null;
@@ -71,6 +75,19 @@ export class LobbyScene extends Phaser.Scene {
       this.refreshFacePreview();
     });
 
+    // Friend: one of the other heroes fights beside you — called in for their special (ASSIST) or
+    // along for the whole level as an AI ally (SIDEKICK).
+    this.add.text(200, 264, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    this.makeButton(200, 284, 26, 22, '◀', () => this.cycleFriend(-1));
+    this.friendText = this.add.text(234, 290, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
+    this.makeButton(392, 284, 26, 22, '▶', () => this.cycleFriend(1));
+    const modeBtn = this.makeButton(430, 284, 130, 22, '', () => {
+      this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
+      modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
+    });
+    modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
+    this.cycleFriend(0);
+
     // Everything below used to be pinned to the very bottom few pixels (VIEW_H-96..VIEW_H-30) with a
     // large empty gap above it — fragile even without a viewport bug, since it left almost no margin
     // for the most important control (START) before the edge of the canvas. Spread across the middle
@@ -96,9 +113,18 @@ export class LobbyScene extends Phaser.Scene {
     const name = this.add.text(52, 84, def.name, { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0.5);
     const bias = this.add.text(52, 100, def.bias, { fontFamily: 'monospace', fontSize: '7px', color: '#9bb1c9', align: 'center', wordWrap: { width: 96 } }).setOrigin(0.5, 0);
     c.add([bg, img, name, bias]);
-    bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); });
+    bg.on('pointerdown', () => { this.heroPick[0] = id; this.highlightCard(); this.cycleFriend(0); });
     this.cards[id] = c;
     void slot;
+  }
+
+  /** Moves the friend pick by `dir` among the heroes the player is not playing. */
+  private cycleFriend(dir: number): void {
+    const pool = HERO_IDS.filter((h) => h !== this.heroPick[0]);
+    let i = pool.indexOf(this.friendPick);
+    if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
+    this.friendPick = pool[i];
+    this.friendText.setText(`${HEROES[this.friendPick].name} · ${HEROES[this.friendPick].bias.split(' · ')[1] || ''}`.slice(0, 24));
   }
 
   private highlightCard(): void {
@@ -186,17 +212,20 @@ export class LobbyScene extends Phaser.Scene {
 
   private tryStart(): void {
     const heroes: [HeroId, HeroId | null] = this.coop ? [this.heroPick[0], this.heroPick[1] || pickOther(this.heroPick[0])] : [this.heroPick[0], null];
+    // P2's friend is whoever is left over once both players and P1's friend are taken
+    const p2Friend = heroes[1] ? HERO_IDS.find((h) => h !== heroes[0] && h !== heroes[1] && h !== this.friendPick) || null : null;
+    const friends = { friends: [this.friendPick, p2Friend] as [HeroId | null, HeroId | null], mode: this.friendMode };
     if (this.netMode === 'guest' && this.roomCode) {
       this.scene.start('Game', { mode: 'guest', roomCode: this.roomCode, heroId: heroes[0], faceKeys: this.faceKeys });
       return;
     }
     if (this.netMode === 'host') {
       const session = this.registry.get('pendingHostSession');
-      session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes);
-      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, faceKeys: this.faceKeys });
+      session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes, friends);
+      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, faceKeys: this.faceKeys, friends });
       return;
     }
-    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, faceKeys: this.faceKeys, seed: Math.floor(Math.random() * 1e9) });
+    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, faceKeys: this.faceKeys, seed: Math.floor(Math.random() * 1e9), friends });
   }
 }
 

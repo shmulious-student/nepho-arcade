@@ -1,6 +1,6 @@
 // Input bitmask shared by sim, net codec and controls.
 export const BTN = {
-  LEFT: 1, RIGHT: 2, UP: 4, DOWN: 8, LIGHT: 16, HEAVY: 32, DASH: 64, SPECIAL: 128, BLOCK: 256,
+  LEFT: 1, RIGHT: 2, UP: 4, DOWN: 8, LIGHT: 16, HEAVY: 32, DASH: 64, SPECIAL: 128, BLOCK: 256, ASSIST: 512,
 } as const;
 
 export interface InputFrame {

@@ -5,6 +5,7 @@ import { makeBot, botInput, type BotState } from '../sim/bot';
 import { encodeSnapshot, decodeSnapshot, encodeInput, decodeInput } from './codec';
 import type { Msg } from './protocol';
 import type { HeroId, Snapshot, EntityView } from '../sim/types';
+import type { FriendSetup } from '../sim/friends';
 import type { InputFrame } from '../sim/input';
 import { EMPTY_INPUT } from '../sim/input';
 
@@ -47,9 +48,9 @@ export class LocalSession extends BaseSession {
   private inputs: [InputFrame, InputFrame] = [EMPTY_INPUT, EMPTY_INPUT];
   private snap: Snapshot;
 
-  constructor(seed: number, level: number, heroes: [HeroId, HeroId | null]) {
+  constructor(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup) {
     super();
-    this.w = new World({ seed, level, heroes });
+    this.w = new World({ seed, level, heroes, friends });
     this.snap = this.w.snapshot();
   }
   setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
@@ -84,7 +85,7 @@ export class HostSession extends BaseSession {
   private snap: Snapshot | null = null;
   private ws: WebSocket | null = null;
   private syncTimer = 0;
-  private pendingHeroes: [number, number, [HeroId, HeroId | null]] | null = null; // [seed, level, heroes] queued if start() was called before guestHero arrived
+  private pendingHeroes: [number, number, [HeroId, HeroId | null], FriendSetup | undefined] | null = null; // [seed, level, heroes, friends] queued if start() was called before guestHero arrived
   guestHero: HeroId | null = null;
   events: SessionEvents = {};
 
@@ -107,7 +108,7 @@ export class HostSession extends BaseSession {
     else if (msg.t === 'error') this.events.onError?.(msg.message);
     else if (msg.t === 'hero' && msg.slot === 1) {
       this.guestHero = msg.id;
-      if (this.pendingHeroes) { const [seed, level, heroes] = this.pendingHeroes; this.pendingHeroes = null; this.start(seed, level, [heroes[0], msg.id]); }
+      if (this.pendingHeroes) { const [seed, level, heroes, friends] = this.pendingHeroes; this.pendingHeroes = null; this.start(seed, level, [heroes[0], msg.id], friends); }
     }
   }
   private onInput(buf: ArrayBuffer): void {
@@ -119,10 +120,10 @@ export class HostSession extends BaseSession {
 
   /** Builds the World. If coop is intended (heroes[1] set as a placeholder) but the guest's real pick
    * hasn't arrived yet, waits for it instead of starting with a guessed hero. */
-  start(seed: number, level: number, heroes: [HeroId, HeroId | null]): void {
-    if (heroes[1] && !this.guestHero) { this.pendingHeroes = [seed, level, heroes]; return; }
+  start(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup): void {
+    if (heroes[1] && !this.guestHero) { this.pendingHeroes = [seed, level, heroes, friends]; return; }
     const resolved: [HeroId, HeroId | null] = [heroes[0], heroes[1] ? (this.guestHero || heroes[1]) : null];
-    this.w = new World({ seed, level, heroes: resolved });
+    this.w = new World({ seed, level, heroes: resolved, friends });
     this.snap = this.w.snapshot();
   }
   update(dtMs: number): void {

@@ -24,7 +24,9 @@ const loadSrc = async (path) => {
 // since their art predates the standard and is what the game ships with until it is regenerated.
 async function checkSourceGrid(id, path, rows, cols, { square = false, strict = false } = {}) {
   if (!existsSync(path)) { fail.push(`${id}: source grid missing at ${path}`); return; }
-  const img = await loadSrc(path);
+  let img = await loadSrc(path);
+  const keyed = ops.keyOutFlat(img); // a magenta matte counts as transparent — the build keys it
+  if (keyed && keyed.keyed > 0.3) img = keyed.img;
   if (square) {
     check(img.width === img.height && po2(img.width), `${id}: must be a square power-of-two canvas (got ${img.width}x${img.height})`);
   }
@@ -60,7 +62,7 @@ const catalogPath = join(OUT, 'catalog.json');
 check(existsSync(catalogPath), 'catalog.json missing (run npm run build:assets)');
 if (existsSync(catalogPath)) {
   const cat = JSON.parse(readFileSync(catalogPath, 'utf8'));
-  check(cat.heroes.length === 4, 'four heroes expected');
+  check(cat.heroes.length === 6, 'six heroes expected');
   check(cat.enemies.length >= 6, 'at least six enemies expected');
   check(cat.bosses.length === 10, 'ten bosses expected');
   check(cat.levels.length === 10, 'ten levels expected');

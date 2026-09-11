@@ -131,7 +131,11 @@ Fill in the character description and the per-frame beats:
 
 ## Required now
 
-Three heroes and four bosses, at the per-action format above. Everything else keeps working on its
+**First: the two new lead heroes, Eviatar and Omri** — full pack with photo-based character sheets,
+all 12 action prompts each and the hero cards in [hero-prompts-eviatar-omri.md](./hero-prompts-eviatar-omri.md).
+They ship on recoloured stand-ins (Bruiser / Nepho) until their sets land.
+
+Then three heroes and four bosses, at the per-action format above. Everything else keeps working on its
 current art in the meantime — the pipeline falls back per character, so these can land one at a time.
 
 Known defects in the art currently shipped (all baked into the source PNGs — the build hides them by

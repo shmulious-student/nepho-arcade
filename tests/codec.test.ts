@@ -24,6 +24,7 @@ function randomSnapshot(rng: Rng): Snapshot {
     tick: rng.int(0, 1e6), level: rng.int(1, 10), phase: rng.pick(PHASES), wave: rng.int(0, 3),
     cameraX: rng.int(0, 1500), timer: +rng.range(0, 200).toFixed(1), bossHp: rng.next(), bossMaxHp: rng.int(0, 5000),
     bossId: rng.pick(ARCHES), score: [0, 0], credits: 0, entities, events: [], go: rng.chance(0.5), enrage: rng.chance(0.5),
+    assist: [rng.next(), rng.next()],
   };
 }
 
@@ -37,6 +38,8 @@ describe('net codec', () => {
       expect(decoded.level).toBe(s.level);
       expect(decoded.phase).toBe(s.phase);
       expect(decoded.entities.length).toBe(Math.min(s.entities.length, 40));
+      expect(Math.abs(decoded.assist[0] - s.assist[0])).toBeLessThan(0.01);
+      expect(Math.abs(decoded.assist[1] - s.assist[1])).toBeLessThan(0.01);
       for (let j = 0; j < decoded.entities.length; j++) {
         const a = s.entities[j], b = decoded.entities[j];
         expect(b.kind).toBe(a.kind);
@@ -56,8 +59,8 @@ describe('net codec', () => {
     expect(buf.byteLength).toBeLessThanOrEqual(400);
   });
 
-  it('input round-trips exactly (9-button u16 mask)', () => {
-    for (let held = 0; held < 512; held += 31) {
+  it('input round-trips exactly (10-button u16 mask)', () => {
+    for (let held = 0; held < 1024; held += 31) {
       for (let pressed = 0; pressed < 512; pressed += 61) {
         const buf = encodeInput(1234, held, pressed);
         const d = decodeInput(buf);

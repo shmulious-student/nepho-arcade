@@ -354,6 +354,25 @@ function hardEdges(m, labels, width, minRun) {
   return out;
 }
 
+// Keys out a flat matte background (a model that cannot output alpha is asked for pure magenta).
+// Only fires when all four corners agree on one saturated colour, so real art is never touched.
+export function keyOutFlat(img, { tolerance = 60 } = {}) {
+  const { width, height, data } = img;
+  const px = (x, y) => { const i = (y * width + x) * 4; return [data[i], data[i + 1], data[i + 2]]; };
+  const corners = [px(1, 1), px(width - 2, 1), px(1, height - 2), px(width - 2, height - 2)];
+  const [r, g, b] = corners[0];
+  const sat = Math.max(r, g, b) - Math.min(r, g, b);
+  if (sat < 120) return null;
+  for (const c of corners) if (Math.abs(c[0] - r) + Math.abs(c[1] - g) + Math.abs(c[2] - b) > 30) return null;
+  const out = cloneImage(img);
+  let keyed = 0;
+  for (let i = 0; i < width * height; i++) {
+    const d = Math.abs(data[i * 4] - r) + Math.abs(data[i * 4 + 1] - g) + Math.abs(data[i * 4 + 2] - b);
+    if (d <= tolerance) { out.data[i * 4 + 3] = 0; keyed++; }
+  }
+  return { img: out, key: [r, g, b], keyed: keyed / (width * height) };
+}
+
 // Removes a painted white/gray checkerboard background (baked transparency preview).
 export function unbakeChecker(img) {
   const { width, height, data } = img;

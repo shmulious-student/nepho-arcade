@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { SimEvent } from '../sim/types';
 import { worldToScreenX, worldToScreenY } from './EntityView';
+import { HEROES, HERO_IDS } from '../sim/frameData';
 
 interface Telegraph { g: Phaser.GameObjects.Graphics; x: number; y: number; a: number; shape: string; t: number; total: number; colour: number }
 
@@ -25,7 +26,9 @@ export class Fx {
       case 'hit': this.spark(sx, sy, ev.heavy ? 0xffcf5c : 0x75f5dc, ev.heavy ? 14 : 8); if (ev.heavy) this.shake(4); break;
       case 'block': this.spark(sx, sy, 0x9bb1c9, 6); break;
       case 'ko': this.burst(sx, sy, ev.a ? 0xff4f72 : 0xffcf5c, ev.a ? 22 : 14); this.shake(ev.a ? 8 : 3); break;
-      case 'special': this.ring(sx, sy, 0x75f5dc, 90); this.shake(6); break;
+      case 'special': { const h = HEROES[HERO_IDS[ev.a ?? 0]]; this.ring(sx, sy, h?.colour ?? 0x75f5dc, 90); this.shake(6); break; }
+      case 'paint': this.splat(sx, sy, (ev.a ?? 0) % 2 === 0 ? HEROES.eviatar.colour : HEROES.eviatar.colour2!); break;
+      case 'note': { const c = (ev.a ?? 0) % 2 === 0 ? HEROES.omri.colour : HEROES.omri.colour2!; this.ring(sx, sy, c, 60 + (ev.a ?? 0) * 45); this.spark(sx, sy - 30, c, 6); this.shake(3); break; }
       case 'launch': this.spark(sx, sy, 0xa4ee42, 10); break;
       case 'dash': this.trail(sx, sy); break;
       case 'shake': this.shake(ev.a || 4); break;
@@ -51,6 +54,13 @@ export class Fx {
     }
   }
   private burst(x: number, y: number, colour: number, n: number): void { this.spark(x, y, colour, n); }
+  // a blob of paint hitting the floor: a few fat, slow drops that hang around longer than sparks
+  private splat(x: number, y: number, colour: number): void {
+    for (let i = 0; i < 7; i++) {
+      const a = Math.random() * Math.PI * 2, speed = 0.6 + Math.random() * 1.8;
+      this.particles.push({ g: this.newGfx(), x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed * 0.5 - 0.8, life: 0, total: 26 + Math.random() * 12, colour, r: 4 + Math.random() * 5 });
+    }
+  }
   private ring(x: number, y: number, colour: number, radius: number): void {
     this.telegraphs.push({ g: this.newGfx(), x, y, a: radius, shape: 'ring-fx', t: 0, total: 18, colour });
   }

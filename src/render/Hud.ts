@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import type { Snapshot } from '../sim/types';
 import { HEROES } from '../sim/frameData';
+import type { FriendSetup } from '../sim/friends';
 import type { HeroId } from '../sim/types';
 import { VIEW_W } from '../sim/types';
 
-interface PlayerHud { root: Phaser.GameObjects.Container; hpBg: Phaser.GameObjects.Rectangle; hp: Phaser.GameObjects.Rectangle; meterBg: Phaser.GameObjects.Rectangle; meter: Phaser.GameObjects.Rectangle; name: Phaser.GameObjects.Text; combo: Phaser.GameObjects.Text; face: Phaser.GameObjects.Image | null }
+interface PlayerHud { root: Phaser.GameObjects.Container; hpBg: Phaser.GameObjects.Rectangle; hp: Phaser.GameObjects.Rectangle; meterBg: Phaser.GameObjects.Rectangle; meter: Phaser.GameObjects.Rectangle; name: Phaser.GameObjects.Text; combo: Phaser.GameObjects.Text; face: Phaser.GameObjects.Image | null; friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null }
 
 /** In-canvas arcade HUD: per-player HP/meter bars with a small face chip, boss health bar, wave/timer,
  * combo readout, and a "GO" arrow during camera transitions. Inline Graphics/Text, no image UI. */
@@ -17,7 +18,7 @@ export class Hud {
   private goArrow: Phaser.GameObjects.Text;
   private container: Phaser.GameObjects.Container;
 
-  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], faceTextureKeys: [string | null, string | null]) {
+  constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], faceTextureKeys: [string | null, string | null], friends?: FriendSetup) {
     this.scene = scene;
     this.container = scene.add.container(0, 0).setDepth(30000).setScrollFactor(0);
     for (let slot = 0; slot < 2; slot++) {
@@ -36,9 +37,16 @@ export class Hud {
       const faceKey = faceTextureKeys[slot];
       if (faceKey) { face = scene.add.image(12, 12, faceKey).setDisplaySize(24, 24); }
       else { face = scene.add.image(12, 12, '__WHITE').setDisplaySize(24, 24).setTint(def.colour); }
-      root.add([hpBg, hp, meterBg, meter, name, combo, face]);
+      // friend chip: who is on call and whether they are ready (assist) or up (sidekick)
+      let friend: Phaser.GameObjects.Text | null = null, friendBar: Phaser.GameObjects.Rectangle | null = null;
+      const fid = friends && friends.mode !== 'off' ? friends.friends[slot] : null;
+      if (fid) {
+        friend = scene.add.text(104, 28, `${friends!.mode === 'assist' ? 'ASSIST' : 'SIDEKICK'} ${HEROES[fid].name}`, { fontFamily: 'monospace', fontSize: '9px', color: '#9bb1c9' });
+        friendBar = scene.add.rectangle(104, 40, 96, 3, HEROES[fid].colour).setOrigin(0, 0);
+      }
+      root.add([hpBg, hp, meterBg, meter, name, combo, face, ...(friend ? [friend, friendBar!] : [])]);
       this.container.add(root);
-      this.players.push({ root, hpBg, hp, meterBg, meter, name, combo, face });
+      this.players.push({ root, hpBg, hp, meterBg, meter, name, combo, face, friend, friendBar });
     }
     this.timerText = scene.add.text(VIEW_W / 2, 12, '0:00', { fontFamily: 'monospace', fontSize: '16px', color: '#f3f4e8' }).setOrigin(0.5, 0);
     this.waveText = scene.add.text(VIEW_W / 2, 32, '', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' }).setOrigin(0.5, 0);
@@ -54,6 +62,7 @@ export class Hud {
       hud.hp.fillColor = p.hp > 0.3 ? hud.hp.fillColor : 0xff4f72;
       hud.meter.width = 170 * p.meter;
       hud.combo.setText(p.combo > 1 ? `${p.combo} HIT` : '');
+      if (hud.friendBar) { const r = s.assist[p.slot] ?? 0; hud.friendBar.width = 96 * r; hud.friend!.setColor(r >= 1 ? '#f3f4e8' : '#6b7a99'); }
     }
     if (s.bossId && s.bossMaxHp > 0) {
       if (!this.bossBar) {
