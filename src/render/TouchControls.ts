@@ -10,7 +10,7 @@ import { VIEW_H, VIEW_W } from '../sim/types';
  *   right thumb   SPC (top, lights up when the meter is full)
  *                 HVY · ATK · JMP  in an arc under it
  *                 BLK  small, tucked top-right (hold)
- *   left thumb    stick — dash by flicking it hard from rest (no double-tap timing to miss)
+ *   left thumb    stick; DSH sits above it — hold DSH and push the stick sideways to run
  *   friend        tap the friend chip on the HUD card (top-left) when its bar is full
  *
  * A player can pick S / M / L controls in the lobby (persisted). Keyboard input is handled separately
@@ -24,13 +24,9 @@ export class TouchControls {
   private stickOrigin = { x: 0, y: 0 };
   private stickHome = { x: 0, y: 0 };
   private stickVec = { x: 0, y: 0 };
-  private flickArmed = true; // a flick fires once per excursion from the centre
-  private flickFrom = 0; // frame the stick was last at rest
-  private flickDash = false;
   private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; pointerId: number | null; x: number; y: number; r: number; hit: number }[] = [];
   private assistZone: { x: number; y: number; w: number; h: number; pointerId: number | null };
   private edge = new InputEdge();
-  private frameNo = 0;
   private specialReady = false;
   visible = true;
 
@@ -61,6 +57,9 @@ export class TouchControls {
       [cx + 92 * k, cy - 18 * k, BTN.JUMP, 'JMP', 0xf3f4e8, big, bigHit],
       [cx, cy - 92 * k, BTN.SPECIAL, 'SPC', 0xffcf5c, big * 0.95, bigHit],
       [cx + 92 * k, cy - 108 * k, BTN.BLOCK, 'BLK', 0x37aaff, 24 * k, 34 * k],
+      // dash lives on the LEFT, above the stick's resting spot, so the left thumb can hold it while
+      // the right thumb keeps attacking — a run is a chord: DSH + a direction on the stick
+      [stickX + 96 * k, stickY - 96 * k, BTN.DASH, 'DSH', 0xa4ee42, 26 * k, 36 * k],
     ];
     for (const [x, y, bit, label, colour, r, hit] of defs) {
       const g = scene.add.circle(x, y, r, 0x0b1730, 0.45).setStrokeStyle(3, colour);
@@ -93,18 +92,19 @@ export class TouchControls {
     if (!this.visible) return;
     const z = this.assistZone;
     if (p.x >= z.x && p.x <= z.x + z.w && p.y >= z.y && p.y <= z.y + z.h) { z.pointerId = p.id; return; }
-    if (this.stickPointerId === null && p.x < VIEW_W * 0.42 && p.y > VIEW_H * 0.22) {
+    const overButton = this.buttons.some((b) => Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) < b.hit);
+    if (!overButton && this.stickPointerId === null && p.x < VIEW_W * 0.42 && p.y > VIEW_H * 0.22) {
       // plant the stick under the thumb
       this.stickPointerId = p.id;
       this.stickOrigin = { x: p.x, y: p.y };
       this.stickBase.setPosition(p.x, p.y).setAlpha(1);
-      this.flickFrom = this.frameNo; this.flickArmed = true;
       this.updateStick(p);
       return;
     }
     this.pressAt(p);
   }
   private onMove(p: Phaser.Input.Pointer): void {
+    if (!p.isDown) return; // a hovering mouse must never press anything
     if (p.id === this.stickPointerId) { this.updateStick(p); return; }
     // sticky buttons: a press survives a drifting thumb, and sliding well onto a neighbour switches
     for (const b of this.buttons) if (b.pointerId === p.id && Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) >= b.hit + 18) { b.pointerId = null; this.paint(b, false); }
@@ -144,25 +144,16 @@ export class TouchControls {
     this.stickNub.setPosition(this.stickOrigin.x + Math.cos(a) * d, this.stickOrigin.y + Math.sin(a) * d);
     const dead = 10;
     this.stickVec = len > dead ? { x: Math.cos(a), y: Math.sin(a) } : { x: 0, y: 0 };
-    const mag = Math.min(1, len / throwMax);
-    // Flick-to-dash: the stick going from rest to (nearly) full throw within a few frames is a
-    // deliberate flick, which starts a dash — far more reliable than timing a double-tap.
-    if (mag < 0.3) { this.flickFrom = this.frameNo; this.flickArmed = true; }
-    else if (this.flickArmed && mag > 0.9 && this.frameNo - this.flickFrom <= 7) { this.flickDash = true; this.flickArmed = false; }
   }
 
   setVisible(v: boolean): void { this.visible = v; this.container.setVisible(v); }
 
   poll(): InputFrame {
-    this.frameNo++;
     let held = 0;
     if (this.stickVec.x < -0.38) held |= BTN.LEFT; if (this.stickVec.x > 0.38) held |= BTN.RIGHT;
     if (this.stickVec.y < -0.5) held |= BTN.UP; if (this.stickVec.y > 0.5) held |= BTN.DOWN;
     for (const b of this.buttons) if (b.pointerId !== null) held |= b.bit;
     if (this.assistZone.pointerId !== null) held |= BTN.ASSIST;
-    if (this.flickDash) held |= BTN.DASH;
-    const frame = this.edge.next(held);
-    if (this.flickDash) { frame.pressed |= BTN.DASH; this.flickDash = false; }
-    return frame;
+    return this.edge.next(held);
   }
 }

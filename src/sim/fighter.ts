@@ -56,6 +56,15 @@ function startMove(w: World, e: Entity, state: string): void {
 
 const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, byte: 3 };
 
+/** The dash chord: DASH held together with exactly one horizontal direction. Returns the direction
+ * (1 right, -1 left) or 0 when the chord is not held. */
+function dashChord(held: number): 1 | -1 | 0 {
+  if (!(held & BTN.DASH)) return 0;
+  const l = !!(held & BTN.LEFT), r = !!(held & BTN.RIGHT);
+  if (l === r) return 0;
+  return r ? 1 : -1;
+}
+
 /** True if a live enemy/boss/echo is close ahead of `e` in its current lane — used to auto-engage
  * (end the dash into a dash-attack) when running into someone, per the "dash doesn't end until you
  * turn around or hit something" design. */
@@ -81,7 +90,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   const held = input.held;
   const pressed = input.pressed;
   // buffer button presses during moves so cancels feel responsive
-  e.pdata |= pressed & (BTN.LIGHT | BTN.HEAVY | BTN.DASH | BTN.SPECIAL | BTN.JUMP);
+  e.pdata |= pressed & (BTN.LIGHT | BTN.HEAVY | BTN.SPECIAL | BTN.JUMP);
 
   const s = e.state;
   const move: MoveDef | undefined = HERO_MOVES[s];
@@ -105,7 +114,8 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     e.st++; return;
   }
   if (s === 'getup') {
-    if (e.st >= 8 && (e.pdata & BTN.DASH)) { e.pdata = 0; startMove(w, e, 'dash'); return; }
+    const up = dashChord(held);
+    if (e.st >= 8 && up) { e.pdata = 0; e.facing = up; startMove(w, e, 'dash'); return; }
     if (e.st >= total(HERO_MOVES.getup)) setState(e, 'idle');
     e.st++; return;
   }
@@ -128,17 +138,20 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   }
 
   if (s === 'dash') {
-    // Open-ended run: keeps going until the player reverses direction or the dash engages an enemy
-    // (auto dash-attack on contact, or a buffered light/heavy), not a fixed-duration burst — this also
-    // means combo attacks can be queued mid-dash (buffered in e.pdata) and land the instant it ends.
+    // A dash is a held chord — DASH + a direction — and lasts exactly as long as the chord does. It
+    // also ends by engaging an enemy (auto dash-attack on contact, or a buffered light/heavy), by
+    // running into the edge of the screen, or by being hit. Combo presses buffered mid-dash land the
+    // instant it ends.
     if (e.st < 10) e.invuln = Math.max(e.invuln, 1); // brief i-frames only at the start of the run
-    if ((e.facing === 1 && (pressed & BTN.LEFT)) || (e.facing === -1 && (pressed & BTN.RIGHT))) {
-      e.facing = e.facing === 1 ? -1 : 1; setState(e, 'idle'); e.pdata = 0; e.st++; clampHero(w, e); return;
-    }
+    const dir = dashChord(held);
+    if (dir !== e.facing) { setState(e, 'idle'); e.st++; clampHero(w, e); return; } // released or reversed
     if (e.pdata & (BTN.LIGHT | BTN.HEAVY) || (e.st > 3 && enemyAhead(w, e))) { e.pdata = 0; startMove(w, e, 'dashAttack'); return; }
     if (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
     if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; e.st++; clampHero(w, e); return; }
+    const before = e.x;
     e.x += e.facing * HERO_MOVES.dash.speed! * slowMul;
+    clampHero(w, e);
+    if (Math.abs(e.x - before) < 1) { setState(e, 'idle'); e.st++; return; } // ran into the edge of the screen
     // Holding up/down actively steers the dash into a diagonal run, not just a light drift.
     if (held & BTN.UP) e.y -= 2.2 * slowMul; if (held & BTN.DOWN) e.y += 2.2 * slowMul;
     e.st++; clampHero(w, e); return;
@@ -176,7 +189,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     if (e.st >= t - 1) {
       // A press buffered during recovery starts its move the instant this one ends, instead of being
       // thrown away — the difference between a chain that flows and one that needs perfect timing.
-      const next = (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) ? 'special' : (e.pdata & BTN.LIGHT) ? 'light1' : (e.pdata & BTN.HEAVY) ? 'heavy' : (e.pdata & BTN.DASH) ? 'dash' : null;
+      const next = (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) ? 'special' : (e.pdata & BTN.LIGHT) ? 'light1' : (e.pdata & BTN.HEAVY) ? 'heavy' : null;
       e.pdata = 0;
       if (next) { startMove(w, e, next); return; }
       setState(e, 'idle');
@@ -210,7 +223,8 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   e.x += mx * spd; e.y += my * spd * 0.55;
   if (pressed & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
   if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); e.st++; clampHero(w, e); return; }
-  if (pressed & BTN.DASH) { e.pdata = 0; startMove(w, e, 'dash'); return; }
+  const chord = dashChord(held);
+  if (chord) { e.pdata = 0; e.facing = chord; startMove(w, e, 'dash'); return; }
   if (pressed & BTN.HEAVY) { e.pdata = 0; startMove(w, e, 'heavy'); return; }
   if (pressed & BTN.LIGHT) { e.pdata = 0; startMove(w, e, 'light1'); return; }
   e.pdata = 0;

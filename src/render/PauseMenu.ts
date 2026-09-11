@@ -37,8 +37,8 @@ export class PauseMenu {
     button('BACK TO LOBBY', actions.lobby);
     this.soundBtn = button(synth.muted ? 'SOUND: OFF' : 'SOUND: ON', () => { synth.setMuted(!synth.muted); this.soundBtn.setText(synth.muted ? 'SOUND: OFF' : 'SOUND: ON'); });
     const help = opts.touch
-      ? 'stick: move · flick: dash · ATK / HVY / JMP · SPC when lit · hold BLK · tap your card to call a friend'
-      : 'WASD move · J light · K heavy · SPACE jump · L dash · I special · U block · H friend · ESC pause';
+      ? 'stick: move · hold DSH + stick sideways: run · ATK / HVY / JMP · SPC when lit · hold BLK · tap your card to call a friend'
+      : 'WASD move · J light · K heavy · SPACE jump · hold L + direction: run · I special · U block · H friend · ESC pause';
     items.push(scene.add.text(cx, y + 12, help, { fontFamily: 'monospace', fontSize: '9px', color: '#9bb1c9', align: 'center', wordWrap: { width: 320 } }).setOrigin(0.5, 0));
     this.root = scene.add.container(0, 0, items).setDepth(50000).setScrollFactor(0).setVisible(false);
   }

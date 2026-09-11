@@ -24,7 +24,7 @@ const MAX_EVENTS = 20;
 export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   const entities = s.entities.slice(0, MAX_ENTITIES);
   const events = s.events.slice(0, MAX_EVENTS);
-  const buf = new ArrayBuffer(25 + entities.length * 15 + events.length * 6); // header(25) + entity(15 each) + event(6 each)
+  const buf = new ArrayBuffer(25 + entities.length * 18 + events.length * 6); // header(25) + entity(18 each) + event(6 each)
   const dv = new DataView(buf);
   let o = 0;
   dv.setUint8(o, 0x53); o += 1; // 'S'
@@ -58,6 +58,8 @@ export function encodeSnapshot(s: Snapshot): ArrayBuffer {
     dv.setUint8(o, Math.min(255, e.st)); o += 1;
     let bits = 0; if (e.facing < 0) bits |= 1; if (e.flash > 0) bits |= 2; if (e.invuln > 0) bits |= 4; if (e.hitstop > 0) bits |= 8; bits |= (e.tint & 0xf) << 4;
     dv.setUint8(o, bits); o += 1;
+    dv.setUint16(o, Math.max(0, Math.min(65535, Math.round(e.scale * 16)))); o += 2; // scale ×16 (echo size, hazard radius)
+    dv.setUint8(o, e.phase & 0xff); o += 1;
     dv.setUint8(o, Math.max(0, Math.min(255, Math.round(e.hp * 255)))); o += 1;
     dv.setUint8(o, Math.max(0, Math.min(255, Math.round(e.meter * 255)))); o += 1;
     dv.setUint8(o, Math.min(255, e.combo)); o += 1;
@@ -102,13 +104,15 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
     const state = stateName(dv.getUint8(o)); o += 1;
     const st = dv.getUint8(o); o += 1;
     const bits = dv.getUint8(o); o += 1;
+    const scale = dv.getUint16(o) / 16; o += 2;
+    const phase = dv.getUint8(o); o += 1;
     const hp = dv.getUint8(o) / 255; o += 1;
     const meter = dv.getUint8(o) / 255; o += 1;
     const combo = dv.getUint8(o); o += 1;
     const slotRaw = dv.getUint8(o); o += 1;
     entities.push({
       id, kind, arch, slot: slotRaw === 255 ? -1 : slotRaw, x, y, z, facing: bits & 1 ? -1 : 1, state, st, hp, meter,
-      flash: bits & 2 ? 1 : 0, invuln: bits & 4 ? 1 : 0, hitstop: bits & 8 ? 1 : 0, scale: 1, tint: (bits >> 4) & 0xf, combo,
+      flash: bits & 2 ? 1 : 0, invuln: bits & 4 ? 1 : 0, hitstop: bits & 8 ? 1 : 0, scale, tint: (bits >> 4) & 0xf, combo, phase,
     });
   }
   const events: SimEvent[] = [];

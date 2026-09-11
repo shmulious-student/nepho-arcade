@@ -8,7 +8,7 @@ import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from 
 import { rollDrop, stepPickup } from './pickups';
 import { LEVEL_TARGET_SECONDS } from './levels';
 import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit, hazardHit as getHazardHit, forgetHazard } from './combat';
-import { makeDirector, stepDirector, type DirectorState } from './director';
+import { makeDirector, stepDirector, beginBoss, type DirectorState } from './director';
 import { LEVELS, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
 import { HEROES } from './frameData';
 import { ENEMY_DEFS } from './enemyAi';
@@ -137,6 +137,7 @@ export class World {
   spawnHazard(owner: Entity, arch: string, x: number, y: number, tele: number, active: number, hit: import('./types').Hitbox, colour: number, speed = 0, phase01 = 0): Entity {
     const e = makeEntity(this.id(), 'hazard', arch, x, y, 1);
     e.owner = owner.id; e.pt = tele; e.aiT = tele + active; e.vx = speed; e.vy = phase01; e.pphase = tele > 0 ? 0 : 1;
+    e.scale = hit.radius || hit.w || 1; // the renderer draws the hazard's footprint from this
     this.entities.push(e);
     registerHazardHit(e.id, hit);
     void colour;
@@ -178,6 +179,14 @@ export class World {
   onBossKilled(e: Entity, _by?: Entity): void {
     this.credits += e.kind === 'boss' ? 50 : 20;
     if (e.kind === 'boss') this.bossDefeated = true;
+  }
+
+  /** Dev helper: jump straight to the boss fight (used by `?boss` on the dev server). */
+  debugSkipToBoss(): void {
+    for (const e of this.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = this.tick + 1; }
+    this.cameraX = LEVEL_W - VIEW_W;
+    this.director.waveIndex = LEVELS[this.level - 1].waves.length - 1;
+    beginBoss(this, this.director);
   }
 
   completeLevel(): void {
@@ -288,7 +297,7 @@ function viewOf(e: Entity): EntityView {
   return {
     id: e.id, kind: e.kind, arch: e.arch, slot: e.slot, x: +e.x.toFixed(1), y: +e.y.toFixed(1), z: +e.z.toFixed(1),
     facing: e.facing, state: e.state, st: e.st, hp: e.maxHp > 0 ? e.hp / e.maxHp : 0, meter: e.meter / 100,
-    flash: e.flash, invuln: e.invuln, scale: e.scale, tint: e.tint, combo: e.combo, hitstop: e.hitstop,
+    flash: e.flash, invuln: e.invuln, scale: e.scale, tint: e.tint, combo: e.combo, hitstop: e.hitstop, phase: e.pphase,
   };
 }
 

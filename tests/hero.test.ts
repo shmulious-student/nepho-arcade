@@ -136,3 +136,40 @@ describe('pickups', () => {
     expect(w.entities.includes(p)).toBe(false);
   });
 });
+
+describe('dash chord', () => {
+  it('runs only while DASH + a direction are held, and stops when either is released', () => {
+    const w = world(31);
+    const h = w.players[0]!;
+    // a bare DASH press does nothing; DASH + RIGHT starts a run
+    w.step([press(BTN.DASH), NONE]);
+    expect(h.state).not.toBe('dash');
+    for (let i = 0; i < 10; i++) w.step([hold(BTN.DASH | BTN.RIGHT), NONE]);
+    expect(h.state).toBe('dash');
+    const x0 = h.x;
+    for (let i = 0; i < 10; i++) w.step([hold(BTN.DASH | BTN.RIGHT), NONE]);
+    expect(h.x - x0).toBeGreaterThan(50);
+    // let go of the direction: the run ends at once
+    w.step([hold(BTN.DASH), NONE]);
+    expect(h.state).not.toBe('dash');
+    // reverse the chord: runs the other way
+    for (let i = 0; i < 5; i++) w.step([hold(BTN.DASH | BTN.LEFT), NONE]);
+    expect(h.state).toBe('dash');
+    expect(h.facing).toBe(-1);
+  });
+
+  it('stops at the edge of the screen and when it reaches an enemy', () => {
+    const w = world(32);
+    const h = w.players[0]!;
+    for (let i = 0; i < 300 && h.state !== 'idle'; i++) w.step([hold(BTN.DASH | BTN.RIGHT), NONE]);
+    for (let i = 0; i < 300; i++) { w.step([hold(BTN.DASH | BTN.RIGHT), NONE]); if (h.state !== 'dash') break; }
+    expect(h.state).not.toBe('dash'); // pinned at the band edge, the run ended
+    // an enemy in the path turns the run into a dash attack
+    const w2 = world(33);
+    const h2 = w2.players[0]!;
+    addEnemy(w2, h2.x + 120, h2.y);
+    let sawAttack = false;
+    for (let i = 0; i < 40; i++) { w2.step([hold(BTN.DASH | BTN.RIGHT), NONE]); if (h2.state === 'dashAttack') sawAttack = true; }
+    expect(sawAttack).toBe(true);
+  });
+});

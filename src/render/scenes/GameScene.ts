@@ -9,6 +9,7 @@ import { Fx } from '../Fx';
 import { TouchControls } from '../TouchControls';
 import { PauseMenu } from '../PauseMenu';
 import { PickupView } from '../PickupView';
+import { HazardView } from '../HazardView';
 import { LEVEL_W, VIEW_W, VIEW_ZOOM, FLOOR_TOP, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
@@ -34,19 +35,6 @@ interface StartData {
 
 /** Converts a quick double-press of the same direction into a synthesized DASH, the classic
  * beat-em-up alternative to a dedicated dash button. */
-class DoubleTapDash {
-  private lastDir = 0;
-  private lastTime = 0;
-  check(pressed: number, nowMs: number): boolean {
-    for (const dir of [BTN.LEFT, BTN.RIGHT]) {
-      if (!(pressed & dir)) continue;
-      if (this.lastDir === dir && nowMs - this.lastTime < 280) { this.lastDir = 0; this.lastTime = 0; return true; }
-      this.lastDir = dir; this.lastTime = nowMs;
-    }
-    return false;
-  }
-}
-
 export class GameScene extends Phaser.Scene {
   constructor() { super('Game'); }
 
@@ -55,6 +43,7 @@ export class GameScene extends Phaser.Scene {
   private world!: Phaser.GameObjects.Container;
   private views = new Map<number, EntityView>();
   private pickups = new Map<number, PickupView>();
+  private hazards = new Map<number, HazardView>();
   private backdrop!: Backdrop;
   private hud!: Hud;
   private fx!: Fx;
@@ -63,8 +52,6 @@ export class GameScene extends Phaser.Scene {
   private pauseBtn!: Phaser.GameObjects.Container;
   private p1Edge = new InputEdge();
   private p2Edge = new InputEdge();
-  private p1Dash = new DoubleTapDash();
-  private p2Dash = new DoubleTapDash();
   private heroes: [HeroId, HeroId | null] = ['eviatar', null];
   private levelIndex = 1;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -119,6 +106,7 @@ export class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
     this.buildPause();
+    if (import.meta.env.DEV && new URLSearchParams(location.search).has('boss')) this.session.world()?.debugSkipToBoss();
     this.input.once('pointerdown', () => synth.unlock());
     this.input.keyboard!.once('keydown', () => synth.unlock());
 
@@ -128,8 +116,8 @@ export class GameScene extends Phaser.Scene {
   private showKeyboardHint(withP2: boolean): void {
     if (isTouchDevice(this)) return; // touch controls cover this on mobile
     const lines = withP2
-      ? ['P1  move WASD · light J · heavy K · jump SPACE · dash L · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · jump NUM6 · dash NUM3 · special NUM0 · block NUM4 · friend NUM5']
-      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   JUMP  SPACE   DASH  L   SPECIAL  I   BLOCK  U   FRIEND  H'];
+      ? ['P1  move WASD · light J · heavy K · jump SPACE · dash L+dir · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · jump NUM6 · dash NUM3+dir · special NUM0 · block NUM4 · friend NUM5']
+      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   JUMP  SPACE   DASH  hold L + dir   SPECIAL  I   BLOCK  U   FRIEND  H'];
     const hint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
       fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
@@ -179,6 +167,8 @@ export class GameScene extends Phaser.Scene {
     this.views.clear();
     for (const v of this.pickups.values()) v.destroy();
     this.pickups.clear();
+    for (const v of this.hazards.values()) v.destroy();
+    this.hazards.clear();
     this.backdrop?.destroy();
     this.hud?.destroy();
     this.touch?.setVisible(false);
@@ -207,7 +197,7 @@ export class GameScene extends Phaser.Scene {
     held |= touch.held;
     const frame = this.p1Edge.next(held);
     frame.pressed |= touch.pressed;
-    if (this.p1Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
+    if (import.meta.env.DEV) (window as any).__nephoInput = { keys: held & ~touch.held, touch: touch.held };
     return frame;
   }
   private pollP2(): InputFrame {
@@ -226,7 +216,6 @@ export class GameScene extends Phaser.Scene {
     if (k.NUMPAD_FIVE?.isDown) held |= BTN.ASSIST;
     if (k.NUMPAD_SIX?.isDown) held |= BTN.JUMP;
     const frame = this.p2Edge.next(held);
-    if (this.p2Dash.check(frame.pressed, this.time.now)) { frame.held |= BTN.DASH; frame.pressed |= BTN.DASH; }
     return frame;
   }
 
@@ -290,6 +279,12 @@ export class GameScene extends Phaser.Scene {
         pv.update(e, snap.cameraX, snap.tick);
         continue;
       }
+      if (e.kind === 'projectile' || e.kind === 'hazard') {
+        let hv = this.hazards.get(e.id);
+        if (!hv) { hv = new HazardView(this, e, this.world); this.hazards.set(e.id, hv); }
+        hv.update(e, snap.cameraX, snap.tick);
+        continue;
+      }
       let view = this.views.get(e.id);
       if (!view) {
         const def = this.catalog.characters[e.arch];
@@ -304,6 +299,9 @@ export class GameScene extends Phaser.Scene {
     }
     for (const [id, pv] of this.pickups) {
       if (!seen.has(id) || pv.staleSince(snap.tick)) { pv.destroy(); this.pickups.delete(id); }
+    }
+    for (const [id, hv] of this.hazards) {
+      if (!seen.has(id) || hv.staleSince(snap.tick)) { hv.destroy(); this.hazards.delete(id); }
     }
     for (const ev of snap.events) { this.fx.handle(ev, snap.cameraX); this.playSfx(ev); }
     sequencer.start(this.levelIndex);

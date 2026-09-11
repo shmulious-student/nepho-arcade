@@ -17,7 +17,7 @@ function randomSnapshot(rng: Rng): Snapshot {
       x: Math.round(rng.range(-2000, 2000)), y: rng.int(0, 120), z: rng.int(0, 200),
       facing: rng.chance(0.5) ? 1 : -1, state: rng.pick(STATES), st: rng.int(0, 60),
       hp: rng.next(), meter: rng.next(), flash: rng.chance(0.5) ? 1 : 0, invuln: rng.chance(0.5) ? 1 : 0,
-      scale: 1, tint: rng.int(0, 9), combo: rng.int(0, 30), hitstop: rng.chance(0.3) ? 1 : 0,
+      scale: rng.chance(0.5) ? 1 : +rng.range(0.5, 200).toFixed(2), tint: rng.int(0, 9), combo: rng.int(0, 30), hitstop: rng.chance(0.3) ? 1 : 0, phase: rng.int(0, 2),
     });
   }
   return {
@@ -49,6 +49,8 @@ describe('net codec', () => {
         expect(b.arch).toBe(a.arch);
         expect(Math.abs(b.x - a.x)).toBeLessThanOrEqual(1);
         expect(Math.abs(b.hp - a.hp)).toBeLessThan(0.01);
+        expect(Math.abs(b.scale - a.scale)).toBeLessThan(0.07);
+        expect(b.phase).toBe(a.phase);
       }
     }
   });
@@ -59,7 +61,7 @@ describe('net codec', () => {
     // pad to the max entity/event counts to test the worst case
     while (s.entities.length < 24) s.entities.push(s.entities[0] || ({} as EntityView));
     const buf = encodeSnapshot(s);
-    expect(buf.byteLength).toBeLessThanOrEqual(400);
+    expect(buf.byteLength).toBeLessThanOrEqual(520);
   });
 
   it('input round-trips exactly (10-button u16 mask)', () => {

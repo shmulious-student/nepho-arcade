@@ -18,9 +18,9 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 - **Move:** WASD or arrow keys (P1) / D-pad on touch.
 - **Light / Heavy:** `J` / `K` (touch: ATK / HVY). Light chains up to 3 hits; the third hit is a
   360° "breaker" that lands on both sides at once and beats enemy guard.
-- **Dash:** `L`, or double-tap a direction. A dash is a sustained run, not a burst — it keeps going
-  until you tap the opposite direction, run into an enemy (auto-attacks on contact), or cancel into
-  an attack. Hold up/down while dashing to angle it diagonally.
+- **Dash:** hold `L` **plus a direction** (touch: hold DSH and push the stick sideways). The run lasts
+  exactly as long as the chord is held, and also ends when you reach an enemy (auto dash-attack on
+  contact), hit the edge of the screen, or get hit. Tap light/heavy mid-run to cancel into an attack.
 - **Jump:** `SPACE` (touch: JMP). Press light/heavy in the air for a flying kick that floors whoever is
   under it.
 - **Special:** `I` (touch: SPC) once the meter is full.
@@ -38,7 +38,7 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
   Beating a boss rolls straight into the next level.
 - **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
-  stick plants itself wherever your left thumb lands, and a hard **flick** of it is a dash. The right
+  stick plants itself wherever your left thumb lands; hold DSH (above it) and push sideways to run. The right
   thumb gets three big buttons — HVY · ATK · JMP — with SPC above (it lights up when the meter is
   full) and a small BLK tucked in the corner. To call your friend, tap their chip on your HUD card.
   Pick S / M / L controls in the lobby.

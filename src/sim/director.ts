@@ -130,7 +130,7 @@ function beginGo(w: World, d: DirectorState, target: number, toBoss: boolean): v
   }
 }
 
-function beginBoss(w: World, d: DirectorState): void {
+export function beginBoss(w: World, d: DirectorState): void {
   d.bossTick = 0;
   w.setPhase('boss');
   // Top up heroes before the fight — after three waves of attrition a player can be down to single-digit

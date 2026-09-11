@@ -130,6 +130,7 @@ export interface EntityView {
   invuln: number;
   scale: number;
   tint: number;
+  phase: number; // hazards: 0 telegraphing, 1 live; heroes/enemies unused
   combo: number;
   hitstop: number;
 }
