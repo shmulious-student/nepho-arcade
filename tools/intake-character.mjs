@@ -40,9 +40,10 @@ for (const file of files) {
     const keyed = ops.keyOutFlat(img);
     if (keyed && keyed.keyed > 0.3) { img = keyed.img; steps.push(`keyed flat matte rgb(${keyed.key})`); }
     else {
-      img = ops.unbakeChecker(img);
+      const auto = ops.unbakeCheckerAuto(img);
+      img = auto ? auto.img : ops.unbakeChecker(img);
       img = ops.scrubLightFringe(img, 2);
-      steps.push(`unbaked painted checkerboard (opaque ${opaque.toFixed(2)} → ${ops.opaqueRatio(img).toFixed(2)})`);
+      steps.push(`unbaked painted checkerboard${auto ? ` (greys ${auto.levels.join('/')})` : ''} (opaque ${opaque.toFixed(2)} → ${ops.opaqueRatio(img).toFixed(2)})`);
     }
     img = ops.defringe(img, 2);
   }

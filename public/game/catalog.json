@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T21:22:18.526Z",
+ "generatedAt": "2026-09-12T22:07:40.390Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -3505,12 +3505,12 @@
    "atlas": "chars/storm-colossus.webp",
    "data": "chars/storm-colossus.json",
    "box": {
-    "w": 394,
-    "h": 330
+    "w": 390,
+    "h": 329
    },
    "anchor": {
-    "x": 197,
-    "y": 328
+    "x": 195,
+    "y": 325
    },
    "rows": [
     "idle",
@@ -3521,7 +3521,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.4873,
+   "scale": 0.481,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3536,7 +3536,6 @@
    "source": "public/assets/generated/actions/storm-colossus/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
-    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",

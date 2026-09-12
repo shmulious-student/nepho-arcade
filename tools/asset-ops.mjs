@@ -465,6 +465,69 @@ export function scrubLightFringe(img, passes = 3) {
   return cur;
 }
 
+// Removes a painted checkerboard of ANY two greys (a model's "transparency preview" baked into the
+// pixels). The two levels are read off the canvas border — a checker always reaches it — and every
+// low-saturation pixel near either level is a candidate. Candidates connected to the border go; an
+// enclosed pocket (between the legs, under an arm) goes when it is bigger than a square and holds
+// both levels — a checker always alternates, while a flat grey patch of armour holds one.
+export function unbakeCheckerAuto(img) {
+  const { width, height, data } = img;
+  const n = width * height;
+  const ring = Math.max(8, Math.round(Math.min(width, height) * 0.03));
+  const hist = new Uint32Array(256);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    if (x >= ring && x < width - ring && y >= ring && y < height - ring) continue;
+    const i = (y * width + x) * 4; const r = data[i], g = data[i + 1], b = data[i + 2];
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 14) continue;
+    hist[Math.round((r + g + b) / 3)]++;
+  }
+  // two strongest peaks at least 20 levels apart
+  const peaks = [];
+  for (let pass = 0; pass < 2; pass++) {
+    let best = -1;
+    for (let v = 0; v < 256; v++) if (hist[v] > (best < 0 ? 0 : hist[best]) && peaks.every((q) => Math.abs(q - v) >= 20)) best = v;
+    if (best >= 0 && hist[best] > 0) peaks.push(best);
+  }
+  if (peaks.length < 2) return null;
+  const [p1, p2] = peaks;
+  const tol = 14;
+  const near = (i) => {
+    const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 16) return 0;
+    const m = (r + g + b) / 3;
+    return Math.abs(m - p1) <= tol ? 1 : Math.abs(m - p2) <= tol ? 2 : 0;
+  };
+  const cand = new Uint8Array(n);
+  for (let i = 0; i < n; i++) cand[i] = near(i);
+  const { labels, comps } = components(width, height, (i) => cand[i] > 0);
+  const remove = new Uint8Array(comps.length);
+  const counts = new Map();
+  for (let i = 0; i < n; i++) { const l = labels[i]; if (l === -1) continue; const c = counts.get(l) || [0, 0]; c[cand[i] - 1]++; counts.set(l, c); }
+  for (const c of comps) {
+    if (c.touchesBorder) { remove[c.id] = 1; continue; }
+    const [a, b] = counts.get(c.id) || [0, 0];
+    if (c.size >= 400 && a > c.size * 0.15 && b > c.size * 0.15) remove[c.id] = 1;
+  }
+  const out = cloneImage(img);
+  for (let i = 0; i < n; i++) { const l = labels[i]; if (l !== -1 && remove[l]) out.data[i * 4 + 3] = 0; }
+  // what is left of the checker sits where a glow or a thin line bridged it to the figure: any
+  // remaining pixel that is exactly a checker grey is checker, connected or not, and a small grey
+  // crumb left behind is checker too
+  for (let i = 0; i < n; i++) if (out.data[i * 4 + 3] > 0 && cand[i]) out.data[i * 4 + 3] = 0;
+  const left = components(width, height, (i) => out.data[i * 4 + 3] > A_T);
+  for (const c of left.comps) {
+    if (c.size > 400) continue;
+    let sat = 0, cnt = 0;
+    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0; x <= c.x1; x++) {
+      const i = y * width + x; if (left.labels[i] !== c.id) continue;
+      const r = out.data[i * 4], g = out.data[i * 4 + 1], b = out.data[i * 4 + 2];
+      sat += Math.max(r, g, b) - Math.min(r, g, b); cnt++;
+    }
+    if (cnt && sat / cnt < 40) for (let i = 0; i < n; i++) if (left.labels[i] === c.id) out.data[i * 4 + 3] = 0;
+  }
+  return { img: out, levels: [p1, p2] };
+}
+
 // Removes a painted white/gray checkerboard background (baked transparency preview).
 export function unbakeChecker(img) {
   const { width, height, data } = img;
