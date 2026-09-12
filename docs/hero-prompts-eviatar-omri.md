@@ -48,14 +48,15 @@ stripe, green-and-blue high-top sneakers, blue wrist sweatband on one arm. Props
 (orange, classic black seams) and a bundle of **magic paint markers** — fat markers in green and blue
 that trail glowing paint. His attacks are ball-handling and marker strokes; the paint is his magic.
 
-### OMRI (9) — speed hero, red & white
+### OMRI (9) — speed hero, red & black
 
 Medium height, thin and wiry, quick. **Face from the photo**: a big mop of curly dark-brown hair
 sticking out in every direction, big warm brown eyes, a huge open-mouthed grin, light-olive skin.
-Outfit: **capoeira clothes** — white abadá trousers with a red cord belt (cordão), a loose white
-sleeveless top with a red stripe, barefoot or white soft shoes, a red bandana tied at the wrist. Prop:
-a **microphone** — a handheld stage mic, red with a white grille, on a short trailing cable that
-whips with his movement; sound comes off it as glowing red-and-white **music notes and sound rings**.
+Outfit: **capoeira clothes** — loose black abadá trousers with wide red outer-leg stripes, a red cord
+belt (cordão) with tasselled ends at the left hip, a sleeveless top with bold broad horizontal red and
+black stripes, red wristbands, and bare feet. Prop: a **microphone** — a red handheld stage mic with a
+black grille, on a short black-and-red trailing cable that whips with his movement; sound comes off it
+as glowing red-and-white **music notes and sound rings**.
 His attacks are capoeira kicks, spins and cartwheels; the music is his magic.
 
 ---
@@ -95,12 +96,13 @@ by the build).
 > Character design sheet, 2048×1024, transparent background. [style block] Character: OMRI — a
 > 9-year-old boy, medium height, thin and wiry. Face from the attached photo: a big mop of curly
 > dark-brown hair sticking out in every direction, big brown eyes, a huge open-mouthed grin,
-> light-olive skin. Outfit: capoeira clothes — white abadá trousers with a red cord belt, a loose white
-> sleeveless top with a red stripe down the side, barefoot, a red bandana tied at the left wrist.
-> Prop: a red handheld stage microphone with a white grille in his right hand, on a short cable that
+> light-olive skin. Outfit: capoeira clothes — loose black abadá trousers with wide red outer-leg
+> stripes, a red cord belt with tasselled ends at the left hip, a sleeveless top with bold broad
+> horizontal red and black stripes, red wristbands, and bare feet.
+> Prop: a red handheld stage microphone with a black grille in his right hand, on a short black-and-red cable that
 > trails and whips; glowing red-and-white music notes float off the mic. Show, left to right:
 > full-body front view, full-body three-quarter view facing right, full-body side view facing right,
-> a large head close-up, and a swatch strip of his palette (red #FF4F72, white #F3F4E8, skin, hair).
+> a large head close-up, and a swatch strip of his palette (red #E5252A, black #1E1B20, skin, hair).
 > Identical proportions in every view.
 
 ---

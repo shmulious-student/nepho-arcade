@@ -73,7 +73,7 @@ export const HEROES: Record<HeroId, HeroDef> = {
   // Eviatar (11): tall and strong, green-and-blue basketball kit, fights with magic paint markers. Hits hard for his
   // speed; his special throws a wide fan of paint that floors everything in front of him.
   eviatar: { id: 'eviatar', name: 'EVIATAR', gender: 'male', bias: 'Power · paint splash', hp: 160, speed: 2.4, dmgMul: 1.2, special: 'splash', colour: 0x3ddc84, colour2: 0x37aaff, cardKey: 'card-eviatar' },
-  // Omri (9): lean capoeira fighter in red and white, with a microphone. Fastest hero; his special is a three-beat
+  // Omri (9): lean capoeira fighter in red and black, with a microphone. Fastest hero; his special is a three-beat
   // sonic shockwave that launches everyone around him.
   omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 115, speed: 3.1, dmgMul: 0.9, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
   nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 130, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
