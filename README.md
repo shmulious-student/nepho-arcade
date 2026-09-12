@@ -111,7 +111,8 @@ plays a fall as airborne → flat → rising regardless of how many frames the a
 the prompt blocks to paste verbatim, the 9-beat structure of every action and what the renderer does
 with each row, and the failure catalogue behind every rule. A delivered set is accepted only when
 `npm run verify:character -- <id>` passes (every file and every cell, before anything is built), then
-`npm run build:assets && npm run test:assets`, then a look at every row on `/showcase.html`.
+`npm run build:assets && npm run test:assets`, then a look at every row on `/showcase.html`. The
+characters still on legacy art each have a ready-to-run prompt file in `docs/prompts/`.
 
 ## Roster backoffice
 

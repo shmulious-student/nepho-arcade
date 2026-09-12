@@ -141,9 +141,9 @@ sheet named here to every request, one action per request, and run
 files — the rest of each set stays as delivered.
 
 All four entries of the first queue (Omri's nine files, abyss-dragon idle, storm-colossus idle,
-prism-queen defeat) have landed and pass. Nothing is queued under the standard right now; the
-legacy roster (byte, nepho, punk, chainer, brawler, kicker, knight, shield and the ten campaign
-bosses) still needs full per-action sets — see *Required now* and *Optional polish* below.
+prism-queen defeat) have landed and pass. What remains is the legacy roster, which needs full
+per-action sets: **one self-contained prompt file per character in [`docs/prompts/`](./prompts/README.md)**
+(six enemies, ten bosses; Byte and Nepho are listed there too).
 
 ---
 
