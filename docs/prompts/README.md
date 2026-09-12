@@ -26,11 +26,7 @@ when `npm run verify:character -- <id>` prints `PASS`.
 - [Vault Mother](vault-mother.md) — `vault-mother`, level 9
 - [Ultra Signal](ultra-signal.md) — `ultra-signal`, level 10
 
-## Heroes
+## Heroes (12 files + a hero card each)
 
-- `byte` — her own full 12-file set (currently a hue-shifted copy of Riva); card in
-  [asset-prompts.md](../asset-prompts.md) → *Remaining characters*.
-- `nepho` — 12 files (4 delivered as overrides; the rest are legacy).
-
-Both follow the hero table in the standard; a prompt file can be generated for each on request.
-
+- [NEPHO](nepho.md) — `nepho` (4 of 12 delivered as overrides; the set is redone whole)
+- [BYTE](byte.md) — `byte` (her current grids are a copy of Riva; this is her first real set)
