@@ -25,6 +25,8 @@ when `npm run verify:character -- <id>` prints `PASS`.
 - [The Null](the-null.md) — `the-null`, level 8
 - [Vault Mother](vault-mother.md) — `vault-mother`, level 9
 - [Ultra Signal](ultra-signal.md) — `ultra-signal`, level 10
+- [Abyss Dragon](abyss-dragon.md) — `abyss-dragon`, delivered; only `idle.png` outstanding
+- [Storm Colossus](storm-colossus.md) — `storm-colossus`, delivered; only `idle.png` outstanding
 
 ## Heroes (12 files + a hero card each)
 
