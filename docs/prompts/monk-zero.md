@@ -50,7 +50,9 @@ EFFECT:        violet-pink light; small orbs that orbit her
 > the figure the same size as in every other file of this character, filling about two thirds of the
 > cell height. Generous empty margin inside each cell — hands, feet, hair, props and effects never
 > touch or cross a cell boundary. No ground shadow or floor under the feet.** Each of the 9 frames
-> is a distinct pose; never repeat a frame. Action: **<ACTION>** — <the 9 beats>.
+> is a distinct, fully drawn, solid pose — **no motion-blur frames, no semi-transparent ghost
+> frames, no in-between smears** — and never a repeated frame. Action: **<ACTION>** — <the 9
+> beats>.
 
 ## Step B — the 6 action files (`public/assets/generated/actions/monk-zero/`)
 

@@ -39,7 +39,7 @@ public/assets/generated/actions/<id>/<action>.png
 | Margin | Generous empty margin inside every cell. Hands, feet, hair, weapons, trails, blasts, splats: **nothing touches or crosses a cell line.** Art that ends in a hard straight edge at a cell line is rejected cell by cell (rainbow-oracle's `heavy` beam was cut in 4 of 9 cells and had to be repaired by hand). |
 | Ground | **No painted ground shadow, no floor, no dust ellipse under the feet.** The game draws the shadow itself; a painted one becomes a detached blob that slides with the frame (kicker). |
 | Effects | Attached to the action, contained in the cell, never swallowing the silhouette. Detached props are fine when they are part of the action (a dropped marker, a thrown ball, flying notes). |
-| Frames | **9 distinct poses.** Never pad a row by repeating a frame (abyss-dragon and storm-colossus `idle` each shipped duplicate frames — the gate now catches identical frames). |
+| Frames | **9 distinct poses, each a solid, fully drawn figure.** Never pad a row by repeating a frame (abyss-dragon and storm-colossus `idle` shipped duplicates). **No motion-blur or ghost frames**: a semi-transparent smeared figure between two poses is not a frame (punk's second `walk`/`attack`/`heavy` alternated solid and ghosted cells). |
 | Identity | Same face, hair, costume, palette and props in all 9 frames of all files. The face stays coherent and unobstructed on heroes: a player photo is composited over it and the head is auto-detected from skin tones. |
 
 ---
@@ -109,7 +109,9 @@ marker strokes; effect: glowing green/blue paint.
 > the figure the same size as in every other file of this character, filling about two thirds of the
 > cell height. Generous empty margin inside each cell — hands, feet, hair, props and effects never
 > touch or cross a cell boundary. No ground shadow or floor under the feet.** Each of the 9 frames
-> is a distinct pose; never repeat a frame. Action: **<ACTION>** — <the 9 beats from section 4>.
+> is a distinct, fully drawn, solid pose — **no motion-blur frames, no semi-transparent ghost
+> frames, no in-between smears** — and never a repeated frame. Action: **<ACTION>** — <the 9 beats
+> from section 4>.
 
 ### The 9 beats per action — and what the game does with each row
 
@@ -167,7 +169,9 @@ Automated — `npm run verify:character -- <id>` fails on any of these, naming t
   border not clear; grid guide lines on the canvas
 - an empty cell; art cut off at a cell edge; a dark flat blob painted under the feet
 - two frames in one file that are the same pose; a frame drawn at a fraction of the row's size (a
-  fallen figure lies flat, it does not shrink)
+  fallen figure lies flat, it does not shrink); a ghosted frame (more than a quarter of the figure
+  semi-transparent — motion blur, double exposure); a small piece floating detached above the figure
+- `idle` / `walk` / `guard` / `block` frames that leave the feet (a crouch, a tumble)
 - feet off the row's baseline or the body off the row's axis in a grounded row
 - the figure a different size in one file than in the others
 - `defeat` not ending flat and settled; enemy `knockback` with no flat frame; `getup` dipping before
@@ -209,6 +213,7 @@ the machine can see it, a check.
 | prism-queen `defeat` never lies down → boss "dies" standing | defeat ends flat and settled | `verify-character` |
 | prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; a frame under 55 % of the row's area is rejected — unless, on a lying row of a per-action set, it keeps its full length (a body flat on the floor) | `verify-character`, build |
 | Legacy 6-frame rows with 3 distinct poses drawn twice each | 9 distinct frames per row | `verify-character` |
+| punk's second delivery: five files at 60 % of the size of the other five, `walk`/`attack`/`heavy`/`guard` alternating solid frames with ghosted motion-blur frames, severed shoes floating above the figure, and a `guard` row that was a tumble | one character, one size, in every file (standing height compared across all files); every frame solid; nothing floating; guard/idle/walk stay on the feet | `verify-character` |
 | Byte's grids delivered as a copy of another hero | identity from a character sheet, checked at review | build warns, review |
 | Bosses on legacy grids losing 1–3 frames whose figure is mostly missing (`partial-figure`) | every cell holds the whole figure; empty/partial cells rejected | `verify-character`, build |
 | Figures too small to read at game scale | fill 55–75 % of the cell height | `verify-character` (note) |

@@ -121,6 +121,19 @@ for (const action of actions) {
       }
       if (n && lum / n < 110 && sat / n < 50) { warn(`${c}: a dark flat blob is painted under the feet (${o.size} px) — no ground shadow; the game draws its own`); break; }
     }
+    // ghost frames: a motion-blur or double-exposure frame is mostly semi-transparent inside the figure
+    let opaque = 0, semi = 0;
+    for (let y = m.y0; y <= m.y1; y++) for (let x = m.x0; x <= m.x1; x++) {
+      const k = y * f.cell.width + x; if (f.labels[k] !== m.id) continue;
+      const a = f.cell.data[k * 4 + 3]; if (a >= 200) opaque++; else if (a > 40) semi++;
+    }
+    if (semi / (opaque + semi) > 0.25) fail(`${c}: the figure is ${Math.round((semi / (opaque + semi)) * 100)}% semi-transparent — a ghosted / motion-blurred frame; every frame is a solid, fully drawn pose`);
+    // a small piece floating far from the figure (a severed shoe, a fragment of another frame)
+    for (const o of f.comps) {
+      if (o === m || o.size < 60 || o.size > m.size * 0.1) continue;
+      const gap = Math.max(0, o.x0 - m.x1, m.x0 - o.x1, o.y0 - m.y1, m.y0 - o.y1);
+      if (gap > cw * 0.08 && o.y1 < m.y0 + h * 0.5) { warn(`${c}: a small piece floats detached above the figure (${o.size} px) — severed part or debris; nothing detached except a prop that belongs to the action`); break; }
+    }
     info.push({ h, w, bottom: m.y1, cx: m.sx / m.size, sig: signature(f.cell, m), size: m.size });
   });
   perFile[action] = { info, cw };
@@ -162,13 +175,22 @@ for (const action of actions) {
 }
 
 // ---- cross-file checks: one character, one size ----
-const upright = actions.filter((a) => ['idle', 'walk', 'attack', 'heavy', 'light1', 'light2', 'block', 'guard', 'approach'].includes(a) && perFile[a]);
-const refH = median(upright.flatMap((a) => perFile[a].info.filter(Boolean).map((r) => r.h)));
-for (const a of upright) {
-  const hs = perFile[a].info.filter(Boolean).map((r) => r.h); const m = median(hs);
-  if (Math.abs(m - refH) > refH * 0.12) fail(`${a}.png: the figure is ${m > refH ? 'larger' : 'smaller'} than in the other files (${Math.round(m)} vs ${Math.round(refH)} px tall) — one character, one size, in every file`);
+// every row has upright frames (a fall starts standing, a getup ends standing), so a file's standing
+// height is the median of its three tallest frames — one wings-up or jumping frame does not skew it,
+// and a crouched wind-up in frame 1 does not either. The character's height is the median over files.
+const files = actions.filter((a) => perFile[a]);
+const standing = Object.fromEntries(files.map((a) => { const hs = perFile[a].info.filter(Boolean).map((r) => r.h).sort((x, y) => y - x); return [a, hs[Math.min(1, hs.length - 1)]]; }));
+const refH = median(Object.values(standing));
+for (const a of files) {
+  if (Math.abs(standing[a] - refH) > refH * 0.2) fail(`${a}.png: the figure is ${standing[a] > refH ? 'larger' : 'smaller'} than in the other files (${Math.round(standing[a])} vs ${Math.round(refH)} px tall) — one character, one size, in every file`);
 }
-if (refH && refH < perFile[upright[0]]?.cw * 0.45) warn(`figure is small in its cell (${Math.round(refH)} px of ${Math.round(perFile[upright[0]].cw)}) — fill 55–75% of the cell height`);
+const upright = files.filter((a) => ['idle', 'walk', 'attack', 'heavy', 'light1', 'light2', 'block', 'guard', 'approach'].includes(a));
+if (refH && refH < perFile[files[0]]?.cw * 0.45) warn(`figure is small in its cell (${Math.round(refH)} px of ${Math.round(perFile[files[0]].cw)}) — fill 55–75% of the cell height`);
+// guard / block / idle / walk never leave the feet: every frame stays upright
+for (const a of files.filter((a) => ['idle', 'walk', 'guard', 'block'].includes(a))) {
+  const own = Math.max(...perFile[a].info.filter(Boolean).map((r) => r.h));
+  perFile[a].info.forEach((r, i) => { if (r && r.h < own * 0.75) warn(`${a}.png: frame ${i + 1} is only ${Math.round((r.h / own) * 100)}% of the row's standing height — ${a} stays on its feet in every frame`); });
+}
 
 // ---- row semantics: what the renderer will do with each row ----
 const H = (a) => perFile[a]?.info.map((r) => (r ? r.h : 0));
