@@ -172,6 +172,8 @@ Automated — `npm run verify:character -- <id>` fails on any of these, naming t
   fallen figure lies flat, it does not shrink); a ghosted frame (more than a quarter of the figure
   semi-transparent — motion blur, double exposure); a small piece floating detached above the figure
 - `idle` / `walk` / `guard` / `block` frames that leave the feet (a crouch, a tumble)
+- a figure ending in a straight left, right or top edge anywhere in the cell — a cropped, zoomed or
+  re-sliced frame (the old grids cut into 3×3 files are not a delivery)
 - feet off the row's baseline or the body off the row's axis in a grounded row
 - the figure a different size in one file than in the others
 - `defeat` not ending flat and settled; enemy `knockback` with no flat frame; `getup` dipping before
@@ -213,6 +215,7 @@ the machine can see it, a check.
 | prism-queen `defeat` never lies down → boss "dies" standing | defeat ends flat and settled | `verify-character` |
 | prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; a frame under 55 % of the row's area is rejected — unless, on a lying row of a per-action set, it keeps its full length (a body flat on the floor) | `verify-character`, build |
 | Legacy 6-frame rows with 3 distinct poses drawn twice each | 9 distinct frames per row | `verify-character` |
+| a "ferryman set" that was the old 6×8 grid mechanically re-cut into six 3×3 files — zoomed crops with bodies cut off inside the cell, rows that do not match their action | every frame a whole figure drawn inside its cell (straight-edge check); a per-action set is generated from the prompt file, never cut from legacy art | `verify-character` |
 | punk's second delivery: five files at 60 % of the size of the other five, `walk`/`attack`/`heavy`/`guard` alternating solid frames with ghosted motion-blur frames, severed shoes floating above the figure, and a `guard` row that was a tumble | one character, one size, in every file (standing height compared across all files); every frame solid; nothing floating; guard/idle/walk stay on the feet | `verify-character` |
 | Byte's grids delivered as a copy of another hero | identity from a character sheet, checked at review | build warns, review |
 | Bosses on legacy grids losing 1–3 frames whose figure is mostly missing (`partial-figure`) | every cell holds the whole figure; empty/partial cells rejected | `verify-character`, build |

@@ -108,6 +108,16 @@ for (const action of actions) {
     if (f.clipped.length) fail(`${c}: art is cut off at its ${f.clipped.join('/')} edge — keep a generous margin, nothing may touch a cell line`);
     const m = f.main;
     const h = m.y1 - m.y0 + 1, w = m.x1 - m.x0 + 1;
+    // a straight edge on the figure itself — its leftmost/rightmost column or top row filled in one
+    // long run — is a crop, wherever it sits in the cell (a re-sliced or zoomed frame). Natural
+    // silhouettes end in a heel, a fist, a hood; only the bottom may be flat (soles, a body on the floor).
+    if (h >= 40) {
+      const W = f.cell.width;
+      const colRun = (x) => { let best = 0, run = 0; for (let y = m.y0; y <= m.y1; y++) { if (f.labels[y * W + x] === m.id) { run++; best = Math.max(best, run); } else run = 0; } return best / h; };
+      const rowRun = (y) => { let best = 0, run = 0; for (let x = m.x0; x <= m.x1; x++) { if (f.labels[y * W + x] === m.id) { run++; best = Math.max(best, run); } else run = 0; } return best / w; };
+      const cuts = [['left', colRun(m.x0)], ['right', colRun(m.x1)], ['top', rowRun(m.y0)]].filter(([, r]) => r >= 0.4);
+      if (cuts.length) fail(`${c}: the figure ends in a straight ${cuts.map(([side]) => side).join('/')} edge — a cropped or re-sliced frame; every frame is a whole figure drawn inside its cell`);
+    }
     // a painted ground shadow: a wide, dark, colourless blob detached under the feet (dust, sparks
     // and paint at foot level are effects and are fine)
     for (const o of f.comps) {
@@ -201,6 +211,8 @@ if (S('walk') && S('walk').every(Boolean)) {
 if (S('idle') && S('idle').every(Boolean)) {
   const s = S('idle'); const spread = Math.max(...s.map((r) => r.h)) - Math.min(...s.map((r) => r.h));
   if (spread > refH * 0.2) warn(`idle.png: the figure's height varies ${spread} px across the loop — idle is a subtle breathing loop, not a set of different poses`);
+  // every idle frame stays close to frame 1's pose; an attack or a fall spliced into the row is far from it
+  s.forEach((r, i) => { if (diff(r.sig, s[0].sig) > 0.45) warn(`idle.png: frame ${i + 1} is a completely different pose from frame 1 — idle is a subtle loop of one stance; this looks like another action's frame`); });
 }
 if (H('defeat')) {
   const h = H('defeat'); const flat = Math.min(...h);

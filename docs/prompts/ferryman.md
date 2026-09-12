@@ -6,8 +6,7 @@ on screen than enemies: every attack telegraphs clearly, and `special` is unmist
 `attack`. Deliver all 6 files in one session, one look.
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render
-style) and the identity reference: `public/assets/generated/bosses/boss-00-ferryman-grid.png (identity) · public/game/portraits/ferryman.webp`. Do Step A (the character sheet) first and attach it
-to every action request too.
+style), `public/assets/generated/bosses/boss-00-ferryman-grid.png` (identity), and the size reference **`public/assets/generated/actions/ferryman/idle.png` (the size reference — standing height is ≈600–650 px)**. Do Step A (the character sheet) first and attach it to every action request too.
 
 ## Character card
 
@@ -47,8 +46,7 @@ EFFECT:        cyan light trails off the hook; pale cyan fog
 > alpha channel — not a painted checkerboard, not a matte colour, and no grid lines or cell borders
 > drawn on the canvas)**. [STYLE BLOCK] The character faces RIGHT in every frame. **Identical
 > bottom-centre anchor in all 9 cells: feet on the same baseline, body on the same vertical axis,
-> the figure the same size as in every other file of this character, filling about two thirds of the
-> cell height. Generous empty margin inside each cell — hands, feet, hair, props and effects never
+> the figure the exact same size (≈600–650 px standing height) as in the reference `idle.png`, filling about two thirds (60–70%) of the cell height. Never shrink the character down.** Generous empty margin inside each cell — hands, feet, hair, props and effects never
 > touch or cross a cell boundary. No ground shadow or floor under the feet.** Each of the 9 frames
 > is a distinct, fully drawn, solid pose — **no motion-blur frames, no semi-transparent ghost
 > frames, no in-between smears** — and never a repeated frame. Action: **<ACTION>** — <the 9
@@ -58,12 +56,12 @@ EFFECT:        cyan light trails off the hook; pale cyan fog
 
 | file | Action: **…** — the 9 beats |
 |---|---|
-| `idle.png` | **idle** — a looming stance, chain swaying: 1 stance, 2 the hook swings, 3 lantern flickers, 4 shoulders roll, 5 hook swings back, 6 eye-glow brightens, 7 fog wisps from the lantern, 8 hook stills, 9 settles into frame 1. |
-| `approach.png` | **approach** — a slow, heavy stalk forward dragging the chain: a full 8-step stride plus a return frame, the hook scraping behind; frame 9 leads into frame 1. |
-| `attack.png` | **attack** — HOOK SLASH: 1 stance, 2 the hook draws back over the shoulder, 3 the chain arcs, **4–5 the hook whips forward in a wide cyan-trailed arc at full reach**, 6 the hook bites, 7 yanks it back, 8 gathers the chain, 9 stance. Arc inside the cell. |
-| `special.png` | **special** — LANTERN FOG: 1 plants, 2 raises the lantern, 3 it flares cyan, **4–6 a spreading pool of pale cyan fog rolls out around his feet, wider each frame**, 7 the fog thickens, 8 he lowers the lantern, 9 stance. Fog inside the cell. |
-| `hurt.png` | **hurt** — **1–3 flinch**: hood thrown back, eye-glow flaring, still on the feet; **4–6 heavy reel**: staggers back, chain flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the hook slips from his grip, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (face down, hood over his head, chain across the floor, lantern out). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `idle.png` | **idle** — a looming stance, chain swaying: 1 stance, 2 the hook swings, 3 lantern flickers, 4 shoulders roll, 5 hook swings back, 6 eye-glow brightens, 7 fog wisps from the lantern, 8 hook stills, 9 settles into frame 1. **Full standing height (≈600–650 px). Grounded on baseline.** |
+| `approach.png` | **approach** — a slow, heavy stalk forward dragging the chain: a full 8-step stride plus a return frame, the hook scraping behind; frame 9 leads into frame 1. **Full standing height (≈600–650 px). Solid 100% opaque poses — no motion-blur smears or semi-transparent ghosting.** |
+| `attack.png` | **attack** — HOOK SLASH: 1 stance, 2 the hook draws back over the shoulder, 3 the chain arcs, **4–5 the hook whips forward in a wide cyan-trailed arc at full reach**, 6 the hook bites, 7 yanks it back, 8 gathers the chain, 9 stance. Arc inside the cell. **Full standing height (≈600–650 px). Solid 100% opaque poses — no semi-transparent ghost frames.** |
+| `special.png` | **special** — LANTERN FOG: 1 plants, 2 raises the lantern, 3 it flares cyan, **4–6 a spreading pool of pale cyan fog rolls out around his feet, wider each frame**, 7 the fog thickens, 8 he lowers the lantern, 9 stance. Fog inside the cell. **Full standing height (≈600–650 px). Solid 100% opaque poses — no ghosting on the character figure.** |
+| `hurt.png` | **hurt** — **STARTS FULLY UPRIGHT ON FEET (FRAME 1)**: **1–3 flinch**: standing upright, feet planted on baseline, hood thrown back, eye-glow flaring; **4–6 heavy reel**: staggers back, chain flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. **Full standing height (≈600–650 px when upright, matching `idle.png`). Never undersized, frame 1 must start standing upright on feet.** |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the hook slips from his grip, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (face down, hood over his head, chain across the floor, lantern out). Full length across the cell, same size as standing (≈600–650 px full length across the cell) — never shrunk, never faded away. |
 
 ## Accept
 

@@ -5,8 +5,7 @@ currently ships on its old 6-frame grid; this set replaces it completely. Delive
 session, one look.
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render
-style) and the identity reference: `public/assets/generated/enemies/enemy-00-red-punk-grid-1.png (identity) · public/assets/generated/actions/punk/special.png (the delivered flame look)`. Do Step A (the character sheet) first and attach it
-to every action request too.
+style), `public/assets/generated/enemies/enemy-00-red-punk-grid-1.png` (identity), and the size reference **`public/assets/generated/actions/punk/special.png` (the delivered flame look / size reference — standing height is ≈600 px)**. Do Step A (the character sheet) first and attach it to every action request too.
 
 ## Character card
 
@@ -46,8 +45,7 @@ EFFECT:        red-orange fire on the fists with yellow embers
 > alpha channel — not a painted checkerboard, not a matte colour, and no grid lines or cell borders
 > drawn on the canvas)**. [STYLE BLOCK] The character faces RIGHT in every frame. **Identical
 > bottom-centre anchor in all 9 cells: feet on the same baseline, body on the same vertical axis,
-> the figure the same size as in every other file of this character, filling about two thirds of the
-> cell height. Generous empty margin inside each cell — hands, feet, hair, props and effects never
+> the figure the exact same size (≈600 px standing height) as in the delivered reference `special.png`, filling about two thirds (60–70%) of the cell height. Never shrink the character down to ~60% (~370 px). Generous empty margin inside each cell — hands, feet, hair, props and effects never
 > touch or cross a cell boundary. No ground shadow or floor under the feet.** Each of the 9 frames
 > is a distinct, fully drawn, solid pose — **no motion-blur frames, no semi-transparent ghost
 > frames, no in-between smears** — and never a repeated frame. Action: **<ACTION>** — <the 9
@@ -57,12 +55,12 @@ EFFECT:        red-orange fire on the fists with yellow embers
 
 | file | Action: **…** — the 9 beats |
 |---|---|
-| `idle.png` | **idle** — a cocky boxer's bounce: 1 guard, 2 weight left, 3 shoulders roll, 4 fists tap together, 5 weight right, 6 chin lifts, 7 hip chain swings, 8 fists back up, 9 settles into frame 1. Same height throughout. |
-| `walk.png` | **walk** — a swaggering advance, fists up: a full 8-step stride plus a return frame, chain swinging in time; frame 9 leads back into frame 1. |
-| `attack.png` | **attack** — a quick jab: 1 guard, 2 shoulder loads, 3 fist snaps forward, **4–5 full extension with a small impact spark**, 6 pull back, 7–8 reset, 9 guard. |
-| `heavy.png` | **heavy** — an overhand haymaker: 1–3 a long wind-up with the fist drawn behind the head, 4 steps in, **5–6 the fist crashes down and through with a big impact burst**, 7–9 a slow recovery. |
-| `special.png` | **special** — FLAMING FISTS: 1 crouches and clenches, 2–3 both fists ignite in red-orange fire, 4 lunges, **5 a flaming haymaker leaving a flame streak**, 6 impact burst, 7 follow-through with embers, 8 shakes the fire out, 9 guard. Fire inside the cell. |
-| `guard.png` | **guard** — braced high guard, both fists in front of the face, elbows tucked, feet planted; small flinches on frames 3, 5 and 7 as hits land with white sparks. |
+| `idle.png` | **idle** — a cocky boxer's bounce: 1 guard, 2 weight left, 3 shoulders roll, 4 fists tap together, 5 weight right, 6 chin lifts, 7 hip chain swings, 8 fists back up, 9 settles into frame 1. **Full standing height (≈600 px, matching `special.png`). Grounded on baseline.** |
+| `walk.png` | **walk** — a swaggering advance, fists up: a full 8-step stride plus a return frame, chain swinging in time; frame 9 leads back into frame 1. **Full standing height (≈600 px, matching `special.png`). Every frame is a solid 100% opaque pose — no motion-blur smears or semi-transparent ghosting on steps 2/4/6/8.** |
+| `attack.png` | **attack** — a quick jab: 1 guard, 2 shoulder loads, 3 fist snaps forward, **4–5 full extension with a small impact spark**, 6 pull back, 7–8 reset, 9 guard. **Full standing height (≈600 px, matching `special.png`). Every frame is a solid 100% opaque pose — no semi-transparent ghosting or motion blur.** |
+| `heavy.png` | **heavy** — an overhand haymaker: 1–3 a long wind-up with the fist drawn behind the head, 4 steps in, **5–6 the fist crashes down and through with a big impact burst**, 7–9 a slow recovery. **Full standing height (≈600 px, matching `special.png`). Solid 100% opaque poses (no ghost smears). Red sneakers remain firmly attached to feet/legs in all frames — never severed or floating above the figure.** |
+| `special.png` | **special** — FLAMING FISTS: 1 crouches and clenches, 2–3 both fists ignite in red-orange fire, 4 lunges, **5 a flaming haymaker leaving a flame streak**, 6 impact burst, 7 follow-through with embers, 8 shakes the fire out, 9 guard. Fire inside the cell. (Delivered & accepted size reference file). |
+| `guard.png` | **guard** — **GROUNDED STANDING GUARD (NEVER AIRBORNE, NEVER TUMBLING)**: braced high guard standing on feet, both fists in front of the face, elbows tucked, feet planted on the baseline; small flinches on frames 3, 5 and 7 as hits land with white sparks. Frame 9 remains fully upright on feet at 100% height — never lying down. |
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, vest flaring, still on the feet; **4–6 heavy reel**: staggers back on his heels, arms flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, body curling in the air. |
 | `knockback.png` | **knockback** — 1 stagger, 2 thrown off the feet, 3–5 airborne and tumbling, **6 lands hard, 7 flat on the floor** (on his back, sneakers up), 8–9 either still flat or beginning to stir — never back on the feet. **There must be a frame lying flat.** |
 | `getup.png` | **getup** — **frame 1 flat on the floor (the lowest frame)**, 2 head lifts, 3 pushes up onto the hands, 4 hands and knees, 5 one knee, 6 rising, 7 upright but hunched, 8 straightens, **9 standing at full height in the guard stance**. Rises monotonically — never dips. |
