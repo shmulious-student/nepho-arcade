@@ -126,6 +126,12 @@ dev-only endpoint (`vite.config.ts`). A boss assigned to a level replaces that l
 an enemy added to a level takes one slot of an existing wave rather than adding bodies, and a
 disabled enemy is swapped for another one allowed there, so wave sizes and budgets never change.
 Rank is fixed by the art (12-row hero set, 10-row enemy set, 6-row boss set) and is shown, not edited.
+Every card also carries the character's standing against `docs/character-art-standard.md` — READY,
+FAILED (with the gate's list of what to regenerate) or LEGACY (no per-action set yet; the prompt file
+to run) — computed live by the dev server (`tools/readiness.mjs`, cached per set). **Ready only**
+builds the roster from that: only passing heroes in the lobby, only passing enemies in the waves, and
+the passing bosses dealt round-robin across the ten levels, reused when there are fewer than ten (the
+cards and the campaign board say so). `public/game/roster.json` is currently that ready-only roster.
 
 ## LAN co-op, in detail
 

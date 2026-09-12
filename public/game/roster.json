@@ -16,115 +16,82 @@
   "nepho": {
    "name": "NEPHO",
    "rank": "hero",
-   "enabled": true,
+   "enabled": false,
    "levels": []
   },
   "byte": {
    "name": "BYTE",
    "rank": "hero",
-   "enabled": true,
+   "enabled": false,
    "levels": []
   },
   "punk": {
    "name": "Punk",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    1,
-    2,
-    3,
-    4,
-    6,
-    10
-   ]
+   "enabled": false,
+   "levels": []
   },
   "chainer": {
    "name": "Chainer",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    1,
-    2,
-    3,
-    4,
-    6,
-    8,
-    10
-   ]
+   "enabled": false,
+   "levels": []
   },
   "brawler": {
    "name": "Brawler",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    3,
-    4
-   ]
+   "enabled": false,
+   "levels": []
   },
   "kicker": {
    "name": "Kicker",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    4,
-    5,
-    8
-   ]
+   "enabled": false,
+   "levels": []
   },
   "knight": {
    "name": "Knight",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    5,
-    6,
-    7
-   ]
+   "enabled": false,
+   "levels": []
   },
   "shield": {
    "name": "Shield Trooper",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    6,
-    8
-   ]
+   "enabled": false,
+   "levels": []
   },
   "punk-b": {
    "name": "Punk",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    5,
-    7,
-    9,
-    10
-   ]
+   "enabled": false,
+   "levels": []
   },
   "brawler-b": {
    "name": "Brawler",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    7,
-    9
-   ]
+   "enabled": false,
+   "levels": []
   },
   "knight-b": {
    "name": "Knight",
    "rank": "enemy",
-   "enabled": true,
-   "levels": [
-    9,
-    10
-   ]
+   "enabled": false,
+   "levels": []
   },
   "bio-brute": {
    "name": "Bio-Brute",
    "rank": "enemy",
    "enabled": true,
    "levels": [
+    1,
+    2,
+    3,
+    4,
+    5,
     6,
+    7,
+    8,
     9,
     10
    ]
@@ -134,8 +101,15 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
+    1,
+    2,
+    3,
+    4,
     5,
+    6,
+    7,
     8,
+    9,
     10
    ]
   },
@@ -144,6 +118,13 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
     8,
     9,
     10
@@ -154,7 +135,14 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
     7,
+    8,
     9,
     10
    ]
@@ -162,106 +150,100 @@
   "ferryman": {
    "name": "Ferryman",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    1
-   ]
+   "enabled": false,
+   "levels": []
   },
   "glass-warden": {
    "name": "Glass Warden",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    2
-   ]
+   "enabled": false,
+   "levels": []
   },
   "kilnheart": {
    "name": "Kilnheart",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    3
-   ]
+   "enabled": false,
+   "levels": []
   },
   "monk-zero": {
    "name": "Monk Zero",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    4
-   ]
+   "enabled": false,
+   "levels": []
   },
   "market-king": {
    "name": "Market King",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    5
-   ]
+   "enabled": false,
+   "levels": []
   },
   "railmaw": {
    "name": "Railmaw",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    6
-   ]
+   "enabled": false,
+   "levels": []
   },
   "crown-runner": {
    "name": "Crown Runner",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    7
-   ]
+   "enabled": false,
+   "levels": []
   },
   "the-null": {
    "name": "The Null",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    8
-   ]
+   "enabled": false,
+   "levels": []
   },
   "vault-mother": {
    "name": "Vault Mother",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    9
-   ]
+   "enabled": false,
+   "levels": []
   },
   "ultra-signal": {
    "name": "Ultra Signal",
    "rank": "boss",
-   "enabled": true,
-   "levels": [
-    10
-   ]
+   "enabled": false,
+   "levels": []
   },
   "abyss-dragon": {
    "name": "Abyss Dragon",
    "rank": "boss",
    "enabled": true,
-   "levels": []
+   "levels": [
+    1,
+    5,
+    9
+   ]
   },
   "flame-samurai": {
    "name": "Flame Samurai",
    "rank": "boss",
    "enabled": true,
-   "levels": []
+   "levels": [
+    2,
+    6,
+    10
+   ]
   },
   "prism-queen": {
    "name": "Prism Queen",
    "rank": "boss",
    "enabled": true,
-   "levels": []
+   "levels": [
+    3,
+    7
+   ]
   },
   "storm-colossus": {
    "name": "Storm Colossus",
    "rank": "boss",
    "enabled": true,
-   "levels": []
+   "levels": [
+    4,
+    8
+   ]
   }
  }
 }

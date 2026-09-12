@@ -21,19 +21,18 @@ import sharp from 'sharp';
 import * as ops from './asset-ops.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const args = process.argv.slice(2);
-const id = args.find((a) => !a.startsWith('--'));
-const rankArg = args.includes('--rank') ? args[args.indexOf('--rank') + 1] : null;
-const lenient = args.includes('--lenient');
-if (!id) { console.error('usage: node tools/verify-character.mjs <id> [--rank hero|enemy|boss] [--lenient]'); process.exit(2); }
 
-const ACTIONS = {
+export const ACTIONS = {
   hero: ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockdown', 'defeat'],
   enemy: ['idle', 'walk', 'attack', 'heavy', 'special', 'guard', 'hurt', 'knockback', 'getup', 'defeat'],
   boss: ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'],
 };
+
+/** Runs the gate on public/assets/generated/actions/<id>; returns { rank, present, fails, warns } or
+ * null when the character has no per-action set at all. */
+export async function verifyCharacter(id, { rank: rankArg = null, lenient = false } = {}) {
 const dir = join(ROOT, 'public/assets/generated/actions', id);
-if (!existsSync(dir)) { console.error(`no such set: ${dir}`); process.exit(2); }
+if (!existsSync(dir)) return null;
 const present = readdirSync(dir).filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, ''));
 // rank from the files when not given: the set that matches best
 const rank = rankArg || Object.keys(ACTIONS).sort((a, b) => ACTIONS[b].filter((x) => present.includes(x)).length - ACTIONS[a].filter((x) => present.includes(x)).length)[0];
@@ -262,9 +261,20 @@ if (H('hurt')) {
 
 if (binaryAlpha.length) note(`binary (hard-edged) alpha in ${binaryAlpha.length} file(s) — acceptable, the build feathers the edge`);
 
-// ---- report ----
-console.log(`verify-character ${id} (${rank}, ${actions.length} actions, ${present.length} files present)`);
-for (const w of warns) console.log('  note  ' + w);
-for (const f of fails) console.log('  FAIL  ' + f);
-if (fails.length) { console.log(`\n${fails.length} failure(s) — regenerate the named files/cells, then run again.`); process.exit(1); }
-console.log(`\nPASS — ${id} meets the standard. Next: npm run build:assets && npm run test:assets, then watch it on /showcase.html.`);
+return { id, rank, actions, present, fails, warns };
+}
+
+// ---- CLI ----
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain) {
+  const args = process.argv.slice(2);
+  const id = args.find((a) => !a.startsWith('--'));
+  if (!id) { console.error('usage: node tools/verify-character.mjs <id> [--rank hero|enemy|boss] [--lenient]'); process.exit(2); }
+  const res = await verifyCharacter(id, { rank: args.includes('--rank') ? args[args.indexOf('--rank') + 1] : null, lenient: args.includes('--lenient') });
+  if (!res) { console.error(`no such set: public/assets/generated/actions/${id}`); process.exit(2); }
+  console.log(`verify-character ${id} (${res.rank}, ${res.actions.length} actions, ${res.present.length} files present)`);
+  for (const w of res.warns) console.log('  note  ' + w);
+  for (const f of res.fails) console.log('  FAIL  ' + f);
+  if (res.fails.length) { console.log(`\n${res.fails.length} failure(s) — regenerate the named files/cells, then run again.`); process.exit(1); }
+  console.log(`\nPASS — ${id} meets the standard. Next: npm run build:assets && npm run test:assets, then watch it on /showcase.html.`);
+}

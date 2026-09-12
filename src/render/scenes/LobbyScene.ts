@@ -37,7 +37,7 @@ export class LobbyScene extends Phaser.Scene {
   private p2Row!: Phaser.GameObjects.Container;
   private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
-  private friendPick: HeroId = HERO_IDS[1] ?? HERO_IDS[0];
+  private friendPick: HeroId | null = HERO_IDS[1] ?? null;
   private friendMode: FriendMode = 'assist';
   private friendText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
@@ -174,7 +174,9 @@ export class LobbyScene extends Phaser.Scene {
   /** Moves the friend pick by `dir` among the heroes nobody is playing. */
   private cycleFriend(dir: number): void {
     const pool = HERO_IDS.filter((h) => h !== this.heroPick[0] && h !== this.heroPick[1]);
-    let i = pool.indexOf(this.friendPick);
+    // with only two heroes in the roster there is nobody left to be the friend in a 2P game
+    if (!pool.length) { this.friendPick = null; this.friendText.setText('— nobody left'); return; }
+    let i = this.friendPick ? pool.indexOf(this.friendPick) : -1;
     if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
     this.friendPick = pool[i];
     this.friendText.setText(`${HEROES[this.friendPick].name} · ${HEROES[this.friendPick].bias.split(' · ')[1] || ''}`.slice(0, 24));

@@ -56,6 +56,23 @@
   .levels button.on { background: #1f3350; color: var(--text); border-color: var(--cyan); }
   .levels button.taken { color: #55637e; text-decoration: line-through; }
   .hint { color: var(--dim); font-size: 11px; }
+  .pill { display: inline-block; font-size: 10px; font-weight: bold; letter-spacing: 1px; padding: 1px 7px; border-radius: 3px; vertical-align: middle; }
+  .pill.ready { background: #123a2a; color: var(--green); }
+  .pill.failed { background: #3a1220; color: var(--pink); }
+  .pill.legacy { background: #2b2a12; color: var(--accent); }
+  .pill.checking, .pill.unknown { background: #1a2238; color: var(--dim); }
+  .pill.reuse { background: #241a3a; color: var(--purple); }
+  .card .status { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .card .status .why { color: var(--dim); }
+  .card .status details { margin-top: 2px; }
+  .card .status summary { cursor: pointer; color: var(--pink); }
+  .card .status ul { margin: 4px 0 0; padding-left: 16px; color: var(--muted); }
+  .card .status code { color: var(--cyan); font-size: 10px; }
+  .card[data-ready="failed"] { border-color: #5a2030; }
+  .card[data-ready="ready"] { border-color: #1f5a3a; }
+  #readiness { margin: 0 0 10px; display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+  .lvl .wave span.ready { color: var(--green); }
+  .lvl .wave span.failed, .lvl .wave span.legacy { color: var(--accent); }
   #board { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
   .lvl { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-size: 11px; }
   .lvl b { display: block; color: var(--text); font-size: 12px; margin-bottom: 2px; }
@@ -76,6 +93,7 @@
   <span class="spacer"></span>
   <span id="status">loading…</span>
   <button id="reset">Reset to defaults</button>
+  <button id="auto" title="enable only characters whose art passes the standard; ready bosses are dealt across the ten levels">Ready only</button>
   <button id="save" class="primary" disabled>Save roster</button>
 </header>
 <main>
@@ -85,6 +103,7 @@
     <button data-tab="boss">Bosses <span class="count" id="c-boss"></span></button>
     <button data-tab="campaign">Campaign</button>
   </div>
+  <div id="readiness"></div>
   <div id="warnings"></div>
   <div class="grid" id="grid"></div>
   <div id="campaign" hidden>

@@ -7,7 +7,7 @@
 // is mounted at a time, a card fetches its atlas only once it scrolls near the viewport, and only
 // on-screen cards animate — each redrawing just when its idle frame actually changes.
 import { loadCatalog, assetUrl, type Catalog, type CharacterEntry } from '../shared/catalog';
-import { defaultRoster, normalizeRoster, composeLevels, loadRoster, LEVEL_COUNT, type Roster, type Rank } from '../sim/roster';
+import { defaultRoster, normalizeRoster, composeLevels, loadRoster, readyRoster, LEVEL_COUNT, type Roster, type Rank, type Readiness } from '../sim/roster';
 import { LEVELS } from '../sim/levels';
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -19,6 +19,10 @@ let catalog: Catalog;
 let roster: Roster;
 let saved = '';
 let tab: Tab = 'hero';
+// readiness against the art standard, from the dev server (tools/readiness.mjs); null until it lands
+interface ReadyInfo { status: 'ready' | 'failed' | 'legacy'; rank: Rank; present: number; need: number; fails: string[]; missing: string[]; files?: string[]; prompt: string; summary: string; variantOf?: string }
+let ready: Record<string, ReadyInfo> | null = null;
+let readyPending = false;
 const cards: Record<string, { root: HTMLElement; refresh: () => void }> = {};
 
 // ---------- lazy atlas loading ----------
@@ -115,6 +119,8 @@ function makeCard(def: CharacterEntry): HTMLElement {
   actions.append(sel, all);
   const head = document.createElement('div'); head.className = 'head';
   head.innerHTML = `<span class="id" title="${id}">${id}</span><span class="badges"><span class="badge ${entry.rank}">${entry.rank}</span>${formatBadge(def)}</span>`;
+  // standing against the art standard: ready / failed (with the gate's list) / legacy (needs a set)
+  const status = document.createElement('div'); status.className = 'status';
   const toggle = document.createElement('label'); toggle.className = 'toggle';
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = entry.enabled;
   toggle.append(cb, document.createTextNode(entry.rank === 'hero' ? 'in the lobby' : entry.rank === 'boss' ? 'can guard a level' : 'can spawn'));
@@ -127,13 +133,12 @@ function makeCard(def: CharacterEntry): HTMLElement {
       const b = document.createElement('button'); b.textContent = String(n); b.title = `level ${n} — ${LEVELS[n - 1].id}`;
       b.onclick = () => {
         if (entry.rank === 'boss') {
-          // one boss per level: taking a level takes it from whoever held it
+          // one boss per level, but a boss may guard several: taking a level takes it from whoever
+          // held it; clearing a level hands it back to its default boss (what the sim does anyway)
           const was = entry.levels.includes(n);
-          const freed = entry.levels[0];
-          entry.levels = was ? [] : [n];
+          entry.levels = was ? entry.levels.filter((l) => l !== n) : [...entry.levels, n].sort((a, b) => a - b);
           if (!was) { const holder = bossHolding(n, id); if (holder) roster.characters[holder].levels = roster.characters[holder].levels.filter((l) => l !== n); }
-          // a level nobody claims goes back to its default boss (which is what the sim does anyway)
-          if (freed !== undefined && !bossHolding(freed, id)) { const base = roster.characters[LEVELS[freed - 1].boss]; if (base?.enabled && base !== entry) base.levels = [freed]; }
+          if (was && !bossHolding(n, id)) { const base = roster.characters[LEVELS[n - 1].boss]; if (base?.enabled && base !== entry && !base.levels.includes(n)) base.levels = [...base.levels, n].sort((a, b) => a - b); }
         } else {
           entry.levels = entry.levels.includes(n) ? entry.levels.filter((l) => l !== n) : [...entry.levels, n].sort((a, b) => a - b);
         }
@@ -141,15 +146,22 @@ function makeCard(def: CharacterEntry): HTMLElement {
       };
       levels.append(b); lvBtns.push(b);
     }
-    hint.textContent = entry.rank === 'boss' ? 'the level this boss ends (click again to clear)' : 'levels whose waves may include it';
+    hint.textContent = entry.rank === 'boss' ? 'the levels this boss ends — several means it is reused' : 'levels whose waves may include it';
   } else {
     hint.textContent = 'heroes have no level — they are picked in the lobby';
   }
   cb.onchange = () => { entry.enabled = cb.checked; changed(); };
   name.oninput = () => { entry.name = name.value; changed(); };
-  root.append(cv, actions, head, toggle, name, levels, hint);
+  root.append(cv, actions, head, status, toggle, name, levels, hint);
   const refresh = () => {
     root.classList.toggle('out', !entry.enabled || (entry.rank !== 'hero' && entry.levels.length === 0));
+    const r = ready?.[id];
+    root.dataset.ready = r ? r.status : readyPending ? 'checking' : 'unknown';
+    if (!r) status.innerHTML = readyPending ? '<span class="pill checking">checking…</span>' : '<span class="pill unknown">readiness unknown</span>';
+    else if (r.status === 'ready') status.innerHTML = `<span class="pill ready">READY</span> <span class="why">${r.summary}</span>`;
+    else if (r.status === 'legacy') status.innerHTML = `<span class="pill legacy">LEGACY</span> <span class="why">${r.summary} · <code>${r.prompt}</code></span>`;
+    else status.innerHTML = `<span class="pill failed">FAILED</span> <span class="why">${r.summary}</span><details><summary>${r.fails.length} gate failure(s)</summary><ul>${r.fails.map((f) => `<li>${f}</li>`).join('')}</ul></details>`;
+    if (entry.rank === 'boss' && entry.levels.length > 1) status.innerHTML += ` <span class="pill reuse">reused ×${entry.levels.length}</span>`;
     cb.checked = entry.enabled; if (document.activeElement !== name) name.value = entry.name;
     lvBtns.forEach((b, i) => {
       const n = i + 1;
@@ -172,8 +184,11 @@ function renderBoard() {
     const bossName = roster.characters[l.boss]?.name ?? l.boss;
     const portrait = catalog.bosses.find((b) => b.id === l.boss)?.portrait;
     const el = document.createElement('div'); el.className = 'lvl';
-    const waves = l.waves.map((w, i) => `<div class="wave">w${i + 1}: ${w.spawns.map((s) => `<span>${roster.characters[s.arch]?.name ?? s.arch}</span>×${s.n}`).join(', ')}</div>`).join('');
-    el.innerHTML = `<b>${l.index}. ${meta?.name ?? l.id}</b><div class="boss">${portrait ? `<img src="${assetUrl(portrait)}" alt="" loading="lazy">` : ''}<span>${bossName}</span></div>${waves}`;
+    const waves = l.waves.map((w, i) => `<div class="wave">w${i + 1}: ${w.spawns.map((s) => `<span class="${ready?.[s.arch]?.status ?? ''}">${roster.characters[s.arch]?.name ?? s.arch}</span>×${s.n}`).join(', ')}</div>`).join('');
+    const alsoOn = levels.filter((o) => o.boss === l.boss && o.index !== l.index).map((o) => o.index);
+    const reuse = alsoOn.length ? `<span class="pill reuse" title="also ends levels ${alsoOn.join(', ')}">also L${alsoOn.join(', L')}</span>` : '';
+    const bossState = ready?.[l.boss] ? `<span class="pill ${ready[l.boss].status}">${ready[l.boss].status}</span>` : '';
+    el.innerHTML = `<b>${l.index}. ${meta?.name ?? l.id}</b><div class="boss">${portrait ? `<img src="${assetUrl(portrait)}" alt="" loading="lazy">` : ''}<span>${bossName}</span>${bossState}${reuse}</div>${waves}`;
     board.append(el);
   }
   // heroes: fewer than two enabled means the lobby keeps them all
@@ -200,8 +215,17 @@ function mountTab() {
 function changed() {
   for (const c of Object.values(cards)) c.refresh();
   for (const rank of RANKS) {
-    const all = Object.values(roster.characters).filter((e) => e.rank === rank);
-    $(`#c-${rank}`).textContent = `${all.filter((e) => e.enabled).length}/${all.length}`;
+    const all = Object.entries(roster.characters).filter(([, e]) => e.rank === rank);
+    const on = all.filter(([, e]) => e.enabled).length;
+    const rd = ready ? all.filter(([id]) => ready![id]?.status === 'ready').length : null;
+    $(`#c-${rank}`).textContent = `${on}/${all.length} in` + (rd === null ? '' : ` · ${rd} ready`);
+  }
+  const summary = $('#readiness');
+  if (!ready) summary.textContent = readyPending ? 'checking every set against the art standard (first pass takes about a minute)…' : '';
+  else {
+    const all = Object.entries(ready).filter(([, r]) => !r.variantOf);
+    const n = (st: string) => all.filter(([, r]) => r.status === st).length;
+    summary.innerHTML = `<span class="pill ready">${n('ready')} ready</span> <span class="pill failed">${n('failed')} failed</span> <span class="pill legacy">${n('legacy')} legacy</span>` + (readyPending ? ' <span class="pill checking">re-checking changed sets…</span>' : '');
   }
   renderBoard();
   const dirty = JSON.stringify(roster) !== saved;
@@ -224,12 +248,35 @@ async function save() {
   }
 }
 
+/** Polls the dev server's readiness endpoint until the pass is complete, refreshing cards as it lands. */
+async function pollReadiness() {
+  try {
+    const res = await fetch('/__backoffice/readiness', { cache: 'no-store' });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json() as { pending: boolean; result: { characters: Record<string, ReadyInfo>; error?: string } | null };
+    readyPending = data.pending;
+    if (data.result && !data.result.error) ready = data.result.characters;
+    changed();
+    if (data.pending) setTimeout(pollReadiness, 3000);
+  } catch (err) {
+    readyPending = false; changed();
+    setStatus(`readiness unavailable — dev server only (${(err as Error).message.slice(0, 50)})`, 'err');
+  }
+}
+
 async function main() {
   catalog = await loadCatalog();
   roster = await loadRoster();
   saved = JSON.stringify(roster);
   $('#save').onclick = save;
   $('#reset').onclick = () => { roster = defaultRoster(); mountTab(); changed(); };
+  $('#auto').onclick = () => {
+    if (!ready) return;
+    roster = readyRoster(ready as Readiness, roster);
+    mountTab(); changed();
+    setStatus('roster set to ready characters only — save to apply', '');
+  };
+  readyPending = true; void pollReadiness();
   document.querySelectorAll<HTMLButtonElement>('#tabs button').forEach((b) => { b.onclick = () => { tab = b.dataset.tab as Tab; mountTab(); changed(); }; });
   mountTab(); changed();
   setStatus(JSON.stringify(roster) === saved ? 'loaded' : 'unsaved changes', '');

@@ -141,6 +141,25 @@ export function composeLevels(roster: Roster, warnings: string[] = []): LevelDef
   });
 }
 
+export type Readiness = Record<string, { status: 'ready' | 'failed' | 'legacy'; rank: Rank }>;
+
+/** The roster that fields only characters that pass the art standard: ready heroes in the lobby,
+ * ready enemies in every level's pool, ready bosses dealt round-robin across the ten levels (so a
+ * boss is reused when there are fewer than ten — the backoffice shows the reuse). Names and any
+ * other settings are kept from `base`. With no ready boss the default bosses stay. */
+export function readyRoster(readiness: Readiness, base: Roster = defaultRoster()): Roster {
+  const roster: Roster = { version: ROSTER_VERSION, characters: {} };
+  const ready = (id: string) => readiness[id]?.status === 'ready';
+  const readyBosses = Object.keys(base.characters).filter((id) => base.characters[id].rank === 'boss' && ready(id));
+  for (const [id, e] of Object.entries(base.characters)) {
+    const on = ready(id);
+    let levels: number[] = e.rank === 'hero' ? [] : on ? LEVELS.map((l) => l.index) : [];
+    if (e.rank === 'boss') levels = on ? LEVELS.map((l) => l.index).filter((n) => readyBosses[(n - 1) % readyBosses.length] === id) : [];
+    roster.characters[id] = { ...e, enabled: on || (e.rank === 'boss' && !readyBosses.length && e.enabled), levels: e.rank === 'boss' && !readyBosses.length ? e.levels : levels };
+  }
+  return roster;
+}
+
 /** Points the sim at the roster: campaign levels, hero pool, display names. Call once at boot,
  * before any World exists; calling it again with defaultRoster() restores the static tables. */
 export function applyRoster(roster: Roster): RosterResult {
