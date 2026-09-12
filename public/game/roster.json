@@ -1,0 +1,267 @@
+{
+ "version": 1,
+ "characters": {
+  "eviatar": {
+   "name": "EVIATAR",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
+  "omri": {
+   "name": "OMRI",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
+  "nepho": {
+   "name": "NEPHO",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
+  "byte": {
+   "name": "BYTE",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
+  "punk": {
+   "name": "Punk",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    10
+   ]
+  },
+  "chainer": {
+   "name": "Chainer",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    1,
+    2,
+    3,
+    4,
+    6,
+    8,
+    10
+   ]
+  },
+  "brawler": {
+   "name": "Brawler",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    3,
+    4
+   ]
+  },
+  "kicker": {
+   "name": "Kicker",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    4,
+    5,
+    8
+   ]
+  },
+  "knight": {
+   "name": "Knight",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    5,
+    6,
+    7
+   ]
+  },
+  "shield": {
+   "name": "Shield Trooper",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    6,
+    8
+   ]
+  },
+  "punk-b": {
+   "name": "Punk",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    5,
+    7,
+    9,
+    10
+   ]
+  },
+  "brawler-b": {
+   "name": "Brawler",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    7,
+    9
+   ]
+  },
+  "knight-b": {
+   "name": "Knight",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    9,
+    10
+   ]
+  },
+  "bio-brute": {
+   "name": "Bio-Brute",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    6,
+    9,
+    10
+   ]
+  },
+  "gold-sorceress": {
+   "name": "Gold Sorceress",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    5,
+    8,
+    10
+   ]
+  },
+  "void-demon": {
+   "name": "Void Demon",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    8,
+    9,
+    10
+   ]
+  },
+  "rainbow-oracle": {
+   "name": "Rainbow Oracle",
+   "rank": "enemy",
+   "enabled": true,
+   "levels": [
+    7,
+    9,
+    10
+   ]
+  },
+  "ferryman": {
+   "name": "Ferryman",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    1
+   ]
+  },
+  "glass-warden": {
+   "name": "Glass Warden",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    2
+   ]
+  },
+  "kilnheart": {
+   "name": "Kilnheart",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    3
+   ]
+  },
+  "monk-zero": {
+   "name": "Monk Zero",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    4
+   ]
+  },
+  "market-king": {
+   "name": "Market King",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    5
+   ]
+  },
+  "railmaw": {
+   "name": "Railmaw",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    6
+   ]
+  },
+  "crown-runner": {
+   "name": "Crown Runner",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    7
+   ]
+  },
+  "the-null": {
+   "name": "The Null",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    8
+   ]
+  },
+  "vault-mother": {
+   "name": "Vault Mother",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    9
+   ]
+  },
+  "ultra-signal": {
+   "name": "Ultra Signal",
+   "rank": "boss",
+   "enabled": true,
+   "levels": [
+    10
+   ]
+  },
+  "abyss-dragon": {
+   "name": "Abyss Dragon",
+   "rank": "boss",
+   "enabled": true,
+   "levels": []
+  },
+  "flame-samurai": {
+   "name": "Flame Samurai",
+   "rank": "boss",
+   "enabled": true,
+   "levels": []
+  },
+  "prism-queen": {
+   "name": "Prism Queen",
+   "rank": "boss",
+   "enabled": true,
+   "levels": []
+  },
+  "storm-colossus": {
+   "name": "Storm Colossus",
+   "rank": "boss",
+   "enabled": true,
+   "levels": []
+  }
+ }
+}

@@ -43,8 +43,11 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   floored) — or **OFF**.
 - **Local 2-player:** turn on **2P KEYBOARD** in the lobby and pick P2's hero. P2 uses arrow keys +
   Numpad `1`/`2`/`3`/`0`/`4`/`5`/`6` (light/heavy/dash/special/block/friend/jump).
-- Attacks are forgiving on purpose: light hits reach a little behind you, a press during a move is
-  buffered and fires the instant it ends, and swinging with an enemy at your back turns you toward it.
+- Attacks are forgiving on purpose: light hits reach a little behind you; any button pressed during
+  a move (or during the freeze after a landed hit) is remembered and fires the instant you can act —
+  a light chains on as soon as its hit frames are over, a heavy ends the string; and swinging with
+  an enemy at your back turns you toward it. Taps are never lost between frames, whatever the
+  display's refresh rate.
   Beating a boss rolls straight into the next level.
 - **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
   stick plants itself wherever your left thumb lands; hold DSH (above it) and push sideways to run. The right
@@ -82,7 +85,7 @@ vitest suite, and produce a production build.
 ## Asset pipeline
 
 `public/assets/generated/` holds the hand-authored/generated PNG masters (hero and enemy action
-grids, ten boss grids, backdrops, bilingual sign SVGs). `npm run build:assets` slices and normalizes
+grids, ten boss grids plus per-action sets for four more bosses, backdrops, bilingual sign SVGs). `npm run build:assets` slices and normalizes
 them into `public/game/` — the only thing the running game ever loads. Re-run it any time a master is
 replaced; the pipeline auto-detects grid layout (even inconsistent cell sizes), trims per-frame boxes,
 defringes matte halos, and computes a per-frame head anchor (kept in the catalog for future use). `public/game/debug/`
@@ -94,6 +97,19 @@ A few source masters have known defects the pipeline works around automatically 
 `hero-byte-grid.png` is currently the wrong character and is substituted with a hue-shifted Riva;
 `enemy-03-purple-fighter-grid.png` has a baked (non-transparent) checkerboard background that the
 pipeline attempts to un-bake. Drop in a corrected master and rebuild — nothing else needs to change.
+
+## Roster backoffice
+
+`public/game/roster.json` decides who takes part: every hero, enemy and boss the sim knows, with a
+display name, an enabled flag and (for enemies) the levels whose waves may include it or (for a
+boss) the level it ends. The game reads it once at boot (`src/sim/roster.ts`); a missing or broken
+file means the static defaults in `src/sim/levels.ts` / `enemyAi.ts` / `bosses.ts`. Edit it on the
+dev server at **`/backoffice.html`** — every character animates from its real atlas, grouped by
+rank, with the campaign each level would field shown underneath; **Save** writes the file through a
+dev-only endpoint (`vite.config.ts`). A boss assigned to a level replaces that level's default boss;
+an enemy added to a level takes one slot of an existing wave rather than adding bodies, and a
+disabled enemy is swapped for another one allowed there, so wave sizes and budgets never change.
+Rank is fixed by the art (12-row hero set, 10-row enemy set, 6-row boss set) and is shown, not edited.
 
 ## LAN co-op, in detail
 

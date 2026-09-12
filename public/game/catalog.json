@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-11T23:49:23.456Z",
+ "generatedAt": "2026-09-12T08:01:34.445Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -3059,6 +3059,346 @@
     "feathered binary alpha",
     "feathered binary alpha"
    ]
+  },
+  "gold-sorceress": {
+   "id": "gold-sorceress",
+   "kind": "enemy",
+   "atlas": "chars/gold-sorceress.webp",
+   "data": "chars/gold-sorceress.json",
+   "box": {
+    "w": 320,
+    "h": 212
+   },
+   "anchor": {
+    "x": 160,
+    "y": 210
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.2847,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/gold-sorceress/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "void-demon": {
+   "id": "void-demon",
+   "kind": "enemy",
+   "atlas": "chars/void-demon.webp",
+   "data": "chars/void-demon.json",
+   "box": {
+    "w": 296,
+    "h": 207
+   },
+   "anchor": {
+    "x": 148,
+    "y": 204
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.2986,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/void-demon/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "rainbow-oracle": {
+   "id": "rainbow-oracle",
+   "kind": "enemy",
+   "atlas": "chars/rainbow-oracle.webp",
+   "data": "chars/rainbow-oracle.json",
+   "box": {
+    "w": 234,
+    "h": 195
+   },
+   "anchor": {
+    "x": 117,
+    "y": 186
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.2708,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/rainbow-oracle/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "4 defective source frame(s) replaced by a neighbour: heavy/2(cut-right)->1 heavy/3(cut-right)->1 heavy/4(cut-right)->6 heavy/5(cut-right)->6"
+   ]
+  },
+  "abyss-dragon": {
+   "id": "abyss-dragon",
+   "kind": "boss",
+   "atlas": "chars/abyss-dragon.webp",
+   "data": "chars/abyss-dragon.json",
+   "box": {
+    "w": 468,
+    "h": 362
+   },
+   "anchor": {
+    "x": 234,
+    "y": 360
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.4568,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/abyss-dragon/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "flame-samurai": {
+   "id": "flame-samurai",
+   "kind": "boss",
+   "atlas": "chars/flame-samurai.webp",
+   "data": "chars/flame-samurai.json",
+   "box": {
+    "w": 434,
+    "h": 323
+   },
+   "anchor": {
+    "x": 217,
+    "y": 314
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.4772,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/flame-samurai/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "2 defective source frame(s) replaced by a neighbour: defeat/7(partial-figure)->6 defeat/8(partial-figure)->6"
+   ]
+  },
+  "prism-queen": {
+   "id": "prism-queen",
+   "kind": "boss",
+   "atlas": "chars/prism-queen.webp",
+   "data": "chars/prism-queen.json",
+   "box": {
+    "w": 414,
+    "h": 353
+   },
+   "anchor": {
+    "x": 207,
+    "y": 351
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.5231,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/prism-queen/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "storm-colossus": {
+   "id": "storm-colossus",
+   "kind": "boss",
+   "atlas": "chars/storm-colossus.webp",
+   "data": "chars/storm-colossus.json",
+   "box": {
+    "w": 394,
+    "h": 330
+   },
+   "anchor": {
+    "x": 197,
+    "y": 328
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.4873,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/storm-colossus/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
   }
  },
  "heroes": [
@@ -3075,6 +3415,9 @@
   "knight",
   "shield",
   "bio-brute",
+  "gold-sorceress",
+  "void-demon",
+  "rainbow-oracle",
   "punk-b",
   "brawler-b",
   "knight-b"
@@ -3139,6 +3482,30 @@
    "name": "Ultra Signal",
    "index": 9,
    "portrait": "portraits/ultra-signal.webp"
+  },
+  {
+   "id": "abyss-dragon",
+   "name": "Abyss Dragon",
+   "index": 10,
+   "portrait": "portraits/abyss-dragon.webp"
+  },
+  {
+   "id": "flame-samurai",
+   "name": "Flame Samurai",
+   "index": 11,
+   "portrait": "portraits/flame-samurai.webp"
+  },
+  {
+   "id": "prism-queen",
+   "name": "Prism Queen",
+   "index": 12,
+   "portrait": "portraits/prism-queen.webp"
+  },
+  {
+   "id": "storm-colossus",
+   "name": "Storm Colossus",
+   "index": 13,
+   "portrait": "portraits/storm-colossus.webp"
   }
  ],
  "levels": [

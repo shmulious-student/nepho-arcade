@@ -22,6 +22,17 @@ const loadSrc = async (path) => {
 
 // `strict` (the per-action format) turns art problems into failures; older formats only report them,
 // since their art predates the standard and is what the game ships with until it is regenerated.
+/** Share of the pixels in a thin ring around the sheet's edge that are transparent. */
+function borderTransparency(img, margin = 4) {
+  let clear = 0, n = 0;
+  const at = (x, y) => img.data[(y * img.width + x) * 4 + 3] < 8;
+  for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
+    if (x >= margin && x < img.width - margin && y >= margin && y < img.height - margin) continue;
+    n++; if (at(x, y)) clear++;
+  }
+  return n ? clear / n : 0;
+}
+
 async function checkSourceGrid(id, path, rows, cols, { square = false, strict = false } = {}) {
   if (!existsSync(path)) { fail.push(`${id}: source grid missing at ${path}`); return; }
   let img = await loadSrc(path);
@@ -32,9 +43,11 @@ async function checkSourceGrid(id, path, rows, cols, { square = false, strict = 
   }
   const opaque = ops.opaqueRatio(img);
   // Dense per-action sprites can legitimately occupy just over 40% of a cell (especially heavy
-  // enemies with wide armor). Keep enough headroom to avoid mistaking a real figure for a baked
-  // background while still rejecting checkerboards/mattes that cover most of the sheet.
-  check(opaque < 0.45 && opaque > 0.03, `${id}: background must be true RGBA transparent (opaque ratio ${opaque.toFixed(3)})`);
+  // enemies with wide armor), and a boss set fills more than half of it. A baked checker or matte
+  // covers the sheet's border too, so the border ring settles what a high ratio means: transparent
+  // border → big figures, allowed up to 70%; opaque border → a background that was never removed.
+  const borderClear = borderTransparency(img) > 0.95;
+  check(opaque > 0.03 && opaque < (borderClear ? 0.7 : 0.45), `${id}: background must be true RGBA transparent (opaque ratio ${opaque.toFixed(3)}${borderClear ? '' : ', border not transparent'})`);
   const problems = [];
   const cells = ops.sliceFixed(img, rows, cols);
   cells.forEach((row, r) => row.forEach((f, c) => {
@@ -74,7 +87,7 @@ if (existsSync(catalogPath)) {
   const cat = JSON.parse(readFileSync(catalogPath, 'utf8'));
   check(cat.heroes.length === 4, 'four heroes expected');
   check(cat.enemies.length >= 6, 'at least six enemies expected');
-  check(cat.bosses.length === 10, 'ten bosses expected');
+  check(cat.bosses.length >= 10, 'the ten campaign bosses expected'); // plus any extra sets the roster can place
   check(cat.levels.length === 10, 'ten levels expected');
   let total = 0;
   for (const id of [...cat.heroes, ...cat.enemies, ...cat.bosses.map((b) => b.id)]) {
@@ -107,8 +120,9 @@ if (existsSync(catalogPath)) {
   }
   for (const b of cat.bosses) check(existsSync(join(OUT, b.portrait)), `portrait ${b.id} missing`);
   for (const h of cat.heroes) check(existsSync(join(OUT, 'cards', `${h}.webp`)), `card ${h} missing`);
-  // 20 MB: two full-detail 9-frame hero atlases (~1.5 MB each) on top of the original 16 MB budget
-  check(total < 20 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
+  // 28 MB: the original 16 MB, two full-detail 9-frame hero atlases (~1.5 MB each), then the four
+  // per-action enemy sets and four boss sets (~1-1.7 MB each) added in the 2026-09 art pass
+  check(total < 28 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
   console.log(`runtime pack: ${(total / 1048576).toFixed(1)} MB across characters+levels`);
   const fallbacks = Object.values(cat.characters).filter((c) => (c.notes || []).some((n) => n.startsWith('fallback')));
   for (const f of fallbacks) console.log(`NOTE ${f.id}: ${f.notes.find((n) => n.startsWith('fallback'))}`);

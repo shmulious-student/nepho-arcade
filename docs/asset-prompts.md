@@ -225,9 +225,12 @@ current art until a complete `actions/<id>/` set exists.
 
 `enemy-boss-atlas.png` has twelve full-body reference figures in a 4×3 grid; only the first six were
 ever turned into action grids. Slots 6–11 are unused designs: a green bio-brawler, a dark-gold
-sorceress, a purple demon, a red flame samurai, a teal dragon mech, and a rainbow queen. Turning any
-of these into a per-action set would add roster variety for later levels, needing only a new id in
-`src/sim/enemyAi.ts` and `src/sim/levels.ts`.
+sorceress, a purple demon, a red flame samurai, a teal dragon mech, and a rainbow queen. All six now
+exist as per-action sets (`bio-brute`, `gold-sorceress`, `void-demon`, `rainbow-oracle` as enemies;
+`abyss-dragon`, `flame-samurai`, `prism-queen`, `storm-colossus` as bosses). A new enemy needs an
+id in `src/sim/enemyAi.ts` and `tools/build-assets.mjs` (`ENEMY_IDS`); a new boss an entry in
+`src/sim/bosses.ts` and the `BOSSES` list of the build tool; both need a line in
+`src/net/codec.ts`'s `ARCH_TABLE`. Which levels they appear in is then set on `/backoffice.html`.
 
 ### Title wordmark / app icon / splash
 

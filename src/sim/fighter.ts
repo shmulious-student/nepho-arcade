@@ -80,7 +80,23 @@ function enemyAhead(w: World, e: Entity): boolean {
   return false;
 }
 
+const BUFFERED = BTN.LIGHT | BTN.HEAVY | BTN.SPECIAL | BTN.JUMP;
+
+/** Starts whatever action is waiting in the input buffer, if any — the common tail of a move ending
+ * and of an idle tick. Priority: special (if the meter is full), jump, heavy, light. */
+function startBuffered(w: World, e: Entity, allow = BUFFERED): boolean {
+  const b = e.pdata & allow;
+  if (b & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return true; }
+  if (b & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); e.st++; clampHero(w, e); return true; }
+  if (b & BTN.HEAVY) { e.pdata = 0; startMove(w, e, 'heavy'); return true; }
+  if (b & BTN.LIGHT) { e.pdata = 0; startMove(w, e, 'light1'); return true; }
+  return false;
+}
+
 export function stepHero(w: World, e: Entity, input: InputFrame): void {
+  // Buffer button presses first of all — a tap during hitstop (the freeze after every landed hit)
+  // or mid-move must land the moment the hero can act again, not vanish.
+  e.pdata |= input.pressed & BUFFERED;
   if (e.hitstop > 0) { e.hitstop--; return; }
   if (e.invuln > 0) e.invuln--;
   if (e.armor > 0) e.armor--;
@@ -92,9 +108,6 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (e.regenLock > 0) e.regenLock--;
   const def = HEROES[e.arch as HeroId];
   const held = input.held;
-  const pressed = input.pressed;
-  // buffer button presses during moves so cancels feel responsive
-  e.pdata |= pressed & (BTN.LIGHT | BTN.HEAVY | BTN.SPECIAL | BTN.JUMP);
 
   const s = e.state;
   const move: MoveDef | undefined = HERO_MOVES[s];
@@ -135,6 +148,7 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     e.st++; clampHero(w, e); return;
   }
   if (s === 'block') {
+    e.pdata = 0; // guarding: taps are not queued up to fire on release
     if (!(held & BTN.BLOCK)) { setState(e, 'idle'); e.st++; clampHero(w, e); return; }
     // Blocking still allows repositioning (at reduced speed) and free facing, so players can hold guard
     // while sidestepping into position rather than standing frozen.
@@ -192,15 +206,17 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     if (s === 'special' && def.special === 'wave' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 4 === 0) {
       w.emit({ type: 'note', x: e.x, y: e.y, z: 50, id: e.id, a: (e.st - move.startup) / 4 });
     }
-    // cancels
-    if (move.cancelFrom !== undefined && e.st >= move.cancelFrom && (e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }
+    // cancels: once the hit frames have had their chance, a light chains on and a heavy ends the string
+    if (move.cancelFrom !== undefined && e.st >= move.cancelFrom) {
+      if ((e.pdata & BTN.LIGHT) && move.cancelTo) { e.pdata = 0; startMove(w, e, move.cancelTo); return; }
+      if (e.pdata & BTN.HEAVY) { e.pdata = 0; startMove(w, e, 'heavy'); return; }
+    }
     if (move.specialCancel && e.st >= move.startup && (e.pdata & BTN.SPECIAL) && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
     if (e.st >= t - 1) {
-      // A press buffered during recovery starts its move the instant this one ends, instead of being
-      // thrown away — the difference between a chain that flows and one that needs perfect timing.
-      const next = (e.pdata & BTN.SPECIAL && e.meter >= METER_MAX) ? 'special' : (e.pdata & BTN.LIGHT) ? 'light1' : (e.pdata & BTN.HEAVY) ? 'heavy' : null;
+      // Anything pressed during the move starts the instant it ends, instead of being thrown away —
+      // the difference between a chain that flows and one that needs perfect timing.
+      if (startBuffered(w, e)) return;
       e.pdata = 0;
-      if (next) { startMove(w, e, next); return; }
       setState(e, 'idle');
     }
     e.st++; clampHero(w, e); return;
@@ -228,18 +244,16 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
   if (held & BTN.UP) my -= 1; if (held & BTN.DOWN) my += 1;
   if (mx !== 0) e.facing = mx > 0 ? 1 : -1;
   if (held & BTN.BLOCK) { e.pdata = 0; setState(e, 'block'); e.st++; clampHero(w, e); return; }
+  if (startBuffered(w, e, BTN.SPECIAL | BTN.JUMP)) return;
+  const chord = dashChord(held);
+  if (chord) { e.pdata = 0; e.facing = chord; startMove(w, e, 'dash'); return; }
+  if (startBuffered(w, e, BTN.HEAVY | BTN.LIGHT)) return;
   // A friend walks no faster than the player it follows: a quicker friend would keep catching up
   // and stopping behind them, flickering between walk and idle all the way across the level.
   const owner = e.slot < 0 && e.owner >= 0 ? w.byId(e.owner) : null;
   const spd = (owner ? Math.min(def.speed, HEROES[owner.arch as HeroId].speed) : def.speed) * slowMul;
   e.x += mx * spd; e.y += my * spd * 0.55;
-  if (pressed & BTN.SPECIAL && e.meter >= METER_MAX) { e.pdata = 0; startMove(w, e, 'special'); return; }
-  if (e.pdata & BTN.JUMP) { e.pdata = 0; setState(e, 'jump'); e.vz = JUMP_VZ; e.z = 0.01; w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); e.st++; clampHero(w, e); return; }
-  const chord = dashChord(held);
-  if (chord) { e.pdata = 0; e.facing = chord; startMove(w, e, 'dash'); return; }
-  if (pressed & BTN.HEAVY) { e.pdata = 0; startMove(w, e, 'heavy'); return; }
-  if (pressed & BTN.LIGHT) { e.pdata = 0; startMove(w, e, 'light1'); return; }
-  e.pdata = 0;
+  e.pdata = 0; // nothing waiting that could start: a special without meter, say
   setState(e, mx !== 0 || my !== 0 ? 'walk' : 'idle');
   e.st++;
   clampHero(w, e);

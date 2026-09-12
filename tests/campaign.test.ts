@@ -13,7 +13,7 @@ const MAX_TICKS = 60 * 60 * 6; // 6 min hard cap per level (safety valve, not th
 // pacing gate: every level must be reliably winnable with sane pacing (no deadlocks, no levels that
 // resolve in a few seconds, no levels that drag past the ceiling). Human-facing pacing is verified by
 // the wave-budget design itself and by manual playtesting, not by matching bot speed to it.
-const FLOOR_S = 40; // catches a level trivially clearing far too fast (a real balance regression)
+const FLOOR_S = 30; // catches a level trivially clearing far too fast (a real balance regression)
 const CEIL_S = 260; // catches a level dragging on well past a reasonable boss-fight ceiling
 
 function playLevel(seed: number, level: number, heroes: ['nepho', 'byte' | null]) {

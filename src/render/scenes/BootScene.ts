@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { loadCatalog, assetUrl, type Catalog } from '../../shared/catalog';
+import { loadRoster, applyRoster } from '../../sim/roster';
 
 /** Loads catalog.json, then every character atlas, level backdrop/entry/sign, portrait, and hero
  * card it names — nothing is hard-coded, everything comes from the manifest the asset pipeline wrote. */
@@ -33,6 +34,9 @@ export class BootScene extends Phaser.Scene {
       return;
     }
     this.registry.set('catalog', catalog);
+    // the roster (who takes part, under what name, on which level) shapes the lobby and the campaign
+    const roster = await loadRoster();
+    for (const warning of applyRoster(roster).warnings) console.warn('roster:', warning);
     this.label.setText('loading art…');
 
     for (const c of Object.values(catalog.characters)) this.load.atlas(c.id, assetUrl(c.atlas), assetUrl(c.data));

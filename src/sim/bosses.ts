@@ -87,8 +87,35 @@ export const BOSS_DEFS: Record<string, BossDef> = {
     P({ type: 'aoe', name: 'Rainbow Pillar', tele: 40, active: 14, recover: 24, cooldown: 120, dmg: 13, count: 3, radius: 80, colour: 0xff76c8, row: 'special', launch: 8 }),
     P({ type: 'melee', name: 'Signal Sweep', tele: 26, active: 10, recover: 24, dmg: 10, range: 150, colour: 0xbd8cff, knockdown: true }),
   ] },
+  // The four per-action boss sets (public/assets/generated/actions/<id>/). Same pattern vocabulary
+  // as the ten above so Ultra Signal can steal from them too.
+  'abyss-dragon': { id: 'abyss-dragon', name: 'Abyss Dragon', hp: 1200, speed: 1.7, poise: 9, patterns: [
+    P({ type: 'projectile', name: 'Void Bolt', tele: 26, active: 26, recover: 22, dmg: 8, count: 2, speed: 8, colour: 0x8a5cff }),
+    P({ type: 'orbit', name: 'Abyss Orbs', tele: 26, active: 150, recover: 12, cooldown: 190, dmg: 4, count: 3, radius: 100, colour: 0x8a5cff, row: 'special', weight: 0.5 }),
+    P({ type: 'blink', name: 'Wing Blink', tele: 24, active: 14, recover: 22, dmg: 9, colour: 0xc08cff, knockdown: true }),
+    P({ type: 'beam', name: 'Abyss Breath', tele: 36, active: 14, recover: 30, dmg: 13, colour: 0x8a5cff, row: 'special', launch: 7 }),
+  ] },
+  'flame-samurai': { id: 'flame-samurai', name: 'Flame Samurai', hp: 1280, speed: 1.5, poise: 11, patterns: [
+    P({ type: 'melee', name: 'Ember Cut', tele: 26, active: 10, recover: 24, dmg: 10, range: 150, colour: 0xff7a2a, knockdown: true }),
+    P({ type: 'dash', name: 'Blazing Draw', tele: 34, active: 36, recover: 30, dmg: 12, speed: 10, colour: 0xff4f2a, knockdown: true }),
+    P({ type: 'aoe', name: 'Cinder Field', tele: 40, active: 12, recover: 26, cooldown: 120, dmg: 11, count: 3, radius: 70, colour: 0xff7a2a, row: 'special', launch: 7 }),
+    P({ type: 'zone', name: 'Heat Haze', tele: 28, active: 200, recover: 12, cooldown: 230, dmg: 1, radius: 180, colour: 0xffb060, row: 'special', weight: 0.5 }),
+  ] },
+  'prism-queen': { id: 'prism-queen', name: 'Prism Queen', hp: 1160, speed: 1.6, poise: 8, patterns: [
+    P({ type: 'projectile', name: 'Prism Volley', tele: 26, active: 24, recover: 24, dmg: 6, count: 3, speed: 7, colour: 0xd6b8ff }),
+    P({ type: 'reflect', name: 'Mirror Veil', tele: 24, active: 90, recover: 12, cooldown: 210, dmg: 4, colour: 0xf4ecff, row: 'special', weight: 0.6 }),
+    P({ type: 'wall', name: 'Crystal Bloom', tele: 30, active: 170, recover: 12, cooldown: 160, dmg: 7, colour: 0xd6b8ff, row: 'special', knockdown: true, weight: 0.6 }),
+    P({ type: 'melee', name: 'Scepter Lance', tele: 26, active: 8, recover: 24, dmg: 10, range: 140, colour: 0xd6b8ff, knockdown: true }),
+  ] },
+  'storm-colossus': { id: 'storm-colossus', name: 'Storm Colossus', hp: 1480, speed: 1.2, poise: 14, patterns: [
+    P({ type: 'melee', name: 'Hammer Slam', tele: 30, active: 12, recover: 30, dmg: 12, range: 130, radius: 110, colour: 0x5ce6ff, knockdown: true }),
+    P({ type: 'ring', name: 'Thunder Stomp', tele: 32, active: 42, recover: 26, dmg: 10, speed: 6, colour: 0x5ce6ff, knockdown: true }),
+    P({ type: 'aoe', name: 'Lightning Fall', tele: 42, active: 12, recover: 26, cooldown: 120, dmg: 11, count: 3, radius: 70, colour: 0x9cf2ff, row: 'special', launch: 8 }),
+    P({ type: 'armor', name: 'Storm Plating', tele: 26, active: 240, recover: 110, cooldown: 500, dmg: 1, colour: 0x5ce6ff, row: 'special', weight: 0.5 }),
+  ] },
 };
 
+// The ten campaign bosses in level order (the four per-action sets are placed by the roster, see roster.ts).
 export const BOSS_ORDER = ['ferryman', 'glass-warden', 'kilnheart', 'monk-zero', 'market-king', 'railmaw', 'crown-runner', 'the-null', 'vault-mother', 'ultra-signal'];
 
 // runtime pattern list per entity id (ultra composes a deck)

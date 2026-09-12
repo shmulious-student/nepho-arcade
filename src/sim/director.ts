@@ -1,6 +1,6 @@
 // Wave director: spawns waves, scrolls between segments, brings in the boss and rubber-bands pacing
 // toward the 3-minute level target.
-import { LEVELS, ENTRY_TICKS, CLEAR_TICKS, SEGMENT_X, type WaveDef } from './levels';
+import { levelDef, ENTRY_TICKS, CLEAR_TICKS, SEGMENT_X, type WaveDef } from './levels';
 import { LEVEL_W, VIEW_W, LANE_H } from './types';
 import type { World } from './world';
 
@@ -43,7 +43,7 @@ function shuffle(w: World, arr: string[]): string[] {
 }
 
 export function startWave(w: World, d: DirectorState, index: number): void {
-  const level = LEVELS[w.level - 1];
+  const level = levelDef(w.level);
   d.waveIndex = index;
   d.waveTick = 0;
   d.queue = [];
@@ -57,7 +57,7 @@ export function startWave(w: World, d: DirectorState, index: number): void {
 export function stepDirector(w: World, d: DirectorState): void {
   d.levelTick++;
   d.phaseTick++;
-  const level = LEVELS[w.level - 1];
+  const level = levelDef(w.level);
   switch (w.phase) {
     case 'entry':
       if (d.phaseTick >= ENTRY_TICKS) startWave(w, d, 0);
@@ -138,6 +138,6 @@ export function beginBoss(w: World, d: DirectorState): void {
   for (const h of w.heroes()) {
     if (h.hp < h.maxHp * 0.55) { h.hp = Math.round(h.maxHp * 0.55); w.emit({ type: 'heal', x: h.x, y: h.y, id: h.id }); }
   }
-  w.spawnBoss(LEVELS[w.level - 1].boss, w.cameraX + VIEW_W - 120, LANE_H * 0.5);
+  w.spawnBoss(levelDef(w.level).boss, w.cameraX + VIEW_W - 120, LANE_H * 0.5);
   w.emit({ type: 'levelPhase', x: 0, y: 0, a: 100 });
 }

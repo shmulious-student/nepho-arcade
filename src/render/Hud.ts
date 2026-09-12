@@ -4,6 +4,7 @@ import { HEROES } from '../sim/frameData';
 import type { FriendSetup } from '../sim/friends';
 import type { HeroId } from '../sim/types';
 import { VIEW_W, VIEW_H } from '../sim/types';
+import { BOSS_DEFS } from '../sim/bosses';
 
 interface PlayerHud {
   root: Phaser.GameObjects.Container; hp: Phaser.GameObjects.Rectangle; hpGhost: Phaser.GameObjects.Rectangle;
@@ -18,6 +19,9 @@ const FONT = 'monospace';
  * HP bar with a damage ghost, a special meter that lights up when ready, the friend chip and combo
  * counter), the level clock and wave in the middle, a named boss bar, GO prompt and level banners.
  * Drawn at UI scale, outside the zoomed world container. */
+/** The boss's roster name (public/game/roster.json), falling back to its id. */
+const bossName = (id: string) => (BOSS_DEFS[id]?.name || id.replace(/-/g, ' ')).toUpperCase();
+
 export class Hud {
   private scene: Phaser.Scene;
   private players: PlayerHud[] = [];
@@ -110,13 +114,13 @@ export class Hud {
       }
       this.bossBar.root.setVisible(s.phase === 'boss');
       this.bossBar.fg.width = 456 * Math.max(0, s.bossHp);
-      this.bossBar.name.setText(s.bossId.replace(/-/g, ' ').toUpperCase() + (s.enrage ? ' — ENRAGED' : ''));
+      this.bossBar.name.setText(bossName(s.bossId) + (s.enrage ? ' — ENRAGED' : ''));
     } else if (this.bossBar) { this.bossBar.root.setVisible(false); }
     const mins = Math.floor(s.timer / 60), secs = Math.floor(s.timer % 60);
     this.timerText.setText(`${mins}:${secs.toString().padStart(2, '0')}`);
     this.waveText.setText(s.phase === 'boss' ? 'BOSS' : s.phase === 'wave' ? `WAVE ${s.wave}` : s.phase === 'go' ? 'MOVE ON' : '');
     if (s.phase === 'wave' && s.wave !== this.lastWave) { this.lastWave = s.wave; if (s.wave > 1) this.banner(`WAVE ${s.wave}`); }
-    if (s.phase === 'boss' && this.lastWave !== 99) { this.lastWave = 99; this.banner('BOSS', s.bossId.replace(/-/g, ' ').toUpperCase()); }
+    if (s.phase === 'boss' && this.lastWave !== 99) { this.lastWave = 99; this.banner('BOSS', bossName(s.bossId)); }
     if (s.phase === 'clear' && this.lastWave !== 100) { this.lastWave = 100; this.banner('BOSS DOWN!', s.level >= 10 ? 'THE SIGNAL IS YOURS' : 'STAGE CLEAR'); }
     this.goArrow.setVisible(s.go);
     if (s.go) { this.goArrow.setAlpha(0.6 + 0.4 * Math.sin(s.tick / 6)); this.goArrow.setX(VIEW_W - 80 + 6 * Math.sin(s.tick / 5)); }

@@ -20,12 +20,14 @@ export const total = (m: MoveDef) => m.startup + m.active + m.recovery;
 export const HERO_MOVES: Record<string, MoveDef> = {
   // Rows are the 12-row hero grid (public/assets/generated/hero-*-grid-{1,2}.png): idle walk dash
   // light1 light2 light3 | heavy special block hurt knockdown defeat. Each light hit owns its own row.
-  // Light chain is deliberately snappy and cancels the instant active frames begin (cancelFrom ==
-  // startup), so tapping LIGHT on rhythm strings hits together smoothly instead of waiting out recovery.
+  // Light chain is deliberately snappy: it cancels into the next hit as soon as its own hit frames
+  // are over (cancelFrom == startup + active), so tapping LIGHT on rhythm strings hits together
+  // without waiting out recovery — but never before the swing has had its chance to land, or a
+  // fast tap would cancel the hit away and only every third swing would connect.
   // Light hits reach a little behind the hero as well as in front (the box starts 30px behind the
   // body), so an enemy pressing from the back is caught by the combo without a deliberate turn.
-  light1: { row: 'light1', frames: [0, 1, 2, 3, 4, 5], startup: 3, active: 4, recovery: 6, hit: { dx: 20, dy: 0, w: 100, h: 90, dmg: 12, hitstun: 14, kb: 1.6 }, cancelFrom: 3, cancelTo: 'light2', specialCancel: true },
-  light2: { row: 'light2', frames: [0, 1, 2, 3, 4, 5], startup: 4, active: 4, recovery: 7, hit: { dx: 22, dy: 0, w: 104, h: 90, dmg: 13, hitstun: 16, kb: 1.8 }, cancelFrom: 4, cancelTo: 'light3', specialCancel: true },
+  light1: { row: 'light1', frames: [0, 1, 2, 3, 4, 5], startup: 3, active: 4, recovery: 6, hit: { dx: 20, dy: 0, w: 100, h: 90, dmg: 12, hitstun: 14, kb: 1.6 }, cancelFrom: 7, cancelTo: 'light2', specialCancel: true },
+  light2: { row: 'light2', frames: [0, 1, 2, 3, 4, 5], startup: 4, active: 4, recovery: 7, hit: { dx: 22, dy: 0, w: 104, h: 90, dmg: 13, hitstun: 16, kb: 1.8 }, cancelFrom: 8, cancelTo: 'light3', specialCancel: true },
   // Combo finisher: a 360 breaker — radius-based so it lands on attackers from both sides at once and
   // (like a special) bypasses enemy guard, rewarding a completed chain when surrounded.
   light3: { row: 'light3', frames: [0, 1, 2, 3, 4, 5], startup: 6, active: 6, recovery: 12, hit: { dx: 0, dy: 0, w: 0, h: 100, dmg: 22, hitstun: 22, kb: 5, knockdown: true, radius: 92 }, specialCancel: true },

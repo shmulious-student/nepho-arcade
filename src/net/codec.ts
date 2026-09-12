@@ -12,6 +12,8 @@ const ARCH_TABLE = [
   'eviatar', 'omri', 'nepho', 'byte',
   'punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield', 'punk-b', 'brawler-b', 'knight-b',
   'ferryman', 'glass-warden', 'kilnheart', 'monk-zero', 'market-king', 'railmaw', 'crown-runner', 'the-null', 'vault-mother', 'ultra-signal',
+  'bio-brute', 'gold-sorceress', 'void-demon', 'rainbow-oracle',
+  'abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus',
   'hook', 'hook-return', 'shard', 'bolt', 'blast', 'ring', 'orb', 'fog', 'smoke', 'wall',
   'heart', 'coin', 'star',
 ];

@@ -3,13 +3,13 @@ import { Rng } from './rng';
 import { makeEntity, setState, isDown } from './entity';
 import { stepHero, clampHero } from './fighter';
 import { stepEnemy } from './enemyAi';
-import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, BOSS_ORDER, setDeck } from './bosses';
+import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, setDeck } from './bosses';
 import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from './friends';
 import { rollDrop, stepPickup } from './pickups';
 import { LEVEL_TARGET_SECONDS } from './levels';
 import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit, hazardHit as getHazardHit, forgetHazard } from './combat';
 import { makeDirector, stepDirector, beginBoss, type DirectorState } from './director';
-import { LEVELS, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
+import { levelDef, ACTIVE, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
 import { HEROES } from './frameData';
 import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
@@ -98,7 +98,7 @@ export class World {
   spawnEnemy(arch: string, side: 'left' | 'right'): Entity {
     const def = ENEMY_DEFS[arch];
     const x = side === 'right' ? this.cameraX + VIEW_W + 40 + this.rng.range(0, 60) : this.cameraX - 40 - this.rng.range(0, 60);
-    const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * LEVELS[this.level - 1].hpMul));
+    const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * levelDef(this.level).hpMul));
     e.facing = side === 'right' ? -1 : 1;
     e.guard = !!def.guard;
     e.cooldown = 75; // sizes the player up for a beat before the first swing
@@ -148,7 +148,8 @@ export class World {
   hazardHit(id: number) { return getHazardHit(id); }
 
   private buildUltraDeck(boss: Entity): void {
-    const others = BOSS_ORDER.filter((id) => id !== 'ultra-signal');
+    // one stolen pattern from every other boss of the campaign as the roster composed it
+    const others = [...new Set(ACTIVE.levels.map((l) => l.boss))].filter((id) => id !== 'ultra-signal' && BOSS_DEFS[id]);
     const shuffled = [...others];
     for (let i = shuffled.length - 1; i > 0; i--) { const j = this.rng.int(0, i); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
     const deck = [];
@@ -208,7 +209,7 @@ export class World {
   debugSkipToBoss(): void {
     for (const e of this.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = this.tick + 1; }
     this.cameraX = LEVEL_W - VIEW_W;
-    this.director.waveIndex = LEVELS[this.level - 1].waves.length - 1;
+    this.director.waveIndex = levelDef(this.level).waves.length - 1;
     beginBoss(this, this.director);
   }
 

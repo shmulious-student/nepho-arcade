@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { Catalog } from '../../shared/catalog';
-import { HEROES, HERO_IDS } from '../../sim/frameData';
+import { HEROES } from '../../sim/frameData';
+import { ACTIVE_HEROES as HERO_IDS } from '../../sim/roster';
 import type { FriendMode } from '../../sim/friends';
 import { isTouchDevice } from './GameScene';
 import { TouchControls } from '../TouchControls';
@@ -29,14 +30,14 @@ export class LobbyScene extends Phaser.Scene {
   constructor() { super('Lobby'); }
 
   private catalog!: Catalog;
-  private heroPick: [HeroId, HeroId | null] = ['eviatar', null];
+  private heroPick: [HeroId, HeroId | null] = [HERO_IDS[0], null];
   private coop = false; // LAN co-op
   private local2p = false; // two players on one keyboard (no touch equivalent)
   private p2Text!: Phaser.GameObjects.Text;
   private p2Row!: Phaser.GameObjects.Container;
   private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
-  private friendPick: HeroId = 'omri';
+  private friendPick: HeroId = HERO_IDS[1] ?? HERO_IDS[0];
   private friendMode: FriendMode = 'assist';
   private friendText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
@@ -49,9 +50,10 @@ export class LobbyScene extends Phaser.Scene {
     this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
     this.add.text(VIEW_W / 2, 68, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
 
-    this.add.text((VIEW_W - (4 * 196 - 16)) / 2, 84, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    // four cards, 180 wide with 160px art, centred
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, (VIEW_W - (4 * 196 - 16)) / 2 + i * 196, 100, 0));
+    // one card per roster hero (public/game/roster.json), 180 wide with 160px art, centred
+    const cardsX = (VIEW_W - (HERO_IDS.length * 196 - 16)) / 2;
+    this.add.text(cardsX, 84, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
+    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, cardsX + i * 196, 100, 0));
 
     const coopBtn = this.makeButton(VIEW_W - 150, 316, 126, 26, 'LAN CO-OP: OFF', () => {
       this.coop = !this.coop;
@@ -286,4 +288,4 @@ export class LobbyScene extends Phaser.Scene {
   }
 }
 
-function pickOther(a: HeroId): HeroId { return HERO_IDS.find((h) => h !== a) || 'byte'; }
+function pickOther(a: HeroId): HeroId { return HERO_IDS.find((h) => h !== a) || HERO_IDS[0]; }

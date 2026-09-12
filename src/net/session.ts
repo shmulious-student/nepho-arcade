@@ -35,6 +35,21 @@ export interface Session {
 const TICK_MS = 1000 / 60;
 const SNAPSHOT_EVERY = 2; // 30Hz broadcast from a 60Hz sim
 
+/** Bridges input sampled per render frame to a sim that steps 0, 1 or 2 ticks per frame. A press
+ * edge is kept until exactly one tick consumes it: a frame that steps no tick cannot lose a tap
+ * (half of them on a 120Hz display), and a frame that steps two cannot deliver the same tap twice
+ * (which read as one press starting two attacks). Held bits always reflect the latest sample. */
+class InputQueue {
+  private held: [number, number] = [0, 0];
+  private pressed: [number, number] = [0, 0];
+  push(slot: number, input: InputFrame): void { this.held[slot] = input.held; this.pressed[slot] |= input.pressed; }
+  take(): [InputFrame, InputFrame] {
+    const out: [InputFrame, InputFrame] = [{ held: this.held[0], pressed: this.pressed[0] }, { held: this.held[1], pressed: this.pressed[1] }];
+    this.pressed = [0, 0];
+    return out;
+  }
+}
+
 abstract class BaseSession implements Session {
   abstract readonly localSlot: number;
   paused = false;
@@ -54,7 +69,7 @@ export class LocalSession extends BaseSession {
   readonly mode = 'local' as const;
   private w: World;
   private acc = 0;
-  private inputs: [InputFrame, InputFrame] = [EMPTY_INPUT, EMPTY_INPUT];
+  private inputs = new InputQueue();
   private snap: Snapshot;
 
   constructor(seed: number, level: number, heroes: [HeroId, HeroId | null], friends?: FriendSetup, score?: [number, number]) {
@@ -62,13 +77,13 @@ export class LocalSession extends BaseSession {
     this.w = new World({ seed, level, heroes, friends, score });
     this.snap = this.w.snapshot();
   }
-  setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
+  setInput(slot: number, input: InputFrame): void { this.inputs.push(slot, input); }
   update(dtMs: number): void {
     if (this.paused) { this.acc = 0; return; }
     this.acc += dtMs;
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;
-      this.w.step(this.inputs);
+      this.w.step(this.inputs.take());
       this.snap = this.w.snapshot();
     }
   }
@@ -92,7 +107,7 @@ export class HostSession extends BaseSession {
   private w: World | null = null;
   private acc = 0;
   private tickCount = 0;
-  private inputs: [InputFrame, InputFrame] = [EMPTY_INPUT, EMPTY_INPUT];
+  private inputs = new InputQueue();
   private snap: Snapshot | null = null;
   private ws: WebSocket | null = null;
   private syncTimer = 0;
@@ -125,9 +140,9 @@ export class HostSession extends BaseSession {
   }
   private onInput(buf: ArrayBuffer): void {
     const { held, pressed } = decodeInput(buf);
-    this.inputs[1] = { held, pressed };
+    this.inputs.push(1, { held, pressed }); // several guest frames may land between two host ticks
   }
-  setInput(slot: number, input: InputFrame): void { this.inputs[slot] = input; }
+  setInput(slot: number, input: InputFrame): void { this.inputs.push(slot, input); }
   setHero(slot: number, id: HeroId): void { this.send({ t: 'hero', slot, id }); }
 
   /** Builds the World. If coop is intended (heroes[1] set as a placeholder) but the guest's real pick
@@ -144,7 +159,7 @@ export class HostSession extends BaseSession {
     this.acc += dtMs;
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;
-      this.w.step(this.inputs);
+      this.w.step(this.inputs.take());
       this.tickCount++;
       this.snap = this.w.snapshot();
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {

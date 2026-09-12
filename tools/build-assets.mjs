@@ -50,6 +50,8 @@ const BOSSES = [
   ['ferryman', 'Ferryman'], ['glass-warden', 'Glass Warden'], ['kilnheart', 'Kilnheart'], ['monk-zero', 'Monk Zero'],
   ['market-king', 'Market King'], ['railmaw', 'Railmaw'], ['crown-runner', 'Crown Runner'], ['the-null', 'The Null'],
   ['vault-mother', 'Vault Mother'], ['ultra-signal', 'Ultra Signal'],
+  // per-action sets only (no legacy grid): public/assets/generated/actions/<id>/{idle,approach,attack,special,hurt,defeat}.png
+  ['abyss-dragon', 'Abyss Dragon'], ['flame-samurai', 'Flame Samurai'], ['prism-queen', 'Prism Queen'], ['storm-colossus', 'Storm Colossus'],
 ];
 const BOSS_FILES = ['boss-00-ferryman-grid.png', 'boss-01-glass-warden-grid.png', 'boss-02-kilnheart-grid.png', 'boss-03-monk-zero-grid.png',
   'boss-04-market-king-grid.png', 'boss-05-railmaw-grid.png', 'boss-06-crown-runner-grid.png', 'boss-07-the-null-grid.png',
@@ -576,9 +578,11 @@ async function main() {
   }
   const bossResults = [];
   if (want('bosses')) {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < BOSSES.length; i++) {
       const id = BOSSES[i][0];
-      const src = resolveSource(id, BOSS_ACTIONS, null, join(SRC, 'bosses', BOSS_FILES[i]));
+      const legacy = BOSS_FILES[i] ? join(SRC, 'bosses', BOSS_FILES[i]) : null;
+      const src = resolveSource(id, BOSS_ACTIONS, null, legacy);
+      if (src.kind !== 'actions' && !legacy) { console.log('boss', id, 'pending (action set incomplete)'); bossResults.push(null); continue; }
       const res = await processCharacter(id, src, BOSS);
       results[id] = res; bossResults.push(res);
       console.log('boss', id, res ? `ok (${src.kind})` : 'FAILED');
