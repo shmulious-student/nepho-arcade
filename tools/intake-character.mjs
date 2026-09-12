@@ -41,11 +41,9 @@ for (const file of files) {
     if (keyed && keyed.keyed > 0.3) { img = keyed.img; steps.push(`keyed flat matte rgb(${keyed.key})`); }
     else {
       const auto = ops.unbakeCheckerAuto(img);
-      img = auto ? auto.img : ops.unbakeChecker(img);
-      img = ops.scrubLightFringe(img, 2);
+      img = auto ? auto.img : ops.scrubLightFringe(ops.unbakeChecker(img), 2);
       steps.push(`unbaked painted checkerboard${auto ? ` (greys ${auto.levels.join('/')})` : ''} (opaque ${opaque.toFixed(2)} → ${ops.opaqueRatio(img).toFixed(2)})`);
     }
-    img = ops.defringe(img, 2);
   }
   // canvas → 2048² (a non-square delivery is padded, never stretched)
   let s = toSharp(img);
@@ -55,8 +53,10 @@ for (const file of files) {
     steps.push(`padded ${img.width}×${img.height} to ${side}²`);
   }
   if (Math.max(img.width, img.height) !== TARGET) {
-    s = s.resize(TARGET, TARGET, { kernel: 'lanczos3', fit: 'fill' });
-    steps.push(`resampled to ${TARGET}²`);
+    // nearest-neighbour: pixel art stays crisp (the build resamples to game scale itself); a
+    // smoothing kernel here softens every outline before the build ever sees it
+    s = s.resize(TARGET, TARGET, { kernel: 'nearest', fit: 'fill' });
+    steps.push(`resampled to ${TARGET}² (nearest)`);
   }
   if (!steps.length && meta.hasAlpha) { console.log(`${file}: already normalized`); continue; }
   // keep the exact delivery next to the tree, for the record

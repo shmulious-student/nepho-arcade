@@ -490,10 +490,11 @@ export function unbakeCheckerAuto(img) {
   }
   if (peaks.length < 2) return null;
   const [p1, p2] = peaks;
-  const tol = 14;
+  // a delivered PNG has often been through a lossy step: the two greys arrive as ±20 clouds
+  const tol = 22;
   const near = (i) => {
     const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
-    if (Math.max(r, g, b) - Math.min(r, g, b) > 16) return 0;
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 20) return 0;
     const m = (r + g + b) / 3;
     return Math.abs(m - p1) <= tol ? 1 : Math.abs(m - p2) <= tol ? 2 : 0;
   };
@@ -525,6 +526,17 @@ export function unbakeCheckerAuto(img) {
     }
     if (cnt && sat / cnt < 40) for (let i = 0; i < n; i++) if (left.labels[i] === c.id) out.data[i * 4 + 3] = 0;
   }
+  // the seam: one pixel of every remaining edge is the checker blended into the outline, so the
+  // figure is eroded by one pixel (its outline is two or three wide, it survives), and anything
+  // smaller than a crumb that is left is noise, not art
+  const a = new Uint8Array(n);
+  for (let i = 0; i < n; i++) a[i] = out.data[i * 4 + 3];
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const i = y * width + x; if (!a[i]) continue;
+    if (x === 0 || y === 0 || x === width - 1 || y === height - 1 || !a[i - 1] || !a[i + 1] || !a[i - width] || !a[i + width]) out.data[i * 4 + 3] = 0;
+  }
+  const crumbs = components(width, height, (i) => out.data[i * 4 + 3] > A_T);
+  for (const c of crumbs.comps) if (c.size < 40) for (let i = 0; i < n; i++) if (crumbs.labels[i] === c.id) out.data[i * 4 + 3] = 0;
   return { img: out, levels: [p1, p2] };
 }
 

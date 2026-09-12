@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T22:38:32.660Z",
+ "generatedAt": "2026-09-12T22:48:40.139Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -2187,12 +2187,12 @@
    "atlas": "chars/punk.webp",
    "data": "chars/punk.json",
    "box": {
-    "w": 236,
-    "h": 190
+    "w": 238,
+    "h": 189
    },
    "anchor": {
-    "x": 118,
-    "y": 186
+    "x": 119,
+    "y": 187
    },
    "rows": [
     "idle",
@@ -2215,7 +2215,7 @@
      ]
     }
    },
-   "scale": 0.282,
+   "scale": 0.2852,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -2230,6 +2230,11 @@
    "source": "public/assets/generated/actions/punk/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
@@ -2768,12 +2773,12 @@
    "atlas": "chars/punk-b.webp",
    "data": "chars/punk-b.json",
    "box": {
-    "w": 236,
-    "h": 190
+    "w": 238,
+    "h": 189
    },
    "anchor": {
-    "x": 118,
-    "y": 186
+    "x": 119,
+    "y": 187
    },
    "rows": [
     "idle",
@@ -2796,7 +2801,7 @@
      ]
     }
    },
-   "scale": 0.282,
+   "scale": 0.2852,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -2811,6 +2816,11 @@
    "source": "public/assets/generated/actions/punk/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
@@ -2940,12 +2950,12 @@
    "atlas": "chars/ferryman.webp",
    "data": "chars/ferryman.json",
    "box": {
-    "w": 502,
-    "h": 320
+    "w": 506,
+    "h": 312
    },
    "anchor": {
-    "x": 251,
-    "y": 309
+    "x": 253,
+    "y": 310
    },
    "rows": [
     "idle",
@@ -2956,7 +2966,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.4582,
+   "scale": 0.4603,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -2970,7 +2980,14 @@
    ],
    "source": "public/assets/generated/actions/ferryman/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
-   "notes": []
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
   },
   "glass-warden": {
    "id": "glass-warden",

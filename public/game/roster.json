@@ -75,7 +75,7 @@
   "punk-b": {
    "name": "Punk",
    "rank": "enemy",
-   "enabled": true,
+   "enabled": false,
    "levels": [
     1,
     2,
