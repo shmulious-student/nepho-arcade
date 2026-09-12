@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:assets": "node tools/check-assets.mjs",
     "lan": "node server/index.mjs",
-    "verify": "npm run build:assets && npm run test:assets && npm test && npm run build"
+    "verify": "npm run build:assets && npm run test:assets && npm test && npm run build",
+    "verify:character": "node tools/verify-character.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",

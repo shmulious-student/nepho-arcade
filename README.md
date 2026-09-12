@@ -105,6 +105,14 @@ along the cell boundaries are stripped, a ground shadow painted under a legacy-g
 which knockback frames are the floor, where a dipping getup row starts to rise — so the renderer
 plays a fall as airborne → flat → rising regardless of how many frames the artist gave it.
 
+## Adding a character
+
+`docs/character-art-standard.md` is the one template: the delivery format, the session protocol,
+the prompt blocks to paste verbatim, the 9-beat structure of every action and what the renderer does
+with each row, and the failure catalogue behind every rule. A delivered set is accepted only when
+`npm run verify:character -- <id>` passes (every file and every cell, before anything is built), then
+`npm run build:assets && npm run test:assets`, then a look at every row on `/showcase.html`.
+
 ## Roster backoffice
 
 `public/game/roster.json` decides who takes part: every hero, enemy and boss the sim knows, with a

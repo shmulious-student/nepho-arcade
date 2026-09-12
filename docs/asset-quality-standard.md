@@ -1,5 +1,7 @@
 # Character Grid Quality Standard
 
+> **Superseded for new art by [character-art-standard.md](./character-art-standard.md)** — the single template every future character is generated from, with the machine gate `npm run verify:character -- <id>`. This page stays as the description of the older formats still in the tree.
+
 Use [hero-grid-quality-reference.png](/assets/references/hero-grid-quality-reference.png) as the visual acceptance reference for every hero, enemy, and boss action set.
 
 ## Required bar

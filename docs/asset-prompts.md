@@ -1,5 +1,7 @@
 # Asset regeneration prompts
 
+> For any **new character**, use [character-art-standard.md](./character-art-standard.md) — the canonical prompt kit and acceptance gate. This page keeps the per-file prompts for repairing the older grids.
+
 This machine has no image-generation API, so these are written to hand to any image model (or the
 same pipeline that produced the rest of the pack). Drop a corrected file into
 `public/assets/generated/` at the path shown, run `npm run build:assets`, then `npm run test:assets`
