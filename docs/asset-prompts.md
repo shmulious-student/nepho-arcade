@@ -138,41 +138,22 @@ Every set below is held to [character-art-standard.md](./character-art-standard.
 that document's STYLE BLOCK and FRAME BLOCK verbatim, attach the reference sheet and the character
 sheet named here to every request, one action per request, and run
 `npm run verify:character -- <id>` after each file. These prompts are only the failing or missing
-files — the rest of each set stays as delivered. (Omri's red/black set landed in full and passes.)
+files — the rest of each set stays as delivered. (Omri's red/black set, abyss-dragon's idle and storm-colossus's idle landed and pass.)
 
-### abyss-dragon — `idle.png` (duplicate frames)
+### prism-queen — `defeat.png` (second attempt: frames 7–9 came back at a quarter size)
 
-Frames 1 = 3 and 7 = 9 were repeats. Attach `docs/refs/abyss-dragon` seed art (or the delivered
-`attack.png` as the design reference) and regenerate only `idle.png`:
-
-> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **idle** — a slow hovering
-> menace loop, **nine distinct poses**: 1 wings half-spread, 2 wings lift, 3 wings at the top of the
-> beat, 4 wings sweep down, 5 wings low, tail curls, 6 head turns slightly toward the viewer, 7
-> void-flame in the raised hand flares, 8 flame settles, 9 wings back to half-spread leading into
-> frame 1. Same height in every frame. **Never repeat a frame.**
-
-### storm-colossus — `idle.png` (duplicate frames)
-
-Frames 4 = 7 were repeats; the file also came on a magenta matte. Regenerate only `idle.png` with
-real alpha:
-
-> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **idle** — a heavy armoured
-> guard loop, **nine distinct poses**: 1 stance, hammer resting on the shoulder, 2 chest plate rises
-> with a breath, 3 shoulders roll, 4 the hammer head sparks, 5 lightning crawls up the haft, 6 the
-> chest core pulses bright, 7 head turns a fraction, 8 core dims, 9 weight settles back leading into
-> frame 1. Same height in every frame. **Real alpha channel, not a magenta matte. Never repeat a
-> frame.**
-
-### prism-queen — `defeat.png` (never lies down)
-
-The delivered row stays upright to the last frame, so she "dies" standing. Regenerate only
-`defeat.png`:
+The first row never lay down; the second lies down but frames 7–9 were drawn as tiny figures (12–14 %
+of the row's area), which the build rejects — she currently "dies" kneeling on a held frame 6.
+Regenerate only `defeat.png`. Attach the delivered `idle.png` as the size reference and bold the
+size line:
 
 > `[FRAME BLOCK]` Character exactly as in the attached file. Action: **defeat** — 1 upright, struck,
 > 2 the sceptre drops, 3 she sinks to one knee, 4 the prismatic aura shatters into falling shards,
-> 5–6 she topples sideways, 7 lands, **8–9 flat on the ground, identical, staying down**, the
-> sceptre beside her and the last shards settling. The figure must lie flat — lower than half its
-> standing height — on the final two frames.
+> 5–6 she topples sideways, 7 lands on her side, **8–9 flat on the ground, identical, staying down**,
+> the sceptre beside her and the last shards settling. **The fallen figure is the same size as the
+> standing one in frame 1 and in the attached idle.png — she lies flat across the bottom of the
+> cell, full length, she does not shrink, fade or recede into the distance.** Her body on the final
+> two frames is lower than half her standing height and as wide as she is tall.
 
 ---
 

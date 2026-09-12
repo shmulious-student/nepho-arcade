@@ -123,7 +123,7 @@ suggestion. "Frames 1–9" below are the 9 cells in reading order.
 | `idle` | a subtle breathing/guard loop: small weight shifts, prop movement, an effect flicker; frame 9 leads back into frame 1. Same height throughout. | loops all 9 |
 | `walk` | a full stride cycle: 8 steps plus a return frame, springy, props moving in time; frame 9 leads back into frame 1. Feet on the baseline. | loops all 9 |
 | `hurt` | **1–3 flinch** (upright, head snaps back), **4–6 heavy reel** (staggers back, still on feet), **7–9 airborne crumple** (knocked off the feet, curling). | hero: light hit 1+3, heavy hit 4+6, stunned 1·3·1·4, launched 7+9 · enemy: grounded hit 1–6, stunned 1–2, launch uses `knockback` |
-| `defeat` | upright in frame 1 → drops → topples → **frames 8–9 flat on the ground and settled**, identical pose, staying down. | plays through, holds frame 9 for as long as the body stays |
+| `defeat` | upright in frame 1 → drops → topples → **frames 8–9 flat on the ground and settled**, identical pose, staying down. **The lying figure is the same size as the standing one — it lies flat, it does not shrink or move away.** | plays through, holds frame 9 for as long as the body stays |
 
 **Hero (12)**
 
@@ -166,7 +166,8 @@ Automated — `npm run verify:character -- <id>` fails on any of these, naming t
 - missing or misnamed action file; canvas not square/power-of-two; background not real alpha or
   border not clear; grid guide lines on the canvas
 - an empty cell; art cut off at a cell edge; a dark flat blob painted under the feet
-- two frames in one file that are the same pose
+- two frames in one file that are the same pose; a frame drawn at a fraction of the row's size (a
+  fallen figure lies flat, it does not shrink)
 - feet off the row's baseline or the body off the row's axis in a grounded row
 - the figure a different size in one file than in the others
 - `defeat` not ending flat and settled; enemy `knockback` with no flat frame; `getup` dipping before
@@ -206,6 +207,7 @@ the machine can see it, a check.
 | Omri's old `block.png` figure 24 % smaller than his other files | same size in every file (±12 %) | `verify-character` |
 | abyss-dragon / storm-colossus `idle` padded with repeated frames | 9 distinct poses | `verify-character` |
 | prism-queen `defeat` never lies down → boss "dies" standing | defeat ends flat and settled | `verify-character` |
+| prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; the build rejects a frame under 55 % of the row's area | `verify-character`, build |
 | Legacy 6-frame rows with 3 distinct poses drawn twice each | 9 distinct frames per row | `verify-character` |
 | Byte's grids delivered as a copy of another hero | identity from a character sheet, checked at review | build warns, review |
 | Bosses on legacy grids losing 1–3 frames whose figure is mostly missing (`partial-figure`) | every cell holds the whole figure; empty/partial cells rejected | `verify-character`, build |
