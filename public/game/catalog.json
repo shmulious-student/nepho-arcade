@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T22:07:40.390Z",
+ "generatedAt": "2026-09-12T22:38:32.660Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -2187,19 +2187,17 @@
    "atlas": "chars/punk.webp",
    "data": "chars/punk.json",
    "box": {
-    "w": 164,
-    "h": 126
+    "w": 236,
+    "h": 190
    },
    "anchor": {
-    "x": 82,
-    "y": 121
+    "x": 118,
+    "y": 186
    },
    "rows": [
     "idle",
     "walk",
-    "approach",
     "attack",
-    "combo",
     "heavy",
     "special",
     "guard",
@@ -2208,14 +2206,7 @@
     "getup",
     "defeat"
    ],
-   "framesPerRow": 6,
-   "frameCounts": {
-    "special": 9,
-    "hurt": 9,
-    "knockback": 9,
-    "getup": 9,
-    "defeat": 9
-   },
+   "framesPerRow": 9,
    "poses": {
     "knockback": {
      "floor": [
@@ -2224,7 +2215,8 @@
      ]
     }
    },
-   "scale": 0.5417,
+   "scale": 0.282,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -2235,23 +2227,13 @@
     0,
     0
    ],
-   "source": "public/assets/generated/enemies/enemy-00-red-punk-grid-1.png + public/assets/generated/enemies/enemy-00-red-punk-grid-2.png",
-   "sourceFormat": "pair",
+   "source": "public/assets/generated/actions/punk/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
     "feathered binary alpha",
-    "stripped 85902 px of grid guide lines",
-    "special: row replaced by actions/punk/special.png",
     "feathered binary alpha",
-    "hurt: row replaced by actions/punk/hurt.png",
     "feathered binary alpha",
-    "knockback: row replaced by actions/punk/knockback.png",
-    "feathered binary alpha",
-    "stripped 67514 px of grid guide lines",
-    "getup: row replaced by actions/punk/getup.png",
-    "feathered binary alpha",
-    "stripped 22527 px of grid guide lines",
-    "defeat: row replaced by actions/punk/defeat.png",
-    "override rows scaled to body height (special:0.196 hurt:0.178 knockback:0.169 getup:0.178 defeat:0.178; base 0.542)"
+    "feathered binary alpha"
    ]
   },
   "chainer": {
@@ -2786,19 +2768,17 @@
    "atlas": "chars/punk-b.webp",
    "data": "chars/punk-b.json",
    "box": {
-    "w": 164,
-    "h": 126
+    "w": 236,
+    "h": 190
    },
    "anchor": {
-    "x": 82,
-    "y": 121
+    "x": 118,
+    "y": 186
    },
    "rows": [
     "idle",
     "walk",
-    "approach",
     "attack",
-    "combo",
     "heavy",
     "special",
     "guard",
@@ -2807,14 +2787,7 @@
     "getup",
     "defeat"
    ],
-   "framesPerRow": 6,
-   "frameCounts": {
-    "special": 9,
-    "hurt": 9,
-    "knockback": 9,
-    "getup": 9,
-    "defeat": 9
-   },
+   "framesPerRow": 9,
    "poses": {
     "knockback": {
      "floor": [
@@ -2823,7 +2796,8 @@
      ]
     }
    },
-   "scale": 0.5417,
+   "scale": 0.282,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -2834,23 +2808,13 @@
     0,
     0
    ],
-   "source": "public/assets/generated/enemies/enemy-00-red-punk-grid-1.png + public/assets/generated/enemies/enemy-00-red-punk-grid-2.png",
-   "sourceFormat": "pair",
+   "source": "public/assets/generated/actions/punk/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
     "feathered binary alpha",
-    "stripped 85902 px of grid guide lines",
-    "special: row replaced by actions/punk/special.png",
     "feathered binary alpha",
-    "hurt: row replaced by actions/punk/hurt.png",
     "feathered binary alpha",
-    "knockback: row replaced by actions/punk/knockback.png",
     "feathered binary alpha",
-    "stripped 67514 px of grid guide lines",
-    "getup: row replaced by actions/punk/getup.png",
-    "feathered binary alpha",
-    "stripped 22527 px of grid guide lines",
-    "defeat: row replaced by actions/punk/defeat.png",
-    "override rows scaled to body height (special:0.196 hurt:0.178 knockback:0.169 getup:0.178 defeat:0.178; base 0.542)",
     "green variant of punk"
    ],
    "variantOf": "punk"
@@ -2976,12 +2940,12 @@
    "atlas": "chars/ferryman.webp",
    "data": "chars/ferryman.json",
    "box": {
-    "w": 510,
-    "h": 333
+    "w": 502,
+    "h": 320
    },
    "anchor": {
-    "x": 255,
-    "y": 331
+    "x": 251,
+    "y": 309
    },
    "rows": [
     "idle",
@@ -2992,7 +2956,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.7298,
+   "scale": 0.4582,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3006,14 +2970,7 @@
    ],
    "source": "public/assets/generated/actions/ferryman/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
-   "notes": [
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha"
-   ]
+   "notes": []
   },
   "glass-warden": {
    "id": "glass-warden",

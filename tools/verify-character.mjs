@@ -209,7 +209,9 @@ for (const action of actions) {
 // height is the median of its three tallest frames — one wings-up or jumping frame does not skew it,
 // and a crouched wind-up in frame 1 does not either. The character's height is the median over files.
 const files = actions.filter((a) => perFile[a]);
-const standing = Object.fromEntries(files.map((a) => { const hs = perFile[a].info.filter(Boolean).map((r) => r.h).sort((x, y) => y - x); return [a, hs[Math.min(1, hs.length - 1)]]; }));
+// (a lying row — defeat, knockdown, knockback, getup — may hold only one upright frame, so it uses its
+// tallest; every other row uses its second tallest so one jumping or wings-up frame does not count)
+const standing = Object.fromEntries(files.map((a) => { const hs = perFile[a].info.filter(Boolean).map((r) => r.h).sort((x, y) => y - x); const lying = ['defeat', 'knockdown', 'knockback', 'getup'].includes(a); return [a, hs[lying ? 0 : Math.min(1, hs.length - 1)]]; }));
 const refH = median(Object.values(standing));
 for (const a of files) {
   if (Math.abs(standing[a] - refH) > refH * 0.2) fail(`${a}.png: the figure is ${standing[a] > refH ? 'larger' : 'smaller'} than in the other files (${Math.round(standing[a])} vs ${Math.round(refH)} px tall) — one character, one size, in every file`);
