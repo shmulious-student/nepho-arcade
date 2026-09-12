@@ -19,6 +19,8 @@ export interface CharacterEntry {
   renderScale?: number;
   /** Rows whose frame count differs from framesPerRow (a per-action override carries 9 frames). */
   frameCounts?: Record<string, number>;
+  /** Pose hints measured by the build: the knockback frames on which an enemy lies on the floor. */
+  poses?: { knockback?: { floor: [number, number] }; getup?: { rise: [number, number] } };
   skin: [number, number, number];
   outline: [number, number, number];
   head?: Record<string, ([number, number, number] | null)[]>; // per-row array of [dx,dy,width] in box-space (null = no figure in frame, hide the face), heroes only

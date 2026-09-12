@@ -1,0 +1,6 @@
+{
+ "_comment": "Per-character build overrides read by tools/build-assets.mjs. scrubFringe: passes of light-halo removal for a source keyed from a light matte (see asset-ops scrubLightFringe).",
+ "kicker": {
+  "scrubFringe": 3
+ }
+}

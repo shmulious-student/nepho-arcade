@@ -210,6 +210,10 @@ export function isolateMain(cell, { borderRatio = 0.4, speck = 12 } = {}) {
     if (c === main) { keep[c.id] = 1; continue; }
     if (c.size < speck) continue;
     if (c.touchesBorder && c.size < main.size * borderRatio) continue;
+    // a small blob detached from the figure at foot level or below (a painted-in ground shadow, a
+    // smear of the matte) is debris, not a prop: the renderer draws the shadow itself
+    const gap = Math.max(0, c.x0 - main.x1, main.x0 - c.x1, c.y0 - main.y1, main.y0 - c.y1);
+    if (c.size < main.size * 0.04 && gap > 2 && c.y0 >= main.y1 - (main.y1 - main.y0) * 0.12) continue;
     keep[c.id] = 1;
   }
   const out = cloneImage(cell);
@@ -234,7 +238,9 @@ export function isolateMain(cell, { borderRatio = 0.4, speck = 12 } = {}) {
 // on which the frame's art ends in a hard straight edge — an effect the generator itself cut off.
 const CELL_PAD = 0.35;
 
-export function sliceFixed(img, rows, cols, take = cols) {
+// `dropGroundDebris`: older 6×6 grids paint a ground shadow under the figure that the renderer draws
+// itself; per-action sets leave it off and use detached props on purpose (a dropped marker, a ball).
+export function sliceFixed(img, rows, cols, take = cols, { dropGroundDebris = false } = {}) {
   const xs = Array.from({ length: cols + 1 }, (_, i) => Math.round((img.width * i) / cols));
   const ys = Array.from({ length: rows + 1 }, (_, i) => Math.round((img.height * i) / rows));
   const { labels, comps } = components(img.width, img.height, (i) => img.data[i * 4 + 3] > A_T);
@@ -319,7 +325,10 @@ export function sliceFixed(img, rows, cols, take = cols) {
           const mCx = m.sx / m.size, mainW = main.x1 - main.x0 + 1;
           const behind = (m.x1 < main.x0 && g > cw * 0.02) || (mCx < mainCx - mainW * 0.3 && m.size < main.size * 0.15);
           const speck = g > 0 && m.size < main.size * 0.05; // a detached crumb: debris, not an effect
-          if (!behind && !speck && (m.size >= main.size * 0.25 || g <= cw * 0.1)) continue;
+          // a detached blob at foot level or below — a ground shadow the generator painted in
+          const mainH = main.y1 - main.y0 + 1;
+          const groundDebris = dropGroundDebris && m.size < main.size * 0.12 && m.y0 >= main.y1 - mainH * 0.1;
+          if (!behind && !speck && !groundDebris && (m.size >= main.size * 0.25 || g <= cw * 0.1)) continue;
           for (let i = 0; i < cell.width * cell.height; i++) if (local.labels[i] === m.id) cell.data[i * 4 + 3] = 0;
           dropped = true;
         }
@@ -383,6 +392,77 @@ export function keyOutFlat(img, { tolerance = 60 } = {}) {
     if (d <= tolerance) { out.data[i * 4 + 3] = 0; keyed++; }
   }
   return { img: out, key: [r, g, b], keyed: keyed / (width * height) };
+}
+
+// Grid guides: some generated sheets carry thin, fully opaque lines drawn along the cell boundaries
+// (a leftover of the generator's own layout grid). Left in, they end up inside whichever frame the
+// slicer attaches them to as a huge near-empty box with a crosshair. Only near-uniform, high-opacity
+// runs sitting on a nominal boundary count as a line, and only pixels of the line's own colour are
+// cleared, so art that legitimately crosses a cell line keeps its pixels.
+export function stripGridLines(img, rows, cols, { band = 8, minOpacity = 0.85, tolerance = 40 } = {}) {
+  const { width, height, data } = img;
+  const out = cloneImage(img);
+  let cleared = 0;
+  const near = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) <= tolerance * 3;
+  const scan = (vertical, boundaries) => {
+    const len = vertical ? height : width, span = vertical ? width : height;
+    for (const b of boundaries) {
+      for (let k = Math.max(0, b - band); k <= Math.min(span - 1, b + band); k++) {
+        // opacity and mean colour of this column (or row)
+        let opaque = 0, sr = 0, sg = 0, sb = 0;
+        for (let t = 0; t < len; t++) {
+          const i = vertical ? (t * width + k) : (k * width + t);
+          if (data[i * 4 + 3] > A_T) { opaque++; sr += data[i * 4]; sg += data[i * 4 + 1]; sb += data[i * 4 + 2]; }
+        }
+        if (opaque / len < minOpacity) continue;
+        const mean = [sr / opaque, sg / opaque, sb / opaque];
+        let same = 0;
+        for (let t = 0; t < len; t++) {
+          const i = vertical ? (t * width + k) : (k * width + t);
+          if (data[i * 4 + 3] > A_T && near([data[i * 4], data[i * 4 + 1], data[i * 4 + 2]], mean)) same++;
+        }
+        if (same / opaque < 0.8) continue; // a figure crossing the boundary, not a drawn line
+        for (let t = 0; t < len; t++) {
+          const i = vertical ? (t * width + k) : (k * width + t);
+          if (data[i * 4 + 3] > A_T && near([data[i * 4], data[i * 4 + 1], data[i * 4 + 2]], mean)) { out.data[i * 4 + 3] = 0; cleared++; }
+        }
+      }
+    }
+  };
+  scan(true, Array.from({ length: cols - 1 }, (_, i) => Math.round((width * (i + 1)) / cols)));
+  scan(false, Array.from({ length: rows - 1 }, (_, i) => Math.round((height * (i + 1)) / rows)));
+  return { img: out, cleared };
+}
+
+// After a baked light checker is removed, the anti-aliased seam between figure and background is
+// left as a light, desaturated halo one to three pixels wide. Peels it off from the outside in:
+// only boundary pixels that are light and colourless go, so a figure's own bright detail survives.
+export function scrubLightFringe(img, passes = 3) {
+  let cur = cloneImage(img);
+  const { width, height } = img;
+  for (let p = 0; p < passes; p++) {
+    const src = cur.data;
+    const out = cloneImage(cur);
+    let n = 0;
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const a = src[i * 4 + 3];
+      if (a === 0) continue;
+      let boundary = false;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height || src[(ny * width + nx) * 4 + 3] < A_T) { boundary = true; break; }
+      }
+      if (!boundary) continue;
+      const r = src[i * 4], g = src[i * 4 + 1], b = src[i * 4 + 2];
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      const light = (r + g + b) / 3 > 140, colourless = mx - mn < 40;
+      if ((light && colourless) || a < 100) { out.data[i * 4 + 3] = 0; n++; }
+    }
+    cur = out;
+    if (!n) break;
+  }
+  return cur;
 }
 
 // Removes a painted white/gray checkerboard background (baked transparency preview).

@@ -48,11 +48,18 @@ const range = (n: number): readonly number[] => Array.from({ length: n }, (_, i)
 
 /** How many frames a character's atlas has for `row`: a number for every row, or a per-row table
  * (a per-action override carries 9 frames while the rest of the grid has 6). */
-export type FrameCount = number | { framesPerRow: number; frameCounts?: Record<string, number> };
+export type FrameCount = number | { framesPerRow: number; frameCounts?: Record<string, number>; poses?: { knockback?: { floor: [number, number] }; getup?: { rise: [number, number] } } };
 function framesIn(fc: FrameCount | undefined, row: string, fallback: number): number {
   if (fc === undefined) return fallback;
   if (typeof fc === 'number') return fc;
   return fc.frameCounts?.[row] ?? fc.framesPerRow;
+}
+/** The frames of an enemy's knockback row on which the figure lies on the floor, as measured by the
+ * asset build (catalog `poses`), or the legacy 6-frame grid's convention (airborne 0-3, flat 4-5). */
+function knockbackFloor(fc: FrameCount | undefined, framesPerRow: number): [number, number] {
+  const measured = typeof fc === 'object' ? fc.poses?.knockback?.floor : undefined;
+  if (measured) return measured;
+  return [remap(3, framesPerRow), remap(5, framesPerRow)];
 }
 
 export function heroFrameKey(state: string, st: number, fc?: FrameCount): string {
@@ -79,7 +86,24 @@ export function enemyFrameKey(arch: string, state: string, st: number, fc?: Fram
   }
   const p = ENEMY_PACING[state] || ENEMY_PACING.idle;
   const framesPerRow = framesIn(fc, p.row, CANONICAL_FRAMES);
-  return `${p.row}/${pick(p.frames ? p.frames.map((f) => remap(f, framesPerRow)) : range(framesPerRow), st, p.ticks, p.loop)}`;
+  let frames: readonly number[];
+  if (state === 'launched' || state === 'knockdown') {
+    // the fall plays up to the first floor frame; on the floor the figure holds the flat frames —
+    // never the row's tail, which on a per-action set is the enemy already standing again
+    const [a, b] = knockbackFloor(fc, framesPerRow);
+    frames = state === 'launched' ? range(a + 1) : range(b - a + 1).map((i) => a + i);
+  } else if (state === 'getup' && typeof fc === 'object' && fc.poses?.getup) {
+    // an older getup row dips before it rises: play only the rising half, lowest frame to last
+    const [a, b] = fc.poses.getup.rise;
+    frames = range(b - a + 1).map((i) => a + i);
+  } else if (state === 'hurt' && framesPerRow > CANONICAL_FRAMES) {
+    // a 9-frame hurt row is flinch (0-2), heavy reel (3-5), airborne crumple (6-8): a grounded hit
+    // shows the first two thirds; the crumple belongs to a launch, which has its own row
+    frames = range(6);
+  } else {
+    frames = p.frames ? p.frames.map((f) => remap(f, framesPerRow)) : range(framesPerRow);
+  }
+  return `${p.row}/${pick(frames, st, p.ticks, p.loop)}`;
 }
 
 export function bossFrameKey(state: string, st: number, fc?: FrameCount): string {

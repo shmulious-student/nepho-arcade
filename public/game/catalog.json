@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T08:01:34.445Z",
+ "generatedAt": "2026-09-12T09:19:05.657Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -2187,12 +2187,12 @@
    "atlas": "chars/punk.webp",
    "data": "chars/punk.json",
    "box": {
-    "w": 234,
-    "h": 185
+    "w": 164,
+    "h": 126
    },
    "anchor": {
-    "x": 117,
-    "y": 133
+    "x": 82,
+    "y": 121
    },
    "rows": [
     "idle",
@@ -2216,6 +2216,14 @@
     "getup": 9,
     "defeat": 9
    },
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    }
+   },
    "scale": 0.5417,
    "skin": [
     0,
@@ -2231,14 +2239,17 @@
    "sourceFormat": "pair",
    "notes": [
     "feathered binary alpha",
+    "stripped 85902 px of grid guide lines",
     "special: row replaced by actions/punk/special.png",
     "feathered binary alpha",
     "hurt: row replaced by actions/punk/hurt.png",
     "feathered binary alpha",
     "knockback: row replaced by actions/punk/knockback.png",
     "feathered binary alpha",
+    "stripped 67514 px of grid guide lines",
     "getup: row replaced by actions/punk/getup.png",
     "feathered binary alpha",
+    "stripped 22527 px of grid guide lines",
     "defeat: row replaced by actions/punk/defeat.png",
     "override rows scaled to body height (special:0.196 hurt:0.178 knockback:0.169 getup:0.178 defeat:0.178; base 0.542)"
    ]
@@ -2271,6 +2282,20 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    },
+    "getup": {
+     "rise": [
+      3,
+      5
+     ]
+    }
+   },
    "scale": 0.5474,
    "skin": [
     0,
@@ -2314,6 +2339,14 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      4,
+      5
+     ]
+    }
+   },
    "scale": 0.5561,
    "skin": [
     0,
@@ -2335,12 +2368,12 @@
    "atlas": "chars/kicker.webp",
    "data": "chars/kicker.json",
    "box": {
-    "w": 236,
-    "h": 140
+    "w": 234,
+    "h": 131
    },
    "anchor": {
-    "x": 118,
-    "y": 130
+    "x": 117,
+    "y": 129
    },
    "rows": [
     "idle",
@@ -2357,6 +2390,20 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      4,
+      4
+     ]
+    },
+    "getup": {
+     "rise": [
+      3,
+      5
+     ]
+    }
+   },
    "scale": 0.5361,
    "skin": [
     0,
@@ -2370,7 +2417,10 @@
    ],
    "source": "public/assets/generated/enemies/enemy-03-purple-fighter-grid-1.png + public/assets/generated/enemies/enemy-03-purple-fighter-grid-2.png",
    "sourceFormat": "pair",
-   "notes": []
+   "notes": [
+    "scrubbed light fringe (3 px)",
+    "scrubbed light fringe (3 px)"
+   ]
   },
   "knight": {
    "id": "knight",
@@ -2400,6 +2450,20 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    },
+    "getup": {
+     "rise": [
+      4,
+      5
+     ]
+    }
+   },
    "scale": 0.5333,
    "skin": [
     0,
@@ -2445,6 +2509,20 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    },
+    "getup": {
+     "rise": [
+      3,
+      5
+     ]
+    }
+   },
    "scale": 0.5561,
    "skin": [
     0,
@@ -2460,18 +2538,260 @@
    "sourceFormat": "pair",
    "notes": []
   },
+  "bio-brute": {
+   "id": "bio-brute",
+   "kind": "enemy",
+   "atlas": "chars/bio-brute.webp",
+   "data": "chars/bio-brute.json",
+   "box": {
+    "w": 270,
+    "h": 196
+   },
+   "anchor": {
+    "x": 135,
+    "y": 194
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "poses": {
+    "knockback": {
+     "floor": [
+      6,
+      7
+     ]
+    }
+   },
+   "scale": 0.2917,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/bio-brute/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "gold-sorceress": {
+   "id": "gold-sorceress",
+   "kind": "enemy",
+   "atlas": "chars/gold-sorceress.webp",
+   "data": "chars/gold-sorceress.json",
+   "box": {
+    "w": 320,
+    "h": 212
+   },
+   "anchor": {
+    "x": 160,
+    "y": 210
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    }
+   },
+   "scale": 0.2847,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/gold-sorceress/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "void-demon": {
+   "id": "void-demon",
+   "kind": "enemy",
+   "atlas": "chars/void-demon.webp",
+   "data": "chars/void-demon.json",
+   "box": {
+    "w": 296,
+    "h": 207
+   },
+   "anchor": {
+    "x": 148,
+    "y": 204
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "poses": {
+    "knockback": {
+     "floor": [
+      7,
+      8
+     ]
+    }
+   },
+   "scale": 0.2986,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/void-demon/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "rainbow-oracle": {
+   "id": "rainbow-oracle",
+   "kind": "enemy",
+   "atlas": "chars/rainbow-oracle.webp",
+   "data": "chars/rainbow-oracle.json",
+   "box": {
+    "w": 234,
+    "h": 195
+   },
+   "anchor": {
+    "x": 117,
+    "y": 186
+   },
+   "rows": [
+    "idle",
+    "walk",
+    "attack",
+    "heavy",
+    "special",
+    "guard",
+    "hurt",
+    "knockback",
+    "getup",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "poses": {
+    "knockback": {
+     "floor": [
+      8,
+      8
+     ]
+    }
+   },
+   "scale": 0.2708,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/rainbow-oracle/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
   "punk-b": {
    "id": "punk-b",
    "kind": "enemy",
    "atlas": "chars/punk-b.webp",
    "data": "chars/punk-b.json",
    "box": {
-    "w": 234,
-    "h": 185
+    "w": 164,
+    "h": 126
    },
    "anchor": {
-    "x": 117,
-    "y": 133
+    "x": 82,
+    "y": 121
    },
    "rows": [
     "idle",
@@ -2495,6 +2815,14 @@
     "getup": 9,
     "defeat": 9
    },
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    }
+   },
    "scale": 0.5417,
    "skin": [
     0,
@@ -2510,14 +2838,17 @@
    "sourceFormat": "pair",
    "notes": [
     "feathered binary alpha",
+    "stripped 85902 px of grid guide lines",
     "special: row replaced by actions/punk/special.png",
     "feathered binary alpha",
     "hurt: row replaced by actions/punk/hurt.png",
     "feathered binary alpha",
     "knockback: row replaced by actions/punk/knockback.png",
     "feathered binary alpha",
+    "stripped 67514 px of grid guide lines",
     "getup: row replaced by actions/punk/getup.png",
     "feathered binary alpha",
+    "stripped 22527 px of grid guide lines",
     "defeat: row replaced by actions/punk/defeat.png",
     "override rows scaled to body height (special:0.196 hurt:0.178 knockback:0.169 getup:0.178 defeat:0.178; base 0.542)",
     "green variant of punk"
@@ -2552,6 +2883,14 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      4,
+      5
+     ]
+    }
+   },
    "scale": 0.5561,
    "skin": [
     0,
@@ -2598,6 +2937,20 @@
     "defeat"
    ],
    "framesPerRow": 6,
+   "poses": {
+    "knockback": {
+     "floor": [
+      5,
+      5
+     ]
+    },
+    "getup": {
+     "rise": [
+      4,
+      5
+     ]
+    }
+   },
    "scale": 0.5333,
    "skin": [
     0,
@@ -3005,218 +3358,6 @@
    "notes": [
     "feathered binary alpha",
     "2 defective source frame(s) replaced by a neighbour: attack/6(partial-figure)->5 defeat/6(partial-figure)->5"
-   ]
-  },
-  "bio-brute": {
-   "id": "bio-brute",
-   "kind": "enemy",
-   "atlas": "chars/bio-brute.webp",
-   "data": "chars/bio-brute.json",
-   "box": {
-    "w": 270,
-    "h": 196
-   },
-   "anchor": {
-    "x": 135,
-    "y": 194
-   },
-   "rows": [
-    "idle",
-    "walk",
-    "attack",
-    "heavy",
-    "special",
-    "guard",
-    "hurt",
-    "knockback",
-    "getup",
-    "defeat"
-   ],
-   "framesPerRow": 9,
-   "scale": 0.2917,
-   "renderScale": 0.5882,
-   "skin": [
-    0,
-    0,
-    0
-   ],
-   "outline": [
-    0,
-    0,
-    0
-   ],
-   "source": "public/assets/generated/actions/bio-brute/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
-   "sourceFormat": "actions",
-   "notes": [
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha"
-   ]
-  },
-  "gold-sorceress": {
-   "id": "gold-sorceress",
-   "kind": "enemy",
-   "atlas": "chars/gold-sorceress.webp",
-   "data": "chars/gold-sorceress.json",
-   "box": {
-    "w": 320,
-    "h": 212
-   },
-   "anchor": {
-    "x": 160,
-    "y": 210
-   },
-   "rows": [
-    "idle",
-    "walk",
-    "attack",
-    "heavy",
-    "special",
-    "guard",
-    "hurt",
-    "knockback",
-    "getup",
-    "defeat"
-   ],
-   "framesPerRow": 9,
-   "scale": 0.2847,
-   "renderScale": 0.5882,
-   "skin": [
-    0,
-    0,
-    0
-   ],
-   "outline": [
-    0,
-    0,
-    0
-   ],
-   "source": "public/assets/generated/actions/gold-sorceress/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
-   "sourceFormat": "actions",
-   "notes": [
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha"
-   ]
-  },
-  "void-demon": {
-   "id": "void-demon",
-   "kind": "enemy",
-   "atlas": "chars/void-demon.webp",
-   "data": "chars/void-demon.json",
-   "box": {
-    "w": 296,
-    "h": 207
-   },
-   "anchor": {
-    "x": 148,
-    "y": 204
-   },
-   "rows": [
-    "idle",
-    "walk",
-    "attack",
-    "heavy",
-    "special",
-    "guard",
-    "hurt",
-    "knockback",
-    "getup",
-    "defeat"
-   ],
-   "framesPerRow": 9,
-   "scale": 0.2986,
-   "renderScale": 0.5882,
-   "skin": [
-    0,
-    0,
-    0
-   ],
-   "outline": [
-    0,
-    0,
-    0
-   ],
-   "source": "public/assets/generated/actions/void-demon/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
-   "sourceFormat": "actions",
-   "notes": [
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha"
-   ]
-  },
-  "rainbow-oracle": {
-   "id": "rainbow-oracle",
-   "kind": "enemy",
-   "atlas": "chars/rainbow-oracle.webp",
-   "data": "chars/rainbow-oracle.json",
-   "box": {
-    "w": 234,
-    "h": 195
-   },
-   "anchor": {
-    "x": 117,
-    "y": 186
-   },
-   "rows": [
-    "idle",
-    "walk",
-    "attack",
-    "heavy",
-    "special",
-    "guard",
-    "hurt",
-    "knockback",
-    "getup",
-    "defeat"
-   ],
-   "framesPerRow": 9,
-   "scale": 0.2708,
-   "renderScale": 0.5882,
-   "skin": [
-    0,
-    0,
-    0
-   ],
-   "outline": [
-    0,
-    0,
-    0
-   ],
-   "source": "public/assets/generated/actions/rainbow-oracle/{idle,walk,attack,heavy,special,guard,hurt,knockback,getup,defeat}.png",
-   "sourceFormat": "actions",
-   "notes": [
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "feathered binary alpha",
-    "4 defective source frame(s) replaced by a neighbour: heavy/2(cut-right)->1 heavy/3(cut-right)->1 heavy/4(cut-right)->6 heavy/5(cut-right)->6"
    ]
   },
   "abyss-dragon": {

@@ -98,6 +98,13 @@ A few source masters have known defects the pipeline works around automatically 
 `enemy-03-purple-fighter-grid.png` has a baked (non-transparent) checkerboard background that the
 pipeline attempts to un-bake. Drop in a corrected master and rebuild — nothing else needs to change.
 
+The build also repairs the frame-level damage generated sheets tend to carry: grid guide lines drawn
+along the cell boundaries are stripped, a ground shadow painted under a legacy-grid figure is dropped
+(the renderer draws its own), a light halo left by keying a light matte is peeled off (per character,
+`art-overrides.json` → `scrubFringe`), and per row it records pose hints in the catalog (`poses`) —
+which knockback frames are the floor, where a dipping getup row starts to rise — so the renderer
+plays a fall as airborne → flat → rising regardless of how many frames the artist gave it.
+
 ## Roster backoffice
 
 `public/game/roster.json` decides who takes part: every hero, enemy and boss the sim knows, with a

@@ -105,19 +105,32 @@ function resolveSource(id, actions, pairFiles, gridFile) {
   return { kind: 'grid', file: gridFile };
 }
 
-async function loadCleaned(path, id, notes, { strict = false } = {}) {
+async function loadCleaned(path, id, notes, { strict = false, grid = null, scrubFringe = 0 } = {}) {
   let img = await loadRaw(path);
   const stats = sourceStats(id, img);
+  // art-overrides.json `scrubFringe`: a source whose transparent background was produced by keying a
+  // light matte, leaving a grey halo baked around the figure (enemy-03), gets it peeled off
+  if (scrubFringe && stats.opaqueRatio <= 0.9) { img = ops.scrubLightFringe(img, scrubFringe); notes.push(`scrubbed light fringe (${scrubFringe} px)`); }
   if (stats.opaqueRatio > 0.9) {
     // a flat matte (magenta from a model without alpha) is keyed; anything else is a baked checker
     const keyed = ops.keyOutFlat(img);
-    if (keyed && keyed.keyed > 0.3) { img = keyed.img; notes.push(`keyed out flat matte rgb(${keyed.key})`); return ops.defringe(img, 2); }
+    if (keyed && keyed.keyed > 0.3) { img = keyed.img; notes.push(`keyed out flat matte rgb(${keyed.key})`); return finishCleaned(img, id, notes, grid); }
     img = ops.unbakeChecker(img);
     const after = ops.opaqueRatio(img);
     notes.push(`unbaked checker: opaque ${stats.opaqueRatio} -> ${after.toFixed(3)}`);
     if (strict && (after < 0.15 || after > 0.5)) { warn(`${id}: checker unbake failed (opaque ${after.toFixed(3)})`); return null; }
+    img = ops.scrubLightFringe(img, 3); // the light seam the checker leaves around the figure
   }
   if (stats.alphaValues <= 2) { img = ops.featherAlpha(img); notes.push('feathered binary alpha'); }
+  return finishCleaned(img, id, notes, grid);
+}
+
+// grid guides drawn along the cell lines are cleared before any slicing sees them
+function finishCleaned(img, id, notes, grid) {
+  if (grid) {
+    const stripped = ops.stripGridLines(img, grid[0], grid[1]);
+    if (stripped.cleared) { img = stripped.img; notes.push(`stripped ${stripped.cleared} px of grid guide lines`); console.log(`${id}: stripped grid guide lines (${stripped.cleared} px)`); }
+  }
   return ops.defringe(img, 2);
 }
 
@@ -185,14 +198,14 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
     spec = { ...baseSpec, rows: source.files.map(([a]) => a), frames: ACTION_GRID.rows * ACTION_GRID.cols };
     supersample = SUPERSAMPLE;
     for (const [action, path] of source.files) {
-      const img = await loadCleaned(path, `${id}/${action}`, notes);
+      const img = await loadCleaned(path, `${id}/${action}`, notes, { grid: [ACTION_GRID.rows, ACTION_GRID.cols] });
       cells.push(ops.sliceFixed(img, ACTION_GRID.rows, ACTION_GRID.cols).flat());
     }
   } else if (source.kind === 'pair') {
     // two 6×6 grids: rows 0-5 in part 1, rows 6-11 in part 2
     for (let part = 0; part < 2; part++) {
-      const img = await loadCleaned(source.files[part], `${id}-p${part + 1}`, notes);
-      cells.push(...ops.sliceFixed(img, 6, 6, spec.frames));
+      const img = await loadCleaned(source.files[part], `${id}-p${part + 1}`, notes, { scrubFringe: (overrides[id] || {}).scrubFringe || 0 });
+      cells.push(...ops.sliceFixed(img, 6, 6, spec.frames, { dropGroundDebris: true }));
     }
   } else {
     const img = await loadCleaned(source.file, id, notes, { strict: true });
@@ -219,7 +232,7 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
   for (const [action, path] of source.overrides || []) {
     const r = spec.rows.indexOf(action);
     if (r < 0) { warn(`${id}: actions/${id}/${action}.png does not match a row of this character (${spec.rows.join(', ')})`); continue; }
-    const img = await loadCleaned(path, `${id}/${action}`, notes);
+    const img = await loadCleaned(path, `${id}/${action}`, notes, { grid: [ACTION_GRID.rows, ACTION_GRID.cols] });
     cells[r] = ops.sliceFixed(img, ACTION_GRID.rows, ACTION_GRID.cols).flat();
     overriddenRows.add(r);
     notes.push(`${action}: row replaced by actions/${id}/${action}.png`);
@@ -377,9 +390,39 @@ async function processCharacter(id, source, baseSpec, { emit = true } = {}) {
     : source.kind === 'pair' ? source.files.map(rel).join(' + ') : rel(source.file);
   // rows that do not have the character's usual frame count (per-action overrides carry 9)
   const frameCounts = Object.fromEntries(spec.rows.map((row, r) => [row, cells[r].length]).filter(([, n]) => n !== spec.frames));
+  // Pose hints the renderer cannot infer from a row's length alone. An enemy's knockback row is a
+  // whole fall — airborne, then flat on the floor, and on a 9-frame set often back on its feet — so
+  // the frames where the figure lies lowest are recorded: the launched state plays up to them and
+  // the knockdown state holds on them, whatever the row's length or the generator's pacing.
+  const poses = {};
+  const kbRow = spec.rows.indexOf('knockback');
+  if (spec.kind === 'enemy' && kbRow >= 0) {
+    const hs = cells[kbRow].map((f) => mainH(f.main));
+    const maxH = Math.max(...hs);
+    const lowest = hs.reduce((a, h, i) => (h > 0 && (a < 0 || h < hs[a]) ? i : a), -1);
+    // the lowest frame plus any neighbour nearly as low; a row with no clearly flat frame keeps the
+    // renderer's fixed mapping
+    if (lowest >= 0 && hs[lowest] < maxH * 0.8) {
+      const low = hs.map((h) => h > 0 && h <= hs[lowest] * 1.15);
+      let a = lowest, b = lowest;
+      while (a > 0 && low[a - 1]) a--;
+      while (b < hs.length - 1 && low[b + 1]) b++;
+      poses.knockback = { floor: [a, b] };
+    }
+  }
+  // Older getup rows were drawn as a dip — kneeling, down flat, back to kneeling — so played start
+  // to end they sink before they rise and then snap to idle. The rise is the half from the lowest
+  // frame on; a row that already starts at its lowest (the per-action sets) needs no hint.
+  const guRow = spec.rows.indexOf('getup');
+  if (spec.kind === 'enemy' && guRow >= 0) {
+    const hs = cells[guRow].map((f) => mainH(f.main));
+    const lowest = hs.reduce((a, h, i) => (h > 0 && (a < 0 || h < hs[a]) ? i : a), -1);
+    if (lowest > 0 && hs[hs.length - 1] > hs[lowest] * 1.2) poses.getup = { rise: [lowest, hs.length - 1] };
+  }
   const entry = {
     id, kind: spec.kind, atlas: `chars/${id}.webp`, data: `chars/${id}.json`, box, anchor, rows: spec.rows, framesPerRow: spec.frames,
     frameCounts: Object.keys(frameCounts).length ? frameCounts : undefined,
+    poses: Object.keys(poses).length ? poses : undefined,
     scale: +scale.toFixed(4), renderScale: supersample === 1 ? undefined : +(1 / supersample).toFixed(4),
     skin: colours.skin, outline: colours.outline, head: spec.head ? headTable : undefined, source: srcStr, sourceFormat: source.kind, notes,
   };

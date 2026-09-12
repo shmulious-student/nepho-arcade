@@ -73,3 +73,37 @@ describe('animation frame keys', () => {
     expect(parse(frameKeyFor('boss', 'ferryman', 'approach', 4)).row).toBe('approach');
   });
 });
+
+describe('enemy knockback and hurt on per-action rows', () => {
+  const nine = { framesPerRow: 9 };
+  const measured = { framesPerRow: 9, poses: { knockback: { floor: [5, 6] as [number, number] } } };
+  it('launched plays the fall up to the first floor frame, knockdown holds the floor frames', () => {
+    for (let st = 0; st < 60; st++) {
+      expect(parse(enemyFrameKey('bio-brute', 'launched', st, measured)).index).toBeLessThanOrEqual(5);
+      const kd = parse(enemyFrameKey('bio-brute', 'knockdown', st, measured)).index;
+      expect(kd).toBeGreaterThanOrEqual(5); expect(kd).toBeLessThanOrEqual(6);
+    }
+    expect(parse(enemyFrameKey('bio-brute', 'launched', 0, measured)).index).toBe(0);
+    expect(parse(enemyFrameKey('bio-brute', 'knockdown', 500, measured)).index).toBe(6); // never the standing tail
+  });
+  it('falls back to the legacy 6-frame convention when the build measured nothing', () => {
+    expect(parse(enemyFrameKey('punk', 'knockdown', 500, nine)).index).toBe(8);
+    expect(parse(enemyFrameKey('punk', 'knockdown', 500, 6)).index).toBe(5);
+    expect(parse(enemyFrameKey('punk', 'launched', 500, 6)).index).toBe(3);
+  });
+  it('a grounded hit on a 9-frame hurt row never reaches the airborne crumple', () => {
+    for (let st = 0; st < 40; st++) expect(parse(enemyFrameKey('punk', 'hurt', st, nine)).index).toBeLessThan(6);
+    expect(parse(enemyFrameKey('punk', 'hurt', 40, 6)).index).toBe(5);
+  });
+});
+
+describe('enemy getup on a dipping legacy row', () => {
+  it('plays only the rising half, lowest frame to last', () => {
+    const dip = { framesPerRow: 6, poses: { getup: { rise: [3, 5] as [number, number] } } };
+    const seen = new Set<number>();
+    for (let st = 0; st < 30; st++) seen.add(parse(enemyFrameKey('kicker', 'getup', st, dip)).index);
+    expect([...seen].sort()).toEqual([3, 4, 5]);
+    expect(parse(enemyFrameKey('kicker', 'getup', 0, dip)).index).toBe(3);
+    expect(parse(enemyFrameKey('kicker', 'getup', 0, 6)).index).toBe(0); // no hint: whole row
+  });
+});
