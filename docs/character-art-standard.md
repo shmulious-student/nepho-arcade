@@ -14,9 +14,18 @@ Three things are non-negotiable:
 3. Every set is accepted only when it passes the machine gate **before** anything is built:
 
 ```bash
+npm run intake:character -- <id>       # normalizes the container only: background → real alpha, canvas → 2048²
 npm run verify:character -- <id>       # holds every file and every cell to this standard
 npm run build:assets && npm run test:assets
 ```
+
+**Intake** exists because image models rarely hand over the exact container: the canvas comes back
+at 1024 or 1254 or 1536, the "transparent" background is a painted checkerboard or a magenta matte,
+there is no alpha channel. None of that is a drawing problem, so it costs no regeneration — intake
+keys or unbakes the background and resamples the sheet, touching nothing inside the frames (nothing
+is cut, copied, blended or moved; the exact delivery is kept under `public/assets/backups/intake/`).
+What intake cannot fix — the figure's size, poses, duplicates, cut edges, ghost frames — is what the
+gate then judges.
 
 then watched in motion on `/showcase.html?row=<action>` or `/backoffice.html` (action picker).
 Eviatar passes `verify:character` clean; that is the bar.
@@ -31,9 +40,9 @@ public/assets/generated/actions/<id>/<action>.png
 
 | | |
 |---|---|
-| Canvas | **2048×2048** PNG, square power of two. (1024² is accepted by the gate but visibly softer — do not settle for it.) |
+| Canvas | **2048×2048** PNG, square power of two. A model that only outputs 1024–1536 is fine: ask for the largest square it makes and let intake resample (detail is softer; ask for 2048 when the model can). |
 | Layout | **3×3 grid = 9 frames**, read left→right, top→bottom. Each cell is 682×682. Nothing else on the canvas: no lines, borders, labels, numbers, swatches. |
-| Alpha | **Real alpha channel.** The outer 4 px ring of the canvas is fully transparent, the background is alpha 0 everywhere. No painted checkerboard, no white/grey/black/coloured matte. If a model truly cannot output alpha, use flat **pure magenta #FF00FF** and say so — the build keys it — but never a magenta **grid**: guide lines drawn on the matte survive keying and land inside frames. |
+| Alpha | **Real alpha channel** when the model can do it. A model that cannot may return a painted checkerboard or a flat **pure magenta #FF00FF** matte — intake removes both — but never a **grid** drawn on the canvas: guide lines survive keying and land inside frames. |
 | Files per rank | **Hero 12**: `idle walk dash light1 light2 light3 heavy special block hurt knockdown defeat` · **Enemy 10**: `idle walk attack heavy special guard hurt knockback getup defeat` · **Boss 6**: `idle approach attack special hurt defeat` |
 | Completeness | A set is one delivery, one style, one session. The build switches to the per-action format only when **every** file is present; a partial delivery is applied as row overrides on the old art and the character ships with **two outfits mixed** (this happened to Omri). Deliver all files, in one look, or none. |
 | Figure size | The standing figure fills **55–75 % of the cell height** and is the **same size in every file** (the gate allows ±12 %; Omri's old `block.png` was 24 % smaller than his other files and was caught). |
@@ -60,8 +69,9 @@ public/assets/generated/actions/<id>/<action>.png
    files. Keep the whole character in one chat/session.
 5. **Step B — one action per request**, filename = action name, the FRAME BLOCK verbatim plus that
    action's beats from section 4. Never ask for two actions in one image.
-6. After each file: `npm run verify:character -- <id>`. It names the file and the cell. Regenerate
-   only that file, with the offending rule repeated and **bolded** in the prompt.
+6. After each file: `npm run intake:character -- <id> <action>` then `npm run verify:character -- <id>`.
+   The gate names the file and the cell. Regenerate only that file, with the offending rule repeated
+   and **bolded** in the prompt. A canvas-size or background complaint means intake was skipped.
 7. When all files pass: `npm run build:assets && npm run test:assets`, then watch every row on
    `/showcase.html`. Only then commit.
 

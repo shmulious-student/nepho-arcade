@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T15:59:39.739Z",
+ "generatedAt": "2026-09-12T21:22:18.526Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -3372,12 +3372,12 @@
    "atlas": "chars/abyss-dragon.webp",
    "data": "chars/abyss-dragon.json",
    "box": {
-    "w": 468,
-    "h": 362
+    "w": 494,
+    "h": 381
    },
    "anchor": {
-    "x": 234,
-    "y": 360
+    "x": 247,
+    "y": 379
    },
    "rows": [
     "idle",
@@ -3388,7 +3388,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.4568,
+   "scale": 0.481,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3403,7 +3403,6 @@
    "source": "public/assets/generated/actions/abyss-dragon/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
-    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
