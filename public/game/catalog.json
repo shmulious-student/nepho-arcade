@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T15:47:52.788Z",
+ "generatedAt": "2026-09-12T15:59:39.739Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -2976,12 +2976,12 @@
    "atlas": "chars/ferryman.webp",
    "data": "chars/ferryman.json",
    "box": {
-    "w": 286,
-    "h": 195
+    "w": 510,
+    "h": 333
    },
    "anchor": {
-    "x": 143,
-    "y": 193
+    "x": 255,
+    "y": 331
    },
    "rows": [
     "idle",
@@ -2991,8 +2991,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9778,
+   "framesPerRow": 9,
+   "scale": 0.7298,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -3003,10 +3004,15 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-00-ferryman-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/ferryman/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "3 defective source frame(s) replaced by a neighbour: attack/5(partial-figure)->4 hurt/7(partial-figure)->6 defeat/5(partial-figure)->4"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "glass-warden": {
@@ -3367,11 +3373,11 @@
    "data": "chars/abyss-dragon.json",
    "box": {
     "w": 468,
-    "h": 361
+    "h": 362
    },
    "anchor": {
     "x": 234,
-    "y": 359
+    "y": 360
    },
    "rows": [
     "idle",
@@ -3382,7 +3388,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.4554,
+   "scale": 0.4568,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3397,6 +3403,7 @@
    "source": "public/assets/generated/actions/abyss-dragon/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
+    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
@@ -3500,11 +3507,11 @@
    "data": "chars/storm-colossus.json",
    "box": {
     "w": 394,
-    "h": 329
+    "h": 330
    },
    "anchor": {
     "x": 197,
-    "y": 327
+    "y": 328
    },
    "rows": [
     "idle",
@@ -3515,7 +3522,7 @@
     "defeat"
    ],
    "framesPerRow": 9,
-   "scale": 0.4849,
+   "scale": 0.4873,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3530,6 +3537,7 @@
    "source": "public/assets/generated/actions/storm-colossus/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
+    "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
@@ -3650,7 +3658,7 @@
    "index": 1,
    "id": "rishon",
    "name": "RISHON LEZION",
-   "nameHe": "\u05e8\u05d0\u05e9\u05d5\u05df \u05dc\u05e6\u05d9\u05d5\u05df",
+   "nameHe": "ראשון לציון",
    "accent": "#ffcf5c",
    "bg": "levels/bg-01.webp",
    "entry": "levels/entry-01.webp",
@@ -3666,7 +3674,7 @@
    "index": 2,
    "id": "petah-tikva",
    "name": "REFAEL EITAN STREET",
-   "nameHe": "\u05e8\u05d7\u05d5\u05d1 \u05e8\u05e4\u05d0\u05dc \u05d0\u05d9\u05ea\u05df \u00b7 \u05e4\u05ea\u05d7 \u05ea\u05e7\u05d5\u05d5\u05d4",
+   "nameHe": "רחוב רפאל איתן · פתח תקווה",
    "accent": "#75f5dc",
    "bg": "levels/bg-02.webp",
    "entry": "levels/entry-02.webp",
@@ -3682,7 +3690,7 @@
    "index": 3,
    "id": "barcelona",
    "name": "BARCELONA CITY",
-   "nameHe": "\u05d1\u05e8\u05e6\u05dc\u05d5\u05e0\u05d4",
+   "nameHe": "ברצלונה",
    "accent": "#ff75dc",
    "bg": "levels/bg-03.webp",
    "entry": "levels/entry-03.webp",
@@ -3698,7 +3706,7 @@
    "index": 4,
    "id": "sant-cugat",
    "name": "SANT CUGAT TOWN",
-   "nameHe": "\u05e1\u05e0\u05d8 \u05e7\u05d5\u05d2\u05d8",
+   "nameHe": "סנט קוגט",
    "accent": "#bd8cff",
    "bg": "levels/bg-04.webp",
    "entry": "levels/entry-04.webp",
@@ -3714,7 +3722,7 @@
    "index": 5,
    "id": "hatikva-school",
    "name": "HATIKVA SCHOOL",
-   "nameHe": "\u05d1\u05d9\u05ea \u05e1\u05e4\u05e8 \u05d4\u05ea\u05e7\u05d5\u05d5\u05d4",
+   "nameHe": "בית ספר התקווה",
    "accent": "#ff9357",
    "bg": "levels/bg-05.webp",
    "entry": "levels/entry-05.webp",
@@ -3730,7 +3738,7 @@
    "index": 6,
    "id": "capoeira-gym",
    "name": "CAPOEIRA BRAZILIAN GYM",
-   "nameHe": "\u05d7\u05d3\u05e8 \u05e7\u05e4\u05d5\u05d0\u05e8\u05d4 \u05d5\u05d0\u05d5\u05de\u05e0\u05d5\u05d9\u05d5\u05ea \u05dc\u05d7\u05d9\u05de\u05d4",
+   "nameHe": "חדר קפוארה ואומנויות לחימה",
    "accent": "#75f5dc",
    "bg": "levels/bg-06.webp",
    "entry": "levels/entry-06.webp",
@@ -3746,7 +3754,7 @@
    "index": 7,
    "id": "basketball-gym",
    "name": "BASKETBALL GYM",
-   "nameHe": "\u05d0\u05d5\u05dc\u05dd \u05db\u05d3\u05d5\u05e8\u05e1\u05dc",
+   "nameHe": "אולם כדורסל",
    "accent": "#ff9357",
    "bg": "levels/bg-07.webp",
    "entry": "levels/entry-07.webp",
@@ -3762,7 +3770,7 @@
    "index": 8,
    "id": "theater",
    "name": "THEATER",
-   "nameHe": "\u05ea\u05d9\u05d0\u05d8\u05e8\u05d5\u05df",
+   "nameHe": "תיאטרון",
    "accent": "#bd8cff",
    "bg": "levels/bg-08.webp",
    "entry": "levels/entry-08.webp",
@@ -3778,7 +3786,7 @@
    "index": 9,
    "id": "candy-factory",
    "name": "CANDY FACTORY",
-   "nameHe": "\u05de\u05e4\u05e2\u05dc \u05de\u05de\u05ea\u05e7\u05d9\u05dd",
+   "nameHe": "מפעל ממתקים",
    "accent": "#ff75dc",
    "bg": "levels/bg-09.webp",
    "entry": "levels/entry-09.webp",
@@ -3794,7 +3802,7 @@
    "index": 10,
    "id": "catalunya",
    "name": "CATALUNYA",
-   "nameHe": "\u05e7\u05d8\u05dc\u05d5\u05e0\u05d9\u05d4",
+   "nameHe": "קטלוניה",
    "accent": "#ffcf5c",
    "bg": "levels/bg-10.webp",
    "entry": "levels/entry-10.webp",

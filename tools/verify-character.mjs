@@ -146,7 +146,15 @@ for (const action of actions) {
     }
     info.push({ h, w, bottom: m.y1, cx: m.sx / m.size, sig: signature(f.cell, m), size: m.size });
   });
-  perFile[action] = { info, cw };
+  // raw cell pixels (same coordinates in every cell) for the interpolation check
+  const raw = [];
+  for (let i = 0; i < 9; i++) {
+    const x0 = Math.round((i % 3) * cw), y0 = Math.round(Math.floor(i / 3) * cw), n = Math.round(cw);
+    const px = new Uint8Array(n * n * 4);
+    for (let y = 0; y < n; y++) px.set(img.data.subarray(((y0 + y) * img.width + x0) * 4, ((y0 + y) * img.width + x0 + n) * 4), y * n * 4);
+    raw.push(px);
+  }
+  perFile[action] = { info, cw, raw };
 }
 
 // ---- cross-frame checks (per file) ----
@@ -167,6 +175,19 @@ for (const action of actions) {
     if (lyingRow && Math.max(r.w, r.h) >= medExt * 0.7) return;
     fail(`${tag}: frame ${i + 1} is drawn far smaller than the rest of the row (${Math.round((r.size / medArea) * 100)}% of the median area) — same figure size in every frame; a fallen figure lies flat, it does not shrink`);
   });
+  // an interpolated frame — the average of its two neighbours — is a fake (a script blending cells
+  // to hide a duplicate); real in-between poses are drawn, not averaged
+  if (pf.raw) for (let i = 0; i < 9; i++) {
+    const a = pf.raw[i], b = pf.raw[(i + 8) % 9], c2 = pf.raw[(i + 1) % 9];
+    let n = 0, sum = 0, spread = 0;
+    for (let k = 0; k < a.length; k += 4) {
+      if (a[k + 3] < 40 && b[k + 3] < 40 && c2[k + 3] < 40) continue;
+      n++; for (let q = 0; q < 4; q++) { sum += Math.abs(a[k + q] - 0.5 * (b[k + q] + c2[k + q])); spread += Math.abs(b[k + q] - c2[k + q]); }
+    }
+    // only a midpoint between two *different* frames counts; three near-identical frames are a
+    // duplicate problem, reported separately
+    if (n && sum / n / 4 < 11 && spread / n / 4 > 3 * (sum / n / 4)) fail(`${tag}: frame ${i + 1} is the average of frames ${((i + 8) % 9) + 1} and ${((i + 1) % 9) + 1} — an interpolated fake, not a drawn pose`);
+  }
   // duplicates: a repeated frame is the generator padding the row
   for (let i = 0; i < 9; i++) for (let j = i + 1; j < 9; j++) {
     if (Math.abs(rows[i].h - rows[j].h) <= 2 && Math.abs(rows[i].w - rows[j].w) <= 2 && diff(rows[i].sig, rows[j].sig) < 0.015) {

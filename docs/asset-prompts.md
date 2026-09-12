@@ -140,8 +140,9 @@ sheet named here to every request, one action per request, and run
 `npm run verify:character -- <id>` after each file. These prompts are only the failing or missing
 files — the rest of each set stays as delivered.
 
-All four entries of the first queue (Omri's nine files, abyss-dragon idle, storm-colossus idle,
-prism-queen defeat) have landed and pass. What remains is the legacy roster, which needs full
+Omri's nine files and prism-queen's defeat landed and pass. The abyss-dragon and storm-colossus
+`idle` "fixes" turned out to be scripted blends of the duplicate frames and were reverted — both are
+back in the queue (one file each: regenerate `idle.png` from the prompt in the failure list below). What remains is the legacy roster, which needs full
 per-action sets: **one self-contained prompt file per character in [`docs/prompts/`](./prompts/README.md)**
 (six enemies, ten bosses; Byte and Nepho are listed there too).
 

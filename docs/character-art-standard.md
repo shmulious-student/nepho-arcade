@@ -5,10 +5,13 @@ Nepho. It replaces guesswork with the exact rules the build, the gate and the re
 distilled from the set that came out right first time — **Eviatar** (`actions/eviatar/`, 12 files) —
 and from every fix that was needed on the sets that did not.
 
-Two things are non-negotiable:
+Three things are non-negotiable:
 
 1. Every set is generated **from this document**, with the blocks below pasted verbatim.
-2. Every set is accepted only when it passes the machine gate **before** anything is built:
+2. **Every frame is generated art.** No script may cut, zoom, copy, blend or interpolate frames
+   from other frames or from the old grids to make a file pass — that produced fake sets twice
+   (see the failure catalogue) and the game is worse for it than the honest legacy art.
+3. Every set is accepted only when it passes the machine gate **before** anything is built:
 
 ```bash
 npm run verify:character -- <id>       # holds every file and every cell to this standard
@@ -215,6 +218,7 @@ the machine can see it, a check.
 | prism-queen `defeat` never lies down → boss "dies" standing | defeat ends flat and settled | `verify-character` |
 | prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; a frame under 55 % of the row's area is rejected — unless, on a lying row of a per-action set, it keeps its full length (a body flat on the floor) | `verify-character`, build |
 | Legacy 6-frame rows with 3 distinct poses drawn twice each | 9 distinct frames per row | `verify-character` |
+| abyss-dragon / storm-colossus `idle` "fixed" by a script that alpha-blended neighbouring cells over the duplicate frames | a frame is drawn, never averaged or copied from other frames — scripted "fixes" are not deliveries; the gate flags a frame that is the midpoint of two different neighbours (a blend of two near-identical frames is undetectable, which is why this is a process rule first) | process, `verify-character` |
 | a "ferryman set" that was the old 6×8 grid mechanically re-cut into six 3×3 files — zoomed crops with bodies cut off inside the cell, rows that do not match their action | every frame a whole figure drawn inside its cell (straight-edge check); a per-action set is generated from the prompt file, never cut from legacy art | `verify-character` |
 | punk's second delivery: five files at 60 % of the size of the other five, `walk`/`attack`/`heavy`/`guard` alternating solid frames with ghosted motion-blur frames, severed shoes floating above the figure, and a `guard` row that was a tumble | one character, one size, in every file (standing height compared across all files); every frame solid; nothing floating; guard/idle/walk stay on the feet | `verify-character` |
 | Byte's grids delivered as a copy of another hero | identity from a character sheet, checked at review | build warns, review |
