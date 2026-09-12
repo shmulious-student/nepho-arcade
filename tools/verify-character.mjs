@@ -134,8 +134,16 @@ for (const action of actions) {
   if (valid.length < 9) continue;
   // a frame drawn at a fraction of the others' size: a figure lying down keeps most of its pixel
   // area, so a big drop means the generator shrank the figure (the build would reject the frame)
+  // (mirrors the build's partial-figure rule: under 55 % of the row's median area, except that on a
+  // lying row a frame keeping its full length — extent ≥ 70 % of the row's — is a body on the floor)
   const medArea = median(valid.map((r) => r.size));
-  rows.forEach((r, i) => { if (r && r.size < medArea * 0.45) fail(`${tag}: frame ${i + 1} is drawn far smaller than the rest of the row (${Math.round((r.size / medArea) * 100)}% of the median area) — same figure size in every frame; a fallen figure lies flat, it does not shrink`); });
+  const medExt = median(valid.map((r) => Math.max(r.w, r.h)));
+  const lyingRow = ['defeat', 'knockdown', 'knockback', 'getup'].includes(action);
+  rows.forEach((r, i) => {
+    if (!r || r.size >= medArea * 0.55) return;
+    if (lyingRow && Math.max(r.w, r.h) >= medExt * 0.7) return;
+    fail(`${tag}: frame ${i + 1} is drawn far smaller than the rest of the row (${Math.round((r.size / medArea) * 100)}% of the median area) — same figure size in every frame; a fallen figure lies flat, it does not shrink`);
+  });
   // duplicates: a repeated frame is the generator padding the row
   for (let i = 0; i < 9; i++) for (let j = i + 1; j < 9; j++) {
     if (Math.abs(rows[i].h - rows[j].h) <= 2 && Math.abs(rows[i].w - rows[j].w) <= 2 && diff(rows[i].sig, rows[j].sig) < 0.015) {

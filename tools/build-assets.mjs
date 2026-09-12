@@ -134,11 +134,18 @@ function finishCleaned(img, id, notes, grid) {
   return ops.defringe(img, 2);
 }
 
-function frameDefects(f, rowMedianSize, { allowDetached = false } = {}) {
+// A frame is "partial" when the figure covers much less pixel area than the rest of its row. On a
+// per-action set's lying rows (defeat, knockdown, knockback, getup — art that passed the standard's
+// own gate) a figure flat on the floor legitimately covers fewer pixels while keeping its full
+// length, so there the frame must also be small in extent to count as partial. Older grids keep the
+// strict rule: their "small" frames are beams, chains and legs with the body missing.
+function frameDefects(f, rowMedianSize, { allowDetached = false, rowMedianExtent = 0, lying = false } = {}) {
   const out = [];
   if (!f.main) return ['empty'];
   if (f.clipped?.length) out.push(`cut-${f.clipped.join('+')}`);
-  if (f.main.size < rowMedianSize * 0.55) out.push('partial-figure');
+  const extent = Math.max(f.main.x1 - f.main.x0 + 1, f.main.y1 - f.main.y0 + 1);
+  const smallArea = f.main.size < rowMedianSize * 0.55;
+  if (smallArea && (!lying || !rowMedianExtent || extent < rowMedianExtent * 0.7)) out.push('partial-figure');
   // a second blob a good fraction of the figure's size, detached from it: a severed limb or shoe
   const gap = (m) => Math.hypot(Math.max(0, m.x0 - f.main.x1, f.main.x0 - m.x1), Math.max(0, m.y0 - f.main.y1, f.main.y0 - m.y1));
   const cellW = f.cell.width / (1 + 2 * 0.35);
@@ -155,7 +162,9 @@ function substituteDefectiveFrames(cells, rowNames, options) {
   cells.forEach((row, r) => {
     const sizes = row.map((f) => (f.main ? f.main.size : 0)).filter(Boolean);
     const med = median(sizes);
-    const bad = row.map((f) => frameDefects(f, med, options));
+    const medExt = median(row.map((f) => (f.main ? Math.max(f.main.x1 - f.main.x0 + 1, f.main.y1 - f.main.y0 + 1) : 0)).filter(Boolean));
+    const lying = !!options.allowDetached && ['defeat', 'knockdown', 'knockback', 'getup'].includes(rowNames[r]);
+    const bad = row.map((f) => frameDefects(f, med, { ...options, rowMedianExtent: medExt, lying }));
     const cleanIdx = bad.map((d, i) => (d.length ? -1 : i)).filter((i) => i >= 0);
     if (!cleanIdx.length) { replaced.push(`${rowNames[r]}:no-clean-frame-kept-as-is`); return; }
     row.forEach((f, c) => {

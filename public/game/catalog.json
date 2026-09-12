@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-12T14:13:43.016Z",
+ "generatedAt": "2026-09-12T14:29:51.672Z",
  "characters": {
   "nepho": {
    "id": "nepho",
@@ -3446,8 +3446,7 @@
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
-    "feathered binary alpha",
-    "2 defective source frame(s) replaced by a neighbour: defeat/7(partial-figure)->6 defeat/8(partial-figure)->6"
+    "feathered binary alpha"
    ]
   },
   "prism-queen": {
@@ -3456,11 +3455,11 @@
    "atlas": "chars/prism-queen.webp",
    "data": "chars/prism-queen.json",
    "box": {
-    "w": 414,
+    "w": 444,
     "h": 353
    },
    "anchor": {
-    "x": 207,
+    "x": 222,
     "y": 351
    },
    "rows": [
@@ -3491,8 +3490,7 @@
     "feathered binary alpha",
     "feathered binary alpha",
     "feathered binary alpha",
-    "feathered binary alpha",
-    "3 defective source frame(s) replaced by a neighbour: defeat/6(partial-figure)->5 defeat/7(partial-figure)->5 defeat/8(partial-figure)->5"
+    "feathered binary alpha"
    ]
   },
   "storm-colossus": {

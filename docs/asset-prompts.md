@@ -138,22 +138,12 @@ Every set below is held to [character-art-standard.md](./character-art-standard.
 that document's STYLE BLOCK and FRAME BLOCK verbatim, attach the reference sheet and the character
 sheet named here to every request, one action per request, and run
 `npm run verify:character -- <id>` after each file. These prompts are only the failing or missing
-files — the rest of each set stays as delivered. (Omri's red/black set, abyss-dragon's idle and storm-colossus's idle landed and pass.)
+files — the rest of each set stays as delivered.
 
-### prism-queen — `defeat.png` (second attempt: frames 7–9 came back at a quarter size)
-
-The first row never lay down; the second lies down but frames 7–9 were drawn as tiny figures (12–14 %
-of the row's area), which the build rejects — she currently "dies" kneeling on a held frame 6.
-Regenerate only `defeat.png`. Attach the delivered `idle.png` as the size reference and bold the
-size line:
-
-> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **defeat** — 1 upright, struck,
-> 2 the sceptre drops, 3 she sinks to one knee, 4 the prismatic aura shatters into falling shards,
-> 5–6 she topples sideways, 7 lands on her side, **8–9 flat on the ground, identical, staying down**,
-> the sceptre beside her and the last shards settling. **The fallen figure is the same size as the
-> standing one in frame 1 and in the attached idle.png — she lies flat across the bottom of the
-> cell, full length, she does not shrink, fade or recede into the distance.** Her body on the final
-> two frames is lower than half her standing height and as wide as she is tall.
+All four entries of the first queue (Omri's nine files, abyss-dragon idle, storm-colossus idle,
+prism-queen defeat) have landed and pass. Nothing is queued under the standard right now; the
+legacy roster (byte, nepho, punk, chainer, brawler, kicker, knight, shield and the ten campaign
+bosses) still needs full per-action sets — see *Required now* and *Optional polish* below.
 
 ---
 

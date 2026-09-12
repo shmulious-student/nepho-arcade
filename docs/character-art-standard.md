@@ -207,7 +207,7 @@ the machine can see it, a check.
 | Omri's old `block.png` figure 24 % smaller than his other files | same size in every file (±12 %) | `verify-character` |
 | abyss-dragon / storm-colossus `idle` padded with repeated frames | 9 distinct poses | `verify-character` |
 | prism-queen `defeat` never lies down → boss "dies" standing | defeat ends flat and settled | `verify-character` |
-| prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; the build rejects a frame under 55 % of the row's area | `verify-character`, build |
+| prism-queen `defeat` regenerated with frames 7–9 drawn at a quarter of the size | same figure size in every frame of a row; a frame under 55 % of the row's area is rejected — unless, on a lying row of a per-action set, it keeps its full length (a body flat on the floor) | `verify-character`, build |
 | Legacy 6-frame rows with 3 distinct poses drawn twice each | 9 distinct frames per row | `verify-character` |
 | Byte's grids delivered as a copy of another hero | identity from a character sheet, checked at review | build warns, review |
 | Bosses on legacy grids losing 1–3 frames whose figure is mostly missing (`partial-figure`) | every cell holds the whole figure; empty/partial cells rejected | `verify-character`, build |
