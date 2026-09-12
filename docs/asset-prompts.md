@@ -132,6 +132,85 @@ Fill in the character description and the per-frame beats:
 
 ---
 
+## Regeneration queue — what `verify:character` rejects today
+
+Every set below is held to [character-art-standard.md](./character-art-standard.md). Generate with
+that document's STYLE BLOCK and FRAME BLOCK verbatim, attach the reference sheet and the character
+sheet named here to every request, one action per request, and run
+`npm run verify:character -- <id>` after each file. These prompts are only the failing or missing
+files — the rest of each set stays as delivered.
+
+### Omri — the nine red/black files still missing
+
+Omri is mid-rebuild into a **red-and-black** outfit. `idle`, `walk` and `dash` are done in the new
+look (`actions/omri/idle.png` …); the other nine files are still the old red/white singlet, and the
+old `block.png` is also 24 % undersized. Until all nine land the game keeps his old atlas. Attach
+`docs/refs/omri-red-black-sheet.png` (the new design) and
+`public/assets/references/hero-grid-quality-reference.png` to every request. Match the figure size
+and baseline of the delivered `idle.png` exactly.
+
+**Character** (from the sheet): OMRI — a 9-year-old boy, medium height, thin and wiry, quick. A big
+mop of curly dark-brown hair sticking out in every direction, big warm brown eyes, a huge
+open-mouthed grin, light-olive skin. Outfit: a **sleeveless tank top with bold horizontal red and
+black stripes** (red #E5252A, black #1E1B20), **loose black capoeira trousers with a wide red stripe
+down each outer leg**, a **red rope belt (cordão) with tasselled ends hanging at the left hip**, a
+**red wristband on each wrist**, **barefoot**. Prop: a **red handheld stage microphone with a black
+grille** in his right hand, on a short black-and-red cable that trails and whips. Effect: glowing
+**red-and-white music notes and sound rings**. Fights with capoeira kicks, spins and cartwheels; the
+music is his magic.
+
+Each request: `[FRAME BLOCK]` + the character paragraph above + one line from this table. Bold the
+size line: **the figure exactly the same size as in the attached idle.png, feet on the same
+baseline** — the previous `block.png` came back a quarter smaller than the rest of the set.
+
+| file | Action: **…** — the 9 beats |
+|---|---|
+| `light1.png` | **light1** — meia-lua de frente, a fast front crescent kick with the right leg: 1 ginga guard, 2 weight onto the left foot, 3 right leg whips up, 4–5 foot sweeps across at chest height with a small burst of white notes at contact, 6 follow-through, 7–8 leg comes down, 9 back in guard. Nine crisp beats. |
+| `light2.png` | **light2** — armada, a spinning back kick that follows `light1`: 1 guard, 2 shoulder turn, 3 back to the viewer mid-spin, 4–5 heel sweeps across leaving a red sound arc, 6 contact, 7 follow-through, 8 landing, 9 guard. |
+| `light3.png` | **light3** — chain finisher: a full 360° spinning kick on one hand (a low rasteira into a complete spin): 1 drops to one hand, 2–7 the spin, one leg extended, sweeping all the way around him with a ring of red-and-white notes flying outward, 8 lands crouched, 9 springs to guard. |
+| `heavy.png` | **heavy** — martelo em pé: 1–3 a slow, huge wind-up with the hips loading and the mic cable whipping in a wide arc, 4 the leg launches, 5–6 a massive roundhouse kick with a big red sound blast at the impact frame, 7–9 a long recovery landing back into ginga. May leave the ground on 5–6. |
+| `special.png` | **special** — SONIC BEAT: 1 plants his feet, 2 raises the mic to his mouth, 3 first shout — a red-and-white sound ring bursts outward around him, 4 breath, 5 second shout — a bigger ring, 6 breath, 7 third shout — the biggest ring, notes flying everywhere, 8 drops the mic to his side, 9 ginga. Rings stay inside the cell. |
+| `block.png` | **block** — negativa/esquiva: **frame 1 is the held guard** — sunk into a low defensive crouch, one hand flat on the ground, the mic arm raised across his face, full figure, same size as the rest of the set; 2–9 small flinches as hits glance off the raised arm with white sparks, feet planted, never leaving the ground. |
+| `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, hair flying, still on his feet; **4–6 heavy reel**: staggers backward, mic cable whipping, still on his feet; **7–9 airborne crumple**: knocked off his feet, curling in the air. |
+| `knockdown.png` | **knockdown** — 1 stagger, 2 falls backward, **3–6 on the floor** (lands on his back, mic beside him, frame 6 flat and still), 7 rolls, 8 a capoeira kip-up, **9 back on his feet at full height** in ginga. |
+| `defeat.png` | **defeat** — 1 upright, hit, 2 drops to a knee, 3 the mic slips from his hand, 4–6 topples sideways, 7 lands, **8–9 flat on the ground, identical, staying down**, the mic beside him. |
+
+### abyss-dragon — `idle.png` (duplicate frames)
+
+Frames 1 = 3 and 7 = 9 were repeats. Attach `docs/refs/abyss-dragon` seed art (or the delivered
+`attack.png` as the design reference) and regenerate only `idle.png`:
+
+> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **idle** — a slow hovering
+> menace loop, **nine distinct poses**: 1 wings half-spread, 2 wings lift, 3 wings at the top of the
+> beat, 4 wings sweep down, 5 wings low, tail curls, 6 head turns slightly toward the viewer, 7
+> void-flame in the raised hand flares, 8 flame settles, 9 wings back to half-spread leading into
+> frame 1. Same height in every frame. **Never repeat a frame.**
+
+### storm-colossus — `idle.png` (duplicate frames)
+
+Frames 4 = 7 were repeats; the file also came on a magenta matte. Regenerate only `idle.png` with
+real alpha:
+
+> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **idle** — a heavy armoured
+> guard loop, **nine distinct poses**: 1 stance, hammer resting on the shoulder, 2 chest plate rises
+> with a breath, 3 shoulders roll, 4 the hammer head sparks, 5 lightning crawls up the haft, 6 the
+> chest core pulses bright, 7 head turns a fraction, 8 core dims, 9 weight settles back leading into
+> frame 1. Same height in every frame. **Real alpha channel, not a magenta matte. Never repeat a
+> frame.**
+
+### prism-queen — `defeat.png` (never lies down)
+
+The delivered row stays upright to the last frame, so she "dies" standing. Regenerate only
+`defeat.png`:
+
+> `[FRAME BLOCK]` Character exactly as in the attached file. Action: **defeat** — 1 upright, struck,
+> 2 the sceptre drops, 3 she sinks to one knee, 4 the prismatic aura shatters into falling shards,
+> 5–6 she topples sideways, 7 lands, **8–9 flat on the ground, identical, staying down**, the
+> sceptre beside her and the last shards settling. The figure must lie flat — lower than half its
+> standing height — on the final two frames.
+
+---
+
 ## Required now
 
 **First: the two new lead heroes, Eviatar and Omri** — full pack with photo-based character sheets,
