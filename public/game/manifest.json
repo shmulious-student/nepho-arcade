@@ -1,11 +1,15 @@
 {
- "version": "8851b8ab73378332",
- "derived": "derived:2026-09-13T17:23:37.327Z:bc7e7d69",
- "generatedAt": "2026-09-13T19:01:09.564Z",
+ "version": "8d525a291e241327",
+ "derived": "derived:2026-09-13T19:11:51.895Z:1bf92122",
+ "generatedAt": "2026-09-13T19:38:40.409Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
    "sha256": "1ad9464dff33078d9197501a9ddc19354612edfd5db2ee71623b557a6a4ce7c4"
+  },
+  "cards/noa.webp": {
+   "size": 123298,
+   "sha256": "bc3d84e34ce39352ebdfcb2b4836d663816f94b5fe7e2cdeb853bc6959fbe0d1"
   },
   "cards/omri.webp": {
    "size": 80740,
@@ -20,12 +24,12 @@
    "sha256": "76c7809efaa663dae60042618082744af2442bda129f84608ed401d4e23c5188"
   },
   "cards/shmuel.webp": {
-   "size": 50664,
-   "sha256": "d21d408c61446e6309e48082a2fb0a8f3dc2624d35f3673820d3fa621b9980c5"
+   "size": 93574,
+   "sha256": "bf78b9c8c577d1070918c5bdbf34d12918c9857ed0fd9ec591cbb13a62ac9384"
   },
   "catalog.json": {
-   "size": 63975,
-   "sha256": "ed90910c2e8d426aa8b31612385b5ecb0d0d7292a11e3c15e7ff18746df16814"
+   "size": 70839,
+   "sha256": "451ee3de79cee890e2083eb884d1f312a235f155688f9ee1bac4261fb7fd2724"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -162,6 +166,14 @@
   "chars/monk-zero.webp": {
    "size": 1252072,
    "sha256": "d782a2178888cc2db938815655aa3e89ed95d5fea4265eaa41df10cce4428d6e"
+  },
+  "chars/noa.json": {
+   "size": 18242,
+   "sha256": "c4e2957f03d84f4520e6fe7388a691599034cc767a941a17846eeaff1ab64290"
+  },
+  "chars/noa.webp": {
+   "size": 1599650,
+   "sha256": "4fec93a703ca38c8dfdd34a7d3324575fbb3fd6bd91974b632c15f6d7b40bf3d"
   },
   "chars/omri.json": {
    "size": 18250,
@@ -472,8 +484,8 @@
    "sha256": "5f7ffc16c8f503e26a34e136b3036ee681097e0801b8a4c45bace13cdba4ab89"
   },
   "roster.json": {
-   "size": 3930,
-   "sha256": "b0132aab17aed43da6fbed87625b05596020a41939ce9501127e2ec08087a091"
+   "size": 3929,
+   "sha256": "e3d746483a809c8a69118d55b7cffa9eb7adb89348da985c530ea96397135162"
   },
   "ui/attack.svg": {
    "size": 536,

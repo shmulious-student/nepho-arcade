@@ -35,6 +35,10 @@ Release builds are signed with the Shmulious keystore, which is **not** in the r
 Without `keystore.properties` the release build is produced unsigned. Never lose the keystore: an
 APK signed with any other key cannot update an installed copy in place.
 
+Ship content with every APK: run `npm run content:deploy` alongside `npm run android:apk`, otherwise
+a new APK sees an older pack on the server (it keeps its bundled pack in that case, but nothing
+newer than the APK reaches older installs until the server is updated).
+
 Bump `versionCode` (must increase on every release) and `versionName` in
 `android/app/build.gradle` before publishing a new build.
 

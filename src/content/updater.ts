@@ -156,6 +156,11 @@ export async function syncContent(progress: Progress = () => {}): Promise<SyncRe
   }
   if (!remote) return serveFallback('server has no pack');
   if (bundled && (remote.version === bundled.version || remote.version === bundled.derived)) return { source: 'bundled', version: bundled.version };
+  // an APK newer than what the server publishes must not downgrade itself: the bundled pack wins
+  // until the server catches up (npm run content:deploy ships with every APK build)
+  if (bundled?.generatedAt && remote.generatedAt && remote.generatedAt < bundled.generatedAt) {
+    return { source: 'bundled', version: bundled.version, note: 'server pack is older' };
+  }
   if (complete && remote.version === complete.version) return serveInstalled('installed', complete.version);
 
   // fetch what changed (everything, when the hashes are unknown) into the data directory
