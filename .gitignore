@@ -11,3 +11,4 @@ public/assets/backups/
 # Android wrapper
 build/
 android/keystore.properties
+.firebase/

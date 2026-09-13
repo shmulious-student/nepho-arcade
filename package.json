@@ -19,7 +19,8 @@
     "build:manifest": "node tools/build-content-manifest.mjs",
     "android:sync": "npm run build && npx cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease && node ../tools/collect-apk.mjs",
-    "android:run": "npm run android:sync && npx cap run android"
+    "android:run": "npm run android:sync && npx cap run android",
+    "content:deploy": "npm run build:manifest && firebase deploy --only hosting --account shmulious@gmail.com"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

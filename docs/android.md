@@ -60,15 +60,25 @@ At every boot the app (`src/content/updater.ts`, called from `BootScene` before 
 4. offline, or on any failure, plays the newest *complete* pack it has (downloaded, else bundled).
    A half-finished download is kept and resumed next boot, never served.
 
-`CONTENT_URL` defaults to the repo itself — the branch the app was built from, served raw by
-GitHub (public repo, `Access-Control-Allow-Origin: *`, ~5 min edge cache):
+`CONTENT_URL` defaults to the Firebase Hosting site of the `nepho-eviomri` project (Spark free
+tier, owned by shmulious@gmail.com; console at
+https://console.firebase.google.com/project/nepho-eviomri/hosting):
 
 ```
-https://raw.githubusercontent.com/shmulious-student/nepho-arcade/game/core/public/game/
+https://nepho-eviomri.web.app/game/
 ```
 
-So **publishing content = pushing `public/game/` to that branch** (`npm run build:assets` first so
-the manifest is fresh). Anything else that serves the same folder works too — set
+`firebase.json` serves only `public/game/` (masters, references, the showcase page and the debug
+sheets are ignored) with CORS `*`, a 5-minute cache on art and `no-cache` on `manifest.json`,
+`catalog.json` and `roster.json`. So **publishing content is one command**:
+
+```bash
+npm run content:deploy   # build:manifest, then firebase deploy --only hosting as shmulious@gmail.com
+```
+
+(run `npm run build:assets` first when masters changed). The account is passed with `--account`
+on every call so the machine's default Firebase login is never switched. Anything else that serves
+the same folder works too — set
 `VITE_CONTENT_URL=https://host/path/game/` when running `npm run android:apk` to bake in a
 different server (any static host; keep `manifest.json` alongside the files and serve CORS `*`).
 

@@ -17,7 +17,7 @@ import { GAME_BASE_BUNDLED, setGameBase, type Catalog } from '../shared/catalog'
 
 /** Where the app looks for the content pack. Override at build time with VITE_CONTENT_URL. */
 export const CONTENT_URL: string = ((import.meta.env.VITE_CONTENT_URL as string | undefined) ||
-  'https://raw.githubusercontent.com/shmulious-student/nepho-arcade/game/core/public/game/').replace(/\/?$/, '/');
+  'https://nepho-eviomri.web.app/game/').replace(/\/?$/, '/');
 
 export interface Manifest {
   version: string;
