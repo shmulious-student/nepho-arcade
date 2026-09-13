@@ -1,15 +1,10 @@
 # SABA KOBI (`saba-kobi`) — hero, 12 files + hero card
 
-## Status — queue position 1 of 12 · round two in progress · 9 image requests left
+## Status — DELIVERED
 
-**Accepted and verified (blue jeans, younger look, unique files, gate-clean):** `docs/refs/saba-kobi-sheet.png`,
-`idle.png`, `walk.png`, `light1.png`, `light3.png`. **To make:** `dash light2 heavy special block hurt knockdown defeat`
-and the hero card. Round one (older face) is under `backups/replaced/saba-kobi-round1-*/`; round-two rejects
-(olive trousers, byte-copies) under `saba-kobi-round2-bad-*/` — reuse nothing from either.
-
-**Why round two stalled:** six times a "new" action file was a byte-copy of the previous generation — the save step
-wrote the wrong image. The protocol in `codex-kobi-noa.md` exists to make that impossible: save from the path the
-image tool just returned, then md5 the saved file against the source and against every sibling before intake.
+Round two complete 2026-09-13 19:20: sheet, 12 files and the card, every file unique (md5-checked), blue jeans and the
+younger look throughout, whole-set gate PASS. Committed (`309f2f4`), built, enabled in the lobby. Round one and the
+round-two rejects stay under `backups/replaced/` as history.
 
 Done means `npm run verify:character -- saba-kobi` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

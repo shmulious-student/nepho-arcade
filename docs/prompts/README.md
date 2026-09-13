@@ -15,25 +15,25 @@ file, and the hero-select card for heroes. Retries come on top.
 
 | # | character | rank | requests | work |
 |---|---|---|---|---|
-| 1 | [saba-kobi](saba-kobi.md) | hero | 9 | **round two in progress** — sheet + `idle walk light1 light3` accepted; `dash light2 heavy special block hurt knockdown defeat` + card to make |
-| 2 | [noa](noa.md) | hero | 14 | **new hero from a photo** — Step A sheet + 12 action files + hero card |
-| 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
-| 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
-| 5 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
-| 6 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
-| 7 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
-| 8 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
-| 9 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
-| 10 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
-| 11 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
-| 12 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
+| 1 | [noa](noa.md) | hero | 14 | **new hero from a photo** — Step A sheet + 12 action files + hero card |
+| 2 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
+| 3 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
+| 4 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
+| 5 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
+| 6 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
+| 7 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
+| 8 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
+| 9 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
+| 10 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
+| 11 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
 
-**Total: 113 image requests** on a clean run (9 to finish Kobi · 14 for Noa · 35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
+**Total: 104 image requests** on a clean run (14 for Noa · 35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
 an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
 that also unlock a palette variant first). **Nepho and Byte were retired from the game on 2026-09-13** — their prompt files stay as history only.
 
 ## Delivered — nothing outstanding
 
+- [saba-kobi](saba-kobi.md) — hero, 12/12 + card, round two delivered 2026-09-13 17:39–19:20 under the save protocol (`309f2f4`); enabled in the lobby
 - [savta-orly](savta-orly.md) — hero, 12/12 + card, delivered 2026-09-13 15:48–16:19, every file first try (`5d82a1c`, card keyed `4a9af2b`)
 - [glass-warden](glass-warden.md) — boss, 6/6, delivered 2026-09-13 (`2b82453`)
 - [kilnheart](kilnheart.md) — boss, 6/6, delivered 2026-09-13 (`7ea259f`)
