@@ -16,8 +16,8 @@ file, and the hero-select card for heroes. Retries come on top.
 
 | # | character | rank | requests | work |
 |---|---|---|---|---|
-| 1 | [savta-orly](savta-orly.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
-| 2 | [saba-kobi](saba-kobi.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
+| 1 | [saba-kobi](saba-kobi.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
+| 2 | [noa](noa.md) | hero | 14 | **new hero from a photo** — Step A sheet + 12 action files + hero card |
 | 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
 | 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
 | 5 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
@@ -31,15 +31,16 @@ file, and the hero-select card for heroes. Retries come on top.
 | 13 | [nepho](nepho.md) | hero | 14 | Step A sheet + 12 action files + hero card (the set is redone whole) |
 | 14 | [byte](byte.md) | hero | 14 | Step A sheet + 12 action files + hero card |
 
-**Total: 146 image requests** on a clean run (28 for the two new heroes · 35 for the five remaining bosses · 55 for the five
+**Total: 146 image requests** on a clean run (28 for the two new heroes still to make · 35 for the five remaining bosses · 55 for the five
 enemies · 28 for the two heroes). Bosses come before enemies only because a boss set is 7 requests and
 an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
 that also unlock a palette variant first). The two heroes are last: they are roster-disabled today,
-so if the day runs out they are what slips. **Savta Orly and Saba Kobi are the exception: the owner placed them
+so if the day runs out they are what slips. **Savta Orly, Saba Kobi and Noa are the exception: the owner placed them
 next in line on 2026-09-13 — they run before the remaining bosses.**
 
 ## Delivered — nothing outstanding
 
+- [savta-orly](savta-orly.md) — hero, 12/12 + card, delivered 2026-09-13 15:48–16:19, every file first try (`5d82a1c`, card keyed `4a9af2b`)
 - [glass-warden](glass-warden.md) — boss, 6/6, delivered 2026-09-13 (`2b82453`)
 - [kilnheart](kilnheart.md) — boss, 6/6, delivered 2026-09-13 (`7ea259f`)
 - [monk-zero](monk-zero.md) — boss, 6/6, delivered 2026-09-13 (`e2b09fe`)

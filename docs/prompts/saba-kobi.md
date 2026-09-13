@@ -1,6 +1,6 @@
 # SABA KOBI (`saba-kobi`) — hero, 12 files + hero card
 
-## Status — queue position 2 of 14 · 14 image requests · **REDO FROM SCRATCH (owner's decision, 2026-09-13 17:35)**
+## Status — queue position 1 of 14 · 14 image requests · **REDO FROM SCRATCH (owner's decision, 2026-09-13 17:35)**
 
 The first delivery (sheet + 12 files, 16:20–17:20) is set aside under `public/assets/backups/replaced/saba-kobi-round1-*/`
 and must not be reused, attached or referred to — **start clean**: a new Step A sheet judged on likeness against
