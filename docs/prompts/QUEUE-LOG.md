@@ -135,3 +135,5 @@
 2026-09-13 23:10 queue re-ordered least→most work (README): pitz (1) · railmaw crown-runner the-null vault-mother ultra-signal (7 each) · brawler knight chainer kicker shield (11 each) = 91 requests. Not in the queue but open: brand-eviomri.md (icon + splash, 2), docs/locations/ (10 backdrops).
 2026-09-13 23:10 game renamed EviOmri (ca87d75); roster re-cut for max variety by strength (8c0868b); APK EviOmri-0.3.0 (versionCode 3) built; content pack c898717dd0ca284a deployed to nepho-eviomri.web.app.
 2026-09-14 00:10 backdrops re-specified (owner): plates must allow up to 5 waves and keep ≥90% of their height on a landscape phone/tablet. Sim: SEGMENT_STEP 200, MAX_WAVES 5, level width from wave count; renderer draws each plate into its catalog `art` rect (ART_BAND 1400×350 @ 180,178 — 91% of height visible; legacy plates keep the full-height rect). Delivery: 4:1 (2800×700) = two 21:9 generations + tools/stitch-backdrop.mjs; place-backdrop writes public/assets/generated/backdrops/level-NN.png. 20 requests for the ten levels.
+00:24 backdrop level 1 attempt 2 → ACCEPTED
+

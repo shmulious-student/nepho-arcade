@@ -71,3 +71,8 @@ A generic modern plaza — fountain, palms, a sculpture, glass towers behind. No
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-01.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- attempt count: 2 (gen-left ok, gen-right needed explicit continuation details to align seam diff 127.9). ACCEPTED.
+
