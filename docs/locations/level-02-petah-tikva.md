@@ -87,3 +87,7 @@ layout: "keep this composition, replace the place with the real one").
 
 - attempt count: 2 (gen-left retried with bolded no-text rule to remove +CLINIC text; gen-right ok, seam diff 36.1). ACCEPTED.
 
+
+## Log
+
+- 2026-09-14 01:50 — Midjourney V8.2 plate `docs/backdrops_midjourney/petah_tikva.png` (4096×1184) accepted; kerb measured at 78% → `--floor=78%`; covers 4 of 5 waves. Tiny illegible pseudo-lettering on the clinic fascia — tolerated.
