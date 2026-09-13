@@ -11,8 +11,10 @@
 //   --no-judge              skip the vision judge (identity, stride, defeat 8–9)
 //   --no-commit             leave passing characters uncommitted
 //   --dry-run               print the plan and the assembled prompts, call nothing
+//   --smoke                 one small test image (and one judge call) with the chosen provider, then exit
 //
-// Env: OPENAI_API_KEY and/or GEMINI_API_KEY (GOOGLE_API_KEY). The key values are never logged.
+// Env: OPENAI_API_KEY and/or GEMINI_API_KEY (GOOGLE_API_KEY) — an AI Studio key (AIza…) or a Vertex AI
+// Express Mode key (AQ.…); the endpoint is picked from the prefix. Read from .env.local too. Never logged.
 //
 // The prompt files are the source of truth: the card, STYLE BLOCK, FRAME BLOCK, Step A / Step C
 // prompts and the beats table are parsed from docs/prompts/<id>.md and assembled exactly as the
@@ -49,7 +51,7 @@ const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[
 const onlyIdx = argv.indexOf('--only');
 const ONLY = onlyIdx >= 0 ? argv.slice(onlyIdx + 1).filter((a) => !a.startsWith('--')) : [];
 const ID = OPTS.queue ? null : positional.filter((a) => !ONLY.includes(a))[0];
-if (!OPTS.queue && !ID) { console.error('usage: node tools/art-pipeline.mjs --queue | <id> [--only <action> ...] [--provider gpt|gemini] [--dry-run]'); process.exit(2); }
+if (!OPTS.queue && !ID && !flag('smoke')) { console.error('usage: node tools/art-pipeline.mjs --queue | <id> [--only <action> ...] [--provider gpt|gemini] [--dry-run]'); process.exit(2); }
 
 // .env.local (gitignored) may hold the keys: KEY=value lines; the process environment wins
 for (const envFile of ['.env.local', '.env']) {
@@ -62,6 +64,12 @@ const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5';
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview';
 const OPENAI_JUDGE_MODEL = process.env.OPENAI_JUDGE_MODEL || 'gpt-5-mini';
 const GEMINI_JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL || 'gemini-2.5-flash';
+// two kinds of Gemini key: AI Studio (AIza…) → generativelanguage.googleapis.com with a header; Vertex AI
+// Express Mode (AQ.…) → aiplatform.googleapis.com with ?key= — same request/response body either way
+const GEMINI_EXPRESS = process.env.GEMINI_ENDPOINT === 'vertex' || (GEMINI_KEY || '').startsWith('AQ.');
+const geminiCall = (model, body) => GEMINI_EXPRESS
+  ? fetchRetry(`https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_KEY)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  : fetchRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY }, body: JSON.stringify(body) });
 
 const ts = () => new Date().toTimeString().slice(0, 8);
 function log(id, msg) { const line = `${ts()} ${id.padEnd(15)} ${msg}`; console.log(line); if (!OPTS.dryRun) appendFileSync(LOG, `- \`${line}\`\n`); }
@@ -169,10 +177,7 @@ async function generateGemini(prompt, refs, kind) {
   // Gemini has no alpha channel: the matte the standard allows, and intake keys it out
   const text = `${prompt}\n\nOutput requirement: the entire background is one flat, pure magenta #FF00FF — no checkerboard, no gradient, no grid lines, no cell borders, nothing drawn on the background.`;
   const parts = [{ text }, ...refs.map((r) => ({ inlineData: { mimeType: 'image/png', data: r.buf.toString('base64') } }))];
-  const call = async (withSize) => fetchRetry(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
-    body: JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: kind === 'sheet' ? '2:1' : '1:1', ...(withSize ? { imageSize: '2K' } : {}) } } }),
-  });
+  const call = async (withSize) => geminiCall(GEMINI_IMAGE_MODEL, { contents: [{ role: 'user', parts }], generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: kind === 'sheet' ? '2:1' : '1:1', ...(withSize ? { imageSize: '2K' } : {}) } } });
   let r;
   try { r = await call(true); } catch (e) { if (/imageSize|image_size/i.test(e.message)) r = await call(false); else throw e; }
   const j = await r.json();
@@ -215,10 +220,7 @@ async function judge(P, kind, imgPath, action) {
   try {
     let out;
     if (GEMINI_KEY) {
-      const r = await fetchRetry(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_JUDGE_MODEL}:generateContent`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }, ...parts.map((d) => ({ inlineData: { mimeType: 'image/png', data: d } }))] }], generationConfig: { responseMimeType: 'application/json', temperature: 0 } }),
-      });
+      const r = await geminiCall(GEMINI_JUDGE_MODEL, { contents: [{ role: 'user', parts: [{ text }, ...parts.map((d) => ({ inlineData: { mimeType: 'image/png', data: d } }))] }], generationConfig: { responseMimeType: 'application/json', temperature: 0 } });
       out = (await r.json()).candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
     } else if (OPENAI_KEY) {
       const r = await fetchRetry('https://api.openai.com/v1/responses', {
@@ -383,8 +385,26 @@ function commit(P, n) {
   else log(id, `committed: ${spawnSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).stdout.trim()} ${msg}`);
 }
 
+// ---- --smoke: prove the provider works before touching the queue ----
+async function smoke() {
+  const prompt = 'Pixel-art sprite of a small orange tabby cat sitting, facing right, clean dark outlines, cel shading, on a flat pure magenta #FF00FF background. No text.';
+  const refs = [await refPart(QUALITY_REF)];
+  const out = join(ATTEMPTS, '_smoke'); mkdirSync(out, { recursive: true });
+  const t0 = Date.now();
+  const buf = await generate(prompt, refs, 'action');
+  const m = await sharp(buf).metadata();
+  const file = join(out, `${OPTS.provider}-${Date.now()}.png`); writeFileSync(file, buf);
+  console.log(`${OPTS.provider} image OK — ${m.width}×${m.height}, ${m.channels} channels, ${((Date.now() - t0) / 1000).toFixed(0)} s → ${file.replace(ROOT + '/', '')}`);
+  if (OPTS.judge && (GEMINI_KEY || OPENAI_KEY)) {
+    const P = { id: 'smoke', card: 'a small orange tabby cat', attach: [], sheetPath: QUALITY_REF };
+    const j = await judge(P, 'action', file, 'idle');
+    console.log(`judge OK — answered ${JSON.stringify(j)}`);
+  }
+}
+
 // ---- main ----
 async function main() {
+  if (flag('smoke')) { await smoke(); return; }
   if (!OPTS.dryRun) {
     if (OPTS.provider === 'gemini' && !GEMINI_KEY) { console.error('GEMINI_API_KEY (or GOOGLE_API_KEY) is not set'); process.exit(2); }
     if (OPTS.provider === 'gpt' && !OPENAI_KEY) { console.error('OPENAI_API_KEY is not set'); process.exit(2); }
