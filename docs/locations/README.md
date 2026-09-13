@@ -6,6 +6,9 @@ View, lists the reference photos on disk, says what the current plate gets wrong
 ready-to-paste prompt to redraw the backdrop so it looks like the real spot. Delivery is one image
 per level — `node tools/place-backdrop.mjs <level> <image>` then `npm run build:assets`.
 
+**Work order (family places first):** 1 → 2 → 5 → 3 → 4 → 10 → 6 → 7 → 8 → 9. Each file has a *Request card* with
+exactly what to attach, send, save and run. Agent brief for running the whole queue: [../prompts/gemini-backdrops.md](../prompts/gemini-backdrops.md).
+
 Status 2026-09-13 23:45: **10 requests** on a clean run, nothing left to confirm. Six places are real and pinned down
 with Street View frames and photos (1–5, 10); four are **imaginary by decision of the owner** (6–9) — each file describes
 the invented place in enough detail to be the reference itself.

@@ -27,6 +27,22 @@ pallets, safety stripes.
 
 > Wide 2.82:1 painted pixel-art backdrop of a small old-fashioned candy factory production floor, bright daylight from skylights: a big copper boiling kettle on a brick base with steam at the left, a taffy-pulling machine stretching red-and-white candy, a long conveyor belt carrying rows of brightly wrapped candies past a wrapping machine into a cooling tunnel, a tall glass gumball tower full of coloured balls, cartons stacked on wooden pallets and sacks of sugar, pink, yellow and mint pipes running overhead, a glass-walled control room with round dials at the far right. The bottom third is an empty grey concrete floor with yellow-and-black safety stripes along the machine bases, in one flat plane. No people, no text or brand names. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 10 of 10
+- **Attach:** `public/game/levels/bg-09.webp` (the current plate — keep its composition, replace the place) and
+  - (no photos — the place is imaginary; the "What is there" section above is the reference)
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-09.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 9 public/assets/generated/backdrops/level-09.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-09.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

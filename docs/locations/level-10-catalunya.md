@@ -28,6 +28,23 @@ the lane.
 
 > Wide 2.82:1 painted pixel-art backdrop from the Bunkers del Carmel viewpoint above Barcelona, golden late afternoon: the whole city spread below in its street grid with the Sagrada Família's spires rising from it, the port and a blue Mediterranean beyond, Montjuïc hill at the right, the Collserola ridge with the Tibidabo church and communications tower at the left, and the jagged Montserrat massif faint on the far horizon; in the foreground pines, agaves and dry grass at the sides. The bottom third is the empty flat concrete terrace of the old bunkers with a low stone wall at its edge. No people, no text. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 6 of 10
+- **Attach:** `public/game/levels/bg-10.webp` (the current plate — keep its composition, replace the place) and
+  - `docs/refs/locations/10-catalunya/ref-01.jpg`
+  - `docs/refs/locations/10-catalunya/ref-02.jpg`
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-10.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 10 public/assets/generated/backdrops/level-10.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-10.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

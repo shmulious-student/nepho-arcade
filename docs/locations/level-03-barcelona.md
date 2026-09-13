@@ -29,6 +29,25 @@ and make the street a real Eixample street: chamfered-corner buildings, plane tr
 
 > Wide 2.82:1 painted pixel-art backdrop of a Barcelona Eixample street in warm sun: centre, the Nativity façade of the Sagrada Família with its openwork sand-stone spires and a construction crane, palms and the pond of Plaça de Gaudí in front; on both sides six-storey beige modernista buildings with wrought-iron balconies and chamfered corners, plane trees, a modernista wrought-iron lamppost with a trencadís mosaic bench. The bottom third is empty pavement of grey hexagonal Gaudí tiles. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 4 of 10
+- **Attach:** `public/game/levels/bg-03.webp` (the current plate — keep its composition, replace the place) and
+  - `docs/refs/locations/03-barcelona/ref-01.jpg`
+  - `docs/refs/locations/03-barcelona/ref-02.jpg`
+  - `docs/refs/locations/03-barcelona/sv-01-sagrada-from-mallorca.jpg`
+  - `docs/refs/locations/03-barcelona/sv-02-eixample-street.jpg`
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-03.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 3 public/assets/generated/backdrops/level-03.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-03.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

@@ -1,0 +1,1 @@
+Delivered level backdrop masters, one per level (`level-NN.png`, 2816×1000). `node tools/place-backdrop.mjs <level> <file>` pastes one into its atlas slot; `npm run build:assets` cuts the plate. Prompts: `docs/locations/`.

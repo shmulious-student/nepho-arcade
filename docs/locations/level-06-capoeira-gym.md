@@ -26,6 +26,22 @@ A wooden-floor hall with a capoeira mural, drums and a Brazilian flag — alread
 
 > Wide 2.82:1 painted pixel-art backdrop of the inside of a capoeira academy hall, warm afternoon light through high frosted windows on the right: a long back wall with a huge hand-painted mural in Brazilian green, yellow and blue of silhouetted capoeira players in a roda under a crescent moon, three berimbaus, an atabaque drum and two pandeiros hung on hooks beside it, a low wooden stage at the far end with drums on it; a floor-to-ceiling mirror wall with a ballet bar on the left; on the right a rack of coloured cords, framed photos, a Brazilian flag and an Israeli flag, a bench with water bottles, a stack of blue mats and a standing fan. The bottom third is an empty pale sprung wooden floor in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 7 of 10
+- **Attach:** `public/game/levels/bg-06.webp` (the current plate — keep its composition, replace the place) and
+  - (no photos — the place is imaginary; the "What is there" section above is the reference)
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-06.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 6 public/assets/generated/backdrops/level-06.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-06.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

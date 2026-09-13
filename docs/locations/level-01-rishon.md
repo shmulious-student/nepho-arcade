@@ -28,6 +28,24 @@ A generic modern plaza — fountain, palms, a sculpture, glass towers behind. No
 
 > Wide 2.82:1 painted pixel-art backdrop of HaSarig Street in Rishon LeZion, Israel, bright morning: a quiet residential street paved in red-brown brick with red-and-white kerbs, lined on both sides by 6–8-storey white and cream apartment blocks with stacked balconies and light-blue glass balcony rails, entrance canopies, low red-brick garden walls with hedges, big old ficus trees and a couple of palms, cars parked nose-in along the far kerb, a small round turning circle at the end of the street. The bottom third is the empty brick-paved road in one flat plane. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 1 of 10
+- **Attach:** `public/game/levels/bg-01.webp` (the current plate — keep its composition, replace the place) and
+  - `docs/refs/locations/01-rishon/sv-01-down-the-street.jpg`
+  - `docs/refs/locations/01-rishon/sv-02-block-entrances.jpg`
+  - `docs/refs/locations/01-rishon/sv-03-towers-and-turning-circle.jpg`
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-01.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 1 public/assets/generated/backdrops/level-01.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-01.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

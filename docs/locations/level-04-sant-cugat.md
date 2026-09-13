@@ -29,6 +29,25 @@ battlements, bell tower on the right), keep the paved square and cypresses, drop
 
 > Wide 2.82:1 painted pixel-art backdrop of Plaça d'Octavià in Sant Cugat del Vallès, Catalonia, bright morning: centre-right the Romanesque-Gothic monastery façade in sand-coloured stone with a large rose window, a sculpted pointed-arch portal, battlements and a square bell tower, tall cypresses along its wall; left, pastel two- and three-storey town houses with iron balconies, a café terrace with umbrellas and plane trees, a small stone fountain. The bottom third is empty light-granite paving. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 5 of 10
+- **Attach:** `public/game/levels/bg-04.webp` (the current plate — keep its composition, replace the place) and
+  - `docs/refs/locations/04-sant-cugat/ref-01.jpg`
+  - `docs/refs/locations/04-sant-cugat/ref-02.jpg`
+  - `docs/refs/locations/04-sant-cugat/sv-01-monastery.jpg`
+  - `docs/refs/locations/04-sant-cugat/sv-02-square.jpg`
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-04.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 4 public/assets/generated/backdrops/level-04.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-04.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the

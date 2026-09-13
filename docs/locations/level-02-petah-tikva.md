@@ -32,6 +32,27 @@ towers (white, tall, balcony-stacked), put the clinic/shop frontage at street le
 
 > Wide 2.82:1 painted pixel-art backdrop of Refael Eitan Street in the Em HaMoshavot neighbourhood of Petah Tikva, Israel, bright afternoon. Behind a wide pavement with young ficus and palm trees, a row of tall white and cream residential towers with stacked glass balconies and rooftop pergolas, a ground-floor clinic and small shops with awnings, a planted median with a bike lane, a green playground fence at the far right. Hazy bright sky. The bottom third is an empty pavement / road in one flat plane. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
+## Request card (for the agent)
+
+- **Queue position:** 2 of 10
+- **Attach:** `public/game/levels/bg-02.webp` (the current plate — keep its composition, replace the place) and
+  - `docs/refs/locations/02-petah-tikva/ref-01.jpg`
+  - `docs/refs/locations/02-petah-tikva/ref-02.jpg`
+  - `docs/refs/locations/02-petah-tikva/ref-03.jpg`
+  - `docs/refs/locations/02-petah-tikva/sv-01-down-the-street.jpg`
+  - `docs/refs/locations/02-petah-tikva/sv-02-other-way.jpg`
+  - `docs/refs/locations/02-petah-tikva/sv-03-tower-entrance.jpg`
+- **Send:** the Prompt above, verbatim, then this line: "**Output 2816×1000 pixels, landscape, opaque, no text, no people; the bottom third is an empty flat ground plane.**"
+- **Save as:** `public/assets/generated/backdrops/level-02.png`
+- **Then:**
+  ```bash
+  node tools/place-backdrop.mjs 2 public/assets/generated/backdrops/level-02.png
+  npm run build:assets && npm run test:assets
+  ```
+- **Accept when:** the built `public/game/levels/bg-02.webp` shows the place described above, the bottom third is a
+  clear flat lane with nothing standing in it, there is no text and no figure, and the style matches the other plates
+  (painted pixel-art, daylight, saturated). Otherwise regenerate once with the failing rule first and **bolded**.
+
 ## Delivery (same for every level)
 
 - One image, **2816×1000** (2.82:1 — the plate is shown at 941×334, scaled to the 540 px view height, and covers the
