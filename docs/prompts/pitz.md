@@ -1,9 +1,20 @@
 # PITZ (`pitz`) — effect sprite, 3 files
 
-## Status — REDO FROM SCRATCH with Shmuel (owner, 2026-09-13 21:00) · in progress
+## Status — queue position 1 of 11 · 1 image request (`run.png` only)
 
-The three files (`leap run pounce`) are regenerated alongside Shmuel's new set so the cat matches the new sheet. The previous
-set stays in git history until the new one passes.
+The redo with Shmuel (owner, 2026-09-13 21:00) is two-thirds in: **`leap.png` and `pounce.png` pass** the gate and are built
+in (committed `3dce48c`, in the deployed pack). **`run.png` fails** — `npm run verify:character -- pitz`:
+
+```
+FAIL  run.png: frame 1 feet are 83 px off the row's baseline — identical bottom-centre anchor in all 9 cells
+FAIL  run.png: frame 2 feet are 64 px off the row's baseline — identical bottom-centre anchor in all 9 cells
+```
+
+Regenerate **only `run.png`** (do not touch `leap` / `pounce`). Put this first and **bolded** in the request: "**All nine
+cells share one baseline: the lowest paw in every frame sits on the same line about 60 px above the bottom of its cell — a
+galloping cat rises and falls with its body, not by lifting the whole figure off the ground line; frames 1 and 2 must sit on
+that line like frames 3–9.**" Attach the passing `leap.png` as the size and baseline reference. Then
+`npm run intake:character -- pitz run` → `npm run verify:character -- pitz` → `npm run build:assets && npm run test:assets`.
 
 Done means `npm run verify:character -- pitz` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
@@ -21,8 +32,9 @@ Until this set is delivered the game shows the single pouncing pose cut from Shm
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render
 style) and the identity references — the cat is already designed, this set must be the same cat:
-`docs/refs/shmuel-sheet.png` (Pitz is the tabby beside the head close-up),
-`public/assets/generated/actions/shmuel/special.png` (Pitz leaping out of the portal, frames 6–9),
+`docs/refs/shmuel-2026-kit-sheet.png` (Pitz is the tabby in the bottom row — running and pouncing),
+`public/assets/generated/actions/shmuel/special.png` (the 2026 set: Pitz leaping out of the portal),
+the two passing files `public/assets/generated/actions/pitz/leap.png` and `pounce.png` (same cat, same size),
 and the photos of the real Pitz in `docs/refs/shmuel-source/shmuel-cat-1.png`, `-2.png`, `-3.png`.
 Keep the whole set in one chat/session.
 

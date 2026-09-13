@@ -123,6 +123,13 @@ with each row, and the failure catalogue behind every rule. A delivered set is a
 `npm run build:assets && npm run test:assets`, then a look at every row on `/showcase.html`. The
 characters still on legacy art each have a ready-to-run prompt file in `docs/prompts/`.
 
+## Level backdrops
+
+Each level is one 941×334 plate cut from `public/assets/generated/level-backdrops-01-05.png` /
+`-06-10.png`. `docs/locations/` has one prompt file per level naming the real place, its Street
+View and reference photos; a delivered plate goes in with `node tools/place-backdrop.mjs <level> <image>`
+and `npm run build:assets`.
+
 ## Roster backoffice
 
 `public/game/roster.json` decides who takes part: every hero, enemy and boss the sim knows, with a

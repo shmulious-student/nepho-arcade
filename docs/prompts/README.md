@@ -6,33 +6,48 @@ time, one image request at a time**; a character counts as done when
 `npm run verify:character -- <id>` prints `PASS` and `npm run build:assets && npm run test:assets` are
 clean. The queue runs unattended with `npm run art:queue` ([art-pipeline.md](../art-pipeline.md)); [codex-queue.md](codex-queue.md) is the equivalent brief for an agent doing it by hand.
 
-Standing on 2026-09-13 21:15 (`npm run readiness`): **21 READY** — heroes eviatar, omri, shmuel, savta-orly,
-saba-kobi, noa (all six in the lobby); fx pitz; 6 enemies; 8 bosses. 10 legacy remain: five bosses and five enemies.
+Standing on 2026-09-13 23:00 (`npm run readiness`): **20 READY** — heroes eviatar, omri, shmuel (2026-kit redo),
+savta-orly, saba-kobi, noa (all six in the lobby); 6 enemies (punk + its punk-b palette variant, bio-brute, gold-sorceress,
+void-demon, rainbow-oracle); 9 bosses. **1 FAILED** — pitz (one file). **10 LEGACY** — five bosses and five enemies.
+Shipped roster: `public/game/roster.json` fields every READY enemy and boss, ordered by strength across the ten levels
+(`tests/shippedRoster.test.ts` plays it).
 
 "Requests" = image-generation requests on a clean run: the Step A character sheet, one per action
 file, and the hero-select card for heroes. Retries come on top.
 
-| # | character | rank | requests | work |
-|---|---|---|---|---|
-| 1 | [shmuel](shmuel.md) | hero | 13 | **redo from scratch (owner, 2026-09-13 21:00)** — new card done; new idle walk dash light1 light3 in; light2 re-save; heavy special block hurt knockdown defeat to make |
-| 2 | [pitz](pitz.md) | fx | 3 | **redo from scratch with Shmuel** — leap run pounce |
-| 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
-| 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
-| 5 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
-| 6 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
-| 7 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
-| 8 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
-| 9 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
-| 10 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
-| 11 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
-| 12 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
+**Queue order = least work first.** One file, then the five 7-request boss sets (level order), then the five 11-request
+enemy sets (the two that also unlock a palette variant first).
 
-**Total: ~100 image requests** on a clean run (≈10 to finish the Shmuel redo · 3 for Pitz · 35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
-an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
-that also unlock a palette variant first). **Nepho and Byte were retired from the game on 2026-09-13** — their prompt files stay as history only.
+| # | character | rank | requests | work | unlocks |
+|---|---|---|---|---|---|
+| 1 | [pitz](pitz.md) | fx | **1** | regenerate `run.png` only — frames 1–2 sit 83/64 px off the baseline; leap + pounce pass | Shmuel's special plays the animated cat instead of the sheet cut-out |
+| 2 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files | level 6's own boss (today: Ferryman rematch) |
+| 3 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files | level 7's own boss |
+| 4 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files | level 8's own boss |
+| 5 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files | level 9's own boss |
+| 6 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files | the level-10 Ultra Boss that steals every other boss's patterns |
+| 7 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files | brawler **and** brawler-b (blue variant) — two enemies |
+| 8 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files | knight **and** knight-b (crimson variant) — two enemies |
+| 9 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files | ranged chain enemy from level 2 |
+| 10 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files | fast evasive enemy from level 4 |
+| 11 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files | the armoured wall from level 6 |
+
+**Total: 91 image requests** on a clean run (1 for Pitz · 35 for the five bosses · 55 for the five enemies). After each
+delivery, add the character to `public/game/roster.json` on `/backoffice.html` (or by hand — enemies get the levels their
+strength fits, a boss takes the level it was designed for) and run `npm test` (the `shippedRoster` gate plays every level).
+**Nepho and Byte were retired from the game on 2026-09-13** — their prompt files stay as history only.
+
+### Not a character, also open
+
+- [brand-eviomri](brand-eviomri.md) — the game was renamed **EviOmri** on 2026-09-13. The lobby logo is vector and already
+  reads EVIOMRI; the launcher icon and the Android splash are the old NEPHO paintings with the wordmark repainted by a script
+  (`public/assets/backups/brand-nepho/` holds the originals). 2 image requests to regenerate them properly.
+- Level backdrops — see [../locations/README.md](../locations/README.md): one prompt file per level to redraw each
+  backdrop from the real place (10 requests).
 
 ## Delivered — nothing outstanding
 
+- [shmuel](shmuel.md) — hero, redone from scratch in the 2026 kit, 12/12 + card, delivered 2026-09-13 21:31–21:46 (`3dce48c`); in the lobby
 - [noa](noa.md) — hero, 12/12 + card, delivered 2026-09-13 19:30–20:50 (`de17117`); enabled in the lobby
 - [saba-kobi](saba-kobi.md) — hero, 12/12 + card, round two delivered 2026-09-13 17:39–19:20 under the save protocol (`309f2f4`); enabled in the lobby
 - [savta-orly](savta-orly.md) — hero, 12/12 + card, delivered 2026-09-13 15:48–16:19, every file first try (`5d82a1c`, card keyed `4a9af2b`)

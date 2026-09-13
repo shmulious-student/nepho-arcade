@@ -1,26 +1,15 @@
 # SHMUEL (`shmuel`) — hero, 12 files
 
-## Status — REDO FROM SCRATCH (owner, 2026-09-13 21:00) · in progress
+## Status — DELIVERED (redo from scratch, 2026-09-13 21:31–21:46; committed `3dce48c`)
 
-The owner asked for the whole Shmuel set to be regenerated in the new look (new card committed `705ba21`). Delivered so far in
-the redo: `idle walk dash light1 light3` (raw deliveries intaken); `light2` needs a re-save from its generated image;
-`heavy special block hurt knockdown defeat` still to make. The previous set stays in git history. The redo is accepted when
-the whole set passes `verify:character` as one look.
+The whole set was regenerated in the 2026 kit from the new sheet `docs/refs/shmuel-2026-kit-sheet.png`; all 12 files pass
+`npm run verify:character -- shmuel`, `build:assets` + `test:assets` are clean, and the set is in the lobby and in the deployed
+content pack. **Nothing to do — do not regenerate his files.** This file is kept as the record of how the set was made; the
+notes below the card about the earlier walk/dash stride fix are history from the first set.
 
-Done means `npm run verify:character -- shmuel` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
-
-Shmuel's 12-file set is delivered and built in; it passes `verify:character`. Two rows are wrong in
-a way no gate can see: in `walk.png` **the same leg leads in every stride frame** (1, 3, 4, 6–9 are
-one lunge with the right leg forward; only 2 and 5 close the feet), and in `dash.png` **frames 3–7
-are the same running pose repeated** — so in the game his legs never swap and he glides. Eviatar's
-and Omri's walks were regenerated for exactly this and are the reference for what a stride cycle
-looks like (`public/game/chars/eviatar.webp`, row `walk`).
-
-Regenerate only `dash.png` (the walk row below is kept as the record of the walk fix), in the same session style as the rest of his set, with the stride
-rule below in bold — the model drops it otherwise.
-
-**Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render
-style) and `docs/refs/shmuel-sheet.png` (identity — the character sheet the set was made from).
+**Attach to every request (if a file is ever redone):** `public/assets/references/hero-grid-quality-reference.png` (render
+style) and `docs/refs/shmuel-2026-kit-sheet.png` (identity — the character sheet this set was made from; the older
+`docs/refs/shmuel-sheet.png` is the previous look and must not be used).
 
 ## Character card
 
