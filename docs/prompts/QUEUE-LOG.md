@@ -138,6 +138,8 @@
 00:24 backdrop level 1 attempt 2 → ACCEPTED
 00:29 backdrop level 2 attempt 2 → ACCEPTED
 00:35 backdrop level 5 attempt 1 → ACCEPTED
+00:45 backdrop level 3 attempt 2 → ACCEPTED
+
 
 
 

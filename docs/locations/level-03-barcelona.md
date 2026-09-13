@@ -73,3 +73,8 @@ and make the street a real Eixample street: chamfered-corner buildings, plane tr
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-03.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- attempt count: 2 (gen-left ok; gen-right retried with bolded no-Sagrada-spires rule to prevent duplicate background spires). ACCEPTED.
+
