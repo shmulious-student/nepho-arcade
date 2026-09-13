@@ -13,22 +13,28 @@
    "enabled": true,
    "levels": []
   },
-  "nepho": {
-   "name": "NEPHO",
-   "rank": "hero",
-   "enabled": false,
-   "levels": []
-  },
-  "byte": {
-   "name": "BYTE",
-   "rank": "hero",
-   "enabled": false,
-   "levels": []
-  },
   "shmuel": {
    "name": "SHMUEL",
    "rank": "hero",
    "enabled": true,
+   "levels": []
+  },
+  "savta-orly": {
+   "name": "SAVTA ORLY",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
+  "saba-kobi": {
+   "name": "SABA KOBI",
+   "rank": "hero",
+   "enabled": false,
+   "levels": []
+  },
+  "noa": {
+   "name": "NOA",
+   "rank": "hero",
+   "enabled": false,
    "levels": []
   },
   "punk": {

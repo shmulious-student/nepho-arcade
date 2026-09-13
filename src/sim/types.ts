@@ -2,7 +2,7 @@
 
 export type Kind = 'hero' | 'enemy' | 'boss' | 'echo' | 'projectile' | 'hazard' | 'pickup';
 
-export type HeroId = 'eviatar' | 'omri' | 'nepho' | 'byte' | 'shmuel';
+export type HeroId = 'eviatar' | 'omri' | 'shmuel' | 'savta-orly' | 'saba-kobi' | 'noa';
 
 export const TICK_RATE = 60;
 export const LEVEL_W = 1520; // world width of one level (backdrop scaled to 540 tall)

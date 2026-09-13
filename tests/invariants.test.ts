@@ -15,7 +15,7 @@ for (let level = 1; level <= 10; level++) {
     it(`sweep L${level} seed=${seed} ${coop ? '2P' : '1P'} ${mode}`, () => {
       // every hero gets played, partnered with and called in as a friend somewhere in the sweep:
       // four distinct picks off one rotating list, so no slot ever doubles up
-      const all = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
+      const all = ['eviatar', 'omri', 'shmuel', 'savta-orly', 'saba-kobi', 'noa'];
       const pick = (i: number) => all[(level + k + i) % all.length];
       const heroes: any = [pick(0), coop ? pick(1) : null];
       const friends = { friends: [pick(2), coop ? pick(3) : null] as any, mode };

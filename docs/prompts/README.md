@@ -6,17 +6,16 @@ time, one image request at a time**; a character counts as done when
 `npm run verify:character -- <id>` prints `PASS` and `npm run build:assets && npm run test:assets` are
 clean. The queue runs unattended with `npm run art:queue` ([art-pipeline.md](../art-pipeline.md)); [codex-queue.md](codex-queue.md) is the equivalent brief for an agent doing it by hand.
 
-Standing on 2026-09-13 14:40 (`npm run readiness`): 18 READY, 1 failed (nepho), 11 legacy, plus two new heroes
-added from photos (savta-orly, saba-kobi). Delivered today: pitz `run`, shmuel `walk`+`dash`, glass-warden, kilnheart,
-monk-zero, market-king.
-## The queue — least work first
+Standing on 2026-09-13 19:05 (`npm run readiness`): 19 READY (heroes eviatar, omri, shmuel, savta-orly; fx pitz;
+6 enemies; 8 bosses), 10 legacy, plus saba-kobi (4/12 genuine) and noa (photo pending). Nepho and Byte were
+retired from the game today; their prompt files are kept as history only.
 
 "Requests" = image-generation requests on a clean run: the Step A character sheet, one per action
 file, and the hero-select card for heroes. Retries come on top.
 
 | # | character | rank | requests | work |
 |---|---|---|---|---|
-| 1 | [saba-kobi](saba-kobi.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
+| 1 | [saba-kobi](saba-kobi.md) | hero | 9 | **round two in progress** — sheet + `idle walk light1 light3` accepted; `dash light2 heavy special block hurt knockdown defeat` + card to make |
 | 2 | [noa](noa.md) | hero | 14 | **new hero from a photo** — Step A sheet + 12 action files + hero card |
 | 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
 | 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
@@ -28,15 +27,10 @@ file, and the hero-select card for heroes. Retries come on top.
 | 10 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
 | 11 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
 | 12 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
-| 13 | [nepho](nepho.md) | hero | 14 | Step A sheet + 12 action files + hero card (the set is redone whole) |
-| 14 | [byte](byte.md) | hero | 14 | Step A sheet + 12 action files + hero card |
 
-**Total: 146 image requests** on a clean run (28 for the two new heroes still to make · 35 for the five remaining bosses · 55 for the five
-enemies · 28 for the two heroes). Bosses come before enemies only because a boss set is 7 requests and
+**Total: 113 image requests** on a clean run (9 to finish Kobi · 14 for Noa · 35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
 an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
-that also unlock a palette variant first). The two heroes are last: they are roster-disabled today,
-so if the day runs out they are what slips. **Savta Orly, Saba Kobi and Noa are the exception: the owner placed them
-next in line on 2026-09-13 — they run before the remaining bosses.**
+that also unlock a palette variant first). **Nepho and Byte were retired from the game on 2026-09-13** — their prompt files stay as history only.
 
 ## Delivered — nothing outstanding
 

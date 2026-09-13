@@ -1,6 +1,6 @@
 # Chainer (`chainer`) — enemy, 10 files
 
-## Status — queue position 10 of 14 · 11 image requests (Step A sheet + 10 action files)
+## Status — queue position 10 of 12 · 11 image requests (Step A sheet + 10 action files)
 
 Legacy — no per-action set exists; the old 6-frame grid ships. Needs the character sheet (Step A) and all
 10 files (`idle walk attack heavy special guard hurt knockback getup defeat`), one session, one look.

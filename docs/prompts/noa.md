@@ -1,6 +1,6 @@
 # NOA (`noa`) — hero, 12 files + hero card
 
-## Status — queue position 2 of 14 · 14 image requests (Step A sheet + 12 action files + hero card)
+## Status — queue position 2 of 12 · 14 image requests (Step A sheet + 12 action files + hero card)
 
 New hero, drawn from a photo — added on 2026-09-13 18:00, queued **right after Saba Kobi**. No art exists yet.
 **Likeness is the point**: the face on the sheet must be recognisably Noa from `docs/refs/noa-source/noa-1.png`

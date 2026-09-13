@@ -76,17 +76,24 @@ export const HEROES: Record<HeroId, HeroDef> = {
   // Omri (9): lean capoeira fighter in red and black, with a microphone. Fastest hero; his special is a three-beat
   // sonic shockwave that launches everyone around him.
   omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 115, speed: 3.1, dmgMul: 0.9, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
-  nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 130, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
-  byte: { id: 'byte', name: 'BYTE', gender: 'female', bias: 'Ranged · four-shot volley', hp: 120, speed: 2.7, dmgMul: 0.95, special: 'volley', colour: 0xff76c8, cardKey: 'card-byte' },
   // Shmuel: bearded grown-up in a blue-and-garnet striped jersey, black shorts and fingerless gloves,
   // a bare-knuckle boxer. Tough and steady; his special opens a cyan pixel portal and sends his tabby
   // cat pouncing across the lane, flooring everyone in its path.
   shmuel: { id: 'shmuel', name: 'SHMUEL', gender: 'male', bias: 'Tough · cat pounce', hp: 150, speed: 2.5, dmgMul: 1.1, special: 'cat', colour: 0x35e8ff, colour2: 0xa61e3c, cardKey: 'card-shmuel' },
+  // Savta Orly: a grandmother in a maroon top and cream apron who fights with a wooden spoon and a flying
+  // slipper. Sturdy and slow; her special swings a pot of golden chicken soup in a full circle (radial burst).
+  'savta-orly': { id: 'savta-orly', name: 'SAVTA ORLY', gender: 'female', bias: 'Sturdy · soup storm', hp: 155, speed: 2.3, dmgMul: 1.1, special: 'burst', colour: 0xffc246, colour2: 0x7a1f3d, cardKey: 'card-savta-orly' },
+  // Saba Kobi: a grandfather in a black t-shirt with a rolled newspaper and a bear-hug slam. Solid and
+  // cheerful; his special slams a shesh-besh board down and rings out a shockwave of dice (wave).
+  'saba-kobi': { id: 'saba-kobi', name: 'SABA KOBI', gender: 'male', bias: 'Solid · shesh-besh shock', hp: 165, speed: 2.4, dmgMul: 1.15, special: 'wave', colour: 0xff8c42, colour2: 0x1c1c1e, cardKey: 'card-saba-kobi' },
+  // Noa: leopard-print baker with a pothos vine round her arm and a rolling pin. Quick and agile; her special
+  // slams a plant pot down and a ring of vines erupts around her (radial burst, leaf-green).
+  noa: { id: 'noa', name: 'NOA', gender: 'female', bias: 'Agile · pothos overgrowth', hp: 125, speed: 2.9, dmgMul: 0.95, special: 'burst', colour: 0x4caf50, colour2: 0xd8a85a, cardKey: 'card-noa' },
 };
 
-// Eviatar and Omri lead the roster; Nepho, Byte and Shmuel are their friends — playable too, and the
-// pool an assist / sidekick is chosen from.
-export const HERO_IDS: HeroId[] = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
+// Eviatar and Omri lead the roster; Shmuel, Savta Orly, Saba Kobi and Noa are their friends — playable too,
+// and the pool an assist / sidekick is chosen from. (Nepho and Byte were retired on 2026-09-13.)
+export const HERO_IDS: HeroId[] = ['eviatar', 'omri', 'shmuel', 'savta-orly', 'saba-kobi', 'noa'];
 
 // Pitz — Shmuel's cat, the projectile his special releases. His run down the lane is three beats the
 // renderer plays from the cat's own atlas (actions/pitz/: leap → run loop → pounce) and the sim moves

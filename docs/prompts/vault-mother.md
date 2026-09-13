@@ -1,6 +1,6 @@
 # Vault Mother (`vault-mother`) — boss, level 9, 6 files
 
-## Status — queue position 6 of 14 · 7 image requests (Step A sheet + 6 action files)
+## Status — queue position 6 of 12 · 7 image requests (Step A sheet + 6 action files)
 
 Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
 files (`idle approach attack special hurt defeat`), one session, one look. Level 9 boss.

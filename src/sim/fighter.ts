@@ -81,7 +81,7 @@ export function stepPitz(w: World, e: Entity): void {
   if (atEdge || e.st >= PITZ.leap + PITZ.run) { e.pphase = 2; e.st = 0; }
 }
 
-const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, byte: 3, shmuel: 4 };
+const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, shmuel: 2, 'savta-orly': 3, 'saba-kobi': 4, noa: 5 };
 
 /** The dash chord: DASH held together with exactly one horizontal direction. Returns the direction
  * (1 right, -1 left) or 0 when the chord is not held. */

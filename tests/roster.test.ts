@@ -105,17 +105,18 @@ describe('applyRoster', () => {
     applyRoster(r);
     expect(levelDef(2).boss).toBe('storm-colossus');
     expect(BOSS_DEFS['storm-colossus'].name).toBe('Big Tesla');
-    const w = new World({ seed: 1, level: 2, heroes: ['nepho', null] });
+    const w = new World({ seed: 1, level: 2, heroes: ['eviatar', null] });
     w.debugSkipToBoss();
     for (let i = 0; i < 400 && !w.boss(); i++) w.step([{ held: 0, pressed: 0 }, { held: 0, pressed: 0 }]);
     expect(w.boss()?.arch).toBe('storm-colossus');
   });
   it('narrows the lobby to the enabled heroes, but never below two', () => {
     const r = defaultRoster();
-    r.characters.byte.enabled = false;
+    r.characters.noa.enabled = false;
     applyRoster(r);
-    expect(ACTIVE_HEROES).toEqual(HERO_IDS.filter((h) => h !== 'byte'));
-    r.characters.nepho.enabled = false; r.characters.omri.enabled = false; r.characters.shmuel.enabled = false;
+    expect(ACTIVE_HEROES).toEqual(HERO_IDS.filter((h) => h !== 'noa'));
+    r.characters.omri.enabled = false; r.characters.shmuel.enabled = false;
+    r.characters['savta-orly'].enabled = false; r.characters['saba-kobi'].enabled = false;
     const res = applyRoster(r);
     expect(ACTIVE_HEROES).toEqual(HERO_IDS);
     expect(res.warnings.join()).toMatch(/at least two/);

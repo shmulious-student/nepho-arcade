@@ -1,20 +1,9 @@
 # NEPHO (`nepho`) — hero, 12 files + hero card
 
-## Status — queue position 13 of 14 · 14 image requests (Step A sheet + 12 action files + hero card (the set is redone whole))
+## Status — RETIRED
 
-FAILED — 4 of 12 files present (`heavy special knockdown defeat`), delivered in an earlier round as row
-overrides. `heavy` and `special` pass; the gate's exact output for the rest:
-
-```
-FAIL  knockdown.png cell 1,2 (frame 6): the figure ends in a straight left edge — a cropped or re-sliced frame
-FAIL  defeat.png: frames 7 and 9 are the same pose — every frame must be distinct, never pad with a repeat
-FAIL  defeat.png: frames 8 and 9 are the same pose — every frame must be distinct, never pad with a repeat
-+ idle walk dash light1 light2 light3 block hurt: missing
-```
-
-Per the standard (one delivery, one look) the set is **redone whole**: a new sheet, all 12 files and the
-card in one session. Delete the four old files from `public/assets/generated/actions/nepho/` before the
-first new one lands so the gate never mixes the two deliveries.
+Removed from the game on 2026-09-13 (owner's decision): out of `HERO_IDS`, the roster and the build. This file is kept
+as history only; nothing is generated for this character.
 
 Done means `npm run verify:character -- nepho` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

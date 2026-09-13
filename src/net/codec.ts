@@ -9,13 +9,14 @@ const SHAPES: NonNullable<SimEvent['shape']>[] = ['circle', 'line', 'stripe', 'r
 
 // arch strings are interned to small integers so entity records stay fixed-size.
 const ARCH_TABLE = [
-  'eviatar', 'omri', 'nepho', 'byte', 'shmuel',
+  'eviatar', 'omri', 'shmuel',
   'punk', 'chainer', 'brawler', 'kicker', 'knight', 'shield', 'punk-b', 'brawler-b', 'knight-b',
   'ferryman', 'glass-warden', 'kilnheart', 'monk-zero', 'market-king', 'railmaw', 'crown-runner', 'the-null', 'vault-mother', 'ultra-signal',
   'bio-brute', 'gold-sorceress', 'void-demon', 'rainbow-oracle',
   'abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus',
   'hook', 'hook-return', 'shard', 'bolt', 'cat', 'blast', 'ring', 'orb', 'fog', 'smoke', 'wall',
   'heart', 'coin', 'star',
+  'savta-orly', 'saba-kobi', 'noa',
 ];
 const archIndex = (a: string) => { const i = ARCH_TABLE.indexOf(a); return i < 0 ? 255 : i; };
 const archName = (i: number) => ARCH_TABLE[i] || 'unknown';

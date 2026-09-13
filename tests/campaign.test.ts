@@ -16,7 +16,7 @@ const MAX_TICKS = 60 * 60 * 6; // 6 min hard cap per level (safety valve, not th
 const FLOOR_S = 30; // catches a level trivially clearing far too fast (a real balance regression)
 const CEIL_S = 260; // catches a level dragging on well past a reasonable boss-fight ceiling
 
-function playLevel(seed: number, level: number, heroes: ['nepho', 'byte' | null]) {
+function playLevel(seed: number, level: number, heroes: ['eviatar', 'omri' | null]) {
   const w = new World({ seed, level, heroes: heroes as any });
   const b0 = makeBot(); const b1 = makeBot();
   let t = 0, continues = 0;
@@ -37,7 +37,7 @@ function playLevel(seed: number, level: number, heroes: ['nepho', 'byte' | null]
 describe('full 10-level campaign (reference bot)', () => {
   for (let level = 1; level <= 10; level++) {
     it(`level ${level}: 1P bot wins with sane pacing`, () => {
-      const r = playLevel(9000 + level, level, ['nepho', null]);
+      const r = playLevel(9000 + level, level, ['eviatar', null]);
       expect(r.finished, `level ${level} did not finish within cap (${r.seconds}s)`).toBe(true);
       expect(r.result, `level ${level} ended in ${r.result}, not a win`).toBe('victory');
       expect(r.seconds).toBeGreaterThanOrEqual(FLOOR_S);
@@ -45,7 +45,7 @@ describe('full 10-level campaign (reference bot)', () => {
     }, 30000);
 
     it(`level ${level}: 2P bot finishes`, () => {
-      const r = playLevel(9500 + level, level, ['nepho', 'byte']);
+      const r = playLevel(9500 + level, level, ['eviatar', 'omri']);
       expect(r.finished, `level ${level} (2P) did not finish within cap (${r.seconds}s)`).toBe(true);
       expect(r.result, `level ${level} (2P) ended in ${r.result}, not a win`).toBe('victory');
     }, 30000);

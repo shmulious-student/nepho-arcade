@@ -3,7 +3,7 @@ import { World } from '../src/sim/world';
 import { makeBot, botInput } from '../src/sim/bot';
 import type { InputFrame } from '../src/sim/input';
 
-function runBotTicks(seed: number, level: number, heroes: ['nepho', 'byte' | null], ticks: number) {
+function runBotTicks(seed: number, level: number, heroes: ['eviatar', 'omri' | null], ticks: number) {
   const w = new World({ seed, level, heroes: heroes as any });
   const b0 = makeBot(); const b1 = makeBot();
   const hashes: number[] = [];
@@ -18,20 +18,20 @@ function runBotTicks(seed: number, level: number, heroes: ['nepho', 'byte' | nul
 
 describe('sim determinism', () => {
   it('same seed + same inputs -> identical hash trajectory (1P)', () => {
-    const a = runBotTicks(1234, 1, ['nepho', null], 3000);
-    const b = runBotTicks(1234, 1, ['nepho', null], 3000);
+    const a = runBotTicks(1234, 1, ['eviatar', null], 3000);
+    const b = runBotTicks(1234, 1, ['eviatar', null], 3000);
     expect(a).toEqual(b);
   });
 
   it('same seed + same inputs -> identical hash trajectory (2P)', () => {
-    const a = runBotTicks(555, 3, ['nepho', 'byte'], 3000);
-    const b = runBotTicks(555, 3, ['nepho', 'byte'], 3000);
+    const a = runBotTicks(555, 3, ['eviatar', 'omri'], 3000);
+    const b = runBotTicks(555, 3, ['eviatar', 'omri'], 3000);
     expect(a).toEqual(b);
   });
 
   it('different seeds diverge', () => {
-    const a = runBotTicks(1, 1, ['nepho', null], 600);
-    const b = runBotTicks(2, 1, ['nepho', null], 600);
+    const a = runBotTicks(1, 1, ['eviatar', null], 600);
+    const b = runBotTicks(2, 1, ['eviatar', null], 600);
     expect(a).not.toEqual(b);
   });
 

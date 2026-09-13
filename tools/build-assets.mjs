@@ -49,10 +49,9 @@ const BOSS_ACTIONS = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat']
 // fast; red + white) on Nepho's shifted to red.
 // Every hero the sim knows (src/sim/frameData.ts HERO_IDS), in lobby order. A hero with neither a
 // legacy grid nor a complete per-action set is left out of the pack until its art lands.
-const HERO_IDS = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
+const HERO_IDS = ['eviatar', 'omri', 'shmuel', 'savta-orly', 'saba-kobi', 'noa'];
 const HERO_STAND_INS = {
   eviatar: { from: 'bruiser', remap: { h0: 5, h1: 55, delta: 110 } },
-  omri: { from: 'nepho', remap: { h0: 150, h1: 200, delta: 180 } },
 };
 const hasAnySource = (src) => src.kind !== 'grid' || existsSync(src.file);
 
@@ -558,16 +557,11 @@ async function processPortraits(catalog, bossResults, heroResults) {
     await saveWebp(boxImg, join(OUT, 'portraits', `${BOSSES[i][0]}.webp`));
   }
   // hero select cards. A dedicated card image wins (public/assets/generated/heroes/<id>-card.png,
-  // square, any size); otherwise riva/byte come from the roster atlas (3x2, 512 cells) and anyone
-  // else gets a crop of their own idle frame so a new hero is never card-less.
-  const roster = join(SRC, 'hero-roster-atlas.png');
-  const rosterCells = { nepho: [0, 0], byte: [1, 1] };
+  // square, any size); otherwise a hero gets a crop of their own idle frame so a new hero is never card-less.
   for (const id of HERO_IDS) {
     const out = join(OUT, 'cards', `${id}.webp`);
     const dedicated = join(SRC, 'heroes', `${id}-card.png`);
     if (existsSync(dedicated)) { await sharp(dedicated).resize(512, 512, { fit: 'cover' }).webp({ quality: 88 }).toFile(out); continue; }
-    const cell = rosterCells[id];
-    if (cell) { await sharp(roster).extract({ left: cell[0] * 512, top: cell[1] * 512, width: 512, height: 512 }).webp({ quality: 88 }).toFile(out); continue; }
     const res = heroResults[id];
     if (!res) continue;
     const fr = res.json.frames['idle/0'];
@@ -612,16 +606,6 @@ async function main() {
       heroSrc[id] = src;
       results[id] = await processCharacter(id, src, src.kind === 'pair' ? { ...HERO, rows: HERO_ROWS_12 } : HERO);
       console.log('hero', id, results[id] ? `ok (${src.kind})` : 'FAILED');
-    }
-    // Byte's delivered grids have so far been copies of Riva's. Until a real Byte set lands, keep the
-    // roster visually distinct by hue-shifting the duplicate to her pink rather than shipping two Rivas.
-    // Byte's delivered grids are a copy of Riva's (a retired hero whose grids stay in the tree as the
-    // reference for this check).
-    if (heroSrc.byte && await nearDuplicate(heroSrc.byte, heroSource('riva'))) {
-      warn('byte: source grids are a duplicate of riva\'s — hue-remapped to pink; see docs/asset-prompts.md');
-      const notes = ['fallback: source is a duplicate of riva, hue-remapped to pink until a real byte set is supplied'];
-      results.byte = await variantFrom(results.byte, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, notes);
-      delete results.byte.entry.variantOf; // it is byte's own (duplicated) art, not a derived atlas
     }
     catalog.heroes = HERO_IDS.filter((id) => results[id]);
     for (const id of FX_IDS) {

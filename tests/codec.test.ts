@@ -5,7 +5,7 @@ import type { Snapshot, EntityView, Kind, LevelPhase } from '../src/sim/types';
 
 const KINDS: Kind[] = ['hero', 'enemy', 'boss', 'echo', 'projectile', 'hazard'];
 const PHASES: LevelPhase[] = ['entry', 'wave', 'go', 'boss', 'clear', 'gameover', 'victory'];
-const ARCHES = ['nepho', 'punk', 'ferryman', 'shard', 'ring'];
+const ARCHES = ['eviatar', 'punk', 'ferryman', 'shard', 'ring'];
 const STATES = ['idle', 'walk', 'light1', 'hurt', 'attack', 'approach'];
 
 function randomSnapshot(rng: Rng): Snapshot {

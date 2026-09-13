@@ -1,9 +1,9 @@
 # BYTE (`byte`) — hero, 12 files + hero card
 
-## Status — queue position 14 of 14 · 14 image requests (Step A sheet + 12 action files + hero card)
+## Status — RETIRED
 
-Legacy — her current grids are a copy of Riva; this is her first real set. Needs the sheet, all 12 files
-and the hero card, one session, one look.
+Removed from the game on 2026-09-13 (owner's decision): out of `HERO_IDS`, the roster and the build. This file is kept
+as history only; nothing is generated for this character.
 
 Done means `npm run verify:character -- byte` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
