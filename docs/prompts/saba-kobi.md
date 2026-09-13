@@ -19,6 +19,7 @@ What round one taught — carry these into the prompts from the first request, n
 - **`defeat` 8–9 are two drawn frames** with a small settle — never a copy (the first attempt had 7, 8, 9 identical).
 - **Card with real alpha.** Orly's card came on a painted checkerboard; ask for a true transparent background and check
   `hasAlpha` on the PNG — if it is a checkerboard, key it or regenerate it before the build.
+- **Age (owner's note):** round one made him look too old. Fewer wrinkles, darker hair mix, firmer face — a vigorous early-60s saba. This is a likeness *adjustment*, not a different person: same features as the photo.
 - Everything else went first try in round one (`idle light1 light2 light3 heavy special dash block hurt knockdown`); the
   design and likeness were right — keep the same card below.
 
@@ -33,8 +34,8 @@ identity reference: `docs/refs/saba-kobi-source/kobi-1.png` (frontal, grinning �
 ID:            saba-kobi
 RANK:          hero
 NAME:          SABA KOBI
-BUILD:         man in his early seventies, medium height, broad chest and shoulders, a solid comfortable build, straight-backed
-FACE:          short cropped salt-and-pepper grey hair, heavy dark brows over deep-set eyes, a warm squinting smile with deep creases, tanned weathered skin, strong jaw — the face stays clear and unobstructed (a player photo is composited over it)
+BUILD:         man in his early sixties, medium height, broad chest and shoulders, a solid comfortable build, straight-backed and vigorous — **draw him younger than the photo reads: fit, not frail**
+FACE:          short cropped salt-and-pepper hair (more pepper than salt), thick dark brows over bright deep-set eyes, a huge warm grin with dimples, tanned skin with laugh lines but **few wrinkles — smooth forehead and cheeks, no sagging; he should read as a strong 60, not 75**, strong jaw — the face stays clear and unobstructed (a player photo is composited over it)
 OUTFIT:        cream off-white crew-neck t-shirt with a small stitched hexagon badge on the chest (as in the photo), a black cross-body bag strap with a pair of sunglasses hooked on it, dark blue jeans with a brown belt, brown leather sandals
 PALETTE:       shirt #F2EBDD, strap #1C1C1E, jeans #2B3F73, belt / board wood #8B5A2B, skin #C98E63, hair #9A9A9A, effect orange #FF8C42 with cream dice #F6F0E4
 PROPS:         a tightly rolled newspaper in the right hand (his weapon); a folding shesh-besh (backgammon) board appears for the special and the block; two dice
@@ -45,7 +46,7 @@ EFFECT:        warm orange shock rings and bouncing cream dice with black pips; 
 ## Step A — character sheet
 
 > Character design sheet, 2048×1024, transparent background. [STYLE BLOCK] Character: SABA KOBI — as in the card
-> above, and **the face, hair and expression of the person in the attached photos** — a saba, warm and unbeatable. Show, left to right:
+> above, and **the face, hair and expression of the person in the attached photos, drawn a decade younger — fit and vigorous, few wrinkles, more dark in the hair** — a saba, warm and unbeatable. Show, left to right:
 > full-body front view, full-body three-quarter view facing right, full-body side view facing right, a large head
 > close-up, and a swatch strip of the palette. Identical proportions in every view. Save as `docs/refs/saba-kobi-sheet.png`.
 
