@@ -20,9 +20,9 @@ ID:            savta-orly
 RANK:          hero
 NAME:          SAVTA ORLY
 BUILD:         woman in her late sixties, short-to-medium height, soft rounded build, upright and energetic
-FACE:          tousled light-blonde hair with a full fringe, thin gold-rimmed round glasses, big warm toothy smile with laugh lines, tan skin, small gold hoop earrings — the face stays clear and unobstructed (a player photo is composited over it)
-OUTFIT:        maroon short-sleeved top, cream apron with a thin gold trim and a big front pocket, dark comfortable trousers, soft beige house slippers
-PALETTE:       top #7A1F3D, apron #F3E7C9, trim / soup gold #FFC246, hair #D9B36A, skin #D9A27A, effect gold #FFC246 with white steam
+FACE:          shoulder-length layered honey-blonde hair with a full straight fringe, thin gold-rimmed round glasses, a warm gentle smile with soft laugh lines, light-tan skin, small silver hoop earrings — the face stays clear and unobstructed (a player photo is composited over it)
+OUTFIT:        dusty-blue short-sleeved V-neck blouse (as in the photo), a cream apron with a thin gold trim and a big front pocket tied over it, dark comfortable trousers, soft beige house slippers
+PALETTE:       blouse #5B84B1, apron #F3E7C9, trim / soup gold #FFC246, hair #C9A46A, skin #D9A27A, effect gold #FFC246 with white steam
 PROPS:         a long wooden spoon in the right hand (her weapon); one slipper comes off the foot for the heavy; a big steel soup pot with a lid appears for the special and the block
 FIGHTS WITH:   spoon pokes and whacks (light chain), a flying-slipper slap (heavy), a pot-lid held up as a shield (block), and SOUP STORM — a pot of golden chicken soup she swings in a full circle, splashing everyone around her (special)
 EFFECT:        golden soup splashes and white steam curls, always warm and round, never sharp

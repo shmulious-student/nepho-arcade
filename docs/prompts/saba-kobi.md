@@ -20,9 +20,9 @@ ID:            saba-kobi
 RANK:          hero
 NAME:          SABA KOBI
 BUILD:         man in his early seventies, medium height, broad chest and shoulders, a solid comfortable build, straight-backed
-FACE:          short cropped grey-white hair receding at the temples, thick dark brows, a huge grin with deep dimples and crinkled eyes, tan weathered skin — the face stays clear and unobstructed (a player photo is composited over it)
-OUTFIT:        plain black crew-neck t-shirt, dark blue jeans with a brown belt, brown leather sandals over bare feet, a thin steel watch on the left wrist
-PALETTE:       shirt #1C1C1E, jeans #2B3F73, belt / board wood #8B5A2B, skin #C98E63, hair #CFCFCF, effect orange #FF8C42 with cream dice #F6F0E4
+FACE:          short cropped salt-and-pepper grey hair, heavy dark brows over deep-set eyes, a warm squinting smile with deep creases, tanned weathered skin, strong jaw — the face stays clear and unobstructed (a player photo is composited over it)
+OUTFIT:        cream off-white crew-neck t-shirt with a small stitched hexagon badge on the chest (as in the photo), a black cross-body bag strap with a pair of sunglasses hooked on it, dark blue jeans with a brown belt, brown leather sandals
+PALETTE:       shirt #F2EBDD, strap #1C1C1E, jeans #2B3F73, belt / board wood #8B5A2B, skin #C98E63, hair #9A9A9A, effect orange #FF8C42 with cream dice #F6F0E4
 PROPS:         a tightly rolled newspaper in the right hand (his weapon); a folding shesh-besh (backgammon) board appears for the special and the block; two dice
 FIGHTS WITH:   newspaper swats and pokes (light chain), a bear-hug slam — he grabs the air and slams down (heavy), the folded board held up as a shield (block), and SHESH-BESH — he slams the open board on the ground and a shockwave of orange light and flying dice rings out (special)
 EFFECT:        warm orange shock rings and bouncing cream dice with black pips; a big laugh is part of every move
