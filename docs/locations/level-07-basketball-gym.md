@@ -23,7 +23,7 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the inside of a municipal basketball sports hall in Israel, daylight through high mesh-covered windows: a long far wall with a folding bleacher of blue seats, a red-digit scoreboard in the middle, blue-white-orange team banners hung from white steel roof trusses with strip lights, an Israeli flag at the far right; glass backboards with orange hoops and blue wall padding at both ends; a ball cart with orange balls, gym bags on a bench and a water cooler at the left. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is an empty honey-coloured parquet floor with blue and orange court lines and a big orange centre logo, in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the inside of a municipal basketball sports hall in Israel, daylight through high mesh-covered windows: a long far wall with a folding bleacher of blue seats, a red-digit scoreboard in the middle, blue-white-orange team banners hung from white steel roof trusses with strip lights, an Israeli flag at the far right; glass backboards with orange hoops and blue wall padding at both ends; a ball cart with orange balls, gym bags on a bench and a water cooler at the left. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by the court's painted blue sideline and the front edge of the bleachers so the walkable band reads as its own strip, and everything below it is an empty honey-coloured parquet floor with blue and orange court lines and a big orange centre logo, in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -50,7 +50,8 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

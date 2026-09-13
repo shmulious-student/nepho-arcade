@@ -26,7 +26,7 @@ the lane.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) from the Bunkers del Carmel viewpoint above Barcelona, golden late afternoon: the whole city spread below in its street grid with the Sagrada Família's spires rising from it, the port and a blue Mediterranean beyond, Montjuïc hill at the right, the Collserola ridge with the Tibidabo church and communications tower at the left, and the jagged Montserrat massif faint on the far horizon; in the foreground pines, agaves and dry grass at the sides. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is the empty flat concrete terrace of the old bunkers with a low stone wall at its edge. No people, no text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) from the Bunkers del Carmel viewpoint above Barcelona, golden late afternoon: the whole city spread below in its street grid with the Sagrada Família's spires rising from it, the port and a blue Mediterranean beyond, Montjuïc hill at the right, the Collserola ridge with the Tibidabo church and communications tower at the left, and the jagged Montserrat massif faint on the far horizon; in the foreground pines, agaves and dry grass at the sides. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by a low rough stone parapet wall so the walkable band reads as its own strip, and everything below it is the empty flat concrete terrace of the old bunkers with a low stone wall at its edge. No people, no text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -54,7 +54,8 @@ the lane.
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

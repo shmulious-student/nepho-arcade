@@ -34,7 +34,7 @@ white building, the mural wall, the pines and the hills.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the sports court of Col·legi Hatikva in Valldoreix near Barcelona, sunny late morning: behind the court a white three-storey school building with rows of windows and an outside metal staircase, a low white wall with a blue-and-white geometric mural running along the court's edge, basketball hoops with glass backboards at both sides, a huge shade tree over wooden picnic tables at the far left, an olive tree by a glass entrance, umbrella pines and a green wooded ridge behind everything, clear blue sky. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is the empty asphalt court with faint yellow and white painted lines in one flat plane. No people, no text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the sports court of Col·legi Hatikva in Valldoreix near Barcelona, sunny late morning: behind the court a white three-storey school building with rows of windows and an outside metal staircase, a low white wall with a blue-and-white geometric mural running along the court's edge, basketball hoops with glass backboards at both sides, a huge shade tree over wooden picnic tables at the far left, an olive tree by a glass entrance, umbrella pines and a green wooded ridge behind everything, clear blue sky. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by the court's painted white back line and the low mural wall so the walkable band reads as its own strip, and everything below it is the empty asphalt court with faint yellow and white painted lines in one flat plane. No people, no text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -66,7 +66,8 @@ white building, the mural wall, the pines and the hills.
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

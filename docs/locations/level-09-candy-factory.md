@@ -25,7 +25,7 @@ pallets, safety stripes.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a small old-fashioned candy factory production floor, bright daylight from skylights: a big copper boiling kettle on a brick base with steam at the left, a taffy-pulling machine stretching red-and-white candy, a long conveyor belt carrying rows of brightly wrapped candies past a wrapping machine into a cooling tunnel, a tall glass gumball tower full of coloured balls, cartons stacked on wooden pallets and sacks of sugar, pink, yellow and mint pipes running overhead, a glass-walled control room with round dials at the far right. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is an empty grey concrete floor with yellow-and-black safety stripes along the machine bases, in one flat plane. No people, no text or brand names. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a small old-fashioned candy factory production floor, bright daylight from skylights: a big copper boiling kettle on a brick base with steam at the left, a taffy-pulling machine stretching red-and-white candy, a long conveyor belt carrying rows of brightly wrapped candies past a wrapping machine into a cooling tunnel, a tall glass gumball tower full of coloured balls, cartons stacked on wooden pallets and sacks of sugar, pink, yellow and mint pipes running overhead, a glass-walled control room with round dials at the far right. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by a yellow-and-black safety stripe along the base of the machines so the walkable band reads as its own strip, and everything below it is an empty grey concrete floor with yellow-and-black safety stripes along the machine bases, in one flat plane. No people, no text or brand names. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -52,7 +52,8 @@ pallets, safety stripes.
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

@@ -24,7 +24,7 @@ full width.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a theatre stage seen from stage level, warm gold stage lighting: deep-red velvet curtains with gold fringe tied back at both ends, a painted backcloth of a city at night with silhouetted rooftops, lit windows and a full moon spanning the middle, a lighting rig of warm spotlights and magenta and cyan gels on black bars above, stacked painted scenery flats, wooden crates, a props table with a crown and a sword, a ladder and a rail of costumes in the wings, an upright piano at the far left, footlights along the front edge. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is the empty honey-brown wooden stage floor. No people, no text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a theatre stage seen from stage level, warm gold stage lighting: deep-red velvet curtains with gold fringe tied back at both ends, a painted backcloth of a city at night with silhouetted rooftops, lit windows and a full moon spanning the middle, a lighting rig of warm spotlights and magenta and cyan gels on black bars above, stacked painted scenery flats, wooden crates, a props table with a crown and a sword, a ladder and a rail of costumes in the wings, an upright piano at the far left, footlights along the front edge. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by a row of tape marks and the bottom hem of the painted backcloth so the walkable band reads as its own strip, and everything below it is the empty honey-brown wooden stage floor. No people, no text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -51,7 +51,8 @@ full width.
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

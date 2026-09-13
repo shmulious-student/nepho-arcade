@@ -37,6 +37,9 @@ Read first, in this order:
   image attached*, the "continue this exact scene to the right" line from the Request card, also 21:9; then
   `node tools/stitch-backdrop.mjs left right plate` (it finds the overlap and blends the seam). If your tool can output
   4:1 or wider directly, do one request at 2800×700 and skip the stitch. Never accept portrait or square output.
+- The walkable band (rows 58–92%) must be **marked by a natural built element at its far edge** — kerb, wall base,
+  painted line, change of paving — so the player sees where they can walk; a plate whose ground just fades into the
+  scenery is a reject.
 - Rejects: any visible text or lettering, any person or figure, anything standing in the lane band (rows 58–92%:
   cars, benches, ponds, planters), night lighting on levels 1–5 and 10, photo texture instead of painted pixel-art.
 - **Measure the floor.** Open the stitched plate, find the row where the walkable ground begins (kerb / wall base /

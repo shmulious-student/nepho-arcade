@@ -30,7 +30,7 @@ towers (white, tall, balcony-stacked), put the clinic/shop frontage at street le
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of Refael Eitan Street in the Em HaMoshavot neighbourhood of Petah Tikva, Israel, bright afternoon. Behind a wide pavement with young ficus and palm trees, a row of tall white and cream residential towers with stacked glass balconies and rooftop pergolas, a ground-floor clinic and small shops with awnings, a planted median with a bike lane, a green playground fence at the far right. Hazy bright sky. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is an empty pavement / road in one flat plane. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of Refael Eitan Street in the Em HaMoshavot neighbourhood of Petah Tikva, Israel, bright afternoon. Behind a wide pavement with young ficus and palm trees, a row of tall white and cream residential towers with stacked glass balconies and rooftop pergolas, a ground-floor clinic and small shops with awnings, a planted median with a bike lane, a green playground fence at the far right. Hazy bright sky. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by a grey kerb with a low clipped hedge behind it so the walkable band reads as its own strip, and everything below it is an empty pavement / road in one flat plane. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -62,7 +62,8 @@ towers (white, tall, balcony-stacked), put the clinic/shop frontage at street le
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp

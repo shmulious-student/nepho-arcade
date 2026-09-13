@@ -27,7 +27,7 @@ and make the street a real Eixample street: chamfered-corner buildings, plane tr
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a Barcelona Eixample street in warm sun: centre, the Nativity façade of the Sagrada Família with its openwork sand-stone spires and a construction crane, palms and the pond of Plaça de Gaudí in front; on both sides six-storey beige modernista buildings with wrought-iron balconies and chamfered corners, plane trees, a modernista wrought-iron lamppost with a trencadís mosaic bench. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is empty pavement of grey hexagonal Gaudí tiles. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of a Barcelona Eixample street in warm sun: centre, the Nativity façade of the Sagrada Família with its openwork sand-stone spires and a construction crane, palms and the pond of Plaça de Gaudí in front; on both sides six-storey beige modernista buildings with wrought-iron balconies and chamfered corners, plane trees, a modernista wrought-iron lamppost with a trencadís mosaic bench. The ground plane's far edge is a straight horizontal line 58% down from the top, marked by a granite kerb and a row of plane-tree trunks so the walkable band reads as its own strip, and everything below it is empty pavement of grey hexagonal Gaudí tiles. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -57,7 +57,8 @@ and make the street a real Eixample street: chamfered-corner buildings, plane tr
 - **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
   far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
   everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
-  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  ponds or planters; props stay above that line or at the far sides. **The lane must be visibly marked by a natural built
+  element at its far edge** (a kerb, a wall base, a painted line, a change of paving) so a player sees where they can walk. Models tend to put the ground at 65–70% anyway —
   measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
   the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp
