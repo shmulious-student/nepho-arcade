@@ -25,6 +25,10 @@
 16:45 monk-zero sheet attempt 1 → PASS
 17:02 monk-zero idle attempt 1 → PASS (gate reports incomplete set as hero; missing files only)
 17:15 monk-zero approach attempt 1 → PASS
+17:28 savta-orly sheet attempt 1 → PASS
+17:42 savta-orly idle attempt 1 → PASS (missing files only)
+17:56 savta-orly walk attempt 1 → PASS (missing files only)
+18:10 savta-orly dash attempt 1 → PASS (missing files only)
 17:31 monk-zero attack attempt 1 → PASS (complete set present on disk)
 12:58 monk-zero attack attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
 12:59 monk-zero special attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
@@ -37,3 +41,14 @@
 12:06 market-king special attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
 12:06 market-king hurt attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
 12:06 market-king defeat attempt 1 → PASS
+2026-09-13 savta-orly walk attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly dash attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly light1 attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly light2 attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly light3 attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly heavy attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly special attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly block attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly hurt attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly knockdown attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+2026-09-13 savta-orly defeat attempt 1 → PASS — complete set; verify:character clean
