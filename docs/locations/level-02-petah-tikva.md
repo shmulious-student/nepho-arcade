@@ -5,6 +5,11 @@
 **Refael Eitan Street, Em HaMoshavot HaHadasha neighbourhood (אם המושבות החדשה), Petah Tikva — postcode 4922366; no. 3 has the Meuhedet clinic at street level.**
 
 - Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=32.10349,34.88255 — stand on the street and pan to the side the family's building is on
+- Street View frames rendered with `node tools/streetview-ref.mjs` (reference only):
+  - `docs/refs/locations/02-petah-tikva/sv-01-down-the-street.jpg`
+  - `docs/refs/locations/02-petah-tikva/sv-02-other-way.jpg`
+  - `docs/refs/locations/02-petah-tikva/sv-03-tower-entrance.jpg`
+  (panos `tV5LyR5CpqaoLy8tfuDmPA` at no. 2–10 and `lRrWPoWKUnJUw18bse3smg`; the owner confirmed this is the right street — 2019 imagery, the towers are cream stone with glass balconies, the street is a two-lane road with nose-in parking and young trees)
 - Reference photos (Wikimedia Commons, credits in [../refs/locations/CREDITS.md](../refs/locations/CREDITS.md)):
   - `docs/refs/locations/02-petah-tikva/ref-01.jpg`
   - `docs/refs/locations/02-petah-tikva/ref-02.jpg`

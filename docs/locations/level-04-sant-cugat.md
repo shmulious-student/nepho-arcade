@@ -5,6 +5,10 @@
 **Plaça d'Octavià with the Monestir de Sant Cugat, Sant Cugat del Vallès — the monastery's main façade and the square in front of it.**
 
 - Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=41.47345,2.08426 — stand in the square and face the monastery façade
+- Street View frames rendered with `node tools/streetview-ref.mjs` (reference only):
+  - `docs/refs/locations/04-sant-cugat/sv-01-monastery.jpg`
+  - `docs/refs/locations/04-sant-cugat/sv-02-square.jpg`
+  (pano `UPUA1mpcXgYmriXvDtaX9Q` on Plaça d'Octavià — the monastery's stone wall with the rose window above it and three cypresses, and the square's granite paving, plane trees, café terrace and the 1930s pastry-shop corner)
 - Reference photos (Wikimedia Commons, credits in [../refs/locations/CREDITS.md](../refs/locations/CREDITS.md)):
   - `docs/refs/locations/04-sant-cugat/ref-01.jpg`
   - `docs/refs/locations/04-sant-cugat/ref-02.jpg`

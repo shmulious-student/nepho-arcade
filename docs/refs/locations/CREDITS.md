@@ -2,9 +2,6 @@
 
 All photos below are from Wikimedia Commons, used only as drawing references for the level prompts (never shipped in the game).
 
-- `01-rishon/ref-01.jpg` — 145878 rishon lezion rothschild pedestrian street PikiWiki Israel.jpg — ישראל פרקר — CC BY 2.5 — https://commons.wikimedia.org/wiki/File:145878_rishon_lezion_rothschild_pedestrian_street_PikiWiki_Israel.jpg
-- `01-rishon/ref-02.jpg` — PikiWiki Israel 60797 founders square rishon lezion.jpg — ? — CC BY 2.5 — https://commons.wikimedia.org/wiki/File:PikiWiki_Israel_60797_founders_square_rishon_lezion.jpg
-- `01-rishon/ref-03.jpg` — Rishon-KikarHaMeyasdim-04.jpg — MathKnight — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Rishon-KikarHaMeyasdim-04.jpg
 - `02-petah-tikva/ref-01.jpg` — Em HaMoshavot 1.jpg — דוד שי — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Em_HaMoshavot_1.jpg
 - `02-petah-tikva/ref-02.jpg` — Em HaMoshavot 2.jpg — דוד שי — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Em_HaMoshavot_2.jpg
 - `02-petah-tikva/ref-03.jpg` — Em HaMoshavot Neighborhood.jpg — Nizzan Cohen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Em_HaMoshavot_Neighborhood.jpg
@@ -14,3 +11,9 @@ All photos below are from Wikimedia Commons, used only as drawing references for
 - `04-sant-cugat/ref-02.jpg` — Monestir de Sant Cugat - Façana principal.JPG — Josep Renalias — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Monestir_de_Sant_Cugat_-_Fa%C3%A7ana_principal.JPG
 - `10-catalunya/ref-01.jpg` — Barcelona (39542627044).jpg — Mike McBey — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Barcelona_(39542627044).jpg
 - `10-catalunya/ref-02.jpg` — Montserrat Spain 47 The Monastery of Santa Maria.jpg — ABruszik — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Montserrat_Spain_47_The_Monastery_of_Santa_Maria.jpg
+
+Street View frames (`*/sv-*.jpg`) are rendered from Google Street View panoramas with `tools/streetview-ref.mjs`; the
+pano id and view angles are in the `.txt` beside each frame. © Google — drawing references only, never shipped.
+
+`05-hatikva-school/` photos are from the school's own website (fundacionhatikva.org; the source URL is in the `.txt` beside
+each). Photos showing pupils are kept local only (`people-*`, gitignored).

@@ -5,6 +5,10 @@
 **Carrer de la Marina at Carrer de Mallorca, looking at the Nativity façade of the Sagrada Família — with Passeig de Gràcia (Casa Batlló block) as the second reference for the street itself.**
 
 - Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=41.40403,2.17452 — face west from Carrer de la Marina for the Nativity façade; Passeig de Gràcia is 41.3917,2.1649
+- Street View frames rendered with `node tools/streetview-ref.mjs` (reference only):
+  - `docs/refs/locations/03-barcelona/sv-01-sagrada-from-mallorca.jpg`
+  - `docs/refs/locations/03-barcelona/sv-02-eixample-street.jpg`
+  (pano `Rj4vT0_qG1lc2NHv7jJr4g` at Carrer de Mallorca 422, the corner below the Passion façade)
 - Reference photos (Wikimedia Commons, credits in [../refs/locations/CREDITS.md](../refs/locations/CREDITS.md)):
   - `docs/refs/locations/03-barcelona/ref-01.jpg`
   - `docs/refs/locations/03-barcelona/ref-02.jpg`

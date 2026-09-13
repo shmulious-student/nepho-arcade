@@ -2,32 +2,31 @@
 
 ## The place
 
-**Founders' Square (Kikar HaMeyasdim / כיכר המייסדים) and the Rothschild Street pedestrian mall — the historic centre of Rishon LeZion.**
+**HaSarig Street 31 (השריג 31), Kiryat Krinitzi / Kiryat Karmim, Rishon LeZion** — the family's street (owner, 2026-09-13).
 
-- Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=31.96439,34.80718 — the square in front of the Great Synagogue; turn to face south-west for the synagogue, north for the Rothschild mall
-- **TO CONFIRM BY THE OWNER:** this assumes the 'Rishon LeZion' level means the old town centre; if the family's own Rishon spot (a neighbourhood, a street, the beach) is meant, paste its address here and swap the references.
-- Reference photos (Wikimedia Commons, credits in [../refs/locations/CREDITS.md](../refs/locations/CREDITS.md)):
-  - `docs/refs/locations/01-rishon/ref-01.jpg`
-  - `docs/refs/locations/01-rishon/ref-02.jpg`
-  - `docs/refs/locations/01-rishon/ref-03.jpg`
-  (ref-01/02: the Great Synagogue on Founders' Square; ref-03: the Rothschild pedestrian mall)
+- Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=31.9719046,34.7769897 — the nearest pano is at
+  no. 25 (`djKZv-bN-yleA3b8uMcj5g`); yaw 5° looks down the street, 95° at the block entrances, 275° at the towers by the
+  turning circle.
+- Reference frames rendered from that pano with `node tools/streetview-ref.mjs` (Google Street View, reference only):
+  - `docs/refs/locations/01-rishon/sv-01-down-the-street.jpg`
+  - `docs/refs/locations/01-rishon/sv-02-block-entrances.jpg`
+  - `docs/refs/locations/01-rishon/sv-03-towers-and-turning-circle.jpg`
 
 ## What is actually there
 
-The Great Synagogue (1885): a white-plastered two-storey façade with a triangular gable topped by a menorah, tall arched
-windows, a black iron fence and a small forecourt with palms. Around the square: low one- and two-storey First Aliyah
-buildings in cream and ochre plaster with red-tile roofs and green shutters, the Village Well courtyard (Be'er HaMeyasdim),
-heritage plaques on stone, old-fashioned street lamps, ficus and palm trees. Rothschild Street runs off it as a pedestrian
-mall: light stone paving, café terraces under white umbrellas, small shopfronts, planters and benches.
+A quiet residential cul-de-sac paved in **red-brown interlocking brick**, with red-and-white painted kerbs and a small
+roundabout / turning circle at the end. Both sides: 6–9-storey white and cream apartment blocks with rows of balconies
+(some with light-blue glass rails, some with white bars), entrance canopies with blue-and-white signs, low red-brick
+boundary walls with hedges and shrubs, tall old ficus and eucalyptus trees, a couple of palms, cars parked nose-in along
+the kerb. Overcast-bright coastal light in the panos; paint it sunny.
 
 ## What the current plate shows (`public/game/levels/bg-01.webp`)
 
-A generic modern plaza — fountain, palms, a sculpture, glass towers behind. Nothing of the real square. Keep the wide
-open paving in the lane and the palms; replace everything behind it with the real Founders' Square.
+A generic modern plaza — fountain, palms, a sculpture, glass towers behind. Nothing of the real street. Replace it entirely.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of Founders' Square in Rishon LeZion, Israel, in bright midday sun. Centre-left: the white Great Synagogue with its triangular gable, menorah on top, tall arched windows and black iron fence, palms in front. Right: low cream and ochre 19th-century buildings with red-tile roofs and green shutters, the entrance to the Rothschild pedestrian mall with café umbrellas and small shopfronts, old lampposts, a ficus tree. The bottom third is empty light-stone paving. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of HaSarig Street in Rishon LeZion, Israel, bright morning: a quiet residential street paved in red-brown brick with red-and-white kerbs, lined on both sides by 6–8-storey white and cream apartment blocks with stacked balconies and light-blue glass balcony rails, entrance canopies, low red-brick garden walls with hedges, big old ficus trees and a couple of palms, cars parked nose-in along the far kerb, a small round turning circle at the end of the street. The bottom third is the empty brick-paved road in one flat plane. No people, no text, no cars in the lane. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 

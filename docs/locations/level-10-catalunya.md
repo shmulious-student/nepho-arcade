@@ -5,6 +5,7 @@
 **A panorama of Catalunya from the Bunkers del Carmel viewpoint above Barcelona: the Eixample grid and the Sagrada Família, the port and the sea, Tibidabo and the Collserola hills, and the saw-tooth silhouette of Montserrat on the horizon.**
 
 - Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=41.41920,2.16180 — face south-east for the city and sea, north-west for Collserola and Montserrat
+- Street View at the bunkers is user-uploaded photospheres only (no car coverage), which `tools/streetview-ref.mjs` cannot fetch — open the link and screenshot by hand if the Commons photos are not enough.
 - Reference photos (Wikimedia Commons, credits in [../refs/locations/CREDITS.md](../refs/locations/CREDITS.md)):
   - `docs/refs/locations/10-catalunya/ref-01.jpg`
   - `docs/refs/locations/10-catalunya/ref-02.jpg`

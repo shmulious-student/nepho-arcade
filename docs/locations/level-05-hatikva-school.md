@@ -2,27 +2,39 @@
 
 ## The place
 
-**HaTikva School (בית ספר התקווה) — the family's school. The exact school and city are not recorded in the repo.**
+**Col·legi Hatikva (Escola Sefardí Hatikva), Av. Mas Fuster 128, 08197 Valldoreix, Sant Cugat del Vallès** — the family's
+school (owner, 2026-09-13). Website: https://fundacionhatikva.org/instalaciones/
 
-- Street View: (fill in once the address is known: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=LAT,LNG)
-- **TO CONFIRM BY THE OWNER:** which school (city + street)? Paste the address, fill the Street View link, screenshot the entrance and the yard into `docs/refs/locations/05-hatikva-school/`, and replace 'white two-storey building with blue railings' in the prompt with what is actually there.
-- Reference photos: none yet — take 2–3 Street View screenshots of the spot into `docs/refs/locations/05-hatikva-school/` before the request.
+- Street View: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=41.4546424,2.0547125 — from the street the
+  school is only a white wall with a dark corrugated-metal fence and a rust-brown gate (`sv-01`); everything that matters
+  is inside, so the references are the school's own public photos.
+- Reference photos (from the school's website, URLs in the `.txt` next to each; reference only):
+  - `docs/refs/locations/05-hatikva-school/building-entrance.jpg` — the main building: white three-storey block with rows of
+    windows, an old olive tree in a planter by the glass entrance, a blue-tiled mosaic wall, wooden fence
+  - `docs/refs/locations/05-hatikva-school/library.png` — the library: white shelves, wooden floor
+  - `docs/refs/locations/05-hatikva-school/logo.png` — the school's olive-leaf logo (for the sign / a wall crest)
+  - `docs/refs/locations/05-hatikva-school/people-*.png` — the yard and the court (**local only, gitignored: they show
+    pupils**; re-fetch from the URLs in the `.txt` files): the covered yard under one huge tree with picnic tables and a
+    wooden play structure; the open court with painted lines, two basketball hoops, a white low wall with a blue-and-white
+    geometric mural, the building's outside metal stairs, umbrella pines and the Collserola hills behind
+  - `docs/refs/locations/05-hatikva-school/sv-01-street-and-fence.jpg` — the street outside (Street View)
 
 ## What is actually there
 
-Typical of an Israeli elementary school of this kind (to be replaced by the real one): two- or three-storey white or
-beige buildings with blue or green railings, a paved yard with a painted basketball / dodgeball court, big shade sails on
-steel poles, a large ficus tree, a wall mural painted by pupils, bike racks, a gate with the school sign, drinking-water
-troughs, benches. Sunny; the yard is the lane.
+A small private school on a wooded hillside in Valldoreix: a **white three-storey main building** with regular rows of
+windows and an outside metal staircase, an **open sports court** (grey-brown asphalt, yellow and white painted lines,
+basketball hoops with glass boards) bounded by a **low white wall with a blue-white geometric mural** and a high fence,
+umbrella pines and the green Collserola ridge right behind, a **big shade tree** over a yard with wooden picnic tables and
+a play structure, an olive tree by the glass entrance, a wall of blue mosaic tiles. Mediterranean light.
 
 ## What the current plate shows (`public/game/levels/bg-05.webp`)
 
-A white school building, a court and a shade pergola — generic but the right kind of place. Once the real school is
-known, redraw it with its actual entrance, colours, mural and yard layout.
+A generic Israeli school yard with a court and a shade pergola. Right idea, wrong place: make it this court, with the
+white building, the mural wall, the pines and the hills.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of the yard of HaTikva elementary school in Israel, sunny late morning: behind the yard a white two-storey school building with blue railings and a covered walkway, a colourful pupils' mural on one wall, a big ficus tree, shade sails on steel poles, a basketball hoop at the side, bike racks and benches by the fence, the school's entrance gate at the far left. The bottom third is the empty paved yard with faint painted court lines. No people, no text, no cars. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of the sports court of Col·legi Hatikva in Valldoreix near Barcelona, sunny late morning: behind the court a white three-storey school building with rows of windows and an outside metal staircase, a low white wall with a blue-and-white geometric mural running along the court's edge, basketball hoops with glass backboards at both sides, a huge shade tree over wooden picnic tables at the far left, an olive tree by a glass entrance, umbrella pines and a green wooded ridge behind everything, clear blue sky. The bottom third is the empty asphalt court with faint yellow and white painted lines in one flat plane. No people, no text. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 
