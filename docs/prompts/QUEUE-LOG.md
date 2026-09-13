@@ -13,3 +13,12 @@
 14:33 pitz committed: PASS — baseline escalation step 1 (failing rule first and bolded)
 14:38 glass-warden hurt attempt 1 → PASS
 14:45 glass-warden defeat attempt 1 → PASS
+14:58 kilnheart sheet attempt 1 → PASS
+15:05 kilnheart idle attempt 1 → PASS (gate reports incomplete set as hero; missing files only)
+15:16 kilnheart approach attempt 1 → PASS
+15:24 kilnheart attack attempt 1 → FAIL: frames 1–3 feet are 57 px off the row's baseline — identical bottom-centre anchor in all 9 cells
+15:36 kilnheart attack attempt 2 → PASS
+15:47 kilnheart special attempt 1 → FAIL: figure is larger than in the other files (694 vs 562 px tall) — one character, one size, in every file
+15:58 kilnheart special attempt 2 → PASS
+16:10 kilnheart hurt attempt 1 → PASS
+16:22 kilnheart defeat attempt 1 → PASS

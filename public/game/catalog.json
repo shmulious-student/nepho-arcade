@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-13T09:28:17.505Z",
+ "generatedAt": "2026-09-13T10:10:09.434Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -3702,12 +3702,12 @@
    "atlas": "chars/kilnheart.webp",
    "data": "chars/kilnheart.json",
    "box": {
-    "w": 234,
-    "h": 207
+    "w": 474,
+    "h": 368
    },
    "anchor": {
-    "x": 117,
-    "y": 203
+    "x": 237,
+    "y": 364
    },
    "rows": [
     "idle",
@@ -3717,8 +3717,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 1.0414,
+   "framesPerRow": 9,
+   "scale": 0.5352,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -3729,9 +3730,14 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-02-kilnheart-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/kilnheart/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
     "feathered binary alpha"
    ]
   },
