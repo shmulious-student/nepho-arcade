@@ -2,8 +2,10 @@ import Phaser from 'phaser';
 import type { EntityView as EntityViewData } from '../sim/types';
 import { worldToScreenX, worldToScreenY } from './EntityView';
 import { FLOOR_TOP } from '../sim/types';
+import { PITZ, pitzFrame } from '../sim/frameData';
+import type { Catalog, CharacterEntry } from '../shared/catalog';
 
-/** Draws the things bosses throw and lay down — projectiles (hook, shard, bolt) and hazards (blast,
+/** Draws the things bosses throw and lay down — projectiles (hook, shard, bolt, shmuel's cat) and hazards (blast,
  * ring, orb, fog, smoke, wall) — so nothing that can hurt the player is ever invisible. All in-engine
  * shapes: each has a footprint on the floor and a body at its height. A hazard's `scale` is its
  * radius (or width) and `phase` is 0 while it is still a telegraph, 1 once it is live. */
@@ -12,12 +14,28 @@ export class HazardView {
   private g: Phaser.GameObjects.Graphics;
   private kind: string;
   private seenTick = 0;
+  /** the one projectile with painted art: Pitz, Shmuel's cat — animated from his own atlas
+   * (actions/pitz/, leap → run → pounce) when it is built, else the single pose cut from Shmuel's
+   * character sheet (fx/pitz.webp, drawn facing right) */
+  private sprite: Phaser.GameObjects.Image | null = null;
+  private pitz: CharacterEntry | null = null;
+  private lastFrame = '';
 
   constructor(scene: Phaser.Scene, e: EntityViewData, container: Phaser.GameObjects.Container) {
     this.id = e.id;
     this.kind = e.arch;
     this.g = scene.add.graphics();
     container.add(this.g);
+    if (e.arch === 'cat') {
+      const def = (scene.registry.get('catalog') as Catalog | undefined)?.characters.pitz;
+      if (def && scene.textures.exists('pitz')) {
+        this.pitz = def;
+        this.sprite = scene.add.image(0, 0, 'pitz', 'run/0').setOrigin(def.anchor.x / def.box.w, def.anchor.y / def.box.h).setScale(def.renderScale ?? 1);
+      } else if (scene.textures.exists('fx-pitz')) {
+        this.sprite = scene.add.image(0, 0, 'fx-pitz').setOrigin(0.5, 1);
+      }
+      if (this.sprite) container.add(this.sprite);
+    }
   }
 
   update(e: EntityViewData, cameraX: number, tick: number): void {
@@ -48,6 +66,30 @@ export class HazardView {
       case 'bolt': {
         g.fillStyle(0xff76c8, 0.95); g.fillEllipse(sx, sy, 22, 10);
         g.fillStyle(0xfff2fb, 1); g.fillEllipse(sx + e.facing * 4, sy, 10, 4);
+        break;
+      }
+      case 'cat': {
+        // Pitz down the lane out of Shmuel's cyan pixel portal (mirrored to the way he runs), with a
+        // wake of the portal's pixels breaking up behind him. Phase 1 is the leap and the gallop,
+        // phase 2 the pounce and skid (sim: stepPitz); he dissolves into portal pixels at the end.
+        const f = e.facing;
+        const ending = e.phase === 2 ? Math.max(0, (e.st - (PITZ.pounce - 10)) / 10) : 0; // 0 → 1 over the last 10 ticks
+        g.fillStyle(0x000000, 0.25 * (1 - ending)); g.fillEllipse(sx, floorY, 56, 12);
+        g.fillStyle(0x35e8ff, 0.6);
+        const wake = e.phase === 2 ? 3 : 7;
+        for (let i = 1; i <= wake; i++) { const k = (i * 9 + t * 3) % 54; g.fillRect(sx - f * (30 + k) - 3, sy - 8 - ((i * 13 + t) % 30), 6, 6); }
+        if (ending > 0) { g.fillStyle(0x35e8ff, 0.8); for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2 + t / 5; g.fillRect(sx + Math.cos(a) * 30 * ending - 3, sy - 16 + Math.sin(a) * 18 * ending - 3, 6, 6); } }
+        if (this.sprite && this.pitz) {
+          const fr = pitzFrame(e.phase, e.st);
+          const key = `${fr.row}/${fr.frame}`;
+          if (key !== this.lastFrame) { this.sprite.setFrame(key); this.lastFrame = key; }
+          this.sprite.setPosition(sx, sy).setFlipX(f < 0).setDepth(g.depth).setAlpha(1 - ending);
+        } else if (this.sprite) {
+          const bound = Math.abs(Math.sin(t / 4)) * 6;
+          this.sprite.setPosition(sx, sy + 4 - bound).setFlipX(f < 0).setDepth(g.depth).setDisplaySize(80, 80 * 299 / 515).setAlpha(1 - ending);
+        } else {
+          g.fillStyle(0x9a8b78, 1 - ending); g.fillEllipse(sx, sy - 12, 60, 24);
+        }
         break;
       }
       case 'blast': {
@@ -99,5 +141,5 @@ export class HazardView {
   }
 
   staleSince(tick: number): boolean { return tick - this.seenTick > 3; }
-  destroy(): void { this.g.destroy(); }
+  destroy(): void { this.g.destroy(); this.sprite?.destroy(); }
 }

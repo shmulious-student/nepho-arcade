@@ -50,10 +50,12 @@ export class LobbyScene extends Phaser.Scene {
     this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
     this.add.text(VIEW_W / 2, 68, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
 
-    // one card per roster hero (public/game/roster.json), 180 wide with 160px art, centred
-    const cardsX = (VIEW_W - (HERO_IDS.length * 196 - 16)) / 2;
+    // one card per roster hero (public/game/roster.json), 180 wide with 160px art, centred; the
+    // gap between cards closes up when the whole roster is in so five still fit the view
+    const pitch = Math.min(196, Math.floor((VIEW_W - 24) / HERO_IDS.length));
+    const cardsX = Math.floor((VIEW_W - (HERO_IDS.length * pitch - (pitch - 180))) / 2);
     this.add.text(cardsX, 84, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, cardsX + i * 196, 100, 0));
+    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, cardsX + i * pitch, 100, 0));
 
     const coopBtn = this.makeButton(VIEW_W - 150, 316, 126, 26, 'LAN CO-OP: OFF', () => {
       this.coop = !this.coop;

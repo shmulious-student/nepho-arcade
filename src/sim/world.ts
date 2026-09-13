@@ -1,7 +1,7 @@
 // Deterministic simulation world. No Phaser import. step(inputs) advances exactly one 60Hz tick.
 import { Rng } from './rng';
 import { makeEntity, setState, isDown } from './entity';
-import { stepHero, clampHero } from './fighter';
+import { stepHero, clampHero, stepPitz } from './fighter';
 import { stepEnemy } from './enemyAi';
 import { stepBoss, stepHazard, stepProjectile, BOSS_DEFS, setDeck } from './bosses';
 import { stepFriends, assistReadiness, type FriendMode, type FriendSetup } from './friends';
@@ -248,7 +248,7 @@ export class World {
       if (e.dead && (e.kind === 'projectile' || e.kind === 'hazard' || e.kind === 'pickup')) continue;
       if (e.kind === 'enemy') stepEnemy(this, e);
       else if (e.kind === 'boss' || e.kind === 'echo') stepBoss(this, e);
-      else if (e.kind === 'projectile') stepProjectile(this, e);
+      else if (e.kind === 'projectile') e.arch === 'cat' ? stepPitz(this, e) : stepProjectile(this, e);
       else if (e.kind === 'hazard') stepHazard(this, e);
       else if (e.kind === 'pickup') stepPickup(this, e);
     }

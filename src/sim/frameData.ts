@@ -62,7 +62,7 @@ export interface HeroDef {
   hp: number;
   speed: number;
   dmgMul: number;
-  special: 'burst' | 'volley' | 'splash' | 'wave';
+  special: 'burst' | 'volley' | 'splash' | 'wave' | 'cat';
   colour: number;
   /** second identity colour, used by effects that alternate (paint splats, music notes) */
   colour2?: number;
@@ -78,11 +78,44 @@ export const HEROES: Record<HeroId, HeroDef> = {
   omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 115, speed: 3.1, dmgMul: 0.9, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
   nepho: { id: 'nepho', name: 'NEPHO', gender: 'male', bias: 'Balanced · radial burst', hp: 130, speed: 2.6, dmgMul: 1, special: 'burst', colour: 0x75f5dc, cardKey: 'card-nepho' },
   byte: { id: 'byte', name: 'BYTE', gender: 'female', bias: 'Ranged · four-shot volley', hp: 120, speed: 2.7, dmgMul: 0.95, special: 'volley', colour: 0xff76c8, cardKey: 'card-byte' },
+  // Shmuel: bearded grown-up in a blue-and-garnet striped jersey, black shorts and fingerless gloves,
+  // a bare-knuckle boxer. Tough and steady; his special opens a cyan pixel portal and sends his tabby
+  // cat pouncing across the lane, flooring everyone in its path.
+  shmuel: { id: 'shmuel', name: 'SHMUEL', gender: 'male', bias: 'Tough · cat pounce', hp: 150, speed: 2.5, dmgMul: 1.1, special: 'cat', colour: 0x35e8ff, colour2: 0xa61e3c, cardKey: 'card-shmuel' },
 };
 
-// Eviatar and Omri lead the roster; Nepho and Byte are their friends — playable too, and the pool an
-// assist / sidekick is chosen from.
-export const HERO_IDS: HeroId[] = ['eviatar', 'omri', 'nepho', 'byte'];
+// Eviatar and Omri lead the roster; Nepho, Byte and Shmuel are their friends — playable too, and the
+// pool an assist / sidekick is chosen from.
+export const HERO_IDS: HeroId[] = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
+
+// Pitz — Shmuel's cat, the projectile his special releases. His run down the lane is three beats the
+// renderer plays from the cat's own atlas (actions/pitz/: leap → run loop → pounce) and the sim moves
+// him by; both read this table so the frames and the speed agree. Ticks at 60 Hz.
+export const PITZ = {
+  /** bursting out of the portal: 9 frames over 18 ticks, speed ramping up */
+  leap: 18,
+  /** the gallop loop: 9 frames every 27 ticks, for at most this long — but it ends early with a
+   * pounce as soon as the cat nears the far edge of the view, so the finish is always on screen */
+  run: 120,
+  runLoop: 27,
+  /** the finish: springs, claws out, lands and skids to a stop, then dissolves back into portal pixels */
+  pounce: 32,
+  leapSpeed: 2, runSpeed: 3.5,
+};
+/** World px per tick while leaping/running, by ticks since release. */
+export function pitzRunSpeed(st: number): number {
+  return st < PITZ.leap ? PITZ.leapSpeed + (PITZ.runSpeed - PITZ.leapSpeed) * (st / PITZ.leap) : PITZ.runSpeed;
+}
+/** World px per tick during the pounce, by ticks since it began: full speed through the spring, then a skid to a stop. */
+export function pitzPounceSpeed(st: number): number {
+  return PITZ.runSpeed * Math.max(0, 1 - Math.max(0, st - 10) / 14);
+}
+/** Which of the cat's frames is on show: `phase` 1 is leap/run (st since release), 2 the pounce (st since it began). */
+export function pitzFrame(phase: number, st: number): { row: 'leap' | 'run' | 'pounce'; frame: number } {
+  if (phase === 2) return { row: 'pounce', frame: Math.min(8, Math.floor((st * 9) / PITZ.pounce)) };
+  if (st < PITZ.leap) return { row: 'leap', frame: Math.min(8, Math.floor((st * 9) / PITZ.leap)) };
+  return { row: 'run', frame: Math.floor((((st - PITZ.leap) % PITZ.runLoop) * 9) / PITZ.runLoop) };
+}
 
 export const METER_MAX = 100;
 export const METER_PER_HIT = 8;

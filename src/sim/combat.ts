@@ -11,7 +11,7 @@ export function activeHitbox(e: Entity): Hitbox | null {
     case 'hero': return heroActiveHit(e);
     case 'enemy': return enemyActiveHit(e);
     case 'boss': case 'echo': return bossActiveHit(e);
-    case 'projectile': return e.ttl > 0 && e.pphase === 1 ? projectileHit(e) : null;
+    case 'projectile': return e.ttl > 0 && e.pphase >= 1 ? projectileHit(e) : null; // phase 2 is Pitz's pounce, still live
     case 'hazard': return e.pphase === 1 ? (hazardHit(e.id) || null) : null;
     case 'pickup': return null;
   }

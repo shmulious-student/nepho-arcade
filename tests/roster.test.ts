@@ -115,7 +115,7 @@ describe('applyRoster', () => {
     r.characters.byte.enabled = false;
     applyRoster(r);
     expect(ACTIVE_HEROES).toEqual(HERO_IDS.filter((h) => h !== 'byte'));
-    r.characters.nepho.enabled = false; r.characters.omri.enabled = false;
+    r.characters.nepho.enabled = false; r.characters.omri.enabled = false; r.characters.shmuel.enabled = false;
     const res = applyRoster(r);
     expect(ACTIVE_HEROES).toEqual(HERO_IDS);
     expect(res.warnings.join()).toMatch(/at least two/);

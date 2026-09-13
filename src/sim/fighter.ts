@@ -1,5 +1,5 @@
 import { BTN, type InputFrame } from './input';
-import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, HITSTUN_SHIFT, total, type MoveDef } from './frameData';
+import { HERO_MOVES, HEROES, METER_MAX, GRAVITY, JUMP_VZ, HITSTUN_SHIFT, PITZ, pitzRunSpeed, pitzPounceSpeed, total, type MoveDef } from './frameData';
 import { LANE_H, VISIBLE_X0, VISIBLE_W, HERO_EDGE, type Entity, type Hitbox, type HeroId } from './types';
 import { setState } from './entity';
 import { STUN_TICKS } from './combat';
@@ -17,6 +17,8 @@ export function heroSpecialHit(heroId: HeroId): Hitbox | null {
     case 'splash': return { dx: 60, dy: 0, w: 190, h: 150, dmg: 58, hitstun: 32, kb: 9, knockdown: true };
     // a sonic shockwave in every direction, on the beat
     case 'wave': return { dx: 0, dy: 0, w: 0, h: 140, dmg: 46, hitstun: 30, kb: 7, launch: 9, radius: 170 };
+    // the cat is a projectile (see stepHero); the portal itself does no damage
+    case 'cat': return null;
   }
 }
 
@@ -55,7 +57,31 @@ function startMove(w: World, e: Entity, state: string): void {
   if (state === 'dash') w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id });
 }
 
-const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, byte: 3 };
+// the cat leaves the portal this many ticks into the special's active window
+const CAT_RELEASE = 6;
+
+/** Pitz's run, stepped by the world in place of the generic projectile step: leaps out of the portal
+ * and gallops down the lane (phase 1), then — near the far edge of the view, or once the run has gone
+ * on long enough — springs into a pounce and skids to a stop (phase 2, `st` restarted so the renderer
+ * can time the pounce frames), and is gone. Every enemy on the way is floored once (pierce). */
+export function stepPitz(w: World, e: Entity): void {
+  e.st++;
+  if (e.pphase === 2) {
+    e.vx = e.facing * pitzPounceSpeed(e.st);
+    e.x += e.vx;
+    if (e.st >= PITZ.pounce) { e.ttl = 0; e.dead = true; e.removeAt = w.tick + 1; }
+    return;
+  }
+  e.pphase = 1;
+  e.vx = e.facing * pitzRunSpeed(e.st);
+  e.x += e.vx;
+  // the pounce carries him ~60 px further, so it is called this far inside the band to land in view
+  const edge = e.facing > 0 ? w.cameraX + VISIBLE_X0 + VISIBLE_W - 130 : w.cameraX + VISIBLE_X0 + 130;
+  const atEdge = e.facing > 0 ? e.x >= edge : e.x <= edge;
+  if (atEdge || e.st >= PITZ.leap + PITZ.run) { e.pphase = 2; e.st = 0; }
+}
+
+const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, nepho: 2, byte: 3, shmuel: 4 };
 
 /** The dash chord: DASH held together with exactly one horizontal direction. Returns the direction
  * (1 right, -1 left) or 0 when the chord is not held. */
@@ -205,6 +231,12 @@ export function stepHero(w: World, e: Entity, input: InputFrame): void {
     // omri's sonic beat: three pulses on the beat, each a ring of sound from the microphone
     if (s === 'special' && def.special === 'wave' && e.st >= move.startup && e.st < move.startup + move.active && (e.st - move.startup) % 4 === 0) {
       w.emit({ type: 'note', x: e.x, y: e.y, z: 50, id: e.id, a: (e.st - move.startup) / 4 });
+    }
+    // shmuel's cat: the portal opens over the active window, then the cat pounces out of it and runs
+    // the lane — one piercing floor-level projectile that floors everyone it passes through once
+    if (s === 'special' && def.special === 'cat' && e.st === move.startup + CAT_RELEASE) {
+      const cat = w.spawnProjectile(e, 'cat', e.x + e.facing * 70, e.y, 0, e.facing * PITZ.leapSpeed, { dx: 0, dy: 0, w: 90, h: 70, dmg: 44, hitstun: 30, kb: 6, knockdown: true, pierce: true });
+      cat.ttl = PITZ.leap + PITZ.run + PITZ.pounce + 2; // its life is the run's, not a generic projectile's (stepPitz ends it)
     }
     // cancels: once the hit frames have had their chance, a light chains on and a heavy ends the string
     if (move.cancelFrom !== undefined && e.st >= move.cancelFrom) {

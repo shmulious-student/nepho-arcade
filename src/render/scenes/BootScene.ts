@@ -48,6 +48,7 @@ export class BootScene extends Phaser.Scene {
     for (const b of catalog.bosses) this.load.image(`portrait-${b.id}`, assetUrl(b.portrait));
     for (const h of catalog.heroes) this.load.image(`card-${h}`, assetUrl(`cards/${h}.webp`));
     this.load.svg('logo', assetUrl('ui/logo.svg'), { width: 216, height: 64 });
+    this.load.image('fx-pitz', assetUrl('fx/pitz.webp')); // Shmuel's cat, the body of his special's projectile
 
     this.load.once('complete', () => this.scene.start('Lobby'));
     this.load.once('loaderror', (file: Phaser.Loader.File) => console.warn('asset failed to load:', file.key, file.url));

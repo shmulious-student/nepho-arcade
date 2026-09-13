@@ -25,6 +25,12 @@
    "enabled": false,
    "levels": []
   },
+  "shmuel": {
+   "name": "SHMUEL",
+   "rank": "hero",
+   "enabled": true,
+   "levels": []
+  },
   "punk": {
    "name": "Punk",
    "rank": "enemy",

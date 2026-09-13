@@ -4,7 +4,7 @@ Every character that still needs art, each with a complete, self-contained promp
 [character art standard](../character-art-standard.md). **Work the queue top to bottom, one file at a
 time, one image request at a time**; a character counts as done when
 `npm run verify:character -- <id>` prints `PASS` and `npm run build:assets && npm run test:assets` are
-clean. The orchestration prompt for an agent running the whole queue is [codex-queue.md](codex-queue.md).
+clean. The queue runs unattended with `npm run art:queue` ([art-pipeline.md](../art-pipeline.md)); [codex-queue.md](codex-queue.md) is the equivalent brief for an agent doing it by hand.
 
 Standing on 2026-09-13 (`npm run readiness`): 13 ready, 1 failed (nepho), 15 legacy, plus one
 by-eye fix the gate cannot see (shmuel `dash`) and one gate failure on an fx set (pitz `run`).

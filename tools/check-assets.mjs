@@ -85,7 +85,7 @@ const catalogPath = join(OUT, 'catalog.json');
 check(existsSync(catalogPath), 'catalog.json missing (run npm run build:assets)');
 if (existsSync(catalogPath)) {
   const cat = JSON.parse(readFileSync(catalogPath, 'utf8'));
-  check(cat.heroes.length === 4, 'four heroes expected');
+  check(cat.heroes.length >= 4, 'at least the four founding heroes expected'); // plus every later hero whose set is complete
   check(cat.enemies.length >= 6, 'at least six enemies expected');
   check(cat.bosses.length >= 10, 'the ten campaign bosses expected'); // plus any extra sets the roster can place
   check(cat.levels.length === 10, 'ten levels expected');
@@ -120,7 +120,7 @@ if (existsSync(catalogPath)) {
   }
   for (const b of cat.bosses) check(existsSync(join(OUT, b.portrait)), `portrait ${b.id} missing`);
   for (const h of cat.heroes) check(existsSync(join(OUT, 'cards', `${h}.webp`)), `card ${h} missing`);
-  // 28 MB: the original 16 MB, two full-detail 9-frame hero atlases (~1.5 MB each), then the four
+  // 28 MB: the original 16 MB, three full-detail 9-frame hero atlases (~1.5 MB each), then the four
   // per-action enemy sets and four boss sets (~1-1.7 MB each) added in the 2026-09 art pass
   check(total < 28 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
   console.log(`runtime pack: ${(total / 1048576).toFixed(1)} MB across characters+levels`);

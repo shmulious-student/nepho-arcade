@@ -1,6 +1,6 @@
 // Pre-build acceptance gate for a delivered per-action character set (docs/character-art-standard.md).
 //
-//   node tools/verify-character.mjs <id> [--rank hero|enemy|boss] [--lenient]
+//   node tools/verify-character.mjs <id> [--rank hero|enemy|boss|fx] [--lenient]
 //
 // Reads public/assets/generated/actions/<id>/*.png and holds every file and every cell to the
 // standard the game and the build actually depend on — the things that, when they were missed,
@@ -26,6 +26,9 @@ export const ACTIONS = {
   hero: ['idle', 'walk', 'dash', 'light1', 'light2', 'light3', 'heavy', 'special', 'block', 'hurt', 'knockdown', 'defeat'],
   enemy: ['idle', 'walk', 'attack', 'heavy', 'special', 'guard', 'hurt', 'knockback', 'getup', 'defeat'],
   boss: ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'],
+  // an animated effect sprite (Pitz, Shmuel's cat): a creature, not a fighter — its size is judged
+  // on its longest extent, since a running cat is wider than it is tall
+  fx: ['run', 'leap', 'pounce'],
 };
 
 /** Runs the gate on public/assets/generated/actions/<id>; returns { rank, present, fails, warns } or
@@ -195,10 +198,12 @@ for (const action of actions) {
   }
   // baseline: feet on one line in the grounded rows
   // rows whose feet never leave the ground (heavy/special/light3 may jump or spin)
-  const grounded = ['idle', 'walk', 'attack', 'light1', 'light2', 'block', 'guard', 'approach'].includes(action);
+  // (an fx creature's run is a gallop: a bound may leave the baseline upward, never sink below it)
+  const grounded = ['idle', 'walk', 'attack', 'light1', 'light2', 'block', 'guard', 'approach', 'run'].includes(action);
   if (grounded) {
     const bottoms = valid.map((r) => r.bottom); const medB = median(bottoms);
-    valid.forEach((r, i) => { if (Math.abs(r.bottom - medB) > pf.cw * 0.08) warn(`${tag}: frame ${i + 1} feet are ${Math.round(r.bottom - medB)} px off the row's baseline — identical bottom-centre anchor in all 9 cells`); });
+    const off = (r) => (rank === 'fx' && action === 'run' ? r.bottom - medB : Math.abs(r.bottom - medB));
+    valid.forEach((r, i) => { if (off(r) > pf.cw * 0.08) warn(`${tag}: frame ${i + 1} feet are ${Math.round(r.bottom - medB)} px off the row's baseline — identical bottom-centre anchor in all 9 cells`); });
     const xs = valid.map((r) => r.cx); const medX = median(xs);
     valid.forEach((r, i) => { if (Math.abs(r.cx - medX) > pf.cw * 0.18) warn(`${tag}: frame ${i + 1} is ${Math.round(r.cx - medX)} px off the row's centre axis — the body stays on one vertical axis`); });
   }
@@ -211,13 +216,19 @@ for (const action of actions) {
 const files = actions.filter((a) => perFile[a]);
 // (a lying row — defeat, knockdown, knockback, getup — may hold only one upright frame, so it uses its
 // tallest; every other row uses its second tallest so one jumping or wings-up frame does not count)
-const standing = Object.fromEntries(files.map((a) => { const hs = perFile[a].info.filter(Boolean).map((r) => r.h).sort((x, y) => y - x); const lying = ['defeat', 'knockdown', 'knockback', 'getup'].includes(a); return [a, hs[lying ? 0 : Math.min(1, hs.length - 1)]]; }));
+// (an fx creature is measured on its longest extent — a cat is long, not tall)
+const extent = (r) => (rank === 'fx' ? Math.max(r.w, r.h) : r.h);
+const standing = Object.fromEntries(files.map((a) => { const hs = perFile[a].info.filter(Boolean).map(extent).sort((x, y) => y - x); const lying = ['defeat', 'knockdown', 'knockback', 'getup'].includes(a); return [a, hs[lying ? 0 : Math.min(1, hs.length - 1)]]; }));
 const refH = median(Object.values(standing));
 for (const a of files) {
-  if (Math.abs(standing[a] - refH) > refH * 0.2) fail(`${a}.png: the figure is ${standing[a] > refH ? 'larger' : 'smaller'} than in the other files (${Math.round(standing[a])} vs ${Math.round(refH)} px tall) — one character, one size, in every file`);
+  if (Math.abs(standing[a] - refH) > refH * 0.2) fail(`${a}.png: the figure is ${standing[a] > refH ? 'larger' : 'smaller'} than in the other files (${Math.round(standing[a])} vs ${Math.round(refH)} px ${rank === 'fx' ? 'across' : 'tall'}) — one character, one size, in every file`);
 }
 const upright = files.filter((a) => ['idle', 'walk', 'attack', 'heavy', 'light1', 'light2', 'block', 'guard', 'approach'].includes(a));
-if (refH && refH < perFile[files[0]]?.cw * 0.45) warn(`figure is small in its cell (${Math.round(refH)} px of ${Math.round(perFile[files[0]].cw)}) — fill 55–75% of the cell height`);
+if (refH && refH < perFile[files[0]]?.cw * 0.45) warn(`figure is small in its cell (${Math.round(refH)} px of ${Math.round(perFile[files[0]].cw)}) — fill 55–75% of the cell ${rank === 'fx' ? 'width' : 'height'}`);
+// the run loops like a walk: frame 9 leads back into frame 1
+if (rank === 'fx' && perFile.run && perFile.run.info.every(Boolean)) {
+  const s = perFile.run.info; if (diff(s[0].sig, s[8].sig) > 0.4) note('run.png: frame 9 looks far from frame 1 — the run loops; confirm on /showcase.html?row=run that the last frame leads back into the first');
+}
 // guard / block / idle / walk never leave the feet: every frame stays upright
 for (const a of files.filter((a) => ['idle', 'walk', 'guard', 'block'].includes(a))) {
   const own = Math.max(...perFile[a].info.filter(Boolean).map((r) => r.h));
@@ -271,7 +282,7 @@ const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.arg
 if (isMain) {
   const args = process.argv.slice(2);
   const id = args.find((a) => !a.startsWith('--'));
-  if (!id) { console.error('usage: node tools/verify-character.mjs <id> [--rank hero|enemy|boss] [--lenient]'); process.exit(2); }
+  if (!id) { console.error('usage: node tools/verify-character.mjs <id> [--rank hero|enemy|boss|fx] [--lenient]'); process.exit(2); }
   const res = await verifyCharacter(id, { rank: args.includes('--rank') ? args[args.indexOf('--rank') + 1] : null, lenient: args.includes('--lenient') });
   if (!res) { console.error(`no such set: public/assets/generated/actions/${id}`); process.exit(2); }
   console.log(`verify-character ${id} (${res.rank}, ${res.actions.length} actions, ${res.present.length} files present)`);

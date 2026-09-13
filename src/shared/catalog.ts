@@ -1,7 +1,9 @@
 // Types + loader for public/game/catalog.json, the runtime asset manifest produced by
 // tools/build-assets.mjs. Shared between the sim (for id lists) and the renderer (for atlas keys).
 
-export type CharKind = 'hero' | 'enemy' | 'boss';
+/** 'fx' is an animated effect sprite the renderer draws over a sim projectile (Pitz), built from a
+ * per-action set like a character but with no roster entry, state machine or head rig. */
+export type CharKind = 'hero' | 'enemy' | 'boss' | 'fx';
 
 export interface CharacterEntry {
   id: string;
@@ -50,6 +52,8 @@ export interface Catalog {
   generatedAt: string;
   characters: Record<string, CharacterEntry>;
   heroes: string[];
+  /** effect sprites built from a per-action set (Pitz); absent in packs built before them */
+  fx?: string[];
   enemies: string[];
   bosses: BossEntry[];
   levels: LevelEntry[];

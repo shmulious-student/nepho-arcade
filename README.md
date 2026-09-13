@@ -1,8 +1,10 @@
 # Nepho: Circuit Breakers
 
 A browser-based mobile 2D arcade beat-em-up starring **Eviatar** (basketball kit, magic paint
-markers, paint-splash special) and **Omri** (capoeira, a microphone, sonic-beat special), with Nepho
-and Byte as the friends who fight beside them — all four playable. Old-school side-scrolling co-op action — light/heavy
+markers, paint-splash special), **Omri** (capoeira, a microphone, sonic-beat special) and **Shmuel**
+(striped jersey, bare knuckles, and a special that opens a pixel portal for his cat **Pitz** to pounce
+down the lane), with Nepho and Byte as the friends who fight beside them — all five playable.
+Old-school side-scrolling co-op action — light/heavy
 combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
 final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins
 over LAN from their own phone.
@@ -85,7 +87,10 @@ vitest suite, and produce a production build.
 ## Asset pipeline
 
 `public/assets/generated/` holds the hand-authored/generated PNG masters (hero and enemy action
-grids, ten boss grids plus per-action sets for four more bosses, backdrops, bilingual sign SVGs). `npm run build:assets` slices and normalizes
+grids, ten boss grids plus per-action sets for four more bosses, backdrops, bilingual sign SVGs, and
+`fx/` — sprites the renderer draws over sim projectiles, currently Pitz cut from Shmuel's character
+sheet; his animated set — `actions/pitz/{leap,run,pounce}.png`, rank `fx`, prompt in
+`docs/prompts/pitz.md` — replaces that single pose the moment it passes the gate). `npm run build:assets` slices and normalizes
 them into `public/game/` — the only thing the running game ever loads. Re-run it any time a master is
 replaced; the pipeline auto-detects grid layout (even inconsistent cell sizes), trims per-frame boxes,
 defringes matte halos, and computes a per-frame head anchor (kept in the catalog for future use). `public/game/debug/`

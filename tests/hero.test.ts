@@ -4,6 +4,7 @@ import { BTN, type InputFrame } from '../src/sim/input';
 import { VISIBLE_X0, VISIBLE_W, LANE_H } from '../src/sim/types';
 import { makeEntity } from '../src/sim/entity';
 import { ENEMY_DEFS } from '../src/sim/enemyAi';
+import { PITZ } from '../src/sim/frameData';
 
 const NONE: InputFrame = { held: 0, pressed: 0 };
 const press = (b: number): InputFrame => ({ held: b, pressed: b });
@@ -23,6 +24,57 @@ function addEnemy(w: World, x: number, y: number) {
 }
 
 describe('hero', () => {
+  it("shmuel's special sends the cat down the lane: one piercing projectile that floors every enemy it passes, each once", () => {
+    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
+    while (w.phase === 'entry') w.step([NONE, NONE]);
+    const h = w.players[0]!;
+    h.facing = 1; h.meter = 100;
+    const near = addEnemy(w, h.x + 140, h.y), far = addEnemy(w, h.x + 420, h.y), behind = addEnemy(w, h.x - 120, h.y);
+    const hp = [near.hp, far.hp, behind.hp];
+    w.step([press(BTN.SPECIAL), NONE]);
+    expect(h.state).toBe('special');
+    let cat: any = null;
+    for (let i = 0; i < 120; i++) {
+      w.step([NONE, NONE]);
+      cat ||= w.entities.find((e) => e.kind === 'projectile' && e.arch === 'cat') || null;
+    }
+    expect(cat, 'no cat was released').not.toBeNull();
+    expect(cat.friendly).toBe(true);
+    expect(near.hp).toBeLessThan(hp[0]);
+    expect(far.hp).toBeLessThan(hp[1]);
+    expect(behind.hp).toBe(hp[2]); // it runs forward only
+    // one bite each: the damage on both is the same single hit, not a hit per tick of overlap
+    expect(hp[0] - near.hp).toBe(hp[1] - far.hp);
+    expect(['knockdown', 'getup', 'idle', 'walk', 'defeat'].includes(near.state) || near.hp <= 0).toBe(true);
+  });
+
+  it("pitz's run is leap → gallop → pounce at the far edge of the view, all of it on screen, then he is gone", () => {
+    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
+    while (w.phase === 'entry') w.step([NONE, NONE]);
+    const h = w.players[0]!;
+    h.facing = 1; h.meter = 100;
+    w.step([press(BTN.SPECIAL), NONE]);
+    let cat: any = null, pounceAt = -1, maxX = -Infinity, ticks = 0;
+    for (let i = 0; i < 400; i++) {
+      w.step([NONE, NONE]);
+      const c = w.entities.find((e) => e.kind === 'projectile' && e.arch === 'cat');
+      if (c) {
+        cat = c; ticks++;
+        maxX = Math.max(maxX, c.x);
+        if (c.pphase === 2 && pounceAt < 0) pounceAt = ticks;
+        if (c.pphase === 1) expect(c.vx).toBeGreaterThan(0);
+      } else if (cat) break;
+    }
+    expect(cat, 'no cat was released').not.toBeNull();
+    expect(pounceAt, 'the run never turned into a pounce').toBeGreaterThan(PITZ.leap);
+    // the pounce happens inside the visible band, and he stops before its edge
+    expect(maxX).toBeLessThanOrEqual(w.cameraX + VISIBLE_X0 + VISIBLE_W);
+    // on screen for the leap, at least one gallop loop, and the whole pounce — but never past the cap
+    expect(ticks).toBeGreaterThanOrEqual(PITZ.leap + PITZ.runLoop + PITZ.pounce);
+    expect(ticks).toBeLessThanOrEqual(PITZ.leap + PITZ.run + PITZ.pounce + 2);
+    expect(w.entities.some((e) => e.arch === 'cat' && !e.dead)).toBe(false);
+  });
+
   it('can never leave the visible band of the zoomed view', () => {
     const w = world();
     const h = w.players[0]!;

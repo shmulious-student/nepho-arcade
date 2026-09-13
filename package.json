@@ -13,7 +13,9 @@
     "verify": "npm run build:assets && npm run test:assets && npm test && npm run build",
     "verify:character": "node tools/verify-character.mjs",
     "intake:character": "node tools/intake-character.mjs",
-    "readiness": "node tools/readiness.mjs"
+    "readiness": "node tools/readiness.mjs",
+    "art:pipeline": "node tools/art-pipeline.mjs",
+    "art:queue": "node tools/art-pipeline.mjs --queue"
   },
   "dependencies": {
     "phaser": "^3.90.0",

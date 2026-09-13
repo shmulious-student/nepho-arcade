@@ -25,6 +25,13 @@ const warn = (m) => { console.warn('WARN', m); report.warnings.push(m); };
 const HERO = { kind: 'hero', body: 128, rows: ['idle', 'walk', 'attack', 'heavy', 'dash', 'special', 'hurt', 'defeat'], frames: 6, head: true };
 const ENEMY = { kind: 'enemy', body: 104, rows: ['idle', 'walk', 'attack', 'heavy', 'special', 'hurt', 'knockback', 'defeat'], frames: 6, head: false };
 const BOSS = { kind: 'boss', body: 176, rows: ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat'], frames: 8, head: false };
+// Effect sprites the renderer animates over a sim projectile: a per-action set like a character's
+// (3×3 files under actions/<id>/) with no roster entry. Pitz, Shmuel's cat, stands ~48 world px at
+// the shoulder in his run (a third of Shmuel); `run` comes first so the reference height is the
+// running cat, not a stretched leap.
+const FX = { kind: 'fx', body: 48, rows: ['run', 'leap', 'pounce'], frames: 6, head: false };
+const FX_ACTIONS = ['run', 'leap', 'pounce'];
+const FX_IDS = ['pitz'];
 const SUPERSAMPLE = 1.7;
 
 // Per-action source format (docs/asset-prompts.md): public/assets/generated/actions/<id>/<action>.png,
@@ -40,6 +47,9 @@ const BOSS_ACTIONS = ['idle', 'approach', 'attack', 'special', 'hurt', 'defeat']
 // roster is playable end to end while the real sets are generated (docs/hero-prompts-eviatar-omri.md).
 // Eviatar (tall, strong; green + blue) stands in on Bruiser's build shifted to green; Omri (lean,
 // fast; red + white) on Nepho's shifted to red.
+// Every hero the sim knows (src/sim/frameData.ts HERO_IDS), in lobby order. A hero with neither a
+// legacy grid nor a complete per-action set is left out of the pack until its art lands.
+const HERO_IDS = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
 const HERO_STAND_INS = {
   eviatar: { from: 'bruiser', remap: { h0: 5, h1: 55, delta: 110 } },
   omri: { from: 'nepho', remap: { h0: 150, h1: 200, delta: 180 } },
@@ -552,7 +562,7 @@ async function processPortraits(catalog, bossResults, heroResults) {
   // else gets a crop of their own idle frame so a new hero is never card-less.
   const roster = join(SRC, 'hero-roster-atlas.png');
   const rosterCells = { nepho: [0, 0], byte: [1, 1] };
-  for (const id of catalog.heroes) {
+  for (const id of HERO_IDS) {
     const out = join(OUT, 'cards', `${id}.webp`);
     const dedicated = join(SRC, 'heroes', `${id}-card.png`);
     if (existsSync(dedicated)) { await sharp(dedicated).resize(512, 512, { fit: 'cover' }).webp({ quality: 88 }).toFile(out); continue; }
@@ -571,20 +581,26 @@ async function processPortraits(catalog, bossResults, heroResults) {
   await sharp(join(ROOT, 'public/assets/nepho-hero-keyart.png')).resize({ width: 640 }).webp({ quality: 80 }).toFile(join(OUT, 'ui', 'keyart.webp'));
   const logo = join(SRC, 'ui/logo.svg');
   if (existsSync(logo)) copyFileSync(logo, join(OUT, 'ui', 'logo.svg'));
+  // effect sprites drawn by the renderer over the sim's projectiles: Pitz, Shmuel's cat, cut from his
+  // character sheet (docs/refs/shmuel-sheet.png) facing right — shown at ~a third of the figure's height
+  mkdirSync(join(OUT, 'fx'), { recursive: true });
+  const pitz = join(SRC, 'fx/pitz.png');
+  if (existsSync(pitz)) await sharp(pitz).resize({ width: 256 }).webp({ quality: 90, alphaQuality: 100 }).toFile(join(OUT, 'fx', 'pitz.webp'));
 }
 
 // ---------- main ----------
 async function main() {
-  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: ['eviatar', 'omri', 'nepho', 'byte'], enemies: [], bosses: [], levels: [] };
+  const catalog = { version: 2, generatedAt: report.generatedAt, characters: {}, heroes: [], fx: [], enemies: [], bosses: [], levels: [] };
   const results = {};
   const want = (group) => !only || only === group;
 
   if (want('heroes')) {
     const heroSrc = {};
     const heroSource = (id) => resolveSource(id, HERO_ACTIONS, [join(SRC, `hero-${id}-grid-1.png`), join(SRC, `hero-${id}-grid-2.png`)], join(SRC, `hero-${id}-grid.png`));
-    for (const id of ['nepho', 'byte', 'eviatar', 'omri']) {
+    for (const id of HERO_IDS) {
       const src = heroSource(id);
       const stand = HERO_STAND_INS[id];
+      if (!stand && !hasAnySource(src)) { console.log('hero', id, 'pending (action set incomplete)'); continue; }
       if (stand && !hasAnySource(src)) {
         // no art delivered yet: build the stand-in's grid in memory and recolour it into this hero's palette
         const base = await processCharacter(stand.from, heroSource(stand.from), { ...HERO, rows: HERO_ROWS_12 }, { emit: false });
@@ -607,6 +623,14 @@ async function main() {
       results.byte = await variantFrom(results.byte, 'byte', { h0: 55, h1: 170, delta: 205, minSat: 0.3 }, notes);
       delete results.byte.entry.variantOf; // it is byte's own (duplicated) art, not a derived atlas
     }
+    catalog.heroes = HERO_IDS.filter((id) => results[id]);
+    for (const id of FX_IDS) {
+      const src = resolveSource(id, FX_ACTIONS, null, null);
+      if (src.kind !== 'actions') { console.log('fx', id, 'pending (action set incomplete) — the static sheet cut ships instead'); continue; }
+      results[id] = await processCharacter(id, src, FX);
+      console.log('fx', id, results[id] ? 'ok (actions)' : 'FAILED');
+    }
+    catalog.fx = FX_IDS.filter((id) => results[id]);
   }
   if (want('enemies')) {
     for (let i = 0; i < ENEMY_IDS.length; i++) {
@@ -652,6 +676,7 @@ async function main() {
     if (!want('levels')) merged.levels = prev.levels || [];
     if (!want('bosses')) merged.bosses = prev.bosses || [];
     if (!want('enemies')) merged.enemies = prev.enemies || [];
+    if (!want('heroes')) { merged.heroes = prev.heroes || []; merged.fx = prev.fx || []; }
     writeFileSync(join(OUT, 'catalog.json'), JSON.stringify(merged, null, 1));
   } else {
     writeFileSync(join(OUT, 'catalog.json'), JSON.stringify(catalog, null, 1));

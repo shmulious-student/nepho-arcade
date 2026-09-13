@@ -13,8 +13,12 @@ for (let level = 1; level <= 10; level++) {
   for (let k = 0; k < 4; k++) {
     const coop = k % 2 === 1, mode = modes[k % 3], seed = 1234 + level * 17 + k * 101;
     it(`sweep L${level} seed=${seed} ${coop ? '2P' : '1P'} ${mode}`, () => {
-      const heroes: any = [['eviatar', 'omri', 'nepho', 'byte'][k % 4], coop ? ['byte', 'nepho', 'omri', 'eviatar'][k % 4] : null];
-      const friends = { friends: [['nepho', 'byte', 'eviatar', 'omri'][k % 4], coop ? ['omri', 'eviatar', 'byte', 'nepho'][k % 4] : null] as any, mode };
+      // every hero gets played, partnered with and called in as a friend somewhere in the sweep:
+      // four distinct picks off one rotating list, so no slot ever doubles up
+      const all = ['eviatar', 'omri', 'nepho', 'byte', 'shmuel'];
+      const pick = (i: number) => all[(level + k + i) % all.length];
+      const heroes: any = [pick(0), coop ? pick(1) : null];
+      const friends = { friends: [pick(2), coop ? pick(3) : null] as any, mode };
       const w = new World({ seed, level, heroes, friends });
       const b0 = makeBot(), b1 = makeBot();
       let t = 0, cont = 0, maxEnts = 0;

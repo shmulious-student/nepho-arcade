@@ -84,7 +84,7 @@ function makeCard(c) {
 
 (async () => {
   const cat = await fetch('/game/catalog.json').then((r) => r.json());
-  const ids = [...cat.heroes, ...cat.enemies, ...cat.bosses.map((b) => b.id)];
+  const ids = [...cat.heroes, ...cat.enemies, ...cat.bosses.map((b) => b.id), ...(cat.fx || [])];
   const cards = [];
   for (const id of ids) {
     try { cards.push(makeCard(await loadChar(id, cat.characters[id]))); }
