@@ -14,7 +14,8 @@
 //   --smoke                 one small test image (and one judge call) with the chosen provider, then exit
 //
 // Env: OPENAI_API_KEY and/or GEMINI_API_KEY (GOOGLE_API_KEY) — an AI Studio key (AIza…) or a Vertex AI
-// Express Mode key (AQ.…); the endpoint is picked from the prefix. Read from .env.local too. Never logged.
+// Express Mode key (AQ.…); AI Studio endpoint by default, GEMINI_ENDPOINT=vertex for aiplatform. Read from
+// .env.local too. Never logged.
 //
 // The prompt files are the source of truth: the card, STYLE BLOCK, FRAME BLOCK, Step A / Step C
 // prompts and the beats table are parsed from docs/prompts/<id>.md and assembled exactly as the
@@ -61,12 +62,12 @@ for (const envFile of ['.env.local', '.env']) {
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5';
-const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image-preview';
+const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image';
 const OPENAI_JUDGE_MODEL = process.env.OPENAI_JUDGE_MODEL || 'gpt-5-mini';
-const GEMINI_JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL || 'gemini-2.5-flash';
+const GEMINI_JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL || 'gemini-flash-latest';
 // two kinds of Gemini key: AI Studio (AIza…) → generativelanguage.googleapis.com with a header; Vertex AI
 // Express Mode (AQ.…) → aiplatform.googleapis.com with ?key= — same request/response body either way
-const GEMINI_EXPRESS = process.env.GEMINI_ENDPOINT === 'vertex' || (GEMINI_KEY || '').startsWith('AQ.');
+const GEMINI_EXPRESS = process.env.GEMINI_ENDPOINT === 'vertex'; // AQ.… keys work on AI Studio too when the project has that API enabled
 const geminiCall = (model, body) => GEMINI_EXPRESS
   ? fetchRetry(`https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_KEY)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   : fetchRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY }, body: JSON.stringify(body) });
