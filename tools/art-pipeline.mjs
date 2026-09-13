@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import sharp from 'sharp';
 import { verifyCharacter, ACTIONS } from './verify-character.mjs';
+import * as ops from './asset-ops.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ACTIONS_DIR = join(ROOT, 'public/assets/generated/actions');
@@ -287,6 +288,18 @@ async function judge(P, kind, imgPath, action) {
   }
 }
 
+/** A hero card is not an action file, so intake never sees it — but the build copies it straight into the
+ * lobby, so a painted checkerboard or matte must be keyed here (Savta Orly's first card shipped one). */
+async function keyCard(buf) {
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  let img = { width: info.width, height: info.height, data: new Uint8Array(data.buffer, data.byteOffset, data.length) };
+  if (ops.opaqueRatio(img) <= 0.9) return buf; // real alpha already
+  const keyed = ops.keyOutFlat(img);
+  if (keyed && keyed.keyed > 0.3) img = keyed.img;
+  else { const auto = ops.unbakeCheckerAuto(img); img = auto ? auto.img : ops.scrubLightFringe(ops.unbakeChecker(img), 2); }
+  return sharp(Buffer.from(img.data.buffer, img.data.byteOffset, img.data.length), { raw: { width: img.width, height: img.height, channels: 4 } }).png().toBuffer();
+}
+
 // ---- gate glue ----
 function intake(id, action) {
   const r = spawnSync(process.execPath, [join(ROOT, 'tools/intake-character.mjs'), id, action], { cwd: ROOT, encoding: 'utf8' });
@@ -397,7 +410,7 @@ async function produceCharacter(id, only = []) {
     const cardPath = join(ROOT, 'public/assets/generated/heroes', `${id}-card.png`);
     const prompt = cardPromptText(P);
     if (OPTS.dryRun) console.log(`\n--- ${id} card ---\n${prompt}\n`);
-    else { try { const g = await generate(prompt, [quality, ...sheet], 'card', id); mkdirSync(dirname(cardPath), { recursive: true }); writeFileSync(cardPath, g.buf); log(id, `hero card → saved (\$${g.usd.toFixed(3)})`); } catch (e) { log(id, `hero card → API error: ${e.message.slice(0, 200)} (continuing without it)`); } }
+    else { try { const g = await generate(prompt, [quality, ...sheet], 'card', id); mkdirSync(dirname(cardPath), { recursive: true }); writeFileSync(cardPath, await keyCard(g.buf)); log(id, `hero card → saved (\$${g.usd.toFixed(3)})`); } catch (e) { log(id, `hero card → API error: ${e.message.slice(0, 200)} (continuing without it)`); } }
   }
   if (OPTS.dryRun) { log(id, 'dry run complete'); return { id, status: 'dry' }; }
 
