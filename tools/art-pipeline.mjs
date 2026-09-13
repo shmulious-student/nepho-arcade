@@ -537,7 +537,7 @@ async function main() {
   console.log(`\n${summary}`); for (const p of parked) console.log(`  ${p.id}: ${p.why}`);
   if (!OPTS.dryRun) {
     appendFileSync(LOG, `\n**${summary}**\n${parked.map((p) => `- ${p.id}: ${p.why}\n`).join('')}\n`);
-    spawnSync('osascript', ['-e', `display notification ${JSON.stringify(summary.slice(0, 200))} with title "Nepho art pipeline"`]);
+    spawnSync('osascript', ['-e', `display notification ${JSON.stringify(summary.slice(0, 200))} with title "EviOmri art pipeline"`]);
     if (process.platform === 'darwin') spawnSync('afplay', ['/System/Library/Sounds/Glass.aiff']);
   }
   process.exit(parked.length ? 1 : 0);

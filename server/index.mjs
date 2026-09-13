@@ -112,7 +112,7 @@ wss.on('connection', (ws) => {
 
 server.listen(PORT, () => {
   const ip = lanIp();
-  console.log(`Nepho LAN server running.`);
+  console.log(`EviOmri LAN server running.`);
   console.log(`  On this machine: http://localhost:${PORT}/`);
   console.log(`  On your LAN:     http://${ip}:${PORT}/`);
   console.log(`  A second device on the same Wi-Fi can open the LAN URL and join with the room code shown in the lobby.`);

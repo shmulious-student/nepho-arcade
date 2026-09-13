@@ -1,7 +1,7 @@
 {
- "version": "8d525a291e241327",
- "derived": "derived:2026-09-13T19:11:51.895Z:1bf92122",
- "generatedAt": "2026-09-13T19:38:40.409Z",
+ "version": "c898717dd0ca284a",
+ "derived": "derived:2026-09-13T20:45:25.323Z:c608d1c1",
+ "generatedAt": "2026-09-13T20:51:41.094Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -28,8 +28,8 @@
    "sha256": "bf78b9c8c577d1070918c5bdbf34d12918c9857ed0fd9ec591cbb13a62ac9384"
   },
   "catalog.json": {
-   "size": 70839,
-   "sha256": "451ee3de79cee890e2083eb884d1f312a235f155688f9ee1bac4261fb7fd2724"
+   "size": 70634,
+   "sha256": "12a960e14d8277e757211d98f21627dc8d330bc18b0856d2b17a1779fa554cd2"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -185,11 +185,11 @@
   },
   "chars/pitz.json": {
    "size": 4529,
-   "sha256": "ebc48d2673d1c0a2e2de52426322920d55dda97e5d7677af20559b67bcac9f2f"
+   "sha256": "6926953c34656283118cdb4522ce102c9ccc9ed632e8e61f619e3354508c5145"
   },
   "chars/pitz.webp": {
-   "size": 117132,
-   "sha256": "42295ab373d6a0a6a90d56d210f30c1d8990770b13d1f49f3b28b76376784da3"
+   "size": 114812,
+   "sha256": "0c4dd53209c0590afaae92b3b3bac191e391168e00e3c8b2e508a9180d9d92d6"
   },
   "chars/prism-queen.json": {
    "size": 9206,
@@ -256,12 +256,12 @@
    "sha256": "5444390e4ae21564a96dca6095d8dc10ce10bb365c62d5467747c4011a199abe"
   },
   "chars/shmuel.json": {
-   "size": 18207,
-   "sha256": "56c7f5c4c2a8fc44f2d1443a0b09833175732ce666a3611434f1138a3e78ea12"
+   "size": 18257,
+   "sha256": "6ef74a1bddda1b617647890dae500825ceb7de7c1311cf6f3acda4ee5c2d2fdf"
   },
   "chars/shmuel.webp": {
-   "size": 1032386,
-   "sha256": "78be3be599a4a789fe5cf65c5c050a38e14d248aed893963e1bfd8ec7e30c976"
+   "size": 1059310,
+   "sha256": "a553ab3004a980513ee7fcc3794936ffdfd60e434bc3065dc077469356561b63"
   },
   "chars/storm-colossus.json": {
    "size": 9195,
@@ -484,8 +484,8 @@
    "sha256": "5f7ffc16c8f503e26a34e136b3036ee681097e0801b8a4c45bace13cdba4ab89"
   },
   "roster.json": {
-   "size": 3929,
-   "sha256": "e3d746483a809c8a69118d55b7cffa9eb7adb89348da985c530ea96397135162"
+   "size": 3754,
+   "sha256": "e6c40fed7169a3295e5d7963e703a85cbc9aaca74dece023f4f43fe4a6907f10"
   },
   "ui/attack.svg": {
    "size": 536,
@@ -512,24 +512,24 @@
    "sha256": "17682112160d63da551f40d3a0fc5256137b1bec399ec28e87a4cecf5efa933a"
   },
   "ui/icon-192.png": {
-   "size": 72347,
-   "sha256": "9ae52900024341d9cf70554b8a5ed8c7f138230f35f061f8e846b6b1316d96d5"
+   "size": 72895,
+   "sha256": "abbfa04ff37daa47f148f6dbdc6271e16c556f8f386212e440493128b14246bc"
   },
   "ui/icon-512.png": {
-   "size": 463512,
-   "sha256": "f36abbd91adef7de16459cd553ad0707cca98a678d619b320c44dc5cb58d8da8"
+   "size": 436009,
+   "sha256": "f735629aaf2814c31c9a409d0d2c72a12c0f5bd2eea495a22ab94ced534f6f07"
   },
   "ui/keyart.webp": {
    "size": 131038,
    "sha256": "012a6a753ff50600d55ead92b93e5e9388947ad79ad0680f210fa7e412ce4e70"
   },
   "ui/logo.png": {
-   "size": 50473,
-   "sha256": "845dc0a328eac44fdb1290e0948ef0faf0ba55b0c147d20891a4dff6b0f88900"
+   "size": 51617,
+   "sha256": "04872ae5cc5eebb7ba08fc5b18cb8439ead6220a9084c0325ee152c634f7bde0"
   },
   "ui/logo.svg": {
-   "size": 2773,
-   "sha256": "2f0e192debecd5c1ebaef23e8ef367bf1334ee483cb6833f64ffa21f6a0b9fd0"
+   "size": 2783,
+   "sha256": "08ecf73edd96dc36cf4a18260dcc7d51cd23531b611fc36e56f32abf2062cbac"
   },
   "ui/pause.svg": {
    "size": 330,
@@ -572,8 +572,8 @@
    "sha256": "e417696c19802a01dd6eabfeed0cb6f128241fdfc576c136e4a92f5bcc4dff21"
   },
   "ui/splash.png": {
-   "size": 5556952,
-   "sha256": "35ffc0886de5839cdf9dceb9c1a4a3f464bad2f02edd3fb166c1e351ccb47946"
+   "size": 5707422,
+   "sha256": "4f33dcc9c7478cf5fbfd4e1246e525075f63718fb4b3a4b8a856f45a0d108497"
   }
  }
 }

@@ -48,7 +48,7 @@ export class LobbyScene extends Phaser.Scene {
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
     this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
-    this.add.text(VIEW_W / 2, 68, 'NEPHO: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
+    this.add.text(VIEW_W / 2, 68, 'EVIOMRI: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
 
     // one card per roster hero (public/game/roster.json), 180 wide with 160px art, centred; the
     // gap between cards closes up when the whole roster is in so five still fit the view

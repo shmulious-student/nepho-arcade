@@ -2,14 +2,14 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "nepho-dev",
+      "name": "eviomri-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173,
       "autoPort": true
     },
     {
-      "name": "nepho-lan",
+      "name": "eviomri-lan",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "lan"],
       "port": 8080,

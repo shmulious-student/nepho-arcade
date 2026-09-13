@@ -5,7 +5,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // content pack is pulled from the server at boot (src/content/updater.ts).
 const config: CapacitorConfig = {
   appId: 'com.shmulious.eviomri',
-  appName: 'Nepho',
+  appName: 'EviOmri',
   webDir: 'dist',
   android: {
     backgroundColor: '#050711',

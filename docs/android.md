@@ -1,13 +1,13 @@
 # Android app (APK)
 
 The game ships as a native Android app that wraps the web build: `com.shmulious.eviomri`, app
-name **Nepho**. Nothing is re-encoded on the way in — `dist/` (the Vite build, with every file in
+name **EviOmri**. Nothing is re-encoded on the way in — `dist/` (the Vite build, with every file in
 `public/game/` copied verbatim) is packed into the APK as-is, so the app renders exactly what the
 web build renders. The wrapper is [Capacitor](https://capacitorjs.com) 8; the native project lives
 in `android/` and is committed.
 
 ```bash
-npm run android:apk     # build web → sync into android/ → gradlew assembleRelease → build/Nepho-<version>-release.apk
+npm run android:apk     # build web → sync into android/ → gradlew assembleRelease → build/EviOmri-<version>-release.apk
 npm run android:run     # same, then install + launch on the connected device / running emulator
 ```
 
@@ -112,6 +112,6 @@ keeps loading from `/game/`.
 export ANDROID_HOME=~/Library/Android/sdk
 $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n nepho -k "system-images;android-35;google_apis;arm64-v8a" -d pixel_6
 $ANDROID_HOME/emulator/emulator -avd nepho &
-adb install -r build/Nepho-*-release.apk
+adb install -r build/EviOmri-*-release.apk
 adb logcat -s chromium:I Capacitor:D   # the boot line "content: bundled|installed|downloaded pack <version>" shows which pack is playing
 ```

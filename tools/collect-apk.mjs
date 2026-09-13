@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
 const root = new URL('../', import.meta.url).pathname;
 const { version } = JSON.parse(readFileSync(root + 'package.json', 'utf8'));
 const src = root + 'android/app/build/outputs/apk/release/app-release.apk';
-const dst = `${root}build/Nepho-${version}-release.apk`;
+const dst = `${root}build/EviOmri-${version}-release.apk`;
 mkdirSync(root + 'build', { recursive: true });
 renameSync(src, dst);
 rmSync(root + 'android/app/build/outputs/apk/debug', { recursive: true, force: true });

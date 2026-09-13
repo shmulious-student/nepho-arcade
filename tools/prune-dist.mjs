@@ -7,6 +7,7 @@ import { join } from 'node:path';
 const DIST = new URL('../dist', import.meta.url);
 const toPrune = [
   'assets/generated', // PNG masters (source atlases)
+  'assets/backups', // intake/replaced/brand backups of those masters (gitignored, hundreds of MB)
   'assets/nepho-hero-keyart.png', // promo key art — never loaded in-scene per the asset brief
   'assets/references', // quality-reference art, build-time only
   'game/debug', // anchor contact sheets + report.json, inspection-only

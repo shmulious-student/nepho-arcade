@@ -1,4 +1,4 @@
-// Builds all UI assets (icons, splash, logo, HUD glyphs, relics) for Nepho: Circuit Breakers.
+// Builds all UI assets (icons, splash, logo, HUD glyphs, relics) for EviOmri: Circuit Breakers.
 import sharp from 'sharp';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -55,13 +55,13 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" 
   <path d="M 50 70 L 30 90 V 160 L 50 180" stroke="#75f5dc" stroke-width="4" fill="none" opacity="0.8" />
   <path d="M 750 70 L 770 90 V 160 L 750 180" stroke="#ffcf5c" stroke-width="4" fill="none" opacity="0.8" />
 
-  <!-- Main Wordmark: NEPHO -->
-  <g font-family="'Impact', 'Arial Black', sans-serif" font-size="118" font-weight="900" letter-spacing="8" text-anchor="middle">
+  <!-- Main Wordmark: EVIOMRI -->
+  <g font-family="'Impact', 'Arial Black', sans-serif" font-size="104" font-weight="900" letter-spacing="6" text-anchor="middle">
     <!-- Drop Shadow / Glow -->
-    <text x="400" y="128" fill="#040b17" stroke="#050711" stroke-width="16" stroke-linejoin="round">NEPHO</text>
-    <text x="400" y="128" fill="none" stroke="#24b69d" stroke-width="10" filter="url(#cyanGlow)" stroke-linejoin="round">NEPHO</text>
-    <text x="400" y="128" fill="url(#neonCyan)">NEPHO</text>
-    <text x="400" y="128" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7">NEPHO</text>
+    <text x="400" y="128" fill="#040b17" stroke="#050711" stroke-width="16" stroke-linejoin="round">EVIOMRI</text>
+    <text x="400" y="128" fill="none" stroke="#24b69d" stroke-width="10" filter="url(#cyanGlow)" stroke-linejoin="round">EVIOMRI</text>
+    <text x="400" y="128" fill="url(#neonCyan)">EVIOMRI</text>
+    <text x="400" y="128" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7">EVIOMRI</text>
   </g>
 
   <!-- Subtitle Ribbon: CIRCUIT BREAKERS -->

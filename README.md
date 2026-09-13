@@ -1,9 +1,13 @@
-# Nepho: Circuit Breakers
+# EviOmri: Circuit Breakers
+
+(Formerly "Nepho: Circuit Breakers" — rebranded 2026-09-13. Infrastructure ids such as the Firebase
+project `nepho-eviomri`, the `nepho.*` localStorage keys and the `__nepho*` dev hooks keep their old
+names on purpose; only the name players see changed.)
 
 A browser-based mobile 2D arcade beat-em-up starring **Eviatar** (basketball kit, magic paint
 markers, paint-splash special), **Omri** (capoeira, a microphone, sonic-beat special) and **Shmuel**
 (striped jersey, bare knuckles, and a special that opens a pixel portal for his cat **Pitz** to pounce
-down the lane), with Nepho and Byte as the friends who fight beside them — all five playable.
+down the lane), with **Savta Orly**, **Saba Kobi** and **Noa** fighting beside them — all six playable.
 Old-school side-scrolling co-op action — light/heavy
 combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
 final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins
