@@ -1,6 +1,6 @@
 # NEPHO (`nepho`) — hero, 12 files + hero card
 
-## Status — queue position 15 of 16 · 14 image requests (Step A sheet + 12 action files + hero card (the set is redone whole))
+## Status — queue position 13 of 14 · 14 image requests (Step A sheet + 12 action files + hero card (the set is redone whole))
 
 FAILED — 4 of 12 files present (`heavy special knockdown defeat`), delivered in an earlier round as row
 overrides. `heavy` and `special` pass; the gate's exact output for the rest:

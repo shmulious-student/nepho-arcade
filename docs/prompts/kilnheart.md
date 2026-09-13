@@ -1,9 +1,8 @@
 # Kilnheart (`kilnheart`) — boss, level 3, 6 files
 
-## Status — queue position 2 of 16 · 7 image requests (Step A sheet + 6 action files)
+## Status — DELIVERED
 
-Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
-files (`idle approach attack special hurt defeat`), one session, one look. Level 3 boss.
+All 6 files delivered on 2026-09-13; passes the gate, built in and pushed (`7ea259f`). Nothing outstanding.
 
 Done means `npm run verify:character -- kilnheart` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

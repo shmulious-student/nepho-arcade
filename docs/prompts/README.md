@@ -6,9 +6,9 @@ time, one image request at a time**; a character counts as done when
 `npm run verify:character -- <id>` prints `PASS` and `npm run build:assets && npm run test:assets` are
 clean. The queue runs unattended with `npm run art:queue` ([art-pipeline.md](../art-pipeline.md)); [codex-queue.md](codex-queue.md) is the equivalent brief for an agent doing it by hand.
 
-Standing on 2026-09-13 (`npm run readiness`): 13 ready, 1 failed (nepho), 15 legacy, Shmuel's `walk` and
-`dash` and Pitz's `run` were redelivered 2026-09-13 and are done.
-
+Standing on 2026-09-13 14:40 (`npm run readiness`): 18 READY, 1 failed (nepho), 11 legacy, plus two new heroes
+added from photos (savta-orly, saba-kobi). Delivered today: pitz `run`, shmuel `walk`+`dash`, glass-warden, kilnheart,
+monk-zero, market-king.
 ## The queue — least work first
 
 "Requests" = image-generation requests on a clean run: the Step A character sheet, one per action
@@ -16,31 +16,34 @@ file, and the hero-select card for heroes. Retries come on top.
 
 | # | character | rank | requests | work |
 |---|---|---|---|---|
-| 1 | [glass-warden](glass-warden.md) | boss | 7 | Step A sheet + 6 action files |
-| 2 | [kilnheart](kilnheart.md) | boss | 7 | Step A sheet + 6 action files |
-| 3 | [monk-zero](monk-zero.md) | boss | 7 | Step A sheet + 6 action files |
-| 4 | [market-king](market-king.md) | boss | 7 | Step A sheet + 6 action files |
-| 5 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
-| 6 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
-| 7 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
-| 8 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
-| 9 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
-| 10 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
-| 11 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
-| 12 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
-| 13 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
-| 14 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
-| 15 | [nepho](nepho.md) | hero | 14 | Step A sheet + 12 action files + hero card (the set is redone whole) |
-| 16 | [byte](byte.md) | hero | 14 | Step A sheet + 12 action files + hero card |
+| 1 | [savta-orly](savta-orly.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
+| 2 | [saba-kobi](saba-kobi.md) | hero | 14 | **new hero from photos** — Step A sheet + 12 action files + hero card |
+| 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
+| 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
+| 5 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
+| 6 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
+| 7 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
+| 8 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
+| 9 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
+| 10 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
+| 11 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
+| 12 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
+| 13 | [nepho](nepho.md) | hero | 14 | Step A sheet + 12 action files + hero card (the set is redone whole) |
+| 14 | [byte](byte.md) | hero | 14 | Step A sheet + 12 action files + hero card |
 
-**Total: 146 image requests** on a clean run (63 for the nine bosses · 55 for the five
+**Total: 146 image requests** on a clean run (28 for the two new heroes · 35 for the five remaining bosses · 55 for the five
 enemies · 28 for the two heroes). Bosses come before enemies only because a boss set is 7 requests and
 an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
 that also unlock a palette variant first). The two heroes are last: they are roster-disabled today,
-so if the day runs out they are what slips.
+so if the day runs out they are what slips. **Savta Orly and Saba Kobi are the exception: the owner placed them
+next in line on 2026-09-13 — they run before the remaining bosses.**
 
 ## Delivered — nothing outstanding
 
+- [glass-warden](glass-warden.md) — boss, 6/6, delivered 2026-09-13 (`2b82453`)
+- [kilnheart](kilnheart.md) — boss, 6/6, delivered 2026-09-13 (`7ea259f`)
+- [monk-zero](monk-zero.md) — boss, 6/6, delivered 2026-09-13 (`e2b09fe`)
+- [market-king](market-king.md) — boss, 6/6 files, delivered 2026-09-13 14:06, passes the gate, built in and pushed
 - [pitz](pitz.md) — fx, 3/3 files; `run` redelivered 2026-09-13 (attempt 4, baseline rule first and bolded), approved
 - [shmuel](shmuel.md) — hero, 12/12 files; `walk` and `dash` redelivered 2026-09-13, both stride correctly by eye
 - [punk](punk.md) — enemy, 10/10 files, passes the gate and is built in

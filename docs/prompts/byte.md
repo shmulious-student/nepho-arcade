@@ -1,6 +1,6 @@
 # BYTE (`byte`) — hero, 12 files + hero card
 
-## Status — queue position 16 of 16 · 14 image requests (Step A sheet + 12 action files + hero card)
+## Status — queue position 14 of 14 · 14 image requests (Step A sheet + 12 action files + hero card)
 
 Legacy — her current grids are a copy of Riva; this is her first real set. Needs the sheet, all 12 files
 and the hero card, one session, one look.
