@@ -2,26 +2,28 @@
 
 ## The place
 
-**The sports hall Eviatar plays basketball in. The exact hall is not recorded in the repo.**
+**Imaginary (owner, 2026-09-13): no real hall is referenced — invent one.** "Ulam HaSport Kfar Ganim": the municipal
+sports hall where Eviatar's youth team plays — the kind every Israeli neighbourhood has, next to the school.
 
-- Street View: (fill in once the address is known: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=LAT,LNG)
-- **TO CONFIRM BY THE OWNER:** which hall (name + address)? Paste it, add a Street View / photo into `docs/refs/locations/07-basketball-gym/`, and put its real floor and banner colours into the prompt.
-- Reference photos: none yet — take 2–3 Street View screenshots of the spot into `docs/refs/locations/07-basketball-gym/` before the request.
+- Street View: none — the place is made up. No reference photos; the description below is the reference.
 
-## What is actually there
+## What is there (invented, keep it consistent)
 
-Typical of an Israeli municipal / school sports hall (to be replaced by the real one): a parquet court with painted
-lines and a centre logo, glass backboards on both ends, a folding bleacher along one wall, team and league banners, a
-scoreboard, high windows with wire mesh, a wall of blue padding, gym bags and a ball cart at the side.
+A full-size indoor court with a **honey-coloured parquet floor**, the key and three-point arcs in **blue and orange**, a
+large **orange-and-white centre logo**. Far wall: a **folding bleacher** (blue seats) that runs most of the width, a
+**scoreboard** in the middle with red digits, **team and league banners** (blue-white-orange, no readable text) hung under
+the roof trusses, and high windows with wire mesh letting in daylight. Both ends: **glass backboards with orange hoops**
+and blue wall padding beneath. Left side: a ball cart, a stack of orange balls, gym bags on a bench, a water cooler. The
+roof is white steel trusses with strip lights; a big Israeli flag hangs at the far right corner.
 
 ## What the current plate shows (`public/game/levels/bg-07.webp`)
 
-An evening gym with a sunset skyline through the windows — atmospheric, but not a real place. Once the hall is known,
-match its colours (floor, wall padding, banners) and daylight it like the other levels.
+An evening gym with a sunset skyline through the windows — atmospheric, but it's a night plate in a daytime campaign and
+the bleachers are drawn too small. Redo it in daylight with the layout above.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of the inside of a basketball sports hall in Israel, daylight: a long wall with folding bleachers, team banners and a scoreboard, glass backboards with orange hoops at both far ends, high mesh-covered windows, blue wall padding under the hoops, a ball cart and gym bags at the side. The bottom third is an empty parquet floor with painted court lines in one flat plane. No people, no text on the banners. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of the inside of a municipal basketball sports hall in Israel, daylight through high mesh-covered windows: a long far wall with a folding bleacher of blue seats, a red-digit scoreboard in the middle, blue-white-orange team banners hung from white steel roof trusses with strip lights, an Israeli flag at the far right; glass backboards with orange hoops and blue wall padding at both ends; a ball cart with orange balls, gym bags on a bench and a water cooler at the left. The bottom third is an empty honey-coloured parquet floor with blue and orange court lines and a big orange centre logo, in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 

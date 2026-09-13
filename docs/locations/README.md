@@ -6,9 +6,9 @@ View, lists the reference photos on disk, says what the current plate gets wrong
 ready-to-paste prompt to redraw the backdrop so it looks like the real spot. Delivery is one image
 per level — `node tools/place-backdrop.mjs <level> <image>` then `npm run build:assets`.
 
-Status 2026-09-13 23:30: **10 requests** on a clean run. Six places are pinned down with Street View frames and photos
-(1–5, 10); four are generic names whose exact spot only the owner knows (6–9) — each of those files has a **TO CONFIRM**
-line saying exactly what to paste in.
+Status 2026-09-13 23:45: **10 requests** on a clean run, nothing left to confirm. Six places are real and pinned down
+with Street View frames and photos (1–5, 10); four are **imaginary by decision of the owner** (6–9) — each file describes
+the invented place in enough detail to be the reference itself.
 
 | # | level | in-game name | place | refs on disk | needs the owner |
 |---|---|---|---|---|---|
@@ -17,15 +17,11 @@ line saying exactly what to paste in.
 | 3 | [barcelona](level-03-barcelona.md) | BARCELONA CITY | Carrer de Mallorca / Marina → Sagrada Família; Passeig de Gràcia | 2 Street View frames + 2 photos | — |
 | 4 | [sant-cugat](level-04-sant-cugat.md) | SANT CUGAT TOWN | Plaça d'Octavià + the monastery | 2 Street View frames + 2 photos | — |
 | 5 | [hatikva-school](level-05-hatikva-school.md) | HATIKVA SCHOOL | Col·legi Hatikva, Av. Mas Fuster 128, Valldoreix (Sant Cugat) | school-site photos + 1 Street View frame | — |
-| 6 | [capoeira-gym](level-06-capoeira-gym.md) | CAPOEIRA BRAZILIAN GYM | *Omri's academy* | none | **which gym** |
-| 7 | [basketball-gym](level-07-basketball-gym.md) | BASKETBALL GYM | *Eviatar's hall* | none | **which hall** |
-| 8 | [theater](level-08-theater.md) | THEATER | *the theatre* | none | **which theatre** |
-| 9 | [candy-factory](level-09-candy-factory.md) | CANDY FACTORY | *the factory* | none | **which factory / brand** |
+| 6 | [capoeira-gym](level-06-capoeira-gym.md) | CAPOEIRA BRAZILIAN GYM | imaginary — "Academia Ginga", Omri's group | described in the file | — |
+| 7 | [basketball-gym](level-07-basketball-gym.md) | BASKETBALL GYM | imaginary — municipal hall, Eviatar's team | described in the file | — |
+| 8 | [theater](level-08-theater.md) | THEATER | imaginary — old municipal theatre, from the stage | described in the file | — |
+| 9 | [candy-factory](level-09-candy-factory.md) | CANDY FACTORY | imaginary — small old-school sweets factory | described in the file | — |
 | 10 | [catalunya](level-10-catalunya.md) | CATALUNYA | Bunkers del Carmel panorama: city, sea, Tibidabo, Montserrat | 2 photos | — |
-
-For the four generic levels the prompt files still run as written (they describe the typical
-Israeli school / gym / hall / stage / factory floor), so they can be generated tonight as a first
-pass and re-done once the real place is named.
 
 Reference photos live in `docs/refs/locations/NN-<id>/` (Wikimedia Commons, licences in
 [CREDITS.md](../refs/locations/CREDITS.md)); they are drawing references only and never ship. Street

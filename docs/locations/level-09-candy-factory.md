@@ -2,26 +2,30 @@
 
 ## The place
 
-**The candy factory of the story — a production floor. The exact factory (a visited one, or a favourite brand's) is not recorded in the repo.**
+**Imaginary (owner, 2026-09-13): no real factory is referenced — invent one.** "Mamtakei Savta" (Grandma's Sweets): a
+small old-school candy factory in an industrial zone — copper kettles and conveyor belts, playful but grounded.
 
-- Street View: (fill in once the address is known: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=LAT,LNG)
-- **TO CONFIRM BY THE OWNER:** which factory (name + address, or a brand)? Paste it, add a photo of its floor into `docs/refs/locations/09-candy-factory/`, and name its real products in the prompt.
-- Reference photos: none yet — take 2–3 Street View screenshots of the spot into `docs/refs/locations/09-candy-factory/` before the request.
+- Street View: none — the place is made up. No reference photos; the description below is the reference.
 
-## What is actually there
+## What is there (invented, keep it consistent)
 
-Typical of a sweets factory floor (to be replaced by the real one): stainless-steel machines and pipes, a conveyor
-belt carrying wrapped candies, a big kettle and a cooling tunnel, sacks and drums of sugar and syrup, colour-coded pipes,
-yellow-and-black safety stripes on the floor, a glass-walled control room, cartons stacked on pallets, bright strip lights.
+One long production floor. Left to right: a **big copper boiling kettle** on a brick base with steam; a **taffy-pulling
+machine** with red-and-white candy stretched between its arms; a long **conveyor belt** carrying rows of bright wrapped
+candies (red, yellow, green, pink) past a **wrapping machine** and into a **cooling tunnel**; a **gumball tower** — a tall
+glass cylinder full of coloured balls; **cartons stacked on wooden pallets** and sacks of sugar; **colour-coded pipes**
+(pink, yellow, mint) running overhead under skylights; at the far right a **glass-walled control room** with a control
+panel of round dials. The floor is **grey concrete with yellow-and-black safety stripes** along the machine bases and a
+painted walkway. Bright, cheerful, no branded product.
 
 ## What the current plate shows (`public/game/levels/bg-09.webp`)
 
-A pink-and-candy-striped fantasy factory with a giant gumball tube — fun, and the least real of the ten. Once the
-factory is known, ground it: real machines, real product colours, real signage shapes, but keep it playful.
+A pink-and-candy-striped fantasy factory with a giant gumball tube — fun, but it reads like a theme park. Keep the
+gumball tower and the pink accents, make the rest a real factory floor: copper kettle, conveyor, wrapping machine,
+pallets, safety stripes.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of a candy factory production floor, bright strip lighting: a long conveyor belt carrying colourful wrapped candies past stainless-steel machines, a big copper kettle and a cooling tunnel, colour-coded pipes overhead, drums and sacks of sugar, cartons on pallets, a glass-walled control room at the far right, pink and yellow accents on the machinery. The bottom third is an empty grey factory floor with yellow-and-black safety stripes along the edges. No people, no text or brand names. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of a small old-fashioned candy factory production floor, bright daylight from skylights: a big copper boiling kettle on a brick base with steam at the left, a taffy-pulling machine stretching red-and-white candy, a long conveyor belt carrying rows of brightly wrapped candies past a wrapping machine into a cooling tunnel, a tall glass gumball tower full of coloured balls, cartons stacked on wooden pallets and sacks of sugar, pink, yellow and mint pipes running overhead, a glass-walled control room with round dials at the far right. The bottom third is an empty grey concrete floor with yellow-and-black safety stripes along the machine bases, in one flat plane. No people, no text or brand names. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 

@@ -2,26 +2,29 @@
 
 ## The place
 
-**The theatre of the story — a stage seen from the boards. The exact theatre is not recorded in the repo.**
+**Imaginary (owner, 2026-09-13): no real theatre is referenced — invent one.** "Teatron HaMoshava": an old-fashioned
+municipal theatre — a proscenium stage with a painted backcloth, seen from the boards on the night of the school show.
 
-- Street View: (fill in once the address is known: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=LAT,LNG)
-- **TO CONFIRM BY THE OWNER:** which theatre (name + address)? Paste it, add a photo of its stage into `docs/refs/locations/08-theater/`, and adjust the curtain colour and backcloth to match.
-- Reference photos: none yet — take 2–3 Street View screenshots of the spot into `docs/refs/locations/08-theater/` before the request.
+- Street View: none — the place is made up. No reference photos; the description below is the reference.
 
-## What is actually there
+## What is there (invented, keep it consistent)
 
-Typical of a municipal theatre / cultural hall (to be replaced by the real one): a proscenium stage with red velvet
-curtains tied back, a painted city-at-night backcloth, footlights, a lighting rig with warm spots, stacked scenery flats
-and crates in the wings, a piano or a props table, the dark auditorium seats in the distance if the camera faces out.
+The camera stands on the stage looking across it. **Deep-red velvet curtains** with gold fringe are tied back on both
+sides; behind the action a **painted backcloth of a city at night** — silhouetted rooftops, a full moon, lit windows.
+Above, a **lighting rig** of warm spots and a couple of coloured gels (magenta, cyan) on black steel bars. In the wings:
+**stacked scenery flats** (a painted forest, a castle wall), wooden crates, a props table with a crown and a sword, a
+ladder, a rolling clothes rail of costumes, a piano at the far left. Along the front edge, **footlights**. The stage is
+old **honey-brown wooden boards** with tape marks. Warm gold light from the front, cool blue from the backcloth.
 
 ## What the current plate shows (`public/game/levels/bg-08.webp`)
 
-A red-curtain stage with a painted night-city backcloth and props in the wings — the right idea. Once the theatre is
-known (e.g. the local Heichal HaTarbut), use its real stage, curtain colour and auditorium.
+A red-curtain stage with a painted night-city backcloth and props in the wings — already this idea. Redo it with the
+layout above (curtains framing both ends, backcloth spanning the middle, wings full of flats and props) at the plate's
+full width.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of a theatre stage seen from stage level, warm stage lighting: red velvet curtains tied back on both sides, a painted backcloth of a city at night with a moon, a lighting rig with warm spotlights above, stacked scenery flats, wooden crates and a props table in the wings, footlights along the front edge. The bottom third is the empty wooden stage floor. No people, no text. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of a theatre stage seen from stage level, warm gold stage lighting: deep-red velvet curtains with gold fringe tied back at both ends, a painted backcloth of a city at night with silhouetted rooftops, lit windows and a full moon spanning the middle, a lighting rig of warm spotlights and magenta and cyan gels on black bars above, stacked painted scenery flats, wooden crates, a props table with a crown and a sword, a ladder and a rail of costumes in the wings, an upright piano at the far left, footlights along the front edge. The bottom third is the empty honey-brown wooden stage floor. No people, no text. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 

@@ -2,26 +2,29 @@
 
 ## The place
 
-**The capoeira academy Omri trains at. The exact gym is not recorded in the repo.**
+**Imaginary (owner, 2026-09-13): no real gym is referenced — invent one.** "Academia Ginga Petah Tikva": Omri's capoeira
+group, a converted ground-floor workshop off a side street in Petah Tikva, painted up by the group itself.
 
-- Street View: (fill in once the address is known: https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=LAT,LNG)
-- **TO CONFIRM BY THE OWNER:** which gym (name + address)? Paste it, add the Street View / a photo of the hall into `docs/refs/locations/06-capoeira-gym/`, and put the real mural and logo into the prompt.
-- Reference photos: none yet — take 2–3 Street View screenshots of the spot into `docs/refs/locations/06-capoeira-gym/` before the request.
+- Street View: none — the place is made up. No reference photos; the description below is the reference.
 
-## What is actually there
+## What is there (invented, keep it consistent)
 
-Typical of a capoeira / martial-arts studio (to be replaced by the real one): a hall with a sprung wooden or rubber
-floor, one mirrored wall, a Brazilian-themed mural (green–yellow–blue, the group's logo), berimbaus, atabaques and
-pandeiros hung on the wall, a Brazilian flag, a rack of coloured cords (belts), a bench with water bottles, high windows.
+A long hall with a **pale sprung-wood floor** and a **low stage at the far end** where the bateria sits. Back wall: a huge
+hand-painted mural in **Brazilian green, yellow and blue** — a roda of silhouetted players, a crescent moon, the group's
+name in curly lettering — with three **berimbaus, an atabaque and two pandeiros** hung on hooks beside it. Left wall:
+**floor-to-ceiling mirrors** with a ballet bar. Right wall: high frosted windows with the afternoon sun coming through,
+a **rack of coloured cords** (the belts), a wall of framed batizado photos, a Brazilian flag and an Israeli flag side by
+side. Near the entrance a bench with water bottles and gym bags, a big fan, a stack of blue mats, a whiteboard with the
+week's roda times. Warm wood tones against the flag colours.
 
 ## What the current plate shows (`public/game/levels/bg-06.webp`)
 
-A wooden-floor hall with a capoeira mural, drums and a Brazilian flag — the right kind of place; the mural is
-invented. Once the real gym is known, use its actual mural / logo, floor colour and window wall.
+A wooden-floor hall with a capoeira mural, drums and a Brazilian flag — already this idea. Redo it with the layout above
+(stage at the far end, mirror wall left, windows and cord rack right) so the whole width of the level reads as one room.
 
 ## Prompt
 
-> Wide 2.82:1 painted pixel-art backdrop of the inside of a capoeira academy hall, daylight through high windows: a long back wall with a big painted mural in Brazilian green, yellow and blue showing a capoeira kick silhouette, berimbaus and atabaque drums hung beside it, a Brazilian flag, a rack of coloured cords, a mirrored section on the right, a bench with water bottles at the far left. The bottom third is an empty pale wooden sprung floor. No people, no text, no logos. Saturated, crisp, no photo texture.
+> Wide 2.82:1 painted pixel-art backdrop of the inside of a capoeira academy hall, warm afternoon light through high frosted windows on the right: a long back wall with a huge hand-painted mural in Brazilian green, yellow and blue of silhouetted capoeira players in a roda under a crescent moon, three berimbaus, an atabaque drum and two pandeiros hung on hooks beside it, a low wooden stage at the far end with drums on it; a floor-to-ceiling mirror wall with a ballet bar on the left; on the right a rack of coloured cords, framed photos, a Brazilian flag and an Israeli flag, a bench with water bottles, a stack of blue mats and a standing fan. The bottom third is an empty pale sprung wooden floor in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
 
 ## Delivery (same for every level)
 
