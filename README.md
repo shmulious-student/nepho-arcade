@@ -6,8 +6,8 @@ names on purpose; only the name players see changed.)
 
 A browser-based mobile 2D arcade beat-em-up starring **Eviatar** (basketball kit, magic paint
 markers, paint-splash special), **Omri** (capoeira, a microphone, sonic-beat special) and **Shmuel**
-(striped jersey, bare knuckles, and a special that opens a pixel portal for his cat **Pitz** to pounce
-down the lane), with **Savta Orly**, **Saba Kobi** and **Noa** fighting beside them — all six playable.
+(striped jersey, bare knuckles, and a special that opens a pixel portal for his cat **Pitz**, who hunts
+down every enemy in view and floors each one once), with **Savta Orly**, **Saba Kobi** and **Noa** fighting beside them — all six playable.
 Old-school side-scrolling co-op action — light/heavy
 combos, dashes, blocks, meter-fueled specials, ten real-world levels each ending in a boss, and a
 final Ultra Boss that combines every pattern from the whole run. 1–2 players; a second player joins

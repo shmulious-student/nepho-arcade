@@ -60,10 +60,28 @@ function startMove(w: World, e: Entity, state: string): void {
 // the cat leaves the portal this many ticks into the special's active window
 const CAT_RELEASE = 6;
 
+/** Who Pitz goes for next: the nearest enemy or boss in the visible band that is up (not floored —
+ * a floored one cannot be bitten and would only stall him) and that he has not bitten yet. */
+function pitzTarget(w: World, cat: Entity): Entity | undefined {
+  const x0 = w.cameraX + VISIBLE_X0 - 30, x1 = w.cameraX + VISIBLE_X0 + VISIBLE_W + 30;
+  let best: Entity | undefined, bestD = Infinity;
+  for (const t of w.entities) {
+    if (t.dead || t.hp <= 0 || !(t.kind === 'enemy' || t.kind === 'boss' || t.kind === 'echo')) continue;
+    if (t.x < x0 || t.x > x1) continue;
+    if (t.hitBy[cat.id] === cat.attackId) continue;
+    if (t.state === 'knockdown' || t.state === 'getup' || t.state === 'launched' || t.state === 'defeat') continue;
+    const d = Math.abs(t.x - cat.x) + Math.abs(t.y - cat.y) * 2;
+    if (d < bestD) { bestD = d; best = t; }
+  }
+  return best;
+}
+
 /** Pitz's run, stepped by the world in place of the generic projectile step: leaps out of the portal
- * and gallops down the lane (phase 1), then — near the far edge of the view, or once the run has gone
- * on long enough — springs into a pounce and skids to a stop (phase 2, `st` restarted so the renderer
- * can time the pounce frames), and is gone. Every enemy on the way is floored once (pierce). */
+ * and hunts (phase 1) — he runs at the nearest enemy still standing in view, changes lane to reach it,
+ * bites it once (pierce: the hit registers once per enemy) and turns to the next, until nobody is
+ * left to bite or the run has gone on long enough; then he springs into a pounce and skids to a stop
+ * (phase 2, `st` restarted so the renderer can time the pounce frames), and is gone. With nobody in
+ * view he simply gallops down the lane the way he faces and pounces near the far edge. */
 export function stepPitz(w: World, e: Entity): void {
   e.st++;
   if (e.pphase === 2) {
@@ -73,12 +91,27 @@ export function stepPitz(w: World, e: Entity): void {
     return;
   }
   e.pphase = 1;
-  e.vx = e.facing * pitzRunSpeed(e.st);
-  e.x += e.vx;
-  // the pounce carries him ~60 px further, so it is called this far inside the band to land in view
+  const speed = pitzRunSpeed(e.st);
+  const target = pitzTarget(w, e);
+  if (target) {
+    const dx = target.x - e.x, dy = target.y - e.y;
+    // face and run at it; a cat this fast turns on the spot
+    if (Math.abs(dx) > 6) e.facing = dx > 0 ? 1 : -1;
+    e.vx = Math.abs(dx) > speed ? e.facing * speed : dx;
+    e.x += e.vx;
+    e.y += Math.abs(dy) > speed * 0.6 ? Math.sign(dy) * speed * 0.6 : dy;
+    e.y = Math.max(0, Math.min(LANE_H, e.y));
+  } else {
+    e.vx = e.facing * speed;
+    e.x += e.vx;
+  }
+  // done: nobody left to bite (and he has bitten at least one, or there was never anyone), the edge
+  // of the view, or the time cap — the pounce carries him ~60 px further, so it is called this far
+  // inside the band to land in view
   const edge = e.facing > 0 ? w.cameraX + VISIBLE_X0 + VISIBLE_W - 130 : w.cameraX + VISIBLE_X0 + 130;
   const atEdge = e.facing > 0 ? e.x >= edge : e.x <= edge;
-  if (atEdge || e.st >= PITZ.leap + PITZ.run) { e.pphase = 2; e.st = 0; }
+  const bitten = w.entities.some((t) => t.hitBy[e.id] === e.attackId);
+  if ((!target && bitten) || (!target && atEdge) || e.st >= PITZ.leap + PITZ.run) { e.pphase = 2; e.st = 0; }
 }
 
 const HERO_IDS_INDEX: Record<HeroId, number> = { eviatar: 0, omri: 1, shmuel: 2, 'savta-orly': 3, 'saba-kobi': 4, noa: 5 };

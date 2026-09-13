@@ -24,12 +24,12 @@ function addEnemy(w: World, x: number, y: number) {
 }
 
 describe('hero', () => {
-  it("shmuel's special sends the cat down the lane: one piercing projectile that floors every enemy it passes, each once", () => {
+  it("shmuel's special sends the cat hunting: one piercing projectile that chases every enemy in view — ahead, behind, in another lane — and floors each once", () => {
     const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
     while (w.phase === 'entry') w.step([NONE, NONE]);
     const h = w.players[0]!;
     h.facing = 1; h.meter = 100;
-    const near = addEnemy(w, h.x + 140, h.y), far = addEnemy(w, h.x + 420, h.y), behind = addEnemy(w, h.x - 120, h.y);
+    const near = addEnemy(w, h.x + 140, h.y), far = addEnemy(w, h.x + 420, Math.min(LANE_H, h.y + 70)), behind = addEnemy(w, h.x - 120, h.y);
     const hp = [near.hp, far.hp, behind.hp];
     w.step([press(BTN.SPECIAL), NONE]);
     expect(h.state).toBe('special');
@@ -41,10 +41,11 @@ describe('hero', () => {
     expect(cat, 'no cat was released').not.toBeNull();
     expect(cat.friendly).toBe(true);
     expect(near.hp).toBeLessThan(hp[0]);
-    expect(far.hp).toBeLessThan(hp[1]);
-    expect(behind.hp).toBe(hp[2]); // it runs forward only
-    // one bite each: the damage on both is the same single hit, not a hit per tick of overlap
+    expect(far.hp).toBeLessThan(hp[1]); // reached by changing lane
+    expect(behind.hp).toBeLessThan(hp[2]); // turned round for it
+    // one bite each: the damage on all three is the same single hit, not a hit per tick of overlap
     expect(hp[0] - near.hp).toBe(hp[1] - far.hp);
+    expect(hp[0] - near.hp).toBe(hp[2] - behind.hp);
     expect(['knockdown', 'getup', 'idle', 'walk', 'defeat'].includes(near.state) || near.hp <= 0).toBe(true);
   });
 

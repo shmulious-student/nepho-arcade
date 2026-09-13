@@ -19,8 +19,8 @@ that line like frames 3–9.**" Attach the passing `leap.png` as the size and ba
 Done means `npm run verify:character -- pitz` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
 Shmuel's cat: the body of his special. When the meter is spent Shmuel opens a cyan pixel portal and
-Pitz bursts out of it, gallops down the lane flooring everyone in his way, then — at the far edge of
-the screen — springs into a pounce, skids to a stop and dissolves back into portal pixels. The game
+Pitz bursts out of it, hunts every enemy in view — turning, changing lane, flooring each one once — then
+springs into a pounce, skids to a stop and dissolves back into portal pixels. The game
 plays this from three 3×3 files (`leap` once, `run` looped, `pounce` once — 2.5–3 s on screen, see
 `PITZ` in `src/sim/frameData.ts`), so he is an animated set under the
 [character art standard](../character-art-standard.md) with the **`fx` rank**: three files instead
