@@ -137,5 +137,7 @@
 2026-09-14 00:10 backdrops re-specified (owner): plates must allow up to 5 waves and keep ≥90% of their height on a landscape phone/tablet. Sim: SEGMENT_STEP 200, MAX_WAVES 5, level width from wave count; renderer draws each plate into its catalog `art` rect (ART_BAND 1400×350 @ 180,178 — 91% of height visible; legacy plates keep the full-height rect). Delivery: 4:1 (2800×700) = two 21:9 generations + tools/stitch-backdrop.mjs; place-backdrop writes public/assets/generated/backdrops/level-NN.png. 20 requests for the ten levels.
 00:24 backdrop level 1 attempt 2 → ACCEPTED
 00:29 backdrop level 2 attempt 2 → ACCEPTED
+00:35 backdrop level 5 attempt 1 → ACCEPTED
+
 
 

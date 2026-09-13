@@ -82,3 +82,8 @@ white building, the mural wall, the pines and the hills.
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-05.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- attempt count: 1 (gen-left ok, gen-right ok, seam diff 32.6). ACCEPTED.
+
