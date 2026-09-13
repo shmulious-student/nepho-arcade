@@ -4,8 +4,7 @@
 
 New hero, drawn from photos of a real person — added to the queue on 2026-09-13, next in line. No art exists yet.
 **Likeness is the point**: the face on the sheet must be recognisably Orly from the photos in
-`docs/refs/savta-orly-source/` (drop the stills there; every `.png`/`.jpg` in that folder is attached to the sheet
-request). Heroes carry two extra rules: the **face stays clear and unobstructed in every frame** (a player photo
+`docs/refs/savta-orly-source/` (`orly-1.png` is there — one clear frontal photo is sufficient for likeness; any further stills dropped in that folder are attached too). Heroes carry two extra rules: the **face stays clear and unobstructed in every frame** (a player photo
 can be composited over it), and the **hero-select card** is a separate square image.
 
 Done means `npm run verify:character -- savta-orly` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.

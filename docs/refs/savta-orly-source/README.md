@@ -1,1 +1,1 @@
-Drop stills of Orly here as PNG/JPG (orly-1.png, orly-2.png, …): one frontal smiling, one three-quarter. Every image in this folder is attached to the character-sheet request.
+Identity photos of Orly. orly-1.png (frontal, smiling) is the reference the character sheet is made from — one clear frontal photo is sufficient. Any further PNG/JPG stills placed here are attached to the sheet request as well.
