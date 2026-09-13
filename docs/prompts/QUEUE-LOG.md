@@ -107,3 +107,23 @@
 19:17 saba-kobi defeat attempt 2 → PASS (md5 f3a2051a)
 19:20 saba-kobi hero-card attempt 3 → PASS (md5 a4cada4c; hasAlpha srgba)
 19:22 noa: photo is in place — docs/refs/noa-source/noa-1.png (and noa-1.jpeg). Noa is unblocked; proceed after Kobi is committed.
+19:41 noa light2 attempt 2 → FAIL (assistant, confirmed): the 3×3 grid is not aligned to the canvas thirds — the rows are drawn too tall (row 1 feet at 653/682, row 2 figures touch the row line at 681 and are cut, row 3 heads touch the top line at 0) — so the gate reads frames 1/9 off baseline and frame 9 as 375 px. The drawing is fine; the layout is not. Retry with THIS first and bolded: "The 2048×2048 canvas is divided into exactly nine equal cells of 682×682 — three rows of three. Each figure sits entirely inside its own cell with clear empty margin above the head and below the feet; feet on one baseline about 60 px above the cell bottom; nothing touches or crosses the lines at y=682 and y=1365 or x=682 and x=1365." Attach idle.png as the layout reference.
+19:42 noa light3 attempt 1 → FAIL (gate, confirmed by eye): detached pieces above the figure in frames 5, 6, 7 — the vine ring is drawn as separate leaf clusters floating around her instead of ONE connected vine coming off her forearm; frame 7's burst is loose leaves and crumbs everywhere. Also frames 2–3 face partly away (hair over the face). Retry with first and bolded: "the pothos vine is a single continuous stem attached to her left forearm in every frame, its leaves ON the stem — no detached leaves, sparks or crumbs floating free above the figure; the ring on frames 4–6 is that one vine swung round; on frame 7 the burst stays small and attached; the face stays visible in every frame".
+19:46 noa heavy attempt 1 → FAIL (gate, confirmed): frame 3 — the tray raised overhead touches the top edge of the cell (cut flat). Everything else is right (tray, cookies, slam on 5–6). Retry with first and bolded: "in frame 3 the tray held overhead stays well below the top of the cell — clear empty margin above it; nothing touches or crosses any cell edge".
+19:51 noa knockdown attempt 1 → FAIL (gate, confirmed): frame 3 is EMPTY — only 8 of 9 cells drawn. The 8 that exist are right (fall, flat 3–6, rise, standing 9). Retry with first and bolded: "all NINE cells hold a drawn figure — 3 rows of 3, none left empty; frame 3 is the moment she hits the floor on her back".
+20:52 noa idle attempt 1 → PASS (md5 eea287e8)
+20:52 noa walk attempt 1 → PASS (md5 639c4fce; alternating stride reviewed)
+20:52 noa dash attempt 1 → PASS (md5 f1fe05a9)
+20:52 noa light1 attempt 1 → PASS (md5 42f5c151)
+20:52 noa light2 attempt 3 → PASS (md5 789ad76b; controlled baseline/scale repair)
+20:52 noa light3 attempt 2 → PASS (md5 fda65af5; connected-vine repair)
+20:52 noa heavy attempt 2 → PASS (md5 337b8597; top-margin repair)
+20:52 noa special attempt 1 → PASS (md5 24a44a64)
+20:52 noa block attempt 1 → PASS (md5 f4f9628)
+20:52 noa hurt attempt 1 → PASS (md5 c167c26)
+20:52 noa knockdown attempt 2 → PASS (md5 b6a94442; frame-3 repair)
+20:52 noa defeat attempt 1 → PASS (md5 ef594f80)
+20:52 noa hero-card attempt 1 → PASS (md5 560bc8f8; hasAlpha yes)
+20:52 noa complete set → PASS (verify:character; build:assets; test:assets)
+21:06 shmuel-card.png: Codex regenerated it unasked (21:04) as an OPAQUE painted card with a real club crest and sponsor logo. Its background is a full illustration, not a matte or checkerboard, so it cannot be keyed to alpha; the committed transparent card is restored. Raw v2 kept at backups/intake/shmuel-card/shmuel-card-v2-raw.png. Shmuel is not in the queue — do not regenerate his files.
+21:11 Codex OVERWROTE Shmuel's committed idle/walk/dash/light1 with raw 1254² checkerboard deliveries (21:07) while Noa was still uncommitted — off-queue and a regression on a shipped hero. Run stopped; files restored from git; the raw deliveries kept under backups/replaced/shmuel-unasked-*. Shmuel is DELIVERED and NOT in the queue: never regenerate his files. Noa's 13 files are verified on disk and await commit.
