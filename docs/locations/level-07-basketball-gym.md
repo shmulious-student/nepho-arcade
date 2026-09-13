@@ -23,7 +23,7 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the inside of a municipal basketball sports hall in Israel, daylight through high mesh-covered windows: a long far wall with a folding bleacher of blue seats, a red-digit scoreboard in the middle, blue-white-orange team banners hung from white steel roof trusses with strip lights, an Israeli flag at the far right; glass backboards with orange hoops and blue wall padding at both ends; a ball cart with orange balls, gym bags on a bench and a water cooler at the left. The bottom third is an empty honey-coloured parquet floor with blue and orange court lines and a big orange centre logo, in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the inside of a municipal basketball sports hall in Israel, daylight through high mesh-covered windows: a long far wall with a folding bleacher of blue seats, a red-digit scoreboard in the middle, blue-white-orange team banners hung from white steel roof trusses with strip lights, an Israeli flag at the far right; glass backboards with orange hoops and blue wall padding at both ends; a ball cart with orange balls, gym bags on a bench and a water cooler at the left. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is an empty honey-coloured parquet floor with blue and orange court lines and a big orange centre logo, in one flat plane. No people, no legible text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -35,7 +35,7 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 - **Then:**
   ```bash
   node tools/stitch-backdrop.mjs docs/refs/locations/07-basketball-gym/gen-left.png docs/refs/locations/07-basketball-gym/gen-right.png docs/refs/locations/07-basketball-gym/gen-plate.png
-  node tools/place-backdrop.mjs 7 docs/refs/locations/07-basketball-gym/gen-plate.png
+  node tools/place-backdrop.mjs 7 docs/refs/locations/07-basketball-gym/gen-plate.png --floor=<measured %, e.g. 66%>
   npm run build:assets && npm run test:assets
   ```
 - **Accept when:** the built `public/game/levels/bg-07.webp` shows the place described above across its whole width with no
@@ -47,9 +47,12 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 - **The plate is 4:1 — shipped at 2800×700.** It fills the band the zoomed view can actually show: over a full
   five-wave level the camera scrolls across ~97% of its width, and at any moment ≥90% of its height is on screen (the top
   and bottom 16 px of 700 are bleed). Anything outside a 4:1 crop is lost.
-- **Bottom third = the fighting lane**: an open, flat, evenly lit ground plane (paving, floor, road) with nothing standing
-  in it — no people, no cars, no furniture below the horizon line; props stay at the sides or behind the lane. The renderer
-  darkens this band a little for readability, so keep it mid-tone, not black.
+- **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
+  far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
+  everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
+  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
+  the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp
   edges, no photo texture, no lens blur, no text anywhere (the game draws the bilingual sign itself).
 - **No characters** in the plate. No watermark.

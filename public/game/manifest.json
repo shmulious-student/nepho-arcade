@@ -1,7 +1,7 @@
 {
- "version": "1cf2326cfd515df2",
- "derived": "derived:2026-09-13T22:49:03.156Z:c608d1c1",
- "generatedAt": "2026-09-13T22:52:16.041Z",
+ "version": "5fdb8ac509a18300",
+ "derived": "derived:2026-09-13T23:00:39.204Z:c608d1c1",
+ "generatedAt": "2026-09-13T23:04:03.577Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -16,20 +16,20 @@
    "sha256": "4342be663d55bec5a6df7aeb92bb593292c13432bda29d7ccac6bc4e88e49a78"
   },
   "cards/saba-kobi.webp": {
-   "size": 94418,
-   "sha256": "7ff6be50809bcd23105f768658ead41b1c86c3f3bd49ee1fb227f8fc9696043e"
+   "size": 89958,
+   "sha256": "4401a6799cc2f4939db9f2d5004b4e3b48fab75a998fb31d6caf9fb1173e2d1f"
   },
   "cards/savta-orly.webp": {
    "size": 78598,
    "sha256": "76c7809efaa663dae60042618082744af2442bda129f84608ed401d4e23c5188"
   },
   "cards/shmuel.webp": {
-   "size": 93574,
-   "sha256": "bf78b9c8c577d1070918c5bdbf34d12918c9857ed0fd9ec591cbb13a62ac9384"
+   "size": 112530,
+   "sha256": "af730069c8889ad049258270ab575559aaf38a9eae7a84f23b98617ae43fcb37"
   },
   "catalog.json": {
    "size": 71354,
-   "sha256": "6bc2ff94984872fb2e4fbcf9df83dc5c98412ad77e2b6c4e49f358dd424a463d"
+   "sha256": "22f0dc11d885aa1e458db021b8267d98c0c1c6bbd1efc7eecaa9c3d1a12fea21"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -308,24 +308,24 @@
    "sha256": "e6fdec6bdb246d41cae9695b842cba116cae061706cd57f3d38e559a0a24297d"
   },
   "levels/bg-01.webp": {
-   "size": 215568,
-   "sha256": "8c37a9ea252c43228fd65f79b99c3377388ad6ea9671dddc23a33700687ac21a"
+   "size": 218534,
+   "sha256": "ecaf70b0e910f0e9e7d0ac805336754fb33ff1c26a5e529cf4d495c0062e690b"
   },
   "levels/bg-02.webp": {
-   "size": 176206,
-   "sha256": "655e5e0e736a9cb80b41dcabb49df8a9112dce5ff05ec3ac10fde1ee88b173c7"
+   "size": 164346,
+   "sha256": "fbb11bae6844ec4e6cc08cae8129230c1555a5c4df79afba766855dc2f2923a6"
   },
   "levels/bg-03.webp": {
-   "size": 209522,
-   "sha256": "492f743a1c988838cf363992f4ca2132cc243e5f6c4c54f879ccd33093de1124"
+   "size": 212116,
+   "sha256": "0ddb2fdd446066316e50fe50c1a85b9633ac646e872ff8efd971e7a11f9d7d06"
   },
   "levels/bg-04.webp": {
    "size": 100552,
    "sha256": "0225b064e95812c9ffa2ee56bee5707c122a78d2de8882a603ee5d002e7e785b"
   },
   "levels/bg-05.webp": {
-   "size": 127696,
-   "sha256": "a006c23a55e4f46bed69dada4e398496ce2be9b8048d5163788414ec18849358"
+   "size": 125774,
+   "sha256": "360781c971304149b3907d534d2e081eda7c99c15e5271959feff17859900118"
   },
   "levels/bg-06.webp": {
    "size": 66250,

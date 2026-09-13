@@ -4,7 +4,8 @@ The ten levels are real places from the family's life (level order and names are
 `src/sim/levels.ts` / `public/game/catalog.json`). Each file below names the place, links its Street
 View, lists the reference photos on disk, says what the current plate gets wrong and carries a
 ready-to-paste prompt to redraw the backdrop so it looks like the real spot. Delivery is one 4:1 plate
-per level (two or three 21:9 generations stitched with `tools/stitch-backdrop.mjs`; `place-backdrop` never crops height) — `node tools/place-backdrop.mjs <level> <plate>` then
+per level (two or three 21:9 generations stitched with `tools/stitch-backdrop.mjs`; `place-backdrop --floor=NN%` aligns the
+measured ground line to the lane at 58% and never crops height) — `node tools/place-backdrop.mjs <level> <plate>` then
 `npm run build:assets`.
 
 **Work order (family places first):** 1 → 2 → 5 → 3 → 4 → 10 → 6 → 7 → 8 → 9. Each file has a *Request card* with

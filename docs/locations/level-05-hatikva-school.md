@@ -34,7 +34,7 @@ white building, the mural wall, the pines and the hills.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the sports court of Col·legi Hatikva in Valldoreix near Barcelona, sunny late morning: behind the court a white three-storey school building with rows of windows and an outside metal staircase, a low white wall with a blue-and-white geometric mural running along the court's edge, basketball hoops with glass backboards at both sides, a huge shade tree over wooden picnic tables at the far left, an olive tree by a glass entrance, umbrella pines and a green wooded ridge behind everything, clear blue sky. The bottom third is the empty asphalt court with faint yellow and white painted lines in one flat plane. No people, no text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) of the sports court of Col·legi Hatikva in Valldoreix near Barcelona, sunny late morning: behind the court a white three-storey school building with rows of windows and an outside metal staircase, a low white wall with a blue-and-white geometric mural running along the court's edge, basketball hoops with glass backboards at both sides, a huge shade tree over wooden picnic tables at the far left, an olive tree by a glass entrance, umbrella pines and a green wooded ridge behind everything, clear blue sky. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is the empty asphalt court with faint yellow and white painted lines in one flat plane. No people, no text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -51,7 +51,7 @@ white building, the mural wall, the pines and the hills.
 - **Then:**
   ```bash
   node tools/stitch-backdrop.mjs docs/refs/locations/05-hatikva-school/gen-left.png docs/refs/locations/05-hatikva-school/gen-right.png docs/refs/locations/05-hatikva-school/gen-plate.png
-  node tools/place-backdrop.mjs 5 docs/refs/locations/05-hatikva-school/gen-plate.png
+  node tools/place-backdrop.mjs 5 docs/refs/locations/05-hatikva-school/gen-plate.png --floor=66%
   npm run build:assets && npm run test:assets
   ```
 - **Accept when:** the built `public/game/levels/bg-05.webp` shows the place described above across its whole width with no
@@ -63,9 +63,12 @@ white building, the mural wall, the pines and the hills.
 - **The plate is 4:1 — shipped at 2800×700.** It fills the band the zoomed view can actually show: over a full
   five-wave level the camera scrolls across ~97% of its width, and at any moment ≥90% of its height is on screen (the top
   and bottom 16 px of 700 are bleed). Anything outside a 4:1 crop is lost.
-- **Bottom third = the fighting lane**: an open, flat, evenly lit ground plane (paving, floor, road) with nothing standing
-  in it — no people, no cars, no furniture below the horizon line; props stay at the sides or behind the lane. The renderer
-  darkens this band a little for readability, so keep it mid-tone, not black.
+- **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
+  far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
+  everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
+  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
+  the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp
   edges, no photo texture, no lens blur, no text anywhere (the game draws the bilingual sign itself).
 - **No characters** in the plate. No watermark.

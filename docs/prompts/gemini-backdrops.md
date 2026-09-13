@@ -37,8 +37,12 @@ Read first, in this order:
   image attached*, the "continue this exact scene to the right" line from the Request card, also 21:9; then
   `node tools/stitch-backdrop.mjs left right plate` (it finds the overlap and blends the seam). If your tool can output
   4:1 or wider directly, do one request at 2800×700 and skip the stitch. Never accept portrait or square output.
-- Rejects: any visible text or lettering, any person or figure, anything standing in the bottom third (cars, benches,
-  furniture in the lane), night lighting on levels 1–5 and 10, photo texture instead of painted pixel-art.
+- Rejects: any visible text or lettering, any person or figure, anything standing in the lane band (rows 58–92%:
+  cars, benches, ponds, planters), night lighting on levels 1–5 and 10, photo texture instead of painted pixel-art.
+- **Measure the floor.** Open the stitched plate, find the row where the walkable ground begins (kerb / wall base /
+  back line), express it as a percent of the height and pass `--floor=NN%` to `place-backdrop`. The lane is fixed at
+  58–92%; the tool shifts the art to match. Never skip this — a plate placed at the default puts the fighters on the
+  road, the pond or the planters.
 
 ## Per level
 
@@ -52,7 +56,7 @@ Read first, in this order:
 4. Run:
    ```bash
    node tools/stitch-backdrop.mjs docs/refs/locations/NN-<id>/gen-left.png docs/refs/locations/NN-<id>/gen-right.png docs/refs/locations/NN-<id>/gen-plate.png
-   node tools/place-backdrop.mjs <N> docs/refs/locations/NN-<id>/gen-plate.png
+   node tools/place-backdrop.mjs <N> docs/refs/locations/NN-<id>/gen-plate.png --floor=<measured %>
    npm run build:assets && npm run test:assets
    ```
    The stitch prints each join's overlap and mean pixel difference and flags **HIGH** when a tile did not repeat the

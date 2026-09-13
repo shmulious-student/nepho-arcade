@@ -26,7 +26,7 @@ the lane.
 
 ## Prompt
 
-> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) from the Bunkers del Carmel viewpoint above Barcelona, golden late afternoon: the whole city spread below in its street grid with the Sagrada Família's spires rising from it, the port and a blue Mediterranean beyond, Montjuïc hill at the right, the Collserola ridge with the Tibidabo church and communications tower at the left, and the jagged Montserrat massif faint on the far horizon; in the foreground pines, agaves and dry grass at the sides. The bottom third is the empty flat concrete terrace of the old bunkers with a low stone wall at its edge. No people, no text. Saturated, crisp, no photo texture.
+> Wide 21:9 painted pixel-art backdrop (the left part of a longer scene that continues to the right) from the Bunkers del Carmel viewpoint above Barcelona, golden late afternoon: the whole city spread below in its street grid with the Sagrada Família's spires rising from it, the port and a blue Mediterranean beyond, Montjuïc hill at the right, the Collserola ridge with the Tibidabo church and communications tower at the left, and the jagged Montserrat massif faint on the far horizon; in the foreground pines, agaves and dry grass at the sides. The ground plane's far edge is a straight horizontal line 58% down from the top, and everything below it is the empty flat concrete terrace of the old bunkers with a low stone wall at its edge. No people, no text. Saturated, crisp, no photo texture.
 
 ## Request card (for the agent)
 
@@ -39,7 +39,7 @@ the lane.
 - **Then:**
   ```bash
   node tools/stitch-backdrop.mjs docs/refs/locations/10-catalunya/gen-left.png docs/refs/locations/10-catalunya/gen-right.png docs/refs/locations/10-catalunya/gen-plate.png
-  node tools/place-backdrop.mjs 10 docs/refs/locations/10-catalunya/gen-plate.png
+  node tools/place-backdrop.mjs 10 docs/refs/locations/10-catalunya/gen-plate.png --floor=<measured %, e.g. 66%>
   npm run build:assets && npm run test:assets
   ```
 - **Accept when:** the built `public/game/levels/bg-10.webp` shows the place described above across its whole width with no
@@ -51,9 +51,12 @@ the lane.
 - **The plate is 4:1 — shipped at 2800×700.** It fills the band the zoomed view can actually show: over a full
   five-wave level the camera scrolls across ~97% of its width, and at any moment ≥90% of its height is on screen (the top
   and bottom 16 px of 700 are bleed). Anything outside a 4:1 crop is lost.
-- **Bottom third = the fighting lane**: an open, flat, evenly lit ground plane (paving, floor, road) with nothing standing
-  in it — no people, no cars, no furniture below the horizon line; props stay at the sides or behind the lane. The renderer
-  darkens this band a little for readability, so keep it mid-tone, not black.
+- **The fighting lane is rows 58%–92% of the plate** (world y 380–500 — the characters walk only there): the ground plane's
+  far edge (kerb, wall base, back line of the court) must be a straight horizontal line at **58% of the height**, and
+  everything below it an open, flat, evenly lit ground plane with nothing standing in it — no people, cars, benches,
+  ponds or planters; props stay above that line or at the far sides. Models tend to put the ground at 65–70% anyway —
+  measure it on the delivered image and pass it as `--floor=NN%` to `place-backdrop`, which shifts the content and tiles
+  the pavement to fill; do not accept a plate whose ground has objects in the lane band.
 - **Daylight**, saturated, clean painted pixel-art like the existing plates (`public/game/levels/bg-01…10.webp`) — crisp
   edges, no photo texture, no lens blur, no text anywhere (the game draws the bilingual sign itself).
 - **No characters** in the plate. No watermark.
