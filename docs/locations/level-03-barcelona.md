@@ -82,3 +82,7 @@ layout: "keep this composition, replace the place with the real one").
 
 - attempt count: 2 (gen-left ok; gen-right retried with bolded no-Sagrada-spires rule to prevent duplicate background spires). ACCEPTED.
 
+
+## Log
+
+- 2026-09-14 01:55 — Midjourney V8.2 plate `docs/backdrops_midjourney/barcelona.png` accepted; kerb at 80% → `--floor=80%` (lane is the shaded hex paving; a reroll with the ground line nearer 58% would keep more sky).

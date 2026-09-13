@@ -148,3 +148,5 @@
 2026-09-14 01:25 PITZ (owner: "no longer attacks — it should chase all visible enemies and hit them all once"): he had always run a straight line down his lane and only bit what overlapped it (enemies behind or at another depth were missed). Now stepPitz hunts: nearest standing unbitten enemy/boss in view, turns and changes lane to reach it, one bite each (pierce), pounces when nobody is left or at the time cap; with nobody in view he gallops as before. hero.test updated; verified in the browser (five enemies around Shmuel, all floored).
 01:40 backdrop level 1 (Midjourney V8.2, docs/backdrops_midjourney/rishon_lezion.png) → ACCEPTED, --floor=75%
 01:50 backdrop level 2 (Midjourney, petah_tikva.png) → ACCEPTED, --floor=78%
+01:55 backdrop level 3 (Midjourney, barcelona.png) → ACCEPTED, --floor=80%
+01:55 backdrop level 4 (Midjourney, sant-cugat.png) → ACCEPTED, --floor=88% (large lift; reroll candidate)
