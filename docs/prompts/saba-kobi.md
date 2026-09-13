@@ -1,27 +1,15 @@
 # SABA KOBI (`saba-kobi`) — hero, 12 files + hero card
 
-## Status — queue position 1 of 12 · 14 image requests · **REDO FROM SCRATCH (owner's decision, 2026-09-13 17:35)**
+## Status — queue position 1 of 12 · round two in progress · 9 image requests left
 
-The first delivery (sheet + 12 files, 16:20–17:20) is set aside under `public/assets/backups/replaced/saba-kobi-round1-*/`
-and must not be reused, attached or referred to — **start clean**: a new Step A sheet judged on likeness against
-`docs/refs/saba-kobi-source/kobi-1.png`, then all 12 files and the card in one session, one look. Nothing exists under
-`public/assets/generated/actions/saba-kobi/` now; there is no `docs/refs/saba-kobi-sheet.png` until the new one is saved.
+**Accepted and verified (blue jeans, younger look, unique files, gate-clean):** `docs/refs/saba-kobi-sheet.png`,
+`idle.png`, `walk.png`, `light1.png`, `light3.png`. **To make:** `dash light2 heavy special block hurt knockdown defeat`
+and the hero card. Round one (older face) is under `backups/replaced/saba-kobi-round1-*/`; round-two rejects
+(olive trousers, byte-copies) under `saba-kobi-round2-bad-*/` — reuse nothing from either.
 
-What round one taught — carry these into the prompts from the first request, not as retries:
-
-- **Size lock.** `defeat` failed four times, three of them on size or grid: attach the accepted `idle.png` to every later
-  request and say *"the figure is exactly the same height as in the attached idle sheet, about 60 % of the cell"*. Frame 1
-  of `defeat` came out 21 % taller than his idle; the gate allows 20 %.
-- **Nine cells, nothing crossing a line.** The middle row was drawn too low and spilled into the bottom row. Say it first:
-  *"every figure entirely inside its own cell with empty margin on all four sides; the middle row stays above the bottom third"*.
-- **`walk`: both legs lead.** The first walk was one lunge repeated (gate-blind; failed by eye). Put the stride rule first
-  and bolded on the walk request, and check it by eye before moving on.
-- **`defeat` 8–9 are two drawn frames** with a small settle — never a copy (the first attempt had 7, 8, 9 identical).
-- **Card with real alpha.** Orly's card came on a painted checkerboard; ask for a true transparent background and check
-  `hasAlpha` on the PNG — if it is a checkerboard, key it or regenerate it before the build.
-- **Age (owner's note):** round one made him look too old. Fewer wrinkles, darker hair mix, firmer face — a vigorous early-60s saba. This is a likeness *adjustment*, not a different person: same features as the photo.
-- Everything else went first try in round one (`idle light1 light2 light3 heavy special dash block hurt knockdown`); the
-  design and likeness were right — keep the same card below.
+**Why round two stalled:** six times a "new" action file was a byte-copy of the previous generation — the save step
+wrote the wrong image. The protocol in `codex-kobi-noa.md` exists to make that impossible: save from the path the
+image tool just returned, then md5 the saved file against the source and against every sibling before intake.
 
 Done means `npm run verify:character -- saba-kobi` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
