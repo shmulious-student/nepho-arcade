@@ -45,12 +45,8 @@
     1,
     2,
     3,
-    4,
     5,
-    6,
-    7,
     8,
-    9,
     10
    ]
   },
@@ -87,16 +83,13 @@
   "punk-b": {
    "name": "Punk",
    "rank": "enemy",
-   "enabled": false,
+   "enabled": true,
    "levels": [
-    1,
-    2,
     3,
     4,
     5,
     6,
     7,
-    8,
     9,
     10
    ]
@@ -118,13 +111,8 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
-    1,
-    2,
-    3,
-    4,
     5,
     6,
-    7,
     8,
     9,
     10
@@ -135,15 +123,11 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
-    1,
     2,
-    3,
     4,
     5,
-    6,
     7,
     8,
-    9,
     10
    ]
   },
@@ -152,12 +136,6 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
     7,
     8,
     9,
@@ -169,14 +147,10 @@
    "rank": "enemy",
    "enabled": true,
    "levels": [
-    1,
-    2,
     3,
     4,
-    5,
     6,
     7,
-    8,
     9,
     10
    ]
@@ -193,26 +167,34 @@
   "glass-warden": {
    "name": "Glass Warden",
    "rank": "boss",
-   "enabled": false,
-   "levels": []
+   "enabled": true,
+   "levels": [
+    3
+   ]
   },
   "kilnheart": {
    "name": "Kilnheart",
    "rank": "boss",
-   "enabled": false,
-   "levels": []
+   "enabled": true,
+   "levels": [
+    7
+   ]
   },
   "monk-zero": {
    "name": "Monk Zero",
    "rank": "boss",
-   "enabled": false,
-   "levels": []
+   "enabled": true,
+   "levels": [
+    2
+   ]
   },
   "market-king": {
    "name": "Market King",
    "rank": "boss",
-   "enabled": false,
-   "levels": []
+   "enabled": true,
+   "levels": [
+    9
+   ]
   },
   "railmaw": {
    "name": "Railmaw",
@@ -249,8 +231,7 @@
    "rank": "boss",
    "enabled": true,
    "levels": [
-    2,
-    7
+    5
    ]
   },
   "flame-samurai": {
@@ -258,7 +239,6 @@
    "rank": "boss",
    "enabled": true,
    "levels": [
-    3,
     8
    ]
   },
@@ -267,8 +247,7 @@
    "rank": "boss",
    "enabled": true,
    "levels": [
-    4,
-    9
+    4
    ]
   },
   "storm-colossus": {
@@ -276,7 +255,6 @@
    "rank": "boss",
    "enabled": true,
    "levels": [
-    5,
     10
    ]
   }
