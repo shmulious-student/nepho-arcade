@@ -44,20 +44,62 @@ export class LobbyScene extends Phaser.Scene {
   private netMode: 'local' | 'host' | 'guest' = 'local';
   private roomCode: string | null = null;
 
+  // ---- carousel layout: three cards per page, snapping ----
+  private static readonly CARD_W = 236;
+  private static readonly CARD_H = 292;
+  private static readonly CARD_GAP = 18;
+  private static readonly PER_PAGE = 3;
+  private static readonly CAROUSEL_Y = 66;
+  private strip!: Phaser.GameObjects.Container;
+  private page = 0;
+  private pageDots: Phaser.GameObjects.Arc[] = [];
+  private pageText!: Phaser.GameObjects.Text;
+  private badges: Record<HeroId, Phaser.GameObjects.Text> = {} as any;
+  private dragStartX = 0;
+  private dragStripX = 0;
+  private dragging = false;
+  private dragMoved = false;
+
+  private get pageCount(): number { return Math.max(1, Math.ceil(HERO_IDS.length / LobbyScene.PER_PAGE)); }
+  private get pageW(): number { return LobbyScene.PER_PAGE * (LobbyScene.CARD_W + LobbyScene.CARD_GAP); }
+  private get stripX0(): number { return Math.round((VIEW_W - (this.pageW - LobbyScene.CARD_GAP)) / 2); }
+
   create(): void {
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
-    this.add.image(VIEW_W / 2, 34, 'logo').setDisplaySize(135, 40);
-    this.add.text(VIEW_W / 2, 68, 'EVIOMRI: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '15px', color: '#ffcf5c' }).setOrigin(0.5);
+    // header: the wordmark (it already says EVIOMRI · CIRCUIT BREAKERS) and the section title
+    this.add.image(VIEW_W / 2, 30, 'logo').setDisplaySize(176, 52);
+    this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, 'PICK YOUR HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
+    this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, 'tap a card · swipe or ◀ ▶ for more', { fontFamily: 'monospace', fontSize: '10px', color: '#5f7391' }).setOrigin(1, 0.5);
 
-    // one card per roster hero (public/game/roster.json), 180 wide with 160px art, centred; the
-    // gap between cards closes up when the whole roster is in so five still fit the view
-    const pitch = Math.min(196, Math.floor((VIEW_W - 24) / HERO_IDS.length));
-    const cardsX = Math.floor((VIEW_W - (HERO_IDS.length * pitch - (pitch - 180))) / 2);
-    this.add.text(cardsX, 84, 'PLAYER 1 — PICK A HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, cardsX + i * pitch, 100, 0));
+    this.buildCarousel();
 
-    const coopBtn = this.makeButton(VIEW_W - 150, 316, 126, 26, 'LAN CO-OP: OFF', () => {
+    // ---- settings row ----
+    const rowY = LobbyScene.CAROUSEL_Y + LobbyScene.CARD_H + 30; // 388
+    const panel = this.add.rectangle(24, rowY, VIEW_W - 48, 62, PALETTE.panel, 0.7).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line);
+    void panel;
+    // friend
+    this.add.text(36, rowY + 8, 'FRIEND', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    this.makeButton(36, rowY + 26, 28, 26, '◀', () => this.cycleFriend(-1));
+    this.friendText = this.add.text(70, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    this.makeButton(222, rowY + 26, 28, 26, '▶', () => this.cycleFriend(1));
+    const modeBtn = this.makeButton(258, rowY + 26, 112, 26, '', () => {
+      this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
+      modeBtn.text.setText(this.friendMode.toUpperCase());
+      this.refreshBadges();
+    });
+    modeBtn.text.setText(this.friendMode.toUpperCase());
+    this.add.text(258, rowY + 8, 'HELPS AS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    // level
+    this.add.text(400, rowY + 8, 'START AT LEVEL', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    this.makeButton(400, rowY + 26, 28, 26, '◀', () => this.setLevel(this.startLevel - 1));
+    const levelText = this.add.text(434, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    this.makeButton(606, rowY + 26, 28, 26, '▶', () => this.setLevel(this.startLevel + 1));
+    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(10, n)); levelText.setText(`${this.startLevel} · ${this.catalog.levels[this.startLevel - 1].name}`); };
+    this.setLevel(this.startLevel);
+    // players / co-op toggles
+    this.add.text(656, rowY + 8, 'PLAYERS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    const coopBtn = this.makeButton(656, rowY + 26, 132, 26, 'LAN CO-OP: OFF', () => {
       this.coop = !this.coop;
       coopBtn.text.setText(`LAN CO-OP: ${this.coop ? 'ON' : 'OFF'}`);
       netRow.setVisible(this.coop);
@@ -68,7 +110,6 @@ export class LobbyScene extends Phaser.Scene {
         this.children.getByName('qr')?.destroy(); this.statusText.setText('');
       }
     });
-
     // Two players on one keyboard (arrows + numpad for P2): a keyboard-only option, so it is not
     // offered on a phone. Exclusive with LAN co-op.
     let local2pBtn: { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } | null = null;
@@ -80,22 +121,34 @@ export class LobbyScene extends Phaser.Scene {
       if (!on) this.heroPick[1] = null;
       this.cycleP2(0); this.cycleFriend(0);
     };
-    this.p2Row = this.add.container(0, 0).setVisible(false);
-    const p2Label = this.add.text(VIEW_W - 290, 348 - 14, 'PLAYER 2', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
-    const p2Prev = this.makeButton(VIEW_W - 290, 348, 26, 22, '◀', () => this.cycleP2(-1));
-    this.p2Text = this.add.text(VIEW_W - 258, 354, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
-    const p2Next = this.makeButton(VIEW_W - 176, 348, 26, 22, '▶', () => this.cycleP2(1));
-    this.p2Row.add([p2Label, p2Prev.g, p2Prev.text, this.p2Text, p2Next.g, p2Next.text]);
     if (!isTouchDevice(this)) {
-      local2pBtn = this.makeButton(VIEW_W - 290, 316, 126, 26, '2P KEYBOARD: OFF', () => {
+      local2pBtn = this.makeButton(796, rowY + 26, 132, 26, '2P KEYBOARD: OFF', () => {
         setLocal2p(!this.local2p);
         if (this.local2p && this.coop) coopBtn.g.emit('pointerdown');
       });
+    } else {
+      // touch control size, for phones
+      const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
+      const sizeBtn = this.makeButton(796, rowY + 26, 132, 26, '', () => {
+        const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
+        try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
+        sizeBtn.text.setText(`CONTROLS: ${next}`);
+      });
+      sizeBtn.text.setText(`CONTROLS: ${TouchControls.sizeSetting()}`);
     }
 
+    // ---- bottom: P2 pick / net buttons on the sides, status + START in the middle ----
+    const botY = rowY + 76; // 464
+    this.p2Row = this.add.container(0, 0).setVisible(false);
+    const p2Label = this.add.text(36, botY, 'PLAYER 2', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    const p2Prev = this.makeButton(36, botY + 16, 28, 26, '◀', () => this.cycleP2(-1));
+    this.p2Text = this.add.text(70, botY + 29, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    const p2Next = this.makeButton(222, botY + 16, 28, 26, '▶', () => this.cycleP2(1));
+    this.p2Row.add([p2Label, p2Prev.g, p2Prev.text, this.p2Text, p2Next.g, p2Next.text]);
+
     const netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = this.makeButton(VIEW_W - 260, 348, 110, 24, 'HOST GAME', () => this.startAsHost());
-    const joinBtn = this.makeButton(VIEW_W - 140, 348, 110, 24, 'JOIN GAME', () => this.promptJoin());
+    const hostBtn = this.makeButton(656, botY + 16, 132, 26, 'HOST GAME', () => this.startAsHost());
+    const joinBtn = this.makeButton(796, botY + 16, 132, 26, 'JOIN GAME', () => this.promptJoin());
     netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
 
     // Arriving through the host's QR code / join link (?join=CODE): the room is already known, so
@@ -106,90 +159,147 @@ export class LobbyScene extends Phaser.Scene {
       this.netMode = 'guest'; this.roomCode = joinCode;
     }
 
-    // Friend: one of the other heroes fights beside you — called in for their special (ASSIST) or
-    // along for the whole level as an AI ally (SIDEKICK).
-    this.add.text(24, 316, 'FRIEND (helps you)', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' });
-    this.makeButton(24, 336, 26, 22, '◀', () => this.cycleFriend(-1));
-    this.friendText = this.add.text(58, 342, '', { fontFamily: 'monospace', fontSize: '10px', color: '#f3f4e8' });
-    this.makeButton(216, 336, 26, 22, '▶', () => this.cycleFriend(1));
-    const modeBtn = this.makeButton(254, 336, 130, 22, '', () => {
-      this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
-      modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
-    });
-    modeBtn.text.setText(`MODE: ${this.friendMode.toUpperCase()}`);
-    this.cycleFriend(0);
-
-    // touch control size, for phones
-    if (isTouchDevice(this)) {
-      const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
-      const sizeBtn = this.makeButton(VIEW_W - 150, 380, 126, 24, '', () => {
-        const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
-        try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
-        sizeBtn.text.setText(`CONTROLS: ${next}`);
-      });
-      sizeBtn.text.setText(`CONTROLS: ${TouchControls.sizeSetting()}`);
-    }
-
-    // Everything below used to be pinned to the very bottom few pixels (VIEW_H-96..VIEW_H-30) with a
-    // large empty gap above it — fragile even without a viewport bug, since it left almost no margin
-    // for the most important control (START) before the edge of the canvas. Spread across the middle
-    // instead, so a few pixels of viewport miscalculation can never crop it off-screen entirely.
-    this.statusText = this.add.text(VIEW_W / 2, 392, '', { fontFamily: 'monospace', fontSize: '12px', color: '#75f5dc', align: 'center' }).setOrigin(0.5);
+    this.statusText = this.add.text(VIEW_W / 2, botY + 2, '', { fontFamily: 'monospace', fontSize: '10px', color: '#75f5dc', align: 'center' }).setOrigin(0.5, 0);
     if (this.netMode === 'guest' && this.roomCode) this.statusText.setText(`joining room ${this.roomCode} — pick your hero and press START`);
 
-    this.add.text(24, 412, 'LEVEL', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' });
-    const levelText = this.add.text(90, 411, '1 — RISHON LEZION', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' });
-    this.makeButton(24, 434, 26, 22, '◀', () => { this.startLevel = Math.max(1, this.startLevel - 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
-    this.makeButton(58, 434, 26, 22, '▶', () => { this.startLevel = Math.min(10, this.startLevel + 1); levelText.setText(`${this.startLevel} — ${this.catalog.levels[this.startLevel - 1].name}`); });
+    const start = this.makeButton(VIEW_W / 2, botY + 22, 300, 46, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
+    start.text.setFontSize(16).setFontStyle('bold');
 
-    const start = this.makeButton(VIEW_W / 2, 480, 200, 38, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
-    void start;
-
+    this.cycleFriend(0);
     this.highlightCard();
   }
 
+  private setLevel: (n: number) => void = () => {};
+
+  /** The hero cards: a strip of all of them, clipped to one page of three, dragged/swiped or paged
+   * with the arrows, and snapped to a page on release. A tap (no drag) on a card picks it. */
+  private buildCarousel(): void {
+    const { CARD_W, CARD_H, CARD_GAP, CAROUSEL_Y } = LobbyScene;
+    const x0 = this.stripX0, viewW = this.pageW - CARD_GAP;
+    this.strip = this.add.container(x0, CAROUSEL_Y);
+    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, i * (CARD_W + CARD_GAP), 0, i));
+    // clip to the page
+    const maskG = this.make.graphics({}, false);
+    maskG.fillStyle(0xffffff).fillRect(x0 - 6, CAROUSEL_Y - 8, viewW + 12, CARD_H + 16);
+    this.strip.setMask(maskG.createGeometryMask());
+    // drag / swipe on the whole page area
+    const zone = this.add.zone(x0, CAROUSEL_Y, viewW, CARD_H).setOrigin(0, 0).setInteractive({ draggable: false });
+    zone.on('pointerdown', (p: Phaser.Input.Pointer) => { this.dragging = true; this.dragMoved = false; this.dragStartX = p.x; this.dragStripX = this.strip.x; });
+    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (!this.dragging || !p.isDown) return;
+      const dx = p.x - this.dragStartX;
+      if (Math.abs(dx) > 8) this.dragMoved = true;
+      const min = x0 - (this.pageCount - 1) * this.pageW, max = x0;
+      // rubber-band past the ends
+      let nx = this.dragStripX + dx;
+      if (nx > max) nx = max + (nx - max) * 0.3; if (nx < min) nx = min + (nx - min) * 0.3;
+      this.strip.x = nx;
+    });
+    this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
+      if (!this.dragging) return;
+      this.dragging = false;
+      const dx = p.x - this.dragStartX;
+      if (this.dragMoved) {
+        // a flick of 50px+ turns the page; otherwise snap to the nearest
+        let target = this.page;
+        if (dx < -50) target = this.page + 1; else if (dx > 50) target = this.page - 1;
+        else target = Math.round((x0 - this.strip.x) / this.pageW);
+        this.goToPage(target);
+      } else {
+        // a tap: which card is under it?
+        const local = p.x - this.strip.x;
+        const i = Math.floor(local / (CARD_W + CARD_GAP));
+        if (i >= 0 && i < HERO_IDS.length && local - i * (CARD_W + CARD_GAP) <= CARD_W && p.y >= CAROUSEL_Y && p.y <= CAROUSEL_Y + CARD_H) this.pickHero(HERO_IDS[i]);
+      }
+    });
+    // arrows, page dots and counter
+    const ay = CAROUSEL_Y + CARD_H / 2;
+    this.makeButton(x0 - 52, ay - 30, 40, 60, '◀', () => this.goToPage(this.page - 1));
+    this.makeButton(x0 + viewW + 12, ay - 30, 40, 60, '▶', () => this.goToPage(this.page + 1));
+    const dotsY = CAROUSEL_Y + CARD_H + 14;
+    for (let i = 0; i < this.pageCount; i++) this.pageDots.push(this.add.circle(VIEW_W / 2 + (i - (this.pageCount - 1) / 2) * 16, dotsY, 4, PALETTE.line));
+    this.pageText = this.add.text(x0 + viewW, dotsY, '', { fontFamily: 'monospace', fontSize: '10px', color: '#5f7391' }).setOrigin(1, 0.5);
+    this.goToPage(Math.floor(HERO_IDS.indexOf(this.heroPick[0]) / LobbyScene.PER_PAGE), true);
+  }
+
+  private goToPage(n: number, instant = false): void {
+    this.page = Math.max(0, Math.min(this.pageCount - 1, n));
+    const x = this.stripX0 - this.page * this.pageW;
+    this.tweens.killTweensOf(this.strip);
+    if (instant) this.strip.x = x; else this.tweens.add({ targets: this.strip, x, duration: 220, ease: 'Cubic.easeOut' });
+    this.pageDots.forEach((d, i) => d.setFillStyle(i === this.page ? PALETTE.cyan : PALETTE.line));
+    this.pageText.setText(`${this.page + 1} / ${this.pageCount}`);
+  }
+
+  private pickHero(id: HeroId): void {
+    synth.unlock(); synth.uiClick();
+    this.heroPick[0] = id;
+    if (this.heroPick[1] === id) this.heroPick[1] = pickOther(id);
+    this.highlightCard(); this.cycleP2(0); this.cycleFriend(0);
+  }
+
   private buildHeroCard(id: HeroId, x: number, y: number, slot: number): void {
+    const { CARD_W, CARD_H } = LobbyScene;
     const def = HEROES[id];
     const c = this.add.container(x, y);
-    const bg = this.add.rectangle(0, 0, 180, 204, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
-    // square art shown square, at 160px so the character reads at a glance
-    const img = this.add.image(90, 84, `card-${id}`).setDisplaySize(160, 160);
-    const tint = this.add.rectangle(90, 166, 160, 2, def.colour).setOrigin(0.5, 0);
-    const name = this.add.text(90, 178, def.name, { fontFamily: 'monospace', fontSize: '13px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
-    const bias = this.add.text(90, 188, def.bias, { fontFamily: 'monospace', fontSize: '8px', color: '#9bb1c9', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
-    c.add([bg, img, tint, name, bias]);
-    bg.on('pointerdown', () => { this.heroPick[0] = id; if (this.heroPick[1] === id) this.heroPick[1] = pickOther(id); this.highlightCard(); this.cycleP2(0); this.cycleFriend(0); });
+    const bg = this.add.rectangle(0, 0, CARD_W, CARD_H, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line);
+    // square art shown square, nearly the card's full width, so the character reads at a glance
+    const art = CARD_W - 20;
+    const img = this.add.image(CARD_W / 2, 10 + art / 2, `card-${id}`).setDisplaySize(art, art);
+    const tint = this.add.rectangle(CARD_W / 2, 14 + art, art, 3, def.colour).setOrigin(0.5, 0);
+    const name = this.add.text(CARD_W / 2, 32 + art, def.name, { fontFamily: 'monospace', fontSize: '16px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    const bias = this.add.text(CARD_W / 2, 48 + art, def.bias, { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', wordWrap: { width: CARD_W - 16 } }).setOrigin(0.5, 0);
+    // role badge (P1 / P2 / FRIEND) in the top-left corner
+    const badge = this.add.text(10, 10, '', { fontFamily: 'monospace', fontSize: '11px', color: '#0b1730', fontStyle: 'bold', backgroundColor: '#75f5dc', padding: { x: 6, y: 3 } }).setOrigin(0, 0).setVisible(false);
+    c.add([bg, img, tint, name, bias, badge]);
+    this.strip.add(c);
     this.cards[id] = c;
+    this.badges[id] = badge;
     void slot;
   }
 
   /** Moves P2's hero by `dir` among the heroes P1 is not playing. */
   private cycleP2(dir: number): void {
-    if (!this.local2p) return;
+    if (!this.local2p) { this.refreshBadges(); return; }
     const pool = HERO_IDS.filter((h) => h !== this.heroPick[0]);
     let i = pool.indexOf(this.heroPick[1]!);
     if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
     this.heroPick[1] = pool[i];
     this.p2Text.setText(HEROES[this.heroPick[1]].name);
+    this.refreshBadges();
   }
 
   /** Moves the friend pick by `dir` among the heroes nobody is playing. */
   private cycleFriend(dir: number): void {
     const pool = HERO_IDS.filter((h) => h !== this.heroPick[0] && h !== this.heroPick[1]);
     // with only two heroes in the roster there is nobody left to be the friend in a 2P game
-    if (!pool.length) { this.friendPick = null; this.friendText.setText('— nobody left'); return; }
+    if (!pool.length) { this.friendPick = null; this.friendText.setText('— nobody left'); this.refreshBadges(); return; }
     let i = this.friendPick ? pool.indexOf(this.friendPick) : -1;
     if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
     this.friendPick = pool[i];
     this.friendText.setText(`${HEROES[this.friendPick].name} · ${HEROES[this.friendPick].bias.split(' · ')[1] || ''}`.slice(0, 24));
+    this.refreshBadges();
+  }
+
+  private refreshBadges(): void {
+    for (const id of HERO_IDS) {
+      const b = this.badges[id];
+      if (!b) continue;
+      const role = id === this.heroPick[0] ? 'P1' : id === this.heroPick[1] ? 'P2' : id === this.friendPick && this.friendMode !== 'off' ? this.friendMode.toUpperCase() : '';
+      b.setText(role).setVisible(!!role);
+      b.setStyle({ backgroundColor: role === 'P1' ? '#75f5dc' : role === 'P2' ? '#ffcf5c' : '#9bb1c9' });
+    }
   }
 
   private highlightCard(): void {
     for (const id of HERO_IDS) {
       const c = this.cards[id];
       const bg = c.list[0] as Phaser.GameObjects.Rectangle;
-      bg.setStrokeStyle(2, id === this.heroPick[0] ? PALETTE.cyan : PALETTE.line);
+      const on = id === this.heroPick[0];
+      bg.setStrokeStyle(on ? 3 : 2, on ? PALETTE.cyan : PALETTE.line);
+      bg.setFillStyle(on ? 0x102240 : PALETTE.panel);
     }
+    this.refreshBadges();
   }
 
   private makeButton(x: number, y: number, w: number, h: number, label: string, onClick: () => void, fill = 0x14243d, textColour: number = PALETTE.text): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } {
@@ -223,7 +333,7 @@ export class LobbyScene extends Phaser.Scene {
       QR.toDataURL(url, { margin: 1, width: 128, color: { dark: '#050711', light: '#f3f4e8' } }).then((dataUrl) => {
         addTextureFromDataUrl(this, 'qr', dataUrl).then(() => {
           this.children.getByName('qr')?.destroy();
-          this.add.image(VIEW_W - 74, 280, 'qr').setName('qr').setScale(0.75);
+          this.add.image(96, VIEW_H - 50, 'qr').setName('qr').setScale(0.7);
         });
       });
     }).catch(() => {});

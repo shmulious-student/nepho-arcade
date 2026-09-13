@@ -43,6 +43,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   row on the same target.
 - **Pickups:** beaten enemies sometimes drop a heart (heals 30%), a coin (+500) or a star (+50% meter);
   walk over them. Clearing a level pays a time bonus and a best-combo bonus.
+- **Lobby:** hero cards three to a page — tap to pick, swipe or ◀ ▶ to turn the page; each card wears its role
+  (P1 / P2 / ASSIST / SIDEKICK). Friend, level and player options sit in one row above START.
 - **Friend:** `H` (touch: tap your HUD card). In the lobby you pick one of the other heroes as your friend and how
   they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
   in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
