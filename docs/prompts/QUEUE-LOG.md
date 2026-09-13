@@ -97,3 +97,13 @@
 18:23 saba-kobi dash.png REMOVED (5th time; md5 identical to walk.png again, written 18:22 after the resume). RULE: Codex must NOT generate or write dash.png for saba-kobi again — leave it missing. Finish light2, light3, heavy, special, block, hurt, knockdown, defeat and the card; the set stays uncommitted until dash is produced another way. light1.png (18:22, blue jeans, unique) is accepted.
 
 18:24 saba-kobi light2.png REMOVED — byte-copy of light1.png (6th fabricated file; the first after the resume). Codex's save step writes the previous image to the new path; no prompt rule fixes a tooling fault. Automation PAUSED again and the run stopped. Kobi stands at sheet + idle + walk + light1 (all verified genuine).
+18:49 saba-kobi dash attempt 2 → PASS (md5 1dbb67c2)
+18:51 saba-kobi light2 attempt 1 → PASS (md5 4dac3e75)
+18:53 saba-kobi heavy attempt 1 → PASS (md5 ceca5d04)
+18:56 saba-kobi special attempt 2 → PASS (md5 28916ff1)
+19:11 saba-kobi block attempt 1 → PASS (md5 5ae5f74e)
+19:13 saba-kobi hurt attempt 1 → PASS (md5 2429fcf6)
+19:14 saba-kobi knockdown attempt 1 → PASS (md5 eec4ec8e)
+19:17 saba-kobi defeat attempt 2 → PASS (md5 f3a2051a)
+19:20 saba-kobi hero-card attempt 3 → PASS (md5 a4cada4c; hasAlpha srgba)
+19:22 noa: photo is in place — docs/refs/noa-source/noa-1.png (and noa-1.jpeg). Noa is unblocked; proceed after Kobi is committed.

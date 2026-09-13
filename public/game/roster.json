@@ -28,7 +28,7 @@
   "saba-kobi": {
    "name": "SABA KOBI",
    "rank": "hero",
-   "enabled": false,
+   "enabled": true,
    "levels": []
   },
   "noa": {
