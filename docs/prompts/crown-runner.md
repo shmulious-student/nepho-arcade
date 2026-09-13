@@ -1,6 +1,6 @@
 # Crown Runner (`crown-runner`) — boss, level 7, 6 files
 
-## Status — queue position 7 of 17 · 7 image requests (Step A sheet + 6 action files)
+## Status — queue position 6 of 16 · 7 image requests (Step A sheet + 6 action files)
 
 Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
 files (`idle approach attack special hurt defeat`), one session, one look. Level 7 boss.

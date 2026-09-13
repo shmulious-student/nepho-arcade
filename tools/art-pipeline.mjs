@@ -4,7 +4,12 @@
 //   node tools/art-pipeline.mjs <id> [--only walk dash] # one character, or only the named files
 //
 // Options
-//   --provider gpt|gemini   image model (default gpt; env OPENAI_IMAGE_MODEL / GEMINI_IMAGE_MODEL)
+//   --provider auto|gpt|gemini   image model family (default auto: gpt if OPENAI_API_KEY is set, else gemini;
+//                           the other provider, when its key exists, takes the last retry of a stuck file)
+//   --quality low|medium|high|xhigh|max   OpenAI quality (default high; xhigh for hero faces)
+//   --budget USD            hard cap on this run's spend — no request is sent that would exceed it (default 60)
+//   --char-budget USD       cap per character before it is parked (default 8)
+//   --bench <id>            benchmark: sheet + idle + walk on every configured provider, scored on gate/judge/time/cost
 //   --parallel N            characters generated at once in --queue mode (default 3)
 //   --concurrency N         action files generated at once inside one character (default 4)
 //   --max-retries N         regenerations per file before the character is parked (default 3)
@@ -26,7 +31,7 @@
 //
 // Every frame is generated art: this script never cuts, copies, blends or moves pixels. The only
 // pixel step it runs is tools/intake-character.mjs (container normalization).
-import { existsSync, readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, renameSync, copyFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, renameSync, copyFileSync, rmSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -46,13 +51,14 @@ const flag = (n) => argv.includes(`--${n}`);
 const opt = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : d; };
 const OPTS = {
   queue: flag('queue'), dryRun: flag('dry-run'), judge: !flag('no-judge'), commit: !flag('no-commit'),
-  provider: opt('provider', 'gpt'), parallel: +opt('parallel', 3), concurrency: +opt('concurrency', 4), maxRetries: +opt('max-retries', 3),
+  provider: opt('provider', 'auto'), parallel: +opt('parallel', 3), concurrency: +opt('concurrency', 4), maxRetries: +opt('max-retries', 3),
+  quality: opt('quality', 'high'), budget: +opt('budget', 60), charBudget: +opt('char-budget', 8), bench: opt('bench', null),
 };
-const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].match(/^--(provider|parallel|concurrency|max-retries)$/)));
+const positional = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1].match(/^--(provider|parallel|concurrency|max-retries|quality|budget|char-budget|bench)$/)));
 const onlyIdx = argv.indexOf('--only');
 const ONLY = onlyIdx >= 0 ? argv.slice(onlyIdx + 1).filter((a) => !a.startsWith('--')) : [];
 const ID = OPTS.queue ? null : positional.filter((a) => !ONLY.includes(a))[0];
-if (!OPTS.queue && !ID && !flag('smoke')) { console.error('usage: node tools/art-pipeline.mjs --queue | <id> [--only <action> ...] [--provider gpt|gemini] [--dry-run]'); process.exit(2); }
+if (!OPTS.queue && !ID && !flag('smoke') && !OPTS.bench) { console.error('usage: node tools/art-pipeline.mjs --queue | <id> [--only <action> ...] [--provider gpt|gemini] [--dry-run]'); process.exit(2); }
 
 // .env.local (gitignored) may hold the keys: KEY=value lines; the process environment wins
 for (const envFile of ['.env.local', '.env']) {
@@ -61,7 +67,7 @@ for (const envFile of ['.env.local', '.env']) {
 }
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5';
+const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2.5-sunburst';
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3-pro-image';
 const OPENAI_JUDGE_MODEL = process.env.OPENAI_JUDGE_MODEL || 'gpt-5-mini';
 const GEMINI_JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL || 'gemini-flash-latest';
@@ -71,6 +77,33 @@ const GEMINI_EXPRESS = process.env.GEMINI_ENDPOINT === 'vertex'; // AQ.… keys 
 const geminiCall = (model, body) => GEMINI_EXPRESS
   ? fetchRetry(`https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_KEY)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   : fetchRetry(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_KEY }, body: JSON.stringify(body) });
+
+if (OPTS.provider === 'auto') OPTS.provider = OPENAI_KEY ? 'gpt' : 'gemini';
+const ALT_PROVIDER = OPTS.provider === 'gpt' ? (GEMINI_KEY ? 'gemini' : null) : (OPENAI_KEY ? 'gpt' : null);
+
+// ---- prices (docs, 2026-09): the ledger estimates before a call and settles on the response's usage ----
+// OpenAI: $30 / 1M image-output tokens; tokens per image by quality × size from the docs' calculator.
+// $8 / 1M image-input tokens for references (~hundreds of tokens each) — folded in as a flat allowance.
+const OPENAI_TOKENS = { low: { 1024: 196, 2048: 397, sheet: 158 }, medium: { 1024: 439, 2048: 892, sheet: 343 }, high: { 1024: 1756, 2048: 3568, sheet: 1372 }, xhigh: { 1024: 3122, 2048: 6343, sheet: 2459 }, max: { 1024: 7024, 2048: 14272, sheet: 5488 } };
+// Gemini: image output $120 / 1M tokens on Pro (1K–2K = 1120 tokens ⇒ $0.134), $60 / 1M on 3.1 Flash Image (2K = 1680 ⇒ $0.101); image input $0.0011 each
+const GEMINI_PER_IMAGE = { 'gemini-3-pro-image': 0.134, 'gemini-3.1-flash-image': 0.101, 'gemini-3.1-flash-lite-image': 0.034, 'gemini-2.5-flash-image': 0.039 };
+function estimateCost(provider, kind, refs) {
+  if (provider === 'gpt') { const q = OPENAI_TOKENS[OPTS.quality] || OPENAI_TOKENS.high; const tok = kind === 'sheet' ? q.sheet * 1.4 : q[2048]; return tok * 30 / 1e6 + refs * 0.004; }
+  return (GEMINI_PER_IMAGE[GEMINI_IMAGE_MODEL] || 0.134) + refs * 0.0011;
+}
+const LEDGER = join(ROOT, 'public/assets/backups/spend.json'); // gitignored; survives restarts
+const ledger = existsSync(LEDGER) ? JSON.parse(readFileSync(LEDGER, 'utf8')) : { total: 0, runs: [] };
+const run = { started: new Date().toISOString(), spent: 0, requests: 0, byCharacter: {} };
+ledger.runs.push(run);
+function charge(id, usd) { run.spent += usd; run.requests++; run.byCharacter[id] = (run.byCharacter[id] || 0) + usd; ledger.total += usd; if (!OPTS.dryRun) writeFileSync(LEDGER, JSON.stringify(ledger, null, 1)); }
+/** Throws before a request that would break the run or per-character budget — the hard cap. */
+function assertBudget(id, est) {
+  if (run.spent + est > OPTS.budget) throw new Error(`BUDGET: run spend \$${run.spent.toFixed(2)} + \$${est.toFixed(3)} would exceed --budget \$${OPTS.budget}`);
+  if ((run.byCharacter[id] || 0) + est > OPTS.charBudget) throw new Error(`BUDGET: ${id} has used \$${(run.byCharacter[id] || 0).toFixed(2)} of its --char-budget \$${OPTS.charBudget}`);
+}
+// per-provider throttle: Gemini Tier 1 allows $10 per rolling 10 min (≈70 Pro images) — 6 in flight is safe; OpenAI 8
+const inflight = { gpt: 0, gemini: 0 }; const LIMIT = { gpt: +(process.env.OPENAI_CONCURRENCY || 8), gemini: +(process.env.GEMINI_CONCURRENCY || 6) };
+async function throttled(provider, fn) { while (inflight[provider] >= LIMIT[provider]) await sleep(500); inflight[provider]++; try { return await fn(); } finally { inflight[provider]--; } }
 
 const ts = () => new Date().toTimeString().slice(0, 8);
 function log(id, msg) { const line = `${ts()} ${id.padEnd(15)} ${msg}`; console.log(line); if (!OPTS.dryRun) appendFileSync(LOG, `- \`${line}\`\n`); }
@@ -157,20 +190,25 @@ async function fetchRetry(url, init, tries = 4) {
 /** kind: 'action' (square, transparent) | 'sheet' (2:1) | 'card' (square, transparent) → PNG Buffer */
 async function generateOpenAI(prompt, refs, kind) {
   if (!OPENAI_KEY) throw new Error('OPENAI_API_KEY not set');
-  const size = kind === 'sheet' ? '1536x1024' : '1024x1024';
+  // GPT Image 2.5 takes custom WIDTHxHEIGHT (multiples of 16, ≤ 4K pixels): the standard's 2048² with a real
+  // alpha channel, straight from the model — intake then has nothing to key or resample
+  const is25 = /gpt-image-2/.test(OPENAI_IMAGE_MODEL);
+  const size = kind === 'sheet' ? (is25 ? '2048x1024' : '1536x1024') : (is25 ? '2048x2048' : '1024x1024');
   const call = async (fidelity) => {
     const fd = new FormData();
     fd.append('model', OPENAI_IMAGE_MODEL); fd.append('prompt', prompt); fd.append('n', '1');
-    fd.append('size', size); fd.append('quality', 'high'); fd.append('output_format', 'png'); fd.append('background', 'transparent');
-    if (fidelity) fd.append('input_fidelity', 'high');
+    fd.append('size', size); fd.append('quality', is25 ? OPTS.quality : 'high'); fd.append('output_format', 'png'); fd.append('background', 'transparent');
+    if (fidelity) fd.append('input_fidelity', 'high'); // older models only; dropped if refused
     for (const r of refs) fd.append('image[]', new Blob([r.buf], { type: 'image/png' }), r.name);
     return fetchRetry('https://api.openai.com/v1/images/edits', { method: 'POST', headers: { Authorization: `Bearer ${OPENAI_KEY}` }, body: fd });
   };
   let r;
-  try { r = await call(true); } catch (e) { if (/input_fidelity/.test(e.message)) r = await call(false); else throw e; }
+  try { r = await call(!is25); } catch (e) { if (/input_fidelity/.test(e.message)) r = await call(false); else throw e; }
   const j = await r.json();
   const b64 = j.data?.[0]?.b64_json; if (!b64) throw new Error('openai: no image in response');
-  return Buffer.from(b64, 'base64');
+  // settle the ledger on the real usage when the API reports it
+  const u = j.usage; const usd = u ? ((u.output_tokens || 0) * 30 + (u.input_tokens_details?.image_tokens || 0) * 8 + (u.input_tokens_details?.text_tokens || 0) * 5) / 1e6 : null;
+  return { buf: Buffer.from(b64, 'base64'), usd };
 }
 
 async function generateGemini(prompt, refs, kind) {
@@ -184,9 +222,17 @@ async function generateGemini(prompt, refs, kind) {
   const j = await r.json();
   const part = j.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
   if (!part) throw new Error(`gemini: no image in response (${JSON.stringify(j).slice(0, 300)})`);
-  return Buffer.from(part.inlineData.data, 'base64');
+  return { buf: Buffer.from(part.inlineData.data, 'base64'), usd: null };
 }
-const generate = (prompt, refs, kind) => (OPTS.provider === 'gemini' ? generateGemini : generateOpenAI)(prompt, refs, kind);
+/** One image: budget check → throttle → provider → ledger. Returns { buf, usd, seconds, provider }. */
+async function generate(prompt, refs, kind, id = '_', provider = OPTS.provider) {
+  const est = estimateCost(provider, kind, refs.length);
+  assertBudget(id, est);
+  const t0 = Date.now();
+  const out = await throttled(provider, () => (provider === 'gemini' ? generateGemini : generateOpenAI)(prompt, refs, kind));
+  const usd = out.usd ?? est; charge(id, usd);
+  return { buf: out.buf, usd, seconds: (Date.now() - t0) / 1000, provider };
+}
 
 // ---- vision judge: the checks the gate cannot make ----
 function judgeChecklist(P, action) {
@@ -256,23 +302,26 @@ function saveAttempt(id, action, n, buf) { const d = join(ATTEMPTS, id); mkdirSy
 // ---- one file, with retries ----
 async function produceAction(P, action, refs) {
   const dest = join(ACTIONS_DIR, P.id, `${action}.png`);
-  let extra = [];
+  let extra = []; let spent = 0;
   for (let attempt = 1; attempt <= OPTS.maxRetries + 1; attempt++) {
     const prompt = actionPrompt(P, action, extra);
     if (OPTS.dryRun) { console.log(`\n--- ${P.id}/${action}.png (refs: ${refs.map((r) => r.name).join(', ')}) ---\n${prompt}\n`); return { ok: true, dry: true }; }
-    let buf;
-    try { buf = await generate(prompt, refs, 'action'); } catch (e) { log(P.id, `${action} attempt ${attempt} → API error: ${e.message.slice(0, 200)}`); if (attempt > OPTS.maxRetries) return { ok: false, why: `API: ${e.message.slice(0, 200)}` }; await sleep(3000); continue; }
+    // the last retry goes to the other provider when there is one — a different model, not the same one again
+    const provider = attempt === OPTS.maxRetries + 1 && ALT_PROVIDER ? ALT_PROVIDER : OPTS.provider;
+    let g;
+    try { g = await generate(prompt, refs, 'action', P.id, provider); } catch (e) { if (/^BUDGET/.test(e.message)) return { ok: false, why: e.message }; log(P.id, `${action} attempt ${attempt} → API error: ${e.message.slice(0, 200)}`); if (attempt > OPTS.maxRetries) return { ok: false, why: `API: ${e.message.slice(0, 200)}` }; await sleep(3000); continue; }
+    const buf = g.buf; spent += g.usd; const cost = `\$${g.usd.toFixed(3)}, ${g.seconds.toFixed(0)} s${provider !== OPTS.provider ? ', ' + provider : ''}`;
     saveAttempt(P.id, action, attempt, buf);
     mkdirSync(dirname(dest), { recursive: true }); writeFileSync(dest, buf);
     const norm = intake(P.id, action);
     const fails = await gateFor(P, action);
     let problems = fails;
     if (!fails.length) { const j = await judge(P, 'action', dest, action); if (!j.pass) problems = j.problems.map((p) => `[by eye] ${p}`); }
-    if (!problems.length) { log(P.id, `${action} attempt ${attempt} → PASS${norm ? ` (${norm.replace(/^[^:]+:\s*/, '')})` : ''}`); return { ok: true }; }
-    log(P.id, `${action} attempt ${attempt} → FAIL: ${problems.join(' | ').slice(0, 300)}`);
+    if (!problems.length) { log(P.id, `${action} attempt ${attempt} → PASS (${cost}${norm ? '; ' + norm.replace(/^[^:]+:\s*/, '') : ''})`); return { ok: true, attempts: attempt, usd: spent, seconds: g.seconds }; }
+    log(P.id, `${action} attempt ${attempt} → FAIL (${cost}): ${problems.join(' | ').slice(0, 300)}`);
     extra = [...new Set([...extra, ...problems.map((p) => p.replace(/^\[by eye\] /, ''))])].slice(-4);
   }
-  return { ok: false, why: extra.join(' | ') };
+  return { ok: false, why: extra.join(' | '), attempts: OPTS.maxRetries + 1, usd: spent };
 }
 
 // ---- one character ----
@@ -311,11 +360,11 @@ async function produceCharacter(id, only = []) {
       const prompt = sheetPromptText(P) + (extra.length ? `\n\nThe previous sheet was rejected: ${extra.map((e) => `**${e}**`).join(' ')}` : '');
       if (OPTS.dryRun) { console.log(`\n--- ${id} sheet (refs: ${[quality, ...identity].map((r) => r.name).join(', ')}) ---\n${prompt}\n`); ok = true; break; }
       try {
-        const buf = await generate(prompt, [quality, ...identity], 'sheet');
-        mkdirSync(dirname(P.sheetPath), { recursive: true }); writeFileSync(P.sheetPath, buf);
+        const g = await generate(prompt, [quality, ...identity], 'sheet', id);
+        mkdirSync(dirname(P.sheetPath), { recursive: true }); writeFileSync(P.sheetPath, g.buf);
         const j = await judge(P, 'sheet', P.sheetPath);
         if (j.pass) { ok = true; log(id, `sheet attempt ${attempt} → accepted`); } else { extra = j.problems; log(id, `sheet attempt ${attempt} → rejected: ${j.problems.join(' | ')}`); }
-      } catch (e) { log(id, `sheet attempt ${attempt} → API error: ${e.message.slice(0, 200)}`); }
+      } catch (e) { if (/^BUDGET/.test(e.message)) return park(id, e.message); log(id, `sheet attempt ${attempt} → API error: ${e.message.slice(0, 200)}`); }
     }
     if (!ok) { if (!existsSync(P.sheetPath)) return park(id, 'no accepted character sheet'); log(id, 'sheet: proceeding with the last one (judge kept rejecting) — review docs/refs by eye'); }
   }
@@ -347,7 +396,7 @@ async function produceCharacter(id, only = []) {
     const cardPath = join(ROOT, 'public/assets/generated/heroes', `${id}-card.png`);
     const prompt = cardPromptText(P);
     if (OPTS.dryRun) console.log(`\n--- ${id} card ---\n${prompt}\n`);
-    else { try { const buf = await generate(prompt, [quality, ...sheet], 'card'); mkdirSync(dirname(cardPath), { recursive: true }); writeFileSync(cardPath, buf); log(id, 'hero card → saved'); } catch (e) { log(id, `hero card → API error: ${e.message.slice(0, 200)} (continuing without it)`); } }
+    else { try { const g = await generate(prompt, [quality, ...sheet], 'card', id); mkdirSync(dirname(cardPath), { recursive: true }); writeFileSync(cardPath, g.buf); log(id, `hero card → saved (\$${g.usd.toFixed(3)})`); } catch (e) { log(id, `hero card → API error: ${e.message.slice(0, 200)} (continuing without it)`); } }
   }
   if (OPTS.dryRun) { log(id, 'dry run complete'); return { id, status: 'dry' }; }
 
@@ -392,10 +441,10 @@ async function smoke() {
   const refs = [await refPart(QUALITY_REF)];
   const out = join(ATTEMPTS, '_smoke'); mkdirSync(out, { recursive: true });
   const t0 = Date.now();
-  const buf = await generate(prompt, refs, 'action');
-  const m = await sharp(buf).metadata();
-  const file = join(out, `${OPTS.provider}-${Date.now()}.png`); writeFileSync(file, buf);
-  console.log(`${OPTS.provider} image OK — ${m.width}×${m.height}, ${m.channels} channels, ${((Date.now() - t0) / 1000).toFixed(0)} s → ${file.replace(ROOT + '/', '')}`);
+  const g = await generate(prompt, refs, 'action', '_smoke');
+  const m = await sharp(g.buf).metadata();
+  const file = join(out, `${OPTS.provider}-${Date.now()}.png`); writeFileSync(file, g.buf);
+  console.log(`${OPTS.provider} (${OPTS.provider === 'gpt' ? OPENAI_IMAGE_MODEL : GEMINI_IMAGE_MODEL}) image OK — ${m.width}×${m.height}, ${m.channels} channels, alpha ${m.hasAlpha}, ${g.seconds.toFixed(0)} s, \$${g.usd.toFixed(3)} → ${file.replace(ROOT + '/', '')}`);
   if (OPTS.judge && (GEMINI_KEY || OPENAI_KEY)) {
     const P = { id: 'smoke', card: 'a small orange tabby cat', attach: [], sheetPath: QUALITY_REF };
     const j = await judge(P, 'action', file, 'idle');
@@ -403,8 +452,47 @@ async function smoke() {
   }
 }
 
+// ---- --bench <id>: the same character on every configured provider, scored ----
+async function bench(id) {
+  const base = parsePromptFile(id);
+  const providers = [OPTS.provider, ALT_PROVIDER].filter(Boolean);
+  if (providers.length < 2) console.log('only one provider has a key — benchmarking it alone');
+  const files = ['idle', base.actions.includes('walk') ? 'walk' : base.actions.includes('approach') ? 'approach' : base.actions[1]];
+  const quality = await refPart(QUALITY_REF); const identity = await Promise.all(base.attach.map(refPart));
+  const rows = [];
+  for (const provider of providers) {
+    const saved = OPTS.provider; OPTS.provider = provider;
+    const tmp = `bench-${id}-${provider}`; const dir = join(ACTIONS_DIR, tmp); mkdirSync(dir, { recursive: true });
+    const keep = join(ROOT, 'public/assets/backups/bench', id, provider); mkdirSync(keep, { recursive: true });
+    const P = { ...base, id: tmp, sheetPath: join(keep, 'sheet.png') };
+    const row = { provider, model: provider === 'gpt' ? `${OPENAI_IMAGE_MODEL} ${OPTS.quality}` : GEMINI_IMAGE_MODEL, sheet: '—', files: {}, usd: 0, seconds: 0 };
+    try {
+      if (base.sheetPrompt) {
+        const g = await generate(sheetPromptText(base), [quality, ...identity], 'sheet', tmp); writeFileSync(P.sheetPath, g.buf); row.usd += g.usd; row.seconds += g.seconds;
+        const j = await judge(P, 'sheet', P.sheetPath); row.sheet = j.pass ? `ok (${g.seconds.toFixed(0)} s)` : `judge: ${j.problems.join('; ').slice(0, 80)}`;
+      }
+      const sheetRef = existsSync(P.sheetPath) ? [await refPart(P.sheetPath)] : identity;
+      for (const a of files) {
+        const refs = [quality, ...sheetRef, ...(a !== 'idle' && existsSync(join(dir, 'idle.png')) ? [await refPart(join(dir, 'idle.png'))] : [])];
+        const r = await produceAction(P, a, refs);
+        row.files[a] = r.ok ? `PASS in ${r.attempts} attempt${r.attempts > 1 ? 's' : ''}` : `FAIL after ${r.attempts}: ${(r.why || '').slice(0, 90)}`;
+        row.usd += r.usd || 0; row.seconds += r.seconds || 0;
+        if (existsSync(join(dir, `${a}.png`))) copyFileSync(join(dir, `${a}.png`), join(keep, `${a}.png`));
+      }
+    } catch (e) { row.error = e.message.slice(0, 200); }
+    rows.push(row); OPTS.provider = saved;
+    for (const f of readdirSync(dir)) renameSync(join(dir, f), join(keep, f)); // nothing bench-made stays under actions/
+    try { require_rm(dir); } catch {}
+  }
+  const md = `## ${new Date().toISOString().slice(0, 16)} — ${id}\n\n| provider | model | sheet | ${files.join(' | ')} | spend | model time |\n|---|---|---|${files.map(() => '---').join('|')}|---|---|\n${rows.map((r) => `| ${r.provider} | ${r.model} | ${r.sheet} | ${files.map((f) => r.files[f] || (r.error ? 'error: ' + r.error : '—')).join(' | ')} | \$${r.usd.toFixed(2)} | ${r.seconds.toFixed(0)} s |`).join('\n')}\n\nFiles under public/assets/backups/bench/${id}/<provider>/ — compare by eye on top of the numbers.\n\n`;
+  const out = join(PROMPTS_DIR, 'BENCH.md'); appendFileSync(out, (existsSync(out) ? '' : '# Provider benchmark — same character, same prompts, every configured provider\n\n') + md);
+  console.log(md);
+}
+function require_rm(dir) { rmSync(dir, { recursive: true, force: true }); }
+
 // ---- main ----
 async function main() {
+  if (OPTS.bench) { await bench(OPTS.bench); return; }
   if (flag('smoke')) { await smoke(); return; }
   if (!OPTS.dryRun) {
     if (OPTS.provider === 'gemini' && !GEMINI_KEY) { console.error('GEMINI_API_KEY (or GOOGLE_API_KEY) is not set'); process.exit(2); }
@@ -424,13 +512,14 @@ async function main() {
     jobs.splice(0, jobs.length, ...keep);
   }
   console.log(`${jobs.length} job(s): ${jobs.map((j) => j.id + (j.only.length ? `[${j.only.join(',')}]` : '')).join(' → ')}${OPTS.dryRun ? '  (dry run)' : ''}`);
+  console.log(`provider ${OPTS.provider} (${OPTS.provider === 'gpt' ? OPENAI_IMAGE_MODEL + ' ' + OPTS.quality : GEMINI_IMAGE_MODEL}); alternate for last retries: ${ALT_PROVIDER || 'none'}; budget \$${OPTS.budget} run / \$${OPTS.charBudget} per character; ledger so far \$${ledger.total.toFixed(2)}`);
   const results = []; let k = 0;
   await Promise.all(Array.from({ length: Math.min(OPTS.queue ? OPTS.parallel : 1, jobs.length) }, async () => {
     while (k < jobs.length) { const j = jobs[k++]; try { results.push(await produceCharacter(j.id, j.only)); } catch (e) { results.push(park(j.id, e.message)); } }
   }));
   const ready = results.filter((r) => r.status === 'ready').map((r) => r.id);
   const parked = results.filter((r) => r.status === 'parked');
-  const summary = `done — ready: ${ready.join(', ') || 'none'}; parked: ${parked.map((p) => p.id).join(', ') || 'none'}`;
+  const summary = `done — ready: ${ready.join(', ') || 'none'}; parked: ${parked.map((p) => p.id).join(', ') || 'none'}; spent \$${run.spent.toFixed(2)} in ${run.requests} requests (ledger total \$${ledger.total.toFixed(2)})`;
   console.log(`\n${summary}`); for (const p of parked) console.log(`  ${p.id}: ${p.why}`);
   if (!OPTS.dryRun) {
     appendFileSync(LOG, `\n**${summary}**\n${parked.map((p) => `- ${p.id}: ${p.why}\n`).join('')}\n`);

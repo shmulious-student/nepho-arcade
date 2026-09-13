@@ -22,3 +22,6 @@
 15:58 kilnheart special attempt 2 → PASS
 16:10 kilnheart hurt attempt 1 → PASS
 16:22 kilnheart defeat attempt 1 → PASS
+16:45 monk-zero sheet attempt 1 → PASS
+17:02 monk-zero idle attempt 1 → PASS (gate reports incomplete set as hero; missing files only)
+17:15 monk-zero approach attempt 1 → PASS

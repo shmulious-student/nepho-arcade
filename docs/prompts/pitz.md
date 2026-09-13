@@ -1,24 +1,9 @@
 # PITZ (`pitz`) — effect sprite, 3 files
 
-## Status — queue position 1 of 17 · 1 image request (regenerate `run.png` only)
+## Status — DELIVERED
 
-Redelivered 2026-09-13 10:14–10:18. `leap.png` and `pounce.png` pass. `run.png` is a real gallop cycle by
-eye, but the gate rejects it: the cat is placed progressively higher in its cell across the sheet — the
-paw line is at 640–643 px in frames 1–2, 565–613 in 3–6, and 519–532 in 7–9 (110 px of drift, top row to
-bottom row). The gate's exact output:
-
-```
-FAIL  run.png: frame 2 feet are 57 px off the row's baseline — identical bottom-centre anchor in all 9 cells
-FAIL  run.png: frame 7 feet are -68 px off the row's baseline — identical bottom-centre anchor in all 9 cells
-FAIL  run.png: frame 8 feet are -57 px off the row's baseline — identical bottom-centre anchor in all 9 cells
-FAIL  run.png: frame 9 feet are -57 px off the row's baseline — identical bottom-centre anchor in all 9 cells
-```
-
-Regenerate **only `run.png`**, same session, attaching the accepted `leap.png` and `pounce.png` as identity
-and size references, and add this line — bolded — at the end of the run request: **"All nine cells share
-one baseline: the lowest paw sits at exactly the same height in every cell, in the bottom row of the grid
-as in the top row. The cat is never placed higher or lower in one cell than in another."** Intake:
-`npm run intake:character -- pitz run`.
+`run.png` was redelivered on 2026-09-13 (attempt 4 — the baseline rule placed first and bolded did it); the set
+passes the gate, is built in (`fx pitz ok (actions)`) and the art is approved. Nothing outstanding.
 
 Done means `npm run verify:character -- pitz` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
