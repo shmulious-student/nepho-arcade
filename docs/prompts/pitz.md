@@ -1,9 +1,9 @@
 # PITZ (`pitz`) — effect sprite, 3 files
 
-## Status — DELIVERED
+## Status — REDO FROM SCRATCH with Shmuel (owner, 2026-09-13 21:00) · in progress
 
-`run.png` was redelivered on 2026-09-13 (attempt 4 — the baseline rule placed first and bolded did it); the set
-passes the gate, is built in (`fx pitz ok (actions)`) and the art is approved. Nothing outstanding.
+The three files (`leap run pounce`) are regenerated alongside Shmuel's new set so the cat matches the new sheet. The previous
+set stays in git history until the new one passes.
 
 Done means `npm run verify:character -- pitz` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

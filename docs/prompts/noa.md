@@ -1,18 +1,9 @@
 # NOA (`noa`) — hero, 12 files + hero card
 
-## Status — queue position 1 of 11 · 14 image requests (Step A sheet + 12 action files + hero card)
+## Status — DELIVERED
 
-New hero, drawn from a photo — added on 2026-09-13 18:00, queued **right after Saba Kobi**. No art exists yet.
-**Likeness is the point**: the face on the sheet must be recognisably Noa from `docs/refs/noa-source/noa-1.png`
-(drop the photo there; every image in that folder is attached to the sheet request — one clear frontal photo is
-sufficient). If the folder is empty when her turn comes, log "waiting for photo" and continue with the next
-character; come back to her when it is there. Heroes carry two extra rules: the **face stays clear and unobstructed
-in every frame** (a player photo can be composited over it), and the **hero-select card** is a separate square image.
-
-Rules to put at the front of every request (learned on Orly and Kobi today): attach the accepted `idle.png` to every
-later file as the **size lock**; **every figure inside its own cell** with empty margin on all four sides, the middle
-row above the bottom third; on `walk` the **stride rule first and bolded**, checked by eye; `defeat` 8–9 **two drawn
-frames**; the card with a **real transparent background** (check `hasAlpha`).
+Sheet, 12 files and the card delivered 2026-09-13 19:30–20:50; four files needed one retry each (light2 ×2, light3,
+heavy, knockdown), every file md5-unique, whole-set gate PASS. Committed (`de17117`), built, enabled in the lobby.
 
 Done means `npm run verify:character -- noa` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

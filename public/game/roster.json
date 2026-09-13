@@ -34,7 +34,7 @@
   "noa": {
    "name": "NOA",
    "rank": "hero",
-   "enabled": false,
+   "enabled": true,
    "levels": []
   },
   "punk": {
