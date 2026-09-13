@@ -14,18 +14,20 @@ file, and the hero-select card for heroes. Retries come on top.
 
 | # | character | rank | requests | work |
 |---|---|---|---|---|
-| 1 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
-| 2 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
-| 3 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
-| 4 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
-| 5 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
-| 6 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
-| 7 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
-| 8 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
-| 9 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
-| 10 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
+| 1 | [shmuel](shmuel.md) | hero | 13 | **redo from scratch (owner, 2026-09-13 21:00)** — new card done; new idle walk dash light1 light3 in; light2 re-save; heavy special block hurt knockdown defeat to make |
+| 2 | [pitz](pitz.md) | fx | 3 | **redo from scratch with Shmuel** — leap run pounce |
+| 3 | [railmaw](railmaw.md) | boss | 7 | Step A sheet + 6 action files |
+| 4 | [crown-runner](crown-runner.md) | boss | 7 | Step A sheet + 6 action files |
+| 5 | [the-null](the-null.md) | boss | 7 | Step A sheet + 6 action files |
+| 6 | [vault-mother](vault-mother.md) | boss | 7 | Step A sheet + 6 action files |
+| 7 | [ultra-signal](ultra-signal.md) | boss | 7 | Step A sheet + 6 action files |
+| 8 | [brawler](brawler.md) | enemy | 11 | Step A sheet + 10 action files |
+| 9 | [knight](knight.md) | enemy | 11 | Step A sheet + 10 action files |
+| 10 | [chainer](chainer.md) | enemy | 11 | Step A sheet + 10 action files |
+| 11 | [kicker](kicker.md) | enemy | 11 | Step A sheet + 10 action files |
+| 12 | [shield](shield.md) | enemy | 11 | Step A sheet + 10 action files |
 
-**Total: 90 image requests** on a clean run (35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
+**Total: ~100 image requests** on a clean run (≈10 to finish the Shmuel redo · 3 for Pitz · 35 for the five remaining bosses · 55 for the five enemies). Bosses come before enemies only because a boss set is 7 requests and
 an enemy set is 11; within each group the order is level order (bosses) and pay-off (the two enemies
 that also unlock a palette variant first). **Nepho and Byte were retired from the game on 2026-09-13** — their prompt files stay as history only.
 
@@ -38,8 +40,6 @@ that also unlock a palette variant first). **Nepho and Byte were retired from th
 - [kilnheart](kilnheart.md) — boss, 6/6, delivered 2026-09-13 (`7ea259f`)
 - [monk-zero](monk-zero.md) — boss, 6/6, delivered 2026-09-13 (`e2b09fe`)
 - [market-king](market-king.md) — boss, 6/6 files, delivered 2026-09-13 14:06, passes the gate, built in and pushed
-- [pitz](pitz.md) — fx, 3/3 files; `run` redelivered 2026-09-13 (attempt 4, baseline rule first and bolded), approved
-- [shmuel](shmuel.md) — hero, 12/12 files; `walk` and `dash` redelivered 2026-09-13, both stride correctly by eye
 - [punk](punk.md) — enemy, 10/10 files, passes the gate and is built in
 - [ferryman](ferryman.md) — boss, 6/6 files, passes the gate and is built in
 - [abyss-dragon](abyss-dragon.md) — boss, 6/6 files, passes the gate and is built in

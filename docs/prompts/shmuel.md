@@ -1,10 +1,11 @@
 # SHMUEL (`shmuel`) — hero, 12 files
 
-## Status — DELIVERED
+## Status — REDO FROM SCRATCH (owner, 2026-09-13 21:00) · in progress
 
-`walk.png` (09:31) and `dash.png` (10:45) were redelivered on 2026-09-13; the set passes the gate and both
-rows now stride correctly by eye — the legs alternate in the walk and cycle through dash frames 3–7.
-Nothing outstanding; this file is kept as the record of the fix.
+The owner asked for the whole Shmuel set to be regenerated in the new look (new card committed `705ba21`). Delivered so far in
+the redo: `idle walk dash light1 light3` (raw deliveries intaken); `light2` needs a re-save from its generated image;
+`heavy special block hurt knockdown defeat` still to make. The previous set stays in git history. The redo is accepted when
+the whole set passes `verify:character` as one look.
 
 Done means `npm run verify:character -- shmuel` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
