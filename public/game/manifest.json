@@ -1,7 +1,7 @@
 {
- "version": "5fdb8ac509a18300",
+ "version": "b9666b66de74a9b2",
  "derived": "derived:2026-09-13T23:00:39.204Z:c608d1c1",
- "generatedAt": "2026-09-13T23:04:03.577Z",
+ "generatedAt": "2026-09-13T23:09:42.950Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -24,8 +24,8 @@
    "sha256": "76c7809efaa663dae60042618082744af2442bda129f84608ed401d4e23c5188"
   },
   "cards/shmuel.webp": {
-   "size": 112530,
-   "sha256": "af730069c8889ad049258270ab575559aaf38a9eae7a84f23b98617ae43fcb37"
+   "size": 109458,
+   "sha256": "6a01039c98cce70f8682b035ffef7f76460bcec699558d3e797af16cb0dfa616"
   },
   "catalog.json": {
    "size": 71354,
