@@ -120,9 +120,10 @@ if (existsSync(catalogPath)) {
   }
   for (const b of cat.bosses) check(existsSync(join(OUT, b.portrait)), `portrait ${b.id} missing`);
   for (const h of cat.heroes) check(existsSync(join(OUT, 'cards', `${h}.webp`)), `card ${h} missing`);
-  // 28 MB: the original 16 MB, three full-detail 9-frame hero atlases (~1.5 MB each), then the four
-  // per-action enemy sets and four boss sets (~1-1.7 MB each) added in the 2026-09 art pass
-  check(total < 28 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
+  // 56 MB: every character on a per-action set (12 heroes/enemies/bosses at 2048×4096 webp q85 ≈ 1.0–1.6 MB each) —
+  // the full planned roster of ~30 lands near 42 MB plus ~8 MB of levels/ui. Raised from 28 MB on 2026-09-13 when the
+  // fifth regenerated boss (market-king) tipped it; the alternative, lower webp quality, shows on pixel art.
+  check(total < 56 * 1024 * 1024, `runtime pack too large: ${(total / 1048576).toFixed(1)} MB`);
   console.log(`runtime pack: ${(total / 1048576).toFixed(1)} MB across characters+levels`);
   const fallbacks = Object.values(cat.characters).filter((c) => (c.notes || []).some((n) => n.startsWith('fallback')));
   for (const f of fallbacks) console.log(`NOTE ${f.id}: ${f.notes.find((n) => n.startsWith('fallback'))}`);
