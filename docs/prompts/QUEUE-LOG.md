@@ -11,3 +11,5 @@
 14:24 glass-warden special attempt 1 → PASS
 14:32 pitz action attempt 4 → PASS
 14:33 pitz committed: PASS — baseline escalation step 1 (failing rule first and bolded)
+14:38 glass-warden hurt attempt 1 → PASS
+14:45 glass-warden defeat attempt 1 → PASS

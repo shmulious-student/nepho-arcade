@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-13T08:54:01.572Z",
+ "generatedAt": "2026-09-13T09:28:17.505Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -2810,12 +2810,12 @@
    "atlas": "chars/pitz.webp",
    "data": "chars/pitz.json",
    "box": {
-    "w": 166,
-    "h": 114
+    "w": 192,
+    "h": 131
    },
    "anchor": {
-    "x": 83,
-    "y": 112
+    "x": 96,
+    "y": 129
    },
    "rows": [
     "run",
@@ -2823,7 +2823,7 @@
     "pounce"
    ],
    "framesPerRow": 9,
-   "scale": 0.1863,
+   "scale": 0.2147,
    "renderScale": 0.5882,
    "skin": [
     0,
@@ -3657,12 +3657,12 @@
    "atlas": "chars/glass-warden.webp",
    "data": "chars/glass-warden.json",
    "box": {
-    "w": 268,
-    "h": 210
+    "w": 422,
+    "h": 340
    },
    "anchor": {
-    "x": 134,
-    "y": 193
+    "x": 211,
+    "y": 312
    },
    "rows": [
     "idle",
@@ -3672,8 +3672,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9412,
+   "framesPerRow": 9,
+   "scale": 0.461,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -3684,10 +3685,15 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-01-glass-warden-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/glass-warden/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "1 defective source frame(s) replaced by a neighbour: defeat/6(partial-figure)->5"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "kilnheart": {
