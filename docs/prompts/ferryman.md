@@ -1,7 +1,11 @@
 # Ferryman (`ferryman`) — boss, level 1, 6 files
 
-Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
-currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
+## Status — DELIVERED
+
+Passes `npm run verify:character -- ferryman` (6/6 files) and is built in. Nothing outstanding; this file is
+kept as the record of how the set was made and for any later single-file regeneration.
+
+Full per-action set under [character-art-standard.md](../character-art-standard.md). This set replaced the old 6×8 grid. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
 `attack`. Deliver all 6 files in one session, one look.
 
@@ -61,11 +65,12 @@ EFFECT:        cyan light trails off the hook; pale cyan fog
 | `attack.png` | **attack** — HOOK SLASH: 1 stance, 2 the hook draws back over the shoulder, 3 the chain arcs, **4–5 the hook whips forward in a wide cyan-trailed arc at full reach**, 6 the hook bites, 7 yanks it back, 8 gathers the chain, 9 stance. Arc inside the cell. **Full standing height (≈600–650 px). Solid 100% opaque poses — no semi-transparent ghost frames.** |
 | `special.png` | **special** — LANTERN FOG: 1 plants, 2 raises the lantern, 3 it flares cyan, **4–6 a spreading pool of pale cyan fog rolls out around his feet, wider each frame**, 7 the fog thickens, 8 he lowers the lantern, 9 stance. Fog inside the cell. **Full standing height (≈600–650 px). Solid 100% opaque poses — no ghosting on the character figure.** |
 | `hurt.png` | **hurt** — **STARTS FULLY UPRIGHT ON FEET (FRAME 1)**: **1–3 flinch**: standing upright, feet planted on baseline, hood thrown back, eye-glow flaring; **4–6 heavy reel**: staggers back, chain flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. **Full standing height (≈600–650 px when upright, matching `idle.png`). Never undersized, frame 1 must start standing upright on feet.** |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the hook slips from his grip, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (face down, hood over his head, chain across the floor, lantern out). Full length across the cell, same size as standing (≈600–650 px full length across the cell) — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the hook slips from his grip, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (face down, hood over his head, chain across the floor, lantern out). Full length across the cell, same size as standing (≈600–650 px full length across the cell) — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- ferryman        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- ferryman
 npm run build:assets && npm run test:assets
 ```

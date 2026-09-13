@@ -1,4 +1,9 @@
-# Abyss Dragon (`abyss-dragon`) — boss, 6 files (only `idle.png` outstanding)
+# Abyss Dragon (`abyss-dragon`) — boss, 6 files
+
+## Status — DELIVERED
+
+Passes `npm run verify:character -- abyss-dragon` (6/6 files) and is built in. Nothing outstanding; this file is
+kept as the record of how the set was made and for any later single-file regeneration.
 
 Full per-action set under [character-art-standard.md](../character-art-standard.md). This set is already delivered and accepted
 except for `idle.png`, whose row pads with repeated frames — regenerate ONLY that file; every other
@@ -62,11 +67,12 @@ EFFECT:        violet-white void flame with dark sparks
 | `attack.png` | **attack** — VOID BOLT: 1 stance, 2 the flame hand draws back, 3 the void-flame swells, **4–5 she hurls it forward as a streaking violet bolt with a dark spark trail** (the bolt inside the cell), 6 follow-through, 7 the trail fades, 8 hand lowers, 9 stance. |
 | `special.png` | **special** — ABYSS BREATH: 1 plants, 2 wings spread wide, 3 the horns and eyes flare white, **4–6 she breathes a stream of violet-white void-fire straight ahead, ending in a tapered point inside the cell**, 7 the stream breaks into sparks, 8 wings fold, 9 stance. |
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, wings flaring open, still on the feet; **4–6 heavy reel**: staggers back, feathers scattering, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the void-flame gutters out, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on her side, wings collapsed around her, feathers settling). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the void-flame gutters out, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on her side, wings collapsed around her, feathers settling). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- abyss-dragon        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- abyss-dragon
 npm run build:assets && npm run test:assets
 ```

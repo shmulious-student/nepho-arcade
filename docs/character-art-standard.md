@@ -136,15 +136,15 @@ suggestion. "Frames 1–9" below are the 9 cells in reading order.
 | action | beats | the game |
 |---|---|---|
 | `idle` | a subtle breathing/guard loop: small weight shifts, prop movement, an effect flicker; frame 9 leads back into frame 1. Same height throughout. | loops all 9 |
-| `walk` | a full stride cycle: 8 steps plus a return frame, springy, props moving in time; frame 9 leads back into frame 1. Feet on the baseline. | loops all 9 |
+| `walk` | a full stride cycle: 8 steps plus a return frame, springy, props moving in time; frame 9 leads back into frame 1. Feet on the baseline. **The two legs take turns leading — frames 1–4 one leg swings forward, plants and passes, frames 5–8 the other; the same leg is never in front in every frame** (Shmuel's first walk was nine variations of one lunge, and no gate can see that — only the eye). | loops all 9 |
 | `hurt` | **1–3 flinch** (upright, head snaps back), **4–6 heavy reel** (staggers back, still on feet), **7–9 airborne crumple** (knocked off the feet, curling). | hero: light hit 1+3, heavy hit 4+6, stunned 1·3·1·4, launched 7+9 · enemy: grounded hit 1–6, stunned 1–2, launch uses `knockback` |
-| `defeat` | upright in frame 1 → drops → topples → **frames 8–9 flat on the ground and settled**, identical pose, staying down. **The lying figure is the same size as the standing one — it lies flat, it does not shrink or move away.** | plays through, holds frame 9 for as long as the body stays |
+| `defeat` | upright in frame 1 → drops → topples → **frames 8–9 flat on the ground and settled**, the same lying position drawn twice with a small settle between them (never a copied frame — the gate rejects two identical cells), staying down. **The lying figure is the same size as the standing one — it lies flat, it does not shrink or move away.** | plays through, holds frame 9 for as long as the body stays |
 
 **Hero (12)**
 
 | action | beats |
 |---|---|
-| `dash` | **1–2** crouch-and-plant, explosive push-off; **3–7 a blurred full-speed run** (speed streaks behind, never in front) — the game loops these while the dash is held; **8–9** the lunge/skid stop — the game shows 7 and 9 as the dash-attack hit. |
+| `dash` | **1–2** crouch-and-plant, explosive push-off; **3–7 a blurred full-speed run** (speed streaks behind, never in front) **in which the legs cycle — one leg driving, legs passing, the other leg driving, passing, the first again; never one stride pose repeated** — the game loops these while the dash is held; **8–9** the lunge/skid stop — the game shows 7 and 9 as the dash-attack hit. |
 | `light1` | the first jab of the chain: raise, stab, contact with a small effect burst, pull back, ready. Fast and crisp. |
 | `light2` | the follow-up cross: shoulder turn, the strike whips across at head height leaving an arc, contact, follow-through, recover. Reads as a continuation of `light1`. |
 | `light3` | chain finisher: a 360° spinning breaker drawing a full circle of effect around the character, bursting outward on the last frames. Hits all around. |
@@ -200,8 +200,9 @@ By eye, on `/showcase.html` (every row, at speed) — the things no gate can jud
 
 - **Likeness and identity**: same person/creature in every file; face readable; costume never
   changes between files.
-- **Motion**: idle breathes, walk strides (no moonwalk, no popping), dash reads as speed, each attack
-  has a clear wind-up → hit → recover, the special is obviously the special.
+- **Motion**: idle breathes, walk strides — **both legs lead once per loop** (no moonwalk, no popping,
+  no one-legged lunge repeated with small variations), dash reads as speed with the legs cycling,
+  each attack has a clear wind-up → hit → recover, the special is obviously the special.
 - **Style**: matches the reference sheet's outline weight and shading; no photo-real or painterly
   drift; no blur.
 - **Effects**: the character's colour, attached to the action, not hiding the figure.

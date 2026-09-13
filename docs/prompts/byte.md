@@ -1,5 +1,12 @@
 # BYTE (`byte`) — hero, 12 files + hero card
 
+## Status — queue position 18 of 18 · 14 image requests (Step A sheet + 12 action files + hero card)
+
+Legacy — her current grids are a copy of Riva; this is her first real set. Needs the sheet, all 12 files
+and the hero card, one session, one look.
+
+Done means `npm run verify:character -- byte` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). Deliver all 12
 files in one session, one look — a partial delivery is applied as row overrides on the old art and
 ships two versions of the hero mixed. Heroes carry two extra rules: the **face stays clear and
@@ -70,7 +77,7 @@ EFFECT:        pink energy — sparks off the gloves, short bolts that fly forwa
 | `block.png` | **block** — **frame 1 is the held guard** — both gloves up in front of the face, elbows tucked, chin down, feet planted, full figure at full height (the game shows only frame 1 while blocking); 2–9 small flinches with pink sparks as hits land on the gloves; never leaves the ground. |
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, ponytail flying, still on the feet (a light hit shows frames 1 and 3); **4–6 heavy reel**: staggers back on her heels, gloves dropping, still on the feet (a heavy hit shows 4 and 6); **7–9 airborne crumple**: knocked off the feet, body curling in the air (a launch shows 7 and 9). |
 | `knockdown.png` | **knockdown** — 1 stagger, 2 falls backward, **3–6 on the floor** — lands on the back, gloves up beside her head, **frame 6 flat and still** (the game holds it while down), 7 rolls, 8 pushes up to one knee, **9 back on the feet at full height** in the guard stance. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches her ribs, 3 drops to a knee, 4–6 topples sideways, 7 lands, **8–9 flat on the ground, identical, staying down** (on her side, ponytail across the floor). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches her ribs, 3 drops to a knee, 4–6 topples sideways, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on her side, ponytail across the floor). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
 
 ## Step C — hero-select card (`public/assets/generated/heroes/byte-card.png`)
 
@@ -82,6 +89,7 @@ EFFECT:        pink energy — sparks off the gloves, short bolts that fly forwa
 ## Accept
 
 ```bash
+npm run intake:character -- byte        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- byte
 npm run build:assets && npm run test:assets
 ```

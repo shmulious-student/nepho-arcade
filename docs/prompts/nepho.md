@@ -1,5 +1,23 @@
 # NEPHO (`nepho`) — hero, 12 files + hero card
 
+## Status — queue position 17 of 18 · 14 image requests (Step A sheet + 12 action files + hero card (the set is redone whole))
+
+FAILED — 4 of 12 files present (`heavy special knockdown defeat`), delivered in an earlier round as row
+overrides. `heavy` and `special` pass; the gate's exact output for the rest:
+
+```
+FAIL  knockdown.png cell 1,2 (frame 6): the figure ends in a straight left edge — a cropped or re-sliced frame
+FAIL  defeat.png: frames 7 and 9 are the same pose — every frame must be distinct, never pad with a repeat
+FAIL  defeat.png: frames 8 and 9 are the same pose — every frame must be distinct, never pad with a repeat
++ idle walk dash light1 light2 light3 block hurt: missing
+```
+
+Per the standard (one delivery, one look) the set is **redone whole**: a new sheet, all 12 files and the
+card in one session. Delete the four old files from `public/assets/generated/actions/nepho/` before the
+first new one lands so the gate never mixes the two deliveries.
+
+Done means `npm run verify:character -- nepho` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). Deliver all 12
 files in one session, one look — a partial delivery is applied as row overrides on the old art and
 ships two versions of the hero mixed. Heroes carry two extra rules: the **face stays clear and
@@ -70,7 +88,7 @@ EFFECT:        teal light — arcs off his hands and feet, rings out from his bo
 | `block.png` | **block** — **frame 1 is the held guard** — forearms crossed in front of the face, chin tucked, feet planted, full figure at full height (the game shows only frame 1 while blocking); 2–9 small flinches with teal sparks as hits land on the forearms; never leaves the ground. |
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, scarf flaring up, still on the feet (a light hit shows frames 1 and 3); **4–6 heavy reel**: staggers back on his heels, arms wide, still on the feet (a heavy hit shows 4 and 6); **7–9 airborne crumple**: knocked off the feet, body curling in the air (a launch shows 7 and 9). |
 | `knockdown.png` | **knockdown** — 1 stagger, 2 falls backward, **3–6 on the floor** — lands on the back, scarf spread under him, **frame 6 flat and still** (the game holds it while down), 7 rolls, 8 pushes up to one knee, **9 back on the feet at full height** in the guard stance. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches his chest, 3 drops to a knee, 4–6 topples sideways, 7 lands, **8–9 flat on the ground, identical, staying down** (on his side, scarf across the floor). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches his chest, 3 drops to a knee, 4–6 topples sideways, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his side, scarf across the floor). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
 
 ## Step C — hero-select card (`public/assets/generated/heroes/nepho-card.png`)
 
@@ -82,6 +100,7 @@ EFFECT:        teal light — arcs off his hands and feet, rings out from his bo
 ## Accept
 
 ```bash
+npm run intake:character -- nepho        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- nepho
 npm run build:assets && npm run test:assets
 ```

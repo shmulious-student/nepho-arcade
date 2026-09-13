@@ -1,5 +1,12 @@
 # Kilnheart (`kilnheart`) — boss, level 3, 6 files
 
+## Status — queue position 4 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 3 boss.
+
+Done means `npm run verify:character -- kilnheart` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        orange-red flame with yellow tips, always trailing the blade
 | `attack.png` | **attack** — FLAME SLASH: 1 stance, 2 the blade draws back, 3 flames build, **4–5 a wide horizontal flaming cut with a long fire arc**, 6 follow-through, 7 the arc burns out, 8 returns to guard, 9 stance. Arc inside the cell. |
 | `special.png` | **special** — ERUPTION: 1 raises the blade overhead, 2 the furnace roars white-hot, 3 the blade comes down, **4–6 three pillars of fire erupt from the ground in front of him, one more each frame**, 7 they peak, 8 they collapse into embers, 9 stance. Fire inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: mask snaps back, flames guttering, still on the feet; **4–6 heavy reel**: staggers back, blade dragging, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the katana falls, its flame dying, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his side, furnace dark, blade beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the katana falls, its flame dying, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his side, furnace dark, blade beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- kilnheart        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- kilnheart
 npm run build:assets && npm run test:assets
 ```

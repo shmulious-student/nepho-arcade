@@ -1,4 +1,9 @@
-# Storm Colossus (`storm-colossus`) — boss, 6 files (only `idle.png` outstanding)
+# Storm Colossus (`storm-colossus`) — boss, 6 files
+
+## Status — DELIVERED
+
+Passes `npm run verify:character -- storm-colossus` (6/6 files) and is built in. Nothing outstanding; this file is
+kept as the record of how the set was made and for any later single-file regeneration.
 
 Full per-action set under [character-art-standard.md](../character-art-standard.md). This set is already delivered and accepted
 except for `idle.png`, whose row pads with repeated frames — regenerate ONLY that file; every other
@@ -62,11 +67,12 @@ EFFECT:        cyan-white lightning and thunder rings
 | `attack.png` | **attack** — HAMMER SLAM: 1 stance, 2–3 the hammer rises high over the head, lightning building, 4 he rises onto the toes, **5–6 the hammer crashes down with a cyan lightning burst on impact**, 7 sparks scatter, 8 lifts the hammer, 9 stance. Burst inside the cell. |
 | `special.png` | **special** — LIGHTNING FALL: 1 plants, 2 raises the free hand to the sky, 3 the core blazes white, **4–6 three bolts of cyan lightning strike down in front of him, one more each frame, each with a ground burst**, 7 the last bolt fades, 8 the hand lowers, 9 stance. Bolts inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: helm snaps back, core flickering, still on the feet; **4–6 heavy reel**: staggers back, hammer dragging, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the hammer falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his back, core dark, hammer beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the hammer falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his back, core dark, hammer beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- storm-colossus        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- storm-colossus
 npm run build:assets && npm run test:assets
 ```

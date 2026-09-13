@@ -1,5 +1,12 @@
 # Vault Mother (`vault-mother`) — boss, level 9, 6 files
 
+## Status — queue position 10 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 9 boss.
+
+Done means `npm run verify:character -- vault-mother` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        warm gold light
 | `attack.png` | **attack** — CHAIN LASH: 1 stance, 2 the gauntlet rises, 3 the chain unspools, **4–5 the gold chain lashes straight forward as a beam of gold light, ending in a tapered point inside the cell**, 6 it snaps taut, 7 it recoils, 8 spools back, 9 stance. |
 | `special.png` | **special** — HALO BOMBS: 1 plants, 2 raises both hands, 3 the halo flares, **4–6 three gold halo orbs rise above her and drop, one striking the ground each frame with a gold burst**, 7 the last burst fades, 8 hands lower, 9 stance. Bursts inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: halo knocked crooked, head snaps back, still on the feet; **4–6 heavy reel**: staggers back, chain flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the halo falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on her side, hair fanned out, chain across the floor). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the halo falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on her side, hair fanned out, chain across the floor). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- vault-mother        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- vault-mother
 npm run build:assets && npm run test:assets
 ```

@@ -1,5 +1,12 @@
 # Railmaw (`railmaw`) — boss, level 6, 6 files
 
+## Status — queue position 7 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 6 boss.
+
+Done means `npm run verify:character -- railmaw` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        red light streaks and grey exhaust smoke
 | `attack.png` | **attack** — RAIL DASH: 1 braces, 2 vents fire, **3–5 a three-frame shield-first charge with red light streaking off the rim and smoke behind**, 6 a slamming impact with a red shockwave, 7 recoil, 8 straightens, 9 stance. Effects inside the cell. |
 | `special.png` | **special** — BUZZSAW SPIN: 1 plants, 2 the shield rim starts to spin, 3 sparks fly, **4–6 he spins on the spot, the shield sweeping a full circle of red sparks around him at chest height**, 7 slows, 8 the rim stops, 9 stance. Sparks inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: helm snaps back, vents sputtering, still on the feet; **4–6 heavy reel**: staggers back, shield swinging wide, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the shield arm drops, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his back, shield flat, vents dead). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the shield arm drops, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his back, shield flat, vents dead). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- railmaw        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- railmaw
 npm run build:assets && npm run test:assets
 ```

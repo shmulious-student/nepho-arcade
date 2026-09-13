@@ -1,5 +1,12 @@
 # Glass Warden (`glass-warden`) — boss, level 2, 6 files
 
+## Status — queue position 3 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 2 boss.
+
+Done means `npm run verify:character -- glass-warden` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        blue light with refracted white glints; glass shards
 | `attack.png` | **attack** — SHARD SMASH: 1 stance, 2–3 the greatsword rises high, 4 steps in, **5–6 the blade slams down and shatters into a burst of glass shards on impact**, 7 shards fall, 8 lifts the blade, 9 stance. Shards inside the cell. |
 | `special.png` | **special** — CRYSTAL WALL: 1 plants the blade point-down, 2 crystal light gathers at the tip, **3–5 a jagged wall of blue crystal erupts from the ground in front of him, taller each frame**, 6 the wall gleams at full height, 7 it cracks, 8 it crumbles into shards, 9 stance. Wall inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: helm snaps back, crystals flashing, still on the feet; **4–6 heavy reel**: staggers back, blade dropping, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the greatsword falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his back, crystal shoulders cracked, blade beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the greatsword falls, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his back, crystal shoulders cracked, blade beside him inside the cell). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- glass-warden        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- glass-warden
 npm run build:assets && npm run test:assets
 ```

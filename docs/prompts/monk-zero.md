@@ -1,5 +1,12 @@
 # Monk Zero (`monk-zero`) — boss, level 4, 6 files
 
+## Status — queue position 5 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 4 boss.
+
+Done means `npm run verify:character -- monk-zero` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        violet-pink light; small orbs that orbit her
 | `attack.png` | **attack** — BLINK STRIKE: 1 stance, **2 she blurs into a violet afterimage**, 3 reappears low, 4 palm chambers, **5–6 a driving double-palm strike with a violet shock burst**, 7 follow-through, 8 pulls back, 9 stance. |
 | `special.png` | **special** — VOID BEAM: 1 hands draw to the chest, 2 violet light gathers between the palms, 3 the light swells, **4–6 both palms thrust forward and a pink-violet beam fires straight ahead, ending in a tapered point inside the cell**, 7 the beam fades, 8 hands lower, 9 stance. |
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, hair flying, still on the feet; **4–6 heavy reel**: staggers back, sash whipping, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 sinks, hands to the chest, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on her side, hair fanned across the floor). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 sinks, hands to the chest, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on her side, hair fanned across the floor). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- monk-zero        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- monk-zero
 npm run build:assets && npm run test:assets
 ```

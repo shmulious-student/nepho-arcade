@@ -1,5 +1,12 @@
 # The Null (`the-null`) — boss, level 8, 6 files
 
+## Status — queue position 9 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 8 boss.
+
+Done means `npm run verify:character -- the-null` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        white static, inverted (negative) flashes — but the figure must
 | `attack.png` | **attack** — NULL ARC: 1 stance, 2 the blade draws back, 3 static gathers on it, **4–5 a huge horizontal arc of white glitch-light sweeps across in front of him**, 6 follow-through, 7 the arc breaks into static, 8 returns to guard, 9 stance. Arc inside the cell. |
 | `special.png` | **special** — INVERT PHASE: 1 plants, 2 arms spread, 3 the static goes still, **4–6 he inverts — body turning white, outlines turning black, a negative flash pulsing outward each frame**, 7 the inversion holds, 8 it snaps back to black, 9 stance. Figure whole in every frame. |
 | `hurt.png` | **hurt** — **1–3 flinch**: static bursts from the head, body snaps back, still on the feet; **4–6 heavy reel**: staggers back, coat tearing into static, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the blade dissolves, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his back, still a whole figure, static settling). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the blade dissolves, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his back, still a whole figure, static settling). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- the-null        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- the-null
 npm run build:assets && npm run test:assets
 ```

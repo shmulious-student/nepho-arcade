@@ -1,5 +1,12 @@
 # Ultra Signal (`ultra-signal`) — boss, level 10, 6 files
 
+## Status — queue position 11 of 18 · 7 image requests (Step A sheet + 6 action files)
+
+Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
+files (`idle approach attack special hurt defeat`), one session, one look. Level 10 boss.
+
+Done means `npm run verify:character -- ultra-signal` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The boss
 currently ships on its old 6×8 grid; this set replaces it completely. Bosses are larger and heavier
 on screen than enemies: every attack telegraphs clearly, and `special` is unmistakably different from
@@ -63,11 +70,12 @@ EFFECT:        banded rainbow light, always in spectrum order
 | `attack.png` | **attack** — SIGNAL SWEEP: 1 stance, 2 the right hand draws across the body, 3 rainbow light gathers in the palm, **4–5 a wide sweeping wave of banded rainbow light arcs out from her hand across the front of the cell**, 6 the wave peaks, 7 it fades, 8 hand lowers, 9 stance. |
 | `special.png` | **special** — RAINBOW PILLAR: 1 plants, 2 both hands rise, 3 the aura blazes, **4–6 three pillars of banded rainbow light erupt from the ground in front of her, one more each frame**, 7 they peak, 8 they fade, 9 stance. Pillars inside the cell. |
 | `hurt.png` | **hurt** — **1–3 flinch**: crown flashes, head snaps back, still on the feet; **4–6 heavy reel**: staggers back, aura flickering, still on the feet; **7–9 airborne crumple**: knocked off the feet, curling in the air. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the crown slips, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on her side, hair fanned in a rainbow across the floor, aura out). Full length across the cell, same size as standing — never shrunk, never faded away. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the crown slips, 3 sinks to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on her side, hair fanned in a rainbow across the floor, aura out). Full length across the cell, same size as standing — never shrunk, never faded away. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- ultra-signal        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- ultra-signal
 npm run build:assets && npm run test:assets
 ```

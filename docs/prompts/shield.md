@@ -1,5 +1,12 @@
 # Shield Trooper (`shield`) — enemy, 10 files
 
+## Status — queue position 16 of 18 · 11 image requests (Step A sheet + 10 action files)
+
+Legacy — no per-action set exists; the old 6-frame grid ships. Needs the character sheet (Step A) and all
+10 files (`idle walk attack heavy special guard hurt knockback getup defeat`), one session, one look.
+
+Done means `npm run verify:character -- shield` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
+
 Full per-action set under [character-art-standard.md](../character-art-standard.md). The character
 currently ships on its old 6-frame grid; this set replaces it completely. Deliver all 10 files in one
 session, one look.
@@ -66,11 +73,12 @@ EFFECT:        red light streaks off the shield's edge
 | `hurt.png` | **hurt** — **1–3 flinch**: helm snaps back, shield dipping, still on the feet; **4–6 heavy reel**: staggers back, shield swinging wide, still on the feet; **7–9 airborne crumple**: knocked off the feet, body curling in the air. |
 | `knockback.png` | **knockback** — 1 stagger, 2 thrown off the feet, 3–5 airborne and tumbling, **6 lands hard, 7 flat on the floor** (the shield landing flat beside him), 8–9 either still flat or beginning to stir — never back on the feet. **There must be a frame lying flat.** |
 | `getup.png` | **getup** — **frame 1 flat on the floor (the lowest frame)**, 2 head lifts, 3 pushes up onto the hands, 4 hands and knees, 5 one knee, 6 rising, 7 upright but hunched, 8 straightens, **9 standing at full height in the guard stance**. Rises monotonically — never dips. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 the baton drops, 3 drops to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (on his back, shield across his chest). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 the baton drops, 3 drops to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (on his back, shield across his chest). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- shield        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- shield
 npm run build:assets && npm run test:assets
 ```

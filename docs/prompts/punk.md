@@ -1,7 +1,11 @@
 # Punk (`punk`) — enemy, 10 files
 
-Full per-action set under [character-art-standard.md](../character-art-standard.md). The character
-currently ships on its old 6-frame grid; this set replaces it completely. Deliver all 10 files in one
+## Status — DELIVERED
+
+Passes `npm run verify:character -- punk` (10/10 files) and is built in. Nothing outstanding; this file is
+kept as the record of how the set was made and for any later single-file regeneration.
+
+Full per-action set under [character-art-standard.md](../character-art-standard.md). This set replaced the old 6-frame grid. Deliver all 10 files in one
 session, one look.
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render
@@ -64,11 +68,12 @@ EFFECT:        red-orange fire on the fists with yellow embers
 | `hurt.png` | **hurt** — **1–3 flinch**: head snaps back, vest flaring, still on the feet; **4–6 heavy reel**: staggers back on his heels, arms flailing, still on the feet; **7–9 airborne crumple**: knocked off the feet, body curling in the air. |
 | `knockback.png` | **knockback** — 1 stagger, 2 thrown off the feet, 3–5 airborne and tumbling, **6 lands hard, 7 flat on the floor** (on his back, sneakers up), 8–9 either still flat or beginning to stir — never back on the feet. **There must be a frame lying flat.** |
 | `getup.png` | **getup** — **frame 1 flat on the floor (the lowest frame)**, 2 head lifts, 3 pushes up onto the hands, 4 hands and knees, 5 one knee, 6 rising, 7 upright but hunched, 8 straightens, **9 standing at full height in the guard stance**. Rises monotonically — never dips. |
-| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches his chest, 3 drops to a knee, 4–6 topples, 7 lands, **8–9 flat on the ground, identical, staying down** (face down, one arm out). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
+| `defeat.png` | **defeat** — 1 upright, struck, 2 clutches his chest, 3 drops to a knee, 4–6 topples, 7 lands, **8–9 both flat on the ground in the same lying position, staying down — drawn as two separate frames with a small visible settle between them (the head drops, an arm slumps), never a copied frame: the gate rejects two identical cells** (face down, one arm out). The lying figure is the same size as the standing one — full length across the cell, never shrunk. |
 
 ## Accept
 
 ```bash
+npm run intake:character -- punk        # container only: background → alpha, canvas → 2048²
 npm run verify:character -- punk
 npm run build:assets && npm run test:assets
 ```
