@@ -198,6 +198,7 @@ async function generateOpenAI(prompt, refs, kind) {
     const fd = new FormData();
     fd.append('model', OPENAI_IMAGE_MODEL); fd.append('prompt', prompt); fd.append('n', '1');
     fd.append('size', size); fd.append('quality', is25 ? OPTS.quality : 'high'); fd.append('output_format', 'png'); fd.append('background', 'transparent');
+    fd.append('moderation', 'low'); // hurt / knockback / defeat rows are cartoon violence; the default filter sometimes rejects them (monk-zero hurt, Codex run)
     if (fidelity) fd.append('input_fidelity', 'high'); // older models only; dropped if refused
     for (const r of refs) fd.append('image[]', new Blob([r.buf], { type: 'image/png' }), r.name);
     return fetchRetry('https://api.openai.com/v1/images/edits', { method: 'POST', headers: { Authorization: `Bearer ${OPENAI_KEY}` }, body: fd });
