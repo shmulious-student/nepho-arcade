@@ -11,6 +11,7 @@ import type { HeroId } from './types';
 import { ENEMY_DEFS } from './enemyAi';
 import { BOSS_DEFS } from './bosses';
 import { LEVELS, ACTIVE, type LevelDef, type WaveDef, type SpawnDef } from './levels';
+import { getGameBase } from '../shared/catalog';
 
 export type Rank = 'hero' | 'enemy' | 'boss';
 
@@ -180,12 +181,12 @@ export function applyRoster(roster: Roster): RosterResult {
 /** Heroes the lobby currently offers (HERO_IDS until a roster narrows it). */
 export const ACTIVE_HEROES: HeroId[] = [...HERO_IDS];
 
-export const ROSTER_URL = '/game/roster.json';
+export const ROSTER_FILE = 'roster.json';
 
-/** Fetches the saved roster; a missing or broken file yields the defaults. */
+/** Fetches the saved roster from the active content pack; a missing or broken file yields the defaults. */
 export async function loadRoster(): Promise<Roster> {
   try {
-    const res = await fetch(ROSTER_URL, { cache: 'no-store' });
+    const res = await fetch(getGameBase() + ROSTER_FILE, { cache: 'no-store' });
     if (!res.ok) return defaultRoster();
     return normalizeRoster(await res.json());
   } catch {

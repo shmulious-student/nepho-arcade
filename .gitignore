@@ -7,3 +7,7 @@ firepit-log.txt
 public/assets/backups/
 .env
 .env.local
+
+# Android wrapper
+build/
+android/keystore.properties

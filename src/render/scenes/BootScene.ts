@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { loadCatalog, assetUrl, type Catalog } from '../../shared/catalog';
 import { loadRoster, applyRoster } from '../../sim/roster';
+import { syncContent } from '../../content/updater';
 
 /** Loads catalog.json, then every character atlas, level backdrop/entry/sign, portrait, and hero
  * card it names — nothing is hard-coded, everything comes from the manifest the asset pipeline wrote. */
@@ -25,6 +26,15 @@ export class BootScene extends Phaser.Scene {
   }
 
   async create(): Promise<void> {
+    // In the app, pull a newer content pack from the server first (no-op on the web); everything
+    // below then loads from whichever pack won — bundled, previously downloaded, or fresh.
+    const content = await syncContent((label, fraction) => {
+      this.label.setText(label);
+      if (fraction !== undefined) this.bar.width = 296 * fraction;
+    });
+    console.info(`content: ${content.source} pack ${content.version}${content.note ? ` (${content.note})` : ''}`);
+    this.bar.width = 0;
+    this.label.setText('loading…');
     let catalog: Catalog;
     try {
       catalog = await loadCatalog();

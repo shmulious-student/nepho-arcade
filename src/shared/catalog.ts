@@ -59,14 +59,29 @@ export interface Catalog {
   levels: LevelEntry[];
 }
 
-export const GAME_BASE = '/game/';
+/** Where the web build (and the copy packed into the app) serves the content pack from. */
+export const GAME_BASE_BUNDLED = '/game/';
+
+// The base every runtime load resolves against. The app build may repoint it at a newer content
+// pack downloaded from the server (src/content/updater.ts) before anything is loaded; on the web it
+// is always the bundled folder.
+let gameBase = GAME_BASE_BUNDLED;
+
+/** Repoints every subsequent asset URL (catalog, roster, atlases, backdrops…) at `base` (must end with '/'). */
+export function setGameBase(base: string): void {
+  gameBase = base.endsWith('/') ? base : base + '/';
+}
+
+export function getGameBase(): string {
+  return gameBase;
+}
 
 export async function loadCatalog(): Promise<Catalog> {
-  const res = await fetch(GAME_BASE + 'catalog.json');
+  const res = await fetch(gameBase + 'catalog.json', { cache: 'no-store' });
   if (!res.ok) throw new Error(`catalog.json fetch failed: ${res.status}`);
   return res.json();
 }
 
 export function assetUrl(rel: string): string {
-  return GAME_BASE + rel;
+  return gameBase + rel;
 }

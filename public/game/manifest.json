@@ -1,0 +1,567 @@
+{
+ "version": "8851b8ab73378332",
+ "derived": "derived:2026-09-13T17:23:37.327Z:bc7e7d69",
+ "generatedAt": "2026-09-13T19:01:09.564Z",
+ "files": {
+  "cards/eviatar.webp": {
+   "size": 101090,
+   "sha256": "1ad9464dff33078d9197501a9ddc19354612edfd5db2ee71623b557a6a4ce7c4"
+  },
+  "cards/omri.webp": {
+   "size": 80740,
+   "sha256": "4342be663d55bec5a6df7aeb92bb593292c13432bda29d7ccac6bc4e88e49a78"
+  },
+  "cards/saba-kobi.webp": {
+   "size": 94418,
+   "sha256": "7ff6be50809bcd23105f768658ead41b1c86c3f3bd49ee1fb227f8fc9696043e"
+  },
+  "cards/savta-orly.webp": {
+   "size": 78598,
+   "sha256": "76c7809efaa663dae60042618082744af2442bda129f84608ed401d4e23c5188"
+  },
+  "cards/shmuel.webp": {
+   "size": 50664,
+   "sha256": "d21d408c61446e6309e48082a2fb0a8f3dc2624d35f3673820d3fa621b9980c5"
+  },
+  "catalog.json": {
+   "size": 63975,
+   "sha256": "ed90910c2e8d426aa8b31612385b5ecb0d0d7292a11e3c15e7ff18746df16814"
+  },
+  "chars/abyss-dragon.json": {
+   "size": 9241,
+   "sha256": "74bf8b2e04f2ed1a5fce26ce8ad96121c77a52ee5d834b67635f588b98d03f0e"
+  },
+  "chars/abyss-dragon.webp": {
+   "size": 1499032,
+   "sha256": "f644f7e587d4238b10227d9cbf668ee7ca0195a1642fca9c35c1eeba6717ab42"
+  },
+  "chars/bio-brute.json": {
+   "size": 15184,
+   "sha256": "99acd6b94ba70bdbe58e0665eaadece7ad4cbb177e04e9ecb20584d800ba315e"
+  },
+  "chars/bio-brute.webp": {
+   "size": 921766,
+   "sha256": "0cc106379b6e5a48720dcc4af465921f9c9d66dc31113a7e8576a777f8a8a1c5"
+  },
+  "chars/brawler-b.json": {
+   "size": 12030,
+   "sha256": "73be56208378f1d24d68bab9f7a259c7e52fdf0d44fab84b1461b7585b476b2b"
+  },
+  "chars/brawler-b.webp": {
+   "size": 356068,
+   "sha256": "4a4f75f5b29d71ec863b011793bc3d0b5d71b3c9c719c518a7d52b286e77d296"
+  },
+  "chars/brawler.json": {
+   "size": 12028,
+   "sha256": "97a3d035214d7ac7c4943afb4f838db2883b65068718fb351799e1fce1b2db2b"
+  },
+  "chars/brawler.webp": {
+   "size": 374294,
+   "sha256": "37442d3e3f27cbbb2bb84d388295dc04b0e7dd27a6ea9a931d11c52f0fead496"
+  },
+  "chars/chainer.json": {
+   "size": 12031,
+   "sha256": "4b2ef8c6b4c30f2b0c41f14011271bd9f7aa27153bfa3059b22cfd7fbd705db0"
+  },
+  "chars/chainer.webp": {
+   "size": 354272,
+   "sha256": "4a8c1122c17b3299d634d915ea3e516f1ef7241f1edae4a598bb91a96a8d91cc"
+  },
+  "chars/crown-runner.json": {
+   "size": 8125,
+   "sha256": "3937f38d8b3de6a499d97b5d3381f12090077dca8b2f72f35415637180aaca2d"
+  },
+  "chars/crown-runner.webp": {
+   "size": 556676,
+   "sha256": "d6934ef8ce38b56a405bee2bcbb38c85af98ce8a5c2dd7eea0a21f34bf2cd756"
+  },
+  "chars/eviatar.json": {
+   "size": 18251,
+   "sha256": "cc6e0d35d3979640fe98e86b5aab1f4675cf55dd1008be798c44d649751f0bda"
+  },
+  "chars/eviatar.webp": {
+   "size": 1335642,
+   "sha256": "0fa95790e372f68f5eb2ee189992ade8aab6c7c750571ec7afecf0a2db4c8dda"
+  },
+  "chars/ferryman.json": {
+   "size": 9228,
+   "sha256": "486a86a81b6ebceb8b88bc1d9803cf9fbd64bce607222f9779a20a112aa8db8f"
+  },
+  "chars/ferryman.webp": {
+   "size": 967238,
+   "sha256": "07469201cde06db8732487fb0d23e4fa8a17a9d49148143c5a90c8f47fecb41f"
+  },
+  "chars/flame-samurai.json": {
+   "size": 9205,
+   "sha256": "1466e2b0ecdce1c3dd03152eb91b94ff583098d8ed8b3bccc290fedab72f8c41"
+  },
+  "chars/flame-samurai.webp": {
+   "size": 1304724,
+   "sha256": "64cf2479883ca5b0773c0d90cdd1293c7f233539e3416d7df4271dc962d67c4d"
+  },
+  "chars/glass-warden.json": {
+   "size": 9200,
+   "sha256": "a9f882fabab0878bf60b6b61320f61e2e9b574817bb24964476c3ab3ded3f187"
+  },
+  "chars/glass-warden.webp": {
+   "size": 1266416,
+   "sha256": "83cedf0f6ac85307da7cdabc9dfa95c83219d91f6a470ed31841d499f5dc5bb9"
+  },
+  "chars/gold-sorceress.json": {
+   "size": 15201,
+   "sha256": "790ce75c1e14e6b0de38d7594ef77215f8f874e6989285becf127d193db2556b"
+  },
+  "chars/gold-sorceress.webp": {
+   "size": 865030,
+   "sha256": "cdec9a1ef497f5495b5d6977feb9d05f4ce637f92da83fe5c1b249324eb57a3b"
+  },
+  "chars/kicker.json": {
+   "size": 12015,
+   "sha256": "5de6c5cae08457561c1b1e426eadad0067aef01614c78d2f9d883624b1e99eb5"
+  },
+  "chars/kicker.webp": {
+   "size": 364838,
+   "sha256": "d643c579ed4295ae333917307c880cb9ebec9837532b6ee74c404b7be3844129"
+  },
+  "chars/kilnheart.json": {
+   "size": 9207,
+   "sha256": "3d6948e80d74051cf949de50eefb4900f1f54dd829d097779116506bc9b1ad0a"
+  },
+  "chars/kilnheart.webp": {
+   "size": 1600596,
+   "sha256": "6818f5aa27d7059d57e201f81c3ff095c15ad14d09e4e03ee65b232b281ac222"
+  },
+  "chars/knight-b.json": {
+   "size": 12069,
+   "sha256": "0006c4cf5553063bc4512631a83e2de6e761f773070841ddfdb3077f95b1e87f"
+  },
+  "chars/knight-b.webp": {
+   "size": 425052,
+   "sha256": "0678a65ec427f689ee53999ae11908211ccbc98ae37a5a928b1613cb6a379a57"
+  },
+  "chars/knight.json": {
+   "size": 12067,
+   "sha256": "92a37e6a7b602557b8eab4073af463e93151aedec69f3246b8b981d12ed074ab"
+  },
+  "chars/knight.webp": {
+   "size": 436794,
+   "sha256": "ea2a3093a5cb700fbf40433ec500ef4d17c09419bfde7325542a86936efeed3a"
+  },
+  "chars/market-king.json": {
+   "size": 9193,
+   "sha256": "8419358db651348e8cf13893f18380e4f72671b7b68730cbb62ee87bdef9a27c"
+  },
+  "chars/market-king.webp": {
+   "size": 1287990,
+   "sha256": "23079b76edbf0f7a59aab8abf5d74abfb95d25597c70f402aced55893f638be5"
+  },
+  "chars/monk-zero.json": {
+   "size": 9225,
+   "sha256": "68fceda1a6758b952a33d6fbecd6c93b2fd41179366bc2b9874851052c281e89"
+  },
+  "chars/monk-zero.webp": {
+   "size": 1252072,
+   "sha256": "d782a2178888cc2db938815655aa3e89ed95d5fea4265eaa41df10cce4428d6e"
+  },
+  "chars/omri.json": {
+   "size": 18250,
+   "sha256": "32971ed3747de27fb1bdefc4786ce638c3af2d357956a939f58d0d3e5116c3f8"
+  },
+  "chars/omri.webp": {
+   "size": 1196000,
+   "sha256": "6c9557ada2ee5b7225b29a964bfa3c1a34654798bb0a4746a3fc52f14765b65a"
+  },
+  "chars/pitz.json": {
+   "size": 4529,
+   "sha256": "ebc48d2673d1c0a2e2de52426322920d55dda97e5d7677af20559b67bcac9f2f"
+  },
+  "chars/pitz.webp": {
+   "size": 117132,
+   "sha256": "42295ab373d6a0a6a90d56d210f30c1d8990770b13d1f49f3b28b76376784da3"
+  },
+  "chars/prism-queen.json": {
+   "size": 9206,
+   "sha256": "1934104a518067785b494cf0fe2afaf6bf46ab6619f867a6f98285ea5b78a4b3"
+  },
+  "chars/prism-queen.webp": {
+   "size": 1699866,
+   "sha256": "1ea6837a3b479bbf7691e26e142fb9a812198c64cc5d2b5b2b4b3648a2cb10bb"
+  },
+  "chars/punk-b.json": {
+   "size": 15138,
+   "sha256": "1ed0f9173011b65f58f442ab357cf645135345e6260f864aa78593cf6d98deeb"
+  },
+  "chars/punk-b.webp": {
+   "size": 601710,
+   "sha256": "56fef5847dcc64d774b687c707aff5bc443c782870177cd8734d442f82ff0a9d"
+  },
+  "chars/punk.json": {
+   "size": 15136,
+   "sha256": "e38d5f791dd421e700fc78600a782167c53def8e759e93380c430eb99bcbb32b"
+  },
+  "chars/punk.webp": {
+   "size": 585482,
+   "sha256": "d6870809e2c59a7b00550d0ab1204c01cbe82ef394fd13877885c070df0a1f4c"
+  },
+  "chars/railmaw.json": {
+   "size": 8124,
+   "sha256": "bed344c926d9937ebb9f3fce761305aedc2ca135f99e1374a6c977db5dab6d9d"
+  },
+  "chars/railmaw.webp": {
+   "size": 509808,
+   "sha256": "e41529021c8385c1d347de7158ef1877b4087a8735b13b316afceaec7eef5fd6"
+  },
+  "chars/rainbow-oracle.json": {
+   "size": 15180,
+   "sha256": "fcef151aaec3be228e7fdaf801f2586562d460b2b9d5109228c02dc84e705218"
+  },
+  "chars/rainbow-oracle.webp": {
+   "size": 1030158,
+   "sha256": "ba20111c108c8a212c9f4f595b875ad3dd2421a38ef4d17b9e65442904879b23"
+  },
+  "chars/saba-kobi.json": {
+   "size": 18260,
+   "sha256": "0ebea7dc3f3bbad2d129d4f8e875c8e3486ad4f6e2386681ce7a4a5abefbc56b"
+  },
+  "chars/saba-kobi.webp": {
+   "size": 1134618,
+   "sha256": "7745300aadcd302dbd663370911ded396b897cb00f62404c2a52ae824548e70d"
+  },
+  "chars/savta-orly.json": {
+   "size": 18249,
+   "sha256": "3fa71d00cbade6707fdfbeaa6ff0f5a2d41eaf830baaf736a8cdb9a0683a19bb"
+  },
+  "chars/savta-orly.webp": {
+   "size": 1275678,
+   "sha256": "83c7de5007da201706ad111020ea02c7dde4f01d5edc670cdb400fa9b7515f98"
+  },
+  "chars/shield.json": {
+   "size": 12071,
+   "sha256": "357927d46e3de3be147215df5cd63c91bfc3b9e5e652f8022d4e9bae73cc2513"
+  },
+  "chars/shield.webp": {
+   "size": 299934,
+   "sha256": "5444390e4ae21564a96dca6095d8dc10ce10bb365c62d5467747c4011a199abe"
+  },
+  "chars/shmuel.json": {
+   "size": 18207,
+   "sha256": "56c7f5c4c2a8fc44f2d1443a0b09833175732ce666a3611434f1138a3e78ea12"
+  },
+  "chars/shmuel.webp": {
+   "size": 1032386,
+   "sha256": "78be3be599a4a789fe5cf65c5c050a38e14d248aed893963e1bfd8ec7e30c976"
+  },
+  "chars/storm-colossus.json": {
+   "size": 9195,
+   "sha256": "9dbb7b5acccf3100bf893febb0e35eee5dd2a941561ec985cea37ff063b06ccb"
+  },
+  "chars/storm-colossus.webp": {
+   "size": 1336450,
+   "sha256": "5c0973778e18f650a540c6825b854ad8c48e58538ba6d9e3b5bd0d4811458bed"
+  },
+  "chars/the-null.json": {
+   "size": 8144,
+   "sha256": "cc5b91e9f1ee0b2a91e2245f8e38f1731737b1d120c7e8e74a8ecf9ed41eedbb"
+  },
+  "chars/the-null.webp": {
+   "size": 739246,
+   "sha256": "aa3bb892f6087b3ab9f9b63ee421ef8c6c4dd8fd24c1131513062f7ce5b491ed"
+  },
+  "chars/ultra-signal.json": {
+   "size": 8159,
+   "sha256": "0db8c1a7cd1660cb7bed56c665d888e01e6ec2740271b9d1fb3c71d2267b4d0b"
+  },
+  "chars/ultra-signal.webp": {
+   "size": 873104,
+   "sha256": "69580d519d4f28d2caee6df4781d928068c8ef778a51f8e69092c57726f140d8"
+  },
+  "chars/vault-mother.json": {
+   "size": 8142,
+   "sha256": "d94d754b440c1d91445301b0002e497c7b0cdd58b2e69b3b5d0273c6e210cc4f"
+  },
+  "chars/vault-mother.webp": {
+   "size": 591532,
+   "sha256": "f3f4e06a1101171d0044762d09dd6e4eedd0a8b7733300247f27cdd27914de93"
+  },
+  "chars/void-demon.json": {
+   "size": 15193,
+   "sha256": "5e2829a4c2e92f403d755bc2e8e92fe64acec826dee7c1d81ffb13d35e11c22e"
+  },
+  "chars/void-demon.webp": {
+   "size": 1131862,
+   "sha256": "41dfb6f354f77195c84f2cbf80d78131ff71a181f747f50bc1ea33a68d428e3f"
+  },
+  "fx/pitz.webp": {
+   "size": 21824,
+   "sha256": "e6fdec6bdb246d41cae9695b842cba116cae061706cd57f3d38e559a0a24297d"
+  },
+  "levels/bg-01.webp": {
+   "size": 102876,
+   "sha256": "46d46b9198aac303ec56f1944da816640c75084b14c235289ecee70d4943b62d"
+  },
+  "levels/bg-02.webp": {
+   "size": 93620,
+   "sha256": "fa77f72c4bad4fbdad122756b6790492802c830c4e5e42f0f6855f179e6b9b3f"
+  },
+  "levels/bg-03.webp": {
+   "size": 111690,
+   "sha256": "de9f4cec24f900fa2cc8f0f1f15d36a816ef2ae1213a6c79cbdb9d767de7c232"
+  },
+  "levels/bg-04.webp": {
+   "size": 100552,
+   "sha256": "0225b064e95812c9ffa2ee56bee5707c122a78d2de8882a603ee5d002e7e785b"
+  },
+  "levels/bg-05.webp": {
+   "size": 80220,
+   "sha256": "15c77a3a5c52d655976f1a438b2515d4a2e19a88e9ce4d9f059f4af7fda66ae9"
+  },
+  "levels/bg-06.webp": {
+   "size": 66250,
+   "sha256": "bf9c16bb470229b53b0090f64f1f62e6bfab88dce9e96d44fba606da5ca93806"
+  },
+  "levels/bg-07.webp": {
+   "size": 58562,
+   "sha256": "fa4bb615b79cdf533388b4a557b4ade84ef28876ce105e129c57d3433f8cde22"
+  },
+  "levels/bg-08.webp": {
+   "size": 63148,
+   "sha256": "d534491ee46f3506113239f839744cb5d9fa75458c74a36b9551b26ac8655f2f"
+  },
+  "levels/bg-09.webp": {
+   "size": 77696,
+   "sha256": "57bf45f58000f2ccf73453883bde39e763e9f69774d284ac2f09e6f2657dcfc5"
+  },
+  "levels/bg-10.webp": {
+   "size": 97436,
+   "sha256": "88427c3e22e287444d9432258ee6cec8899809020948db96194f04c27fd73e77"
+  },
+  "levels/entry-01.webp": {
+   "size": 97102,
+   "sha256": "80d4e1e28408e33b0a9bbe596d2601458838410bfe4e52b149f8abbec7b92ec4"
+  },
+  "levels/entry-02.webp": {
+   "size": 86556,
+   "sha256": "c89eb2640cfe218a85dd7565c1a098866655c4611133f4cef6b5f0c75df3a8f7"
+  },
+  "levels/entry-03.webp": {
+   "size": 95956,
+   "sha256": "02f1a43785f71a932684467b87050f080b1b8897e1fd8138da18dbb2daafbc67"
+  },
+  "levels/entry-04.webp": {
+   "size": 96178,
+   "sha256": "09c770994f4450c8a34c0f208cf726e1da4bfc5531da77d0803c847db3cebe44"
+  },
+  "levels/entry-05.webp": {
+   "size": 86740,
+   "sha256": "cf15e549117925959a9cfc3f1efd5312c5021da2f081f299d563ccf09cd04efa"
+  },
+  "levels/entry-06.webp": {
+   "size": 60562,
+   "sha256": "d4b0028d4387a539440de19168649d5966588c46c81a98bc4b1548ad348b72f6"
+  },
+  "levels/entry-07.webp": {
+   "size": 69294,
+   "sha256": "e04269b08767609c3b03d8ff609fd5d8f597b07ecad15b3a8f262d4bc670dba1"
+  },
+  "levels/entry-08.webp": {
+   "size": 71534,
+   "sha256": "22a00f23f9bacabe17163e6654962562a7ad289151d3e5b58527949928d42dc7"
+  },
+  "levels/entry-09.webp": {
+   "size": 83684,
+   "sha256": "00a8024132fe955c4026090e2e197433eb5ed901442509bb8b1c209bee7efb5a"
+  },
+  "levels/entry-10.webp": {
+   "size": 107530,
+   "sha256": "1f8840a82a04136d9c6cb0d9ac83efcf4c1706e4abc79c65d3139006dd0a2a79"
+  },
+  "levels/sign-01.svg": {
+   "size": 504,
+   "sha256": "8fed7a5816c95063fbba1d8667355335f104ad0337e62ccd402f7d86f1d3e30b"
+  },
+  "levels/sign-02.svg": {
+   "size": 536,
+   "sha256": "38eda8c2608624126a15f33a4eba140deac6ee88507baa17b0aa93e7e8e9b6c4"
+  },
+  "levels/sign-03.svg": {
+   "size": 498,
+   "sha256": "95586088242916b04e551dc07a1a8d3bd22d07dfac2b8449d2c8af8a1f15f3e5"
+  },
+  "levels/sign-04.svg": {
+   "size": 500,
+   "sha256": "b040264b98eb1b425c127314318beab3b0e4bc39045ecd530008eb63723999c7"
+  },
+  "levels/sign-05.svg": {
+   "size": 510,
+   "sha256": "9788f0d2eb8278c005d0363ef539ed29e59705e228d645f3b712eea0d14caeb4"
+  },
+  "levels/sign-06.svg": {
+   "size": 541,
+   "sha256": "22fc5415e3f9725f2bb6e5cb30cbb3644724989f42a8305380fe5f0dc5b59c12"
+  },
+  "levels/sign-07.svg": {
+   "size": 505,
+   "sha256": "6bbb5497d19898773cc5a843d1d249f4131869eadb08d9b29073d09558f3f230"
+  },
+  "levels/sign-08.svg": {
+   "size": 491,
+   "sha256": "79f57545b13d0f1781b4ad011250b2b3addab337d063f0eb9a5a7e594d599ee6"
+  },
+  "levels/sign-09.svg": {
+   "size": 504,
+   "sha256": "f8afabdf59a35865d1d0619ef1fd9dba7cdcfae67b840cc6c1094fb367b6a496"
+  },
+  "levels/sign-10.svg": {
+   "size": 493,
+   "sha256": "71e3d59eee8fb0d09e50b56e66a220a374d43ad8060c48c1b107001b8a90ce2b"
+  },
+  "portraits/abyss-dragon.webp": {
+   "size": 12896,
+   "sha256": "3a33b7d95cff6c29c556ed9bb6f385f1f4ad3d943a7d4cd4798b594901a5d268"
+  },
+  "portraits/crown-runner.webp": {
+   "size": 9822,
+   "sha256": "6ea30bfda9dda715640ce2fc794a6f4ae70276dbbfa1f5ec37627f1e48add3e2"
+  },
+  "portraits/ferryman.webp": {
+   "size": 7868,
+   "sha256": "ad315167d898567deb66a090b6d35b0862b59a87057c33975933019a7a487bbd"
+  },
+  "portraits/flame-samurai.webp": {
+   "size": 9784,
+   "sha256": "c7d68a9aab19e53cf8a395648b0d95eb82c04d65b9a5a486a7b0009b6e3b00f2"
+  },
+  "portraits/glass-warden.webp": {
+   "size": 8958,
+   "sha256": "de9d71411dd465d66a922f39edc2d2d51e89e886f62ccb5d4723cbcb0144114a"
+  },
+  "portraits/kilnheart.webp": {
+   "size": 11090,
+   "sha256": "bd0a921dc48318e149c6a10e25a692b52ec6b84e7def17a61bfd2116c5bc98f9"
+  },
+  "portraits/market-king.webp": {
+   "size": 10316,
+   "sha256": "0830fcb4f796b0dbf5ef0f283045d89a03b2cf1b681b90adb3d16f45a5006ccc"
+  },
+  "portraits/monk-zero.webp": {
+   "size": 7840,
+   "sha256": "3652fa0bf819e8e09fb8354ac1a980f4c1549fbc3a6f3431c460395a7bbdeed5"
+  },
+  "portraits/prism-queen.webp": {
+   "size": 12804,
+   "sha256": "17cc6099471896d7fa4294c62b14f1350359f6f9a19b2b8a91f313ba82f3d3d5"
+  },
+  "portraits/railmaw.webp": {
+   "size": 8736,
+   "sha256": "c300bda04a818547041d2a283298aa5beb975da645d79902927062ae2c3c561f"
+  },
+  "portraits/storm-colossus.webp": {
+   "size": 10802,
+   "sha256": "d50dddc3c0aa6e7c1c6f2c290cb4f8369e599b7e42d8347ae9c00e3c4c45bef6"
+  },
+  "portraits/the-null.webp": {
+   "size": 18716,
+   "sha256": "9c04c295c719c7344e30712560bfe90e926c4d275fb3b9e18867f4d9383bd313"
+  },
+  "portraits/ultra-signal.webp": {
+   "size": 16672,
+   "sha256": "41c4244ead6c79c94f0476f833a8e571ea54c8731c2b116051a9d8a1d65c72fb"
+  },
+  "portraits/vault-mother.webp": {
+   "size": 10958,
+   "sha256": "5f7ffc16c8f503e26a34e136b3036ee681097e0801b8a4c45bace13cdba4ab89"
+  },
+  "roster.json": {
+   "size": 3930,
+   "sha256": "b0132aab17aed43da6fbed87625b05596020a41939ce9501127e2ec08087a091"
+  },
+  "ui/attack.svg": {
+   "size": 536,
+   "sha256": "6420262b1281a3698f9e4be08fc46a268ba5ed706f53a6443b224e55b33f0517"
+  },
+  "ui/coop.svg": {
+   "size": 534,
+   "sha256": "23ac7488a6f5fe0f24c3e66d21853ffc7a5f3ff56068b1bbda7a7444bb75102d"
+  },
+  "ui/dash.svg": {
+   "size": 432,
+   "sha256": "8aada863461d4eb8d5d18543c36d49e3dfc10a1145e4a9d6409497d072b4e3ae"
+  },
+  "ui/face-fallback.svg": {
+   "size": 480,
+   "sha256": "415383d331c3698c3cab7dc96c61fb27c95c2d5de654317a67fe0c1e529a5554"
+  },
+  "ui/face-guide.svg": {
+   "size": 380,
+   "sha256": "d0d7abe226da4e02f56fed69173f4e37eeb9ee8912098332ebdbf56211dde4e0"
+  },
+  "ui/face.svg": {
+   "size": 376,
+   "sha256": "17682112160d63da551f40d3a0fc5256137b1bec399ec28e87a4cecf5efa933a"
+  },
+  "ui/icon-192.png": {
+   "size": 72347,
+   "sha256": "9ae52900024341d9cf70554b8a5ed8c7f138230f35f061f8e846b6b1316d96d5"
+  },
+  "ui/icon-512.png": {
+   "size": 463512,
+   "sha256": "f36abbd91adef7de16459cd553ad0707cca98a678d619b320c44dc5cb58d8da8"
+  },
+  "ui/keyart.webp": {
+   "size": 131038,
+   "sha256": "012a6a753ff50600d55ead92b93e5e9388947ad79ad0680f210fa7e412ce4e70"
+  },
+  "ui/logo.png": {
+   "size": 50473,
+   "sha256": "845dc0a328eac44fdb1290e0948ef0faf0ba55b0c147d20891a4dff6b0f88900"
+  },
+  "ui/logo.svg": {
+   "size": 2773,
+   "sha256": "2f0e192debecd5c1ebaef23e8ef367bf1334ee483cb6833f64ffa21f6a0b9fd0"
+  },
+  "ui/pause.svg": {
+   "size": 330,
+   "sha256": "139152dfbf05a5426bfec849267b128a466f20027f12c14d21514571ad9b4999"
+  },
+  "ui/play.svg": {
+   "size": 247,
+   "sha256": "f1ea323c258b5f79d75e149ff1e05efdc211ffb9c4432d5790db798c61ceaed8"
+  },
+  "ui/relics/burst.svg": {
+   "size": 212,
+   "sha256": "d982a77178336842a92b3edd968dcbc8813787a600fee60f2fbdbf54ea36ad57"
+  },
+  "ui/relics/combo.svg": {
+   "size": 308,
+   "sha256": "e6cfd050492d2105eae6a5ba4927c33f1e03a7ad353738b655e1479b6f279c08"
+  },
+  "ui/relics/focus.svg": {
+   "size": 634,
+   "sha256": "ad95c0514f54e18a23a84cd22dcc5783e728df8d340469b524c513ff7c17b82a"
+  },
+  "ui/relics/guard.svg": {
+   "size": 335,
+   "sha256": "b27fd16a351323fb5a9514deb6c2470269f8b4399e7b875ca926ec14db460f96"
+  },
+  "ui/relics/speed.svg": {
+   "size": 296,
+   "sha256": "f6c7aae8a93f1387165758803aa0ca17abb7a9c1343575ebae35a7a9e00d5c49"
+  },
+  "ui/relics/vitality.svg": {
+   "size": 254,
+   "sha256": "40313c728bc0a45c452a7a98abc3c27bb03b6cc8ba45f496e64f99c5f7aa706e"
+  },
+  "ui/retry.svg": {
+   "size": 348,
+   "sha256": "61d423e94c0d57a6741f4209af62382de77acb319f4007769d00e8730c6843a6"
+  },
+  "ui/special.svg": {
+   "size": 388,
+   "sha256": "e417696c19802a01dd6eabfeed0cb6f128241fdfc576c136e4a92f5bcc4dff21"
+  },
+  "ui/splash.png": {
+   "size": 5556952,
+   "sha256": "35ffc0886de5839cdf9dceb9c1a4a3f464bad2f02edd3fb166c1e351ccb47946"
+  }
+ }
+}
