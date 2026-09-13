@@ -10,7 +10,7 @@ can be composited over it), and the **hero-select card** is a separate square im
 Done means `npm run verify:character -- savta-orly` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render style) and the
-identity references: the photos in `docs/refs/savta-orly-source/` (`docs/refs/savta-orly-source/orly-1.png`, `docs/refs/savta-orly-source/orly-2.png`, … — as many stills as there are; a frontal smiling one and a three-quarter one at minimum). Do Step A (the character sheet) first and attach it to every action request too.
+identity reference: `docs/refs/savta-orly-source/orly-1.png` (frontal, smiling — the face to match; one clear frontal photo is sufficient, and any further stills in that folder are attached too). Do Step A (the character sheet) first and attach it to every action request too.
 
 ## Character card
 

@@ -10,7 +10,7 @@ can be composited over it), and the **hero-select card** is a separate square im
 Done means `npm run verify:character -- saba-kobi` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
 **Attach to every request:** `public/assets/references/hero-grid-quality-reference.png` (render style) and the
-identity references: the photos in `docs/refs/saba-kobi-source/` (`docs/refs/saba-kobi-source/kobi-1.png`, `docs/refs/saba-kobi-source/kobi-2.png`). Do Step A (the character sheet) first and attach it to every action request too.
+identity reference: `docs/refs/saba-kobi-source/kobi-1.png` (frontal, grinning — the face to match; one clear frontal photo is sufficient, and any further stills in that folder are attached too). Do Step A (the character sheet) first and attach it to every action request too.
 
 ## Character card
 
