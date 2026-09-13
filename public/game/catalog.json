@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-13T10:10:09.434Z",
+ "generatedAt": "2026-09-13T11:04:20.485Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -3747,12 +3747,12 @@
    "atlas": "chars/monk-zero.webp",
    "data": "chars/monk-zero.json",
    "box": {
-    "w": 294,
-    "h": 186
+    "w": 458,
+    "h": 360
    },
    "anchor": {
-    "x": 147,
-    "y": 183
+    "x": 229,
+    "y": 358
    },
    "rows": [
     "idle",
@@ -3762,8 +3762,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9565,
+   "framesPerRow": 9,
+   "scale": 0.4897,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -3774,10 +3775,15 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-03-monk-zero-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/monk-zero/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "3 defective source frame(s) replaced by a neighbour: attack/5(partial-figure)->4 defeat/5(partial-figure)->4 defeat/6(partial-figure)->7"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "market-king": {

@@ -25,3 +25,7 @@
 16:45 monk-zero sheet attempt 1 → PASS
 17:02 monk-zero idle attempt 1 → PASS (gate reports incomplete set as hero; missing files only)
 17:15 monk-zero approach attempt 1 → PASS
+12:58 monk-zero attack attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
+12:59 monk-zero special attempt 1 → PASS (gate reports incomplete set as boss; missing files only)
+13:02 monk-zero hurt attempt 1 → FAIL: image generation rejected by safety filter
+13:05 monk-zero hurt attempt 2 → PASS (gate reports incomplete set as boss; missing files only)
