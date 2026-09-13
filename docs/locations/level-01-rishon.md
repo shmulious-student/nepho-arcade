@@ -80,3 +80,9 @@ layout: "keep this composition, replace the place with the real one").
 
 - attempt count: 2 (gen-left ok, gen-right needed explicit continuation details to align seam diff 127.9). ACCEPTED.
 
+
+## Log
+
+- 2026-09-14 01:40 — Midjourney V8.2 plate `docs/backdrops_midjourney/rishon_lezion.png` (4096×1184, 3.46:1) accepted;
+  ground edge (red-and-white kerb) measured at 75% → `place-backdrop 1 … --floor=75%`; covers 4 of 5 waves. Replaces the
+  Gemini two-half plate.
