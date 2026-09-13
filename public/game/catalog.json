@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-13T11:04:20.485Z",
+ "generatedAt": "2026-09-13T12:29:21.782Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -3792,12 +3792,12 @@
    "atlas": "chars/market-king.webp",
    "data": "chars/market-king.json",
    "box": {
-    "w": 238,
-    "h": 206
+    "w": 386,
+    "h": 337
    },
    "anchor": {
-    "x": 119,
-    "y": 185
+    "x": 193,
+    "y": 333
    },
    "rows": [
     "idle",
@@ -3807,8 +3807,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9312,
+   "framesPerRow": 9,
+   "scale": 0.4697,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -3819,10 +3820,15 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-04-market-king-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/market-king/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "1 defective source frame(s) replaced by a neighbour: defeat/6(partial-figure)->5"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "railmaw": {
