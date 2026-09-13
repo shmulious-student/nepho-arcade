@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { LevelEntry } from '../shared/catalog';
-import { VIEW_W, VIEW_H } from '../sim/types';
+import { VIEW_W, VIEW_H, FLOOR_TOP, LANE_H } from '../sim/types';
 
 /** Backdrop + entry reveal + contrast band. Each level has exactly one (non-repeating) plate that
  * fills the world rectangle the catalog gives it (`level.art`): new plates fill ART_BAND — the band
@@ -12,7 +12,7 @@ export class Backdrop {
   private scene: Phaser.Scene;
   private bg: Phaser.GameObjects.Image;
   private entry: Phaser.GameObjects.Container | null = null;
-  private contrastBand: Phaser.GameObjects.Rectangle;
+  private contrastBand: Phaser.GameObjects.Image;
   private level: LevelEntry;
   private art: { x: number; y: number; w: number; h: number };
   private lastCameraX = 0;
@@ -23,8 +23,19 @@ export class Backdrop {
     this.art = level.art ?? { x: 0, y: 0, w: level.size.w * (VIEW_H / level.size.h), h: VIEW_H };
     this.bg = scene.add.image(this.art.x, this.art.y, `${level.id}-bg`).setOrigin(0, 0).setDisplaySize(this.art.w, this.art.h);
     container.add(this.bg);
-    // Fixed screen-space readability overlay over the combat band — not part of the scrolling world.
-    this.contrastBand = scene.add.rectangle(0, VIEW_H * 0.45, VIEW_W, VIEW_H * 0.4, 0x0b1730, 0.24).setOrigin(0, 0).setScrollFactor(0);
+    // Readability tint over the fighting lane only: a vertical gradient that fades in over the 30 world
+    // px above the lane's far edge and stays at 18% down to the bottom of the view, so sprites read
+    // against the ground without a hard line across the scenery. It lives in the (zoomed) world
+    // container, sized in world units, and is not scrolled with the backdrop.
+    const key = 'lane-tint';
+    if (!scene.textures.exists(key)) {
+      const c = scene.textures.createCanvas(key, 1, 64)!;
+      const g = c.getContext().createLinearGradient(0, 0, 0, 64);
+      g.addColorStop(0, 'rgba(11,23,48,0)'); g.addColorStop(0.2, 'rgba(11,23,48,0.18)'); g.addColorStop(1, 'rgba(11,23,48,0.18)');
+      c.getContext().fillStyle = g; c.getContext().fillRect(0, 0, 1, 64); c.refresh();
+    }
+    const top = FLOOR_TOP - 30, bottom = FLOOR_TOP + LANE_H + 80;
+    this.contrastBand = scene.add.image(-VIEW_W, top, key).setOrigin(0, 0).setDisplaySize(VIEW_W * 3, bottom - top);
     container.add(this.contrastBand);
   }
 

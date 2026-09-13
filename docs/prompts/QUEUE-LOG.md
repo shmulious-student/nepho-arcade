@@ -143,3 +143,4 @@
 
 
 
+2026-09-14 00:55 backdrops 1 2 3 5 reviewed (assistant): Gemini delivered 16:9 halves (1254×700, aspect ratio not set) that mostly did not repeat the previous tile; the old stitch feathered a ghost tower into level 1 and place-backdrop cover-cropped ~30% of the height. Fixed: stitch cuts at the best-matching column (N tiles), place-backdrop keeps full height and pads the right (art covers 3 waves on 1/2/5, 2 on 3). All four re-placed from the same halves; the lane tint is now a gradient over the lane only (it was darkening most of the view). Level 3 wants a third tile. Hero cards saba-kobi/shmuel were modified off-brief by the running agent at 00:44–00:49 — restored from git, candidates parked under backups/replaced/hero-cards-unasked-2026-09-14.

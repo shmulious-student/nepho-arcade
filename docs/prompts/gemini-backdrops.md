@@ -29,6 +29,9 @@ Read first, in this order:
 - Attach the reference images listed in the level's Request card **as images** to the generation request; attach the
   current plate too (it fixes the composition). If the tool cannot take attachments, describe the references in one
   extra sentence and go on.
+- **Set the image aspect ratio to 21:9 on every request** (the model supports it; the first run left it at 16:9 and
+  the halves came out 1254×700, too narrow for a 4:1 plate). If your tool really cannot set 21:9, generate a **third
+  tile** the same way ("continue this exact scene to the right", previous tile attached) and stitch all three.
 - **A plate is two 21:9 generations, stitched.** The finished plate is 4:1 (2800×700) and no image model outputs that
   in one go, so every level is: request 1 = the Prompt as the left part at **21:9**; request 2 = *same session, request-1
   image attached*, the "continue this exact scene to the right" line from the Request card, also 21:9; then
@@ -52,8 +55,11 @@ Read first, in this order:
    node tools/place-backdrop.mjs <N> docs/refs/locations/NN-<id>/gen-plate.png
    npm run build:assets && npm run test:assets
    ```
-   The stitch prints the overlap it found and the mean pixel difference; a difference above ~40 means the halves do not
-   match — look at `gen-plate.png` for a hard seam before accepting.
+   The stitch prints each join's overlap and mean pixel difference and flags **HIGH** when a tile did not repeat the
+   previous one; it cuts at the best-matching column so nothing ghosts, but look at `gen-plate.png` for a hard seam
+   before accepting. `place-backdrop` never crops height: a plate narrower than 4:1 is placed at the left and the rest
+   is a blurred extension — it prints how many of the 5 waves the real art covers. **Accept only if that is ≥ the
+   level's wave count** (3 for every level today) — otherwise add a third tile.
 5. **Look at** `public/game/levels/bg-NN.webp` and judge it against the "Accept when" line in the Request card.
    If it fails, regenerate the half at fault **once** with the failing rule repeated first and **bolded**, re-stitch and
    re-place; if it fails again, delete `public/assets/generated/backdrops/level-NN.png` (the build falls back to the old
