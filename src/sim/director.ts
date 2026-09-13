@@ -1,7 +1,7 @@
 // Wave director: spawns waves, scrolls between segments, brings in the boss and rubber-bands pacing
 // toward the 3-minute level target.
-import { levelDef, ENTRY_TICKS, CLEAR_TICKS, SEGMENT_X, type WaveDef } from './levels';
-import { LEVEL_W, VIEW_W, LANE_H } from './types';
+import { levelDef, ENTRY_TICKS, CLEAR_TICKS, levelWidth, segmentX, type WaveDef } from './levels';
+import { VIEW_W, LANE_H } from './types';
 import type { World } from './world';
 
 export interface DirectorState {
@@ -49,7 +49,7 @@ export function startWave(w: World, d: DirectorState, index: number): void {
   d.queue = [];
   d.plannedTicks += level.waves[index].budget * 60;
   queueWave(w, d, level.waves[index]);
-  w.cameraX = Math.min(SEGMENT_X[Math.min(index, SEGMENT_X.length - 1)], LEVEL_W - VIEW_W);
+  w.cameraX = segmentX(level, index);
   w.setPhase('wave');
   w.emit({ type: 'levelPhase', x: 0, y: 0, a: index + 1 });
 }
@@ -85,10 +85,10 @@ export function stepDirector(w: World, d: DirectorState): void {
             queueWave(w, d, level.bonusWave);
             w.emit({ type: 'levelPhase', x: 0, y: 0, a: 99 });
           } else {
-            beginGo(w, d, LEVEL_W - VIEW_W, true);
+            beginGo(w, d, levelWidth(level) - VIEW_W, true);
           }
         } else {
-          beginGo(w, d, Math.min(SEGMENT_X[d.waveIndex + 1], LEVEL_W - VIEW_W), false);
+          beginGo(w, d, segmentX(level, d.waveIndex + 1), false);
         }
       }
       break;
@@ -100,7 +100,7 @@ export function stepDirector(w: World, d: DirectorState): void {
       w.cameraX = cam;
       if (w.cameraX >= d.goTarget - 0.5) {
         w.cameraX = d.goTarget;
-        if (d.goTarget >= LEVEL_W - VIEW_W && d.waveIndex >= level.waves.length - 1) beginBoss(w, d);
+        if (d.goTarget >= levelWidth(level) - VIEW_W && d.waveIndex >= level.waves.length - 1) beginBoss(w, d);
         else startWave(w, d, d.waveIndex + 1);
       }
       break;

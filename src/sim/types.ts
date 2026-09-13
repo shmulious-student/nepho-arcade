@@ -5,9 +5,14 @@ export type Kind = 'hero' | 'enemy' | 'boss' | 'echo' | 'projectile' | 'hazard' 
 export type HeroId = 'eviatar' | 'omri' | 'shmuel' | 'savta-orly' | 'saba-kobi' | 'noa';
 
 export const TICK_RATE = 60;
-export const LEVEL_W = 1520; // world width of one level (backdrop scaled to 540 tall)
 export const VIEW_W = 960;
 export const VIEW_H = 540;
+// Level scroll: the camera advances SEGMENT_STEP per wave (see levels.ts levelWidth) and a level may
+// have up to MAX_WAVES waves, so LEVEL_W is the widest any level can be. Every backdrop is painted
+// for that width.
+export const SEGMENT_STEP = 200;
+export const MAX_WAVES = 5;
+export const LEVEL_W = VIEW_W + SEGMENT_STEP * (MAX_WAVES - 1); // 1760
 export const LANE_H = 120; // depth band, world y in [0, LANE_H]
 export const FLOOR_TOP = 380; // screen y of world y = 0
 export const LANE_TOL = 16; // |dy| tolerance for hits
@@ -16,6 +21,17 @@ export const LANE_TOL = 16; // |dy| tolerance for hits
 export const VIEW_ZOOM = 1.7;
 export const VISIBLE_W = Math.round(VIEW_W / VIEW_ZOOM); // 565
 export const VISIBLE_X0 = Math.round((VIEW_W - VISIBLE_W) / 2); // 198
+// The zoom pivots low on the combat band (GameScene), so vertically the canvas shows world y from
+// VISIBLE_Y0 for VISIBLE_H — the top of the 540-tall world is never on screen.
+export const VIEW_PIVOT_X = VIEW_W / 2;
+export const VIEW_PIVOT_Y = FLOOR_TOP + 90; // 470
+export const VISIBLE_Y0 = Math.round(VIEW_PIVOT_Y * (1 - 1 / VIEW_ZOOM)); // 194
+export const VISIBLE_H = Math.round(VIEW_H / VIEW_ZOOM); // 318
+// The rectangle a level's backdrop plate fills, in world space: exactly the band the view can ever
+// show across a MAX_WAVES level plus a small bleed — so at least 90% of the art's height is on screen
+// at any moment (VISIBLE_H / ART_BAND.h) and, over a full-length level, ~97% of its width. Plates are
+// delivered at 4:1 (2800×700, docs/locations); legacy plates (941×334) keep their own rect (catalog).
+export const ART_BAND = { x: VISIBLE_X0 - 18, y: VISIBLE_Y0 - 16, w: 1400, h: 350 };
 // How far inside the visible band a character's centre must stay so its whole sprite is on screen:
 // heroes are the widest and get the most room; enemies and bosses a little less, so a cornered
 // player still has someone to hit on either side.

@@ -516,6 +516,13 @@ function parseSigns(svgText) {
   });
 }
 
+// The world rectangle a band plate fills — keep in sync with ART_BAND in src/sim/types.ts (the
+// build cannot import the TS sim). Band plates are delivered at 4:1 (docs/locations) and shipped at
+// 2800×700; legacy plates are the 941×334 atlas slots and keep the old full-height rect.
+const ART_BAND = { x: 180, y: 178, w: 1400, h: 350 };
+const BAND_PLATE = { w: 2800, h: 700 };
+const LEGACY_ART = (w, h) => ({ x: 0, y: 0, w: Math.round(w * 540 / h), h: 540 });
+
 async function processLevels(catalog) {
   const slot = 1672 / 5;
   const tops = [0, 1, 2, 3, 4, 5].map((k) => Math.round(k * slot));
@@ -529,7 +536,17 @@ async function processLevels(catalog) {
     const entryFile = join(SRC, atlasIdx === 0 ? 'entry-extensions-01-05.png' : 'entry-extensions-06-10.png');
     const region = { left: 0, top: tops[s], width: 941, height: tops[s + 1] - tops[s] };
     const nn = String(i + 1).padStart(2, '0');
-    await sharp(bgFile).extract(region).webp({ quality: 82 }).toFile(join(OUT, 'levels', `bg-${nn}.webp`));
+    // a delivered band plate (docs/locations, tools/place-backdrop.mjs) replaces the atlas slot
+    const bandFile = join(SRC, 'backdrops', `level-${nn}.png`);
+    let size, art;
+    if (existsSync(bandFile)) {
+      await sharp(bandFile).resize(BAND_PLATE.w, BAND_PLATE.h, { fit: 'cover', position: 'centre' }).removeAlpha().webp({ quality: 82 }).toFile(join(OUT, 'levels', `bg-${nn}.webp`));
+      size = { ...BAND_PLATE }; art = { ...ART_BAND };
+      console.log('level', nn, 'band plate', bandFile.replace(ROOT, ''));
+    } else {
+      await sharp(bgFile).extract(region).webp({ quality: 82 }).toFile(join(OUT, 'levels', `bg-${nn}.webp`));
+      size = { w: 941, h: region.height }; art = LEGACY_ART(941, region.height);
+    }
     await sharp(entryFile).extract(region).webp({ quality: 80 }).toFile(join(OUT, 'levels', `entry-${nn}.webp`));
     const sg = signs[i];
     const localY = sg.y - tops[s];
@@ -538,7 +555,7 @@ async function processLevels(catalog) {
     catalog.levels.push({
       index: i + 1, id: LEVELS[i].id, name: sg.latin.replace(/\s+·.*$/, ''), nameHe: sg.hebrew, accent: sg.accent,
       bg: `levels/bg-${nn}.webp`, entry: `levels/entry-${nn}.webp`, sign: `levels/sign-${nn}.svg`, signY: localY,
-      boss: LEVELS[i].boss, size: { w: 941, h: region.height },
+      boss: LEVELS[i].boss, size, art,
     });
   }
 }

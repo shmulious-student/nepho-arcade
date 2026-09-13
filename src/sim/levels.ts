@@ -1,3 +1,5 @@
+import { VIEW_W, SEGMENT_STEP, MAX_WAVES } from './types';
+
 export interface SpawnDef { arch: string; n: number }
 export interface WaveDef { spawns: SpawnDef[]; budget: number /* seconds */ }
 export interface LevelDef {
@@ -40,4 +42,8 @@ export const BOSS_ENRAGE_TICKS = 75 * 60;
 export const BOSS_HP_BASE = 260;
 export const BOSS_HP_PER_LEVEL = 34;
 export const LEVEL_TARGET_SECONDS = 180;
-export const SEGMENT_X = [0, 280, 560]; // camera x per wave
+/** How wide a level is: the camera scrolls SEGMENT_STEP per wave and the boss is fought where the
+ * last wave was, so a 3-wave level is 1360 wide and a MAX_WAVES level fills the whole plate. */
+export const levelWidth = (level: LevelDef): number => VIEW_W + SEGMENT_STEP * (Math.min(MAX_WAVES, level.waves.length) - 1);
+/** Camera x for wave `index` (0-based), never past the level's end. */
+export const segmentX = (level: LevelDef, index: number): number => Math.min(SEGMENT_STEP * index, levelWidth(level) - VIEW_W);

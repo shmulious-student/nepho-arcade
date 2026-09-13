@@ -9,11 +9,11 @@ import { rollDrop, stepPickup } from './pickups';
 import { LEVEL_TARGET_SECONDS } from './levels';
 import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit, hazardHit as getHazardHit, forgetHazard } from './combat';
 import { makeDirector, stepDirector, beginBoss, type DirectorState } from './director';
-import { levelDef, ACTIVE, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
+import { levelDef, levelWidth, ACTIVE, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
 import { HEROES } from './frameData';
 import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
-import { LANE_H, LEVEL_W, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
+import { LANE_H, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
 export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number] }
 
@@ -208,7 +208,7 @@ export class World {
   /** Dev helper: jump straight to the boss fight (used by `?boss` on the dev server). */
   debugSkipToBoss(): void {
     for (const e of this.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = this.tick + 1; }
-    this.cameraX = LEVEL_W - VIEW_W;
+    this.cameraX = levelWidth(levelDef(this.level)) - VIEW_W;
     this.director.waveIndex = levelDef(this.level).waves.length - 1;
     beginBoss(this, this.director);
   }

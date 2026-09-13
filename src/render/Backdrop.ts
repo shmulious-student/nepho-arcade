@@ -2,25 +2,26 @@ import Phaser from 'phaser';
 import type { LevelEntry } from '../shared/catalog';
 import { VIEW_W, VIEW_H } from '../sim/types';
 
-/** Backdrop + entry reveal + contrast band. Each level has exactly one (non-repeating) 941x334 WebP
- * backdrop; scaled to fill the 540px view height it comes out ~1521px wide — almost exactly LEVEL_W,
- * i.e. the whole level's scroll range is covered by one image with no tiling needed. It's rendered as
- * a plain Image positioned at screen-x = -cameraX (same "world minus camera" convention EntityView
- * and Fx use), not a scrolling TileSprite. */
+/** Backdrop + entry reveal + contrast band. Each level has exactly one (non-repeating) plate that
+ * fills the world rectangle the catalog gives it (`level.art`): new plates fill ART_BAND — the band
+ * the zoomed view can actually show over a full-length level, so ≥90% of the art's height is always on
+ * screen; legacy 941×334 plates keep their old rect (0,0 → ~1521×540). It's rendered as a plain Image
+ * positioned at screen-x = art.x - cameraX (same "world minus camera" convention EntityView and Fx
+ * use), not a scrolling TileSprite. */
 export class Backdrop {
   private scene: Phaser.Scene;
   private bg: Phaser.GameObjects.Image;
   private entry: Phaser.GameObjects.Container | null = null;
   private contrastBand: Phaser.GameObjects.Rectangle;
   private level: LevelEntry;
-  private dispW: number;
+  private art: { x: number; y: number; w: number; h: number };
   private lastCameraX = 0;
 
   constructor(scene: Phaser.Scene, level: LevelEntry, _worldWidth: number, container: Phaser.GameObjects.Container) {
     this.scene = scene; this.level = level;
-    const scale = VIEW_H / level.size.h;
-    this.dispW = level.size.w * scale;
-    this.bg = scene.add.image(0, 0, `${level.id}-bg`).setOrigin(0, 0).setDisplaySize(this.dispW, VIEW_H);
+    // a catalog without `art` is a pre-band build: legacy fit, full view height from x=0
+    this.art = level.art ?? { x: 0, y: 0, w: level.size.w * (VIEW_H / level.size.h), h: VIEW_H };
+    this.bg = scene.add.image(this.art.x, this.art.y, `${level.id}-bg`).setOrigin(0, 0).setDisplaySize(this.art.w, this.art.h);
     container.add(this.bg);
     // Fixed screen-space readability overlay over the combat band — not part of the scrolling world.
     this.contrastBand = scene.add.rectangle(0, VIEW_H * 0.45, VIEW_W, VIEW_H * 0.4, 0x0b1730, 0.24).setOrigin(0, 0).setScrollFactor(0);
@@ -59,7 +60,7 @@ export class Backdrop {
 
   setCameraX(x: number): void {
     this.lastCameraX = x;
-    this.bg.setX(-x);
+    this.bg.setX(this.art.x - x);
   }
 
   destroy(): void { this.bg.destroy(); this.entry?.destroy(); this.contrastBand.destroy(); }

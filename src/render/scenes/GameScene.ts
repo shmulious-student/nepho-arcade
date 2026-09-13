@@ -10,7 +10,7 @@ import { TouchControls } from '../TouchControls';
 import { PauseMenu } from '../PauseMenu';
 import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
-import { LEVEL_W, VIEW_W, VIEW_ZOOM, FLOOR_TOP, type HeroId } from '../../sim/types';
+import { LEVEL_W, VIEW_W, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
@@ -96,9 +96,9 @@ export class GameScene extends Phaser.Scene {
     // top-left corner), or zooming would push the floor mostly below the visible canvas.
     const zoom = VIEW_ZOOM; // the sim clamps players to the band this leaves visible (VISIBLE_X0..)
     // Pivot low on the combat band so the fight sits in the upper two thirds of the screen — on a
-    // phone the bottom strip is where thumbs and the touch controls live.
-    const pivotX = VIEW_W / 2, pivotY = FLOOR_TOP + 90;
-    this.world.setScale(zoom).setPosition(pivotX * (1 - zoom), pivotY * (1 - zoom));
+    // phone the bottom strip is where thumbs and the touch controls live. (The pivot lives in
+    // sim/types so the backdrop band and the tests can derive what is on screen.)
+    this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom), VIEW_PIVOT_Y * (1 - zoom));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));

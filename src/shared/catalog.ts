@@ -43,6 +43,9 @@ export interface LevelEntry {
   signY: number;
   boss: string;
   size: { w: number; h: number };
+  /** World rectangle the plate fills (sim/types ART_BAND for band plates, the legacy full-height
+   * rect for old 941×334 plates). Absent in catalogs built before the band existed. */
+  art?: { x: number; y: number; w: number; h: number };
 }
 
 export interface BossEntry { id: string; name: string; index: number; portrait: string }

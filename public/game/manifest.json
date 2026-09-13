@@ -1,7 +1,7 @@
 {
- "version": "c898717dd0ca284a",
- "derived": "derived:2026-09-13T20:45:25.323Z:c608d1c1",
- "generatedAt": "2026-09-13T20:51:41.094Z",
+ "version": "ea6b9f3282a49055",
+ "derived": "derived:2026-09-13T22:02:06.883Z:c608d1c1",
+ "generatedAt": "2026-09-13T22:05:14.464Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -28,8 +28,8 @@
    "sha256": "bf78b9c8c577d1070918c5bdbf34d12918c9857ed0fd9ec591cbb13a62ac9384"
   },
   "catalog.json": {
-   "size": 70634,
-   "sha256": "12a960e14d8277e757211d98f21627dc8d330bc18b0856d2b17a1779fa554cd2"
+   "size": 71334,
+   "sha256": "1a700371006405f3c92102b6f1d15bab6a84c4b82706d04061b4ff9724cd8d44"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,

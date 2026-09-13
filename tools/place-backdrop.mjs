@@ -1,29 +1,35 @@
-// Drops a delivered level backdrop into its atlas slot:
+// Accepts a delivered level backdrop:
 //   node tools/place-backdrop.mjs <level 1-10> <image>
-// The image is any size at (about) 941:334 — it is cover-resized to the slot, so paint at 2816×1000
-// or 1882×668 and keep the action in the middle band. The previous slot is saved to
-// public/assets/backups/backdrops/level-NN-<timestamp>.png. Then: npm run build:assets.
+// The image is any size at (about) 4:1 — it is cover-resized to 2800×700 and saved as
+// public/assets/generated/backdrops/level-NN.png, which `npm run build:assets` then ships in place of the
+// legacy atlas slot (catalog `art` = ART_BAND). The previous master, if any, is kept under
+// public/assets/backups/backdrops/. Paint at 2800×700 (or two 21:9 halves stitched with
+// tools/stitch-backdrop.mjs) and keep the action in the middle band — see docs/locations/README.md.
 import sharp from 'sharp';
-import { mkdirSync, existsSync } from 'node:fs';
+import { mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = join(ROOT, 'public/assets/generated');
+const OUT_DIR = join(ROOT, 'public/assets/generated/backdrops');
+const PLATE = { w: 2800, h: 700 };
 const [, , levelArg, image] = process.argv;
 const level = Number(levelArg);
 if (!(level >= 1 && level <= 10) || !image || !existsSync(image)) {
   console.error('usage: node tools/place-backdrop.mjs <level 1-10> <image>');
   process.exit(1);
 }
-const atlas = join(SRC, level <= 5 ? 'level-backdrops-01-05.png' : 'level-backdrops-06-10.png');
-const slot = 1672 / 5, s = (level - 1) % 5;
-const top = Math.round(s * slot), height = Math.round((s + 1) * slot) - top; // matches build-assets processLevels
 const nn = String(level).padStart(2, '0');
-const bk = join(ROOT, 'public/assets/backups/backdrops');
-mkdirSync(bk, { recursive: true });
-await sharp(atlas).extract({ left: 0, top, width: 941, height }).toFile(join(bk, `level-${nn}-${Date.now()}.png`));
-const plate = await sharp(image).rotate().resize(941, height, { fit: 'cover', position: 'centre' }).removeAlpha().png().toBuffer();
-const out = await sharp(atlas).composite([{ input: plate, left: 0, top }]).png().toBuffer();
-await sharp(out).toFile(atlas);
-console.log(`level ${level}: ${image} → ${atlas} slot y=${top}..${top + height} (941×${height}). Now: npm run build:assets`);
+const out = join(OUT_DIR, `level-${nn}.png`);
+mkdirSync(OUT_DIR, { recursive: true });
+if (existsSync(out)) {
+  const bk = join(ROOT, 'public/assets/backups/backdrops');
+  mkdirSync(bk, { recursive: true });
+  copyFileSync(out, join(bk, `level-${nn}-${Date.now()}.png`));
+}
+const meta = await sharp(image).metadata();
+const ratio = meta.width / meta.height;
+if (ratio < 3.6 || ratio > 4.4) console.warn(`warning: ${meta.width}×${meta.height} is ${ratio.toFixed(2)}:1, not ~4:1 — cover-resize will crop ${ratio < 4 ? 'top and bottom' : 'the sides'}`);
+const plate = await sharp(image).rotate().resize(PLATE.w, PLATE.h, { fit: 'cover', position: 'centre' }).removeAlpha().png().toBuffer();
+await sharp(plate).toFile(out);
+console.log(`level ${level}: ${image} (${meta.width}×${meta.height}) → ${out.replace(ROOT + '/', '')} (${PLATE.w}×${PLATE.h}). Now: npm run build:assets && npm run test:assets`);
