@@ -52,3 +52,24 @@
 2026-09-13 savta-orly hurt attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
 2026-09-13 savta-orly knockdown attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
 2026-09-13 savta-orly defeat attempt 1 → PASS — complete set; verify:character clean
+2026-09-13 saba-kobi sheet attempt 1 → PASS
+2026-09-13 saba-kobi idle attempt 1 → FAIL: outer border not transparent; frames 7–9 feet off row baseline
+2026-09-13 saba-kobi idle attempt 2 → PASS (escalated failed rules and intaken checkerboard)
+2026-09-13 saba-kobi walk attempt 1 → PASS (intake removed checkerboard; verify reports only remaining missing files)
+16:26 saba-kobi walk BY-EYE FAIL (reviewed by the owner's assistant): the same leg leads in every stride frame — far leg forward, near leg trailing, in 1/2/4/5/7/8; 3/6/9 only close the feet. One lunge repeated, not a cycle. Regenerate walk.png with the stride rule first and bolded: frames 1–4 the LEFT leg swings forward, plants and passes; frames 5–8 the RIGHT leg; both legs must lead once per loop.
+2026-09-13 saba-kobi walk attempt 2 → PASS machine gate; by-eye stride escalation applied (stride rule first and bolded)
+2026-09-13 saba-kobi light1 attempt 1 → PASS machine gate (set incomplete)
+2026-09-13 saba-kobi light2 attempt 1 → PASS machine gate (set incomplete)
+2026-09-13 saba-kobi special attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi hurt attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi defeat attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi defeat attempts 2–4 → PARKED: repeated generation failures (empty/cropped frames and final frames not flat/settled); no deterministic repair permitted
+2026-09-13 saba-kobi knockdown attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi block attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi dash attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi heavy attempt 1 → generated, intaken, verify run (set incomplete)
+2026-09-13 saba-kobi light3 attempt 1 → generated, intaken, verify run (set incomplete)
+17:16 saba-kobi defeat attempt 1 → FAIL (gate, confirmed by the owner's assistant): frame 6 empty / figure 755 vs 622 px — the row-2 fall is drawn oversize across cell boundaries; and frames 7, 8, 9 are identical copies — the standard needs two DIFFERENT drawn frames for 8–9 (a small visible settle), and frame 7 the landing. Retry with both rules first and bolded: every frame inside its own cell at the same size as idle.png; 7 = lands, 8 and 9 = same lying position drawn twice with a settle, never copied.
+17:17 saba-kobi defeat attempt 2 → FAIL (gate, confirmed by eye): frames 8–9 are now two drawn frames — good — but the whole middle row is drawn too low: its figures cross the horizontal cell line into the bottom row (feet at ~73% of the canvas height; the line is at 66.7%), so the gate sees frame 6 spilled into cell 9. Retry with THIS first and bolded: "Nine equal cells, three rows of three. Every figure sits entirely inside its own cell with generous empty margin on all four sides — no part of any figure crosses the horizontal line between rows or the vertical lines between columns. Frames 4–6 (the middle row) must stay well above the bottom third of the canvas."
+17:19 saba-kobi defeat attempt 3 → FAIL (gate, one rule left): the figure is larger than in the other files (752 vs 622 px tall). Grid, distinct frames and the flat 8–9 are all fixed now — keep everything about this composition, only shrink the figure. Attach idle.png as the size reference and put first, bolded: "The standing figure in frame 1 is EXACTLY the same height as the figure in the attached idle sheet — about 620 px on a 2048 canvas, filling roughly 60% of the cell height, not more. Every other frame is that same figure at that same scale."
+17:29 saba-kobi → REDO FROM SCRATCH (owner). Round-one sheet + 12 files moved to public/assets/backups/replaced/saba-kobi-round1-*/ and must not be reused. actions/saba-kobi/ is empty; no sheet exists. Start again at Step A (likeness vs kobi-1.png), then all 12 + card in one session — see the Status block in docs/prompts/saba-kobi.md for the five rules to put first in the prompts. Kobi stays queue position 2, before railmaw.

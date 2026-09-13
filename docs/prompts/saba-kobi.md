@@ -1,11 +1,26 @@
 # SABA KOBI (`saba-kobi`) — hero, 12 files + hero card
 
-## Status — queue position 2 of 14 · 14 image requests (Step A sheet + 12 action files + hero card)
+## Status — queue position 2 of 14 · 14 image requests · **REDO FROM SCRATCH (owner's decision, 2026-09-13 17:35)**
 
-New hero, drawn from photos of a real person — added to the queue on 2026-09-13, next in line. No art exists yet.
-**Likeness is the point**: the face on the sheet must be recognisably Kobi from the photos in
-`docs/refs/saba-kobi-source/` (`kobi-1.png` is there — one clear frontal photo is sufficient for likeness; any further stills dropped in that folder are attached too). Heroes carry two extra rules: the **face stays clear and unobstructed in every frame** (a player photo
-can be composited over it), and the **hero-select card** is a separate square image.
+The first delivery (sheet + 12 files, 16:20–17:20) is set aside under `public/assets/backups/replaced/saba-kobi-round1-*/`
+and must not be reused, attached or referred to — **start clean**: a new Step A sheet judged on likeness against
+`docs/refs/saba-kobi-source/kobi-1.png`, then all 12 files and the card in one session, one look. Nothing exists under
+`public/assets/generated/actions/saba-kobi/` now; there is no `docs/refs/saba-kobi-sheet.png` until the new one is saved.
+
+What round one taught — carry these into the prompts from the first request, not as retries:
+
+- **Size lock.** `defeat` failed four times, three of them on size or grid: attach the accepted `idle.png` to every later
+  request and say *"the figure is exactly the same height as in the attached idle sheet, about 60 % of the cell"*. Frame 1
+  of `defeat` came out 21 % taller than his idle; the gate allows 20 %.
+- **Nine cells, nothing crossing a line.** The middle row was drawn too low and spilled into the bottom row. Say it first:
+  *"every figure entirely inside its own cell with empty margin on all four sides; the middle row stays above the bottom third"*.
+- **`walk`: both legs lead.** The first walk was one lunge repeated (gate-blind; failed by eye). Put the stride rule first
+  and bolded on the walk request, and check it by eye before moving on.
+- **`defeat` 8–9 are two drawn frames** with a small settle — never a copy (the first attempt had 7, 8, 9 identical).
+- **Card with real alpha.** Orly's card came on a painted checkerboard; ask for a true transparent background and check
+  `hasAlpha` on the PNG — if it is a checkerboard, key it or regenerate it before the build.
+- Everything else went first try in round one (`idle light1 light2 light3 heavy special dash block hurt knockdown`); the
+  design and likeness were right — keep the same card below.
 
 Done means `npm run verify:character -- saba-kobi` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 
