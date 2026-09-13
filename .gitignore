@@ -5,3 +5,5 @@ firebase-debug.log
 public/game/debug/
 firepit-log.txt
 public/assets/backups/
+.env
+.env.local

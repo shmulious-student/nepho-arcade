@@ -1,12 +1,10 @@
-# SHMUEL (`shmuel`) — hero, regenerate `dash.png`
+# SHMUEL (`shmuel`) — hero, 12 files
 
-## Status — queue position 2 of 18 · 1 image request (regenerate `dash.png` only)
+## Status — DELIVERED
 
-`walk.png` was redelivered 2026-09-13 09:31, passes the gate and now strides correctly by eye — **done**.
-`dash.png` is still the original file: the gate passes it, but frames 4–7 are one sprint pose repeated
-(the near leg trails in every one of them), so in the game his legs never cycle while dashing.
-Regenerate only `dash.png`, same session style as the set, with the leg-cycle rule below in bold; the
-other eleven files stay. Intake: `npm run intake:character -- shmuel dash`.
+`walk.png` (09:31) and `dash.png` (10:45) were redelivered on 2026-09-13; the set passes the gate and both
+rows now stride correctly by eye — the legs alternate in the walk and cycle through dash frames 3–7.
+Nothing outstanding; this file is kept as the record of the fix.
 
 Done means `npm run verify:character -- shmuel` prints `PASS`, then `npm run build:assets && npm run test:assets` are clean.
 

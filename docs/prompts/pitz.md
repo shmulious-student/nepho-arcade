@@ -1,6 +1,6 @@
 # PITZ (`pitz`) — effect sprite, 3 files
 
-## Status — queue position 1 of 18 · 1 image request (regenerate `run.png` only)
+## Status — queue position 1 of 17 · 1 image request (regenerate `run.png` only)
 
 Redelivered 2026-09-13 10:14–10:18. `leap.png` and `pounce.png` pass. `run.png` is a real gallop cycle by
 eye, but the gate rejects it: the cat is placed progressively higher in its cell across the sheet — the

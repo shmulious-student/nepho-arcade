@@ -1,6 +1,6 @@
 # Ultra Signal (`ultra-signal`) — boss, level 10, 6 files
 
-## Status — queue position 11 of 18 · 7 image requests (Step A sheet + 6 action files)
+## Status — queue position 10 of 17 · 7 image requests (Step A sheet + 6 action files)
 
 Legacy — no per-action set exists; the old 6×8 grid ships. Needs the character sheet (Step A) and all 6
 files (`idle approach attack special hurt defeat`), one session, one look. Level 10 boss.

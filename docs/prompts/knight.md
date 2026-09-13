@@ -1,6 +1,6 @@
 # Knight (`knight`) — enemy, 10 files
 
-## Status — queue position 13 of 18 · 11 image requests (Step A sheet + 10 action files)
+## Status — queue position 12 of 17 · 11 image requests (Step A sheet + 10 action files)
 
 Legacy — no per-action set exists; the old 6-frame grid ships. Needs the character sheet (Step A) and all
 10 files (`idle walk attack heavy special guard hurt knockback getup defeat`), one session, one look (also gives `knight-b` its palette variant for free).

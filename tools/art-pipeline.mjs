@@ -51,6 +51,11 @@ const ONLY = onlyIdx >= 0 ? argv.slice(onlyIdx + 1).filter((a) => !a.startsWith(
 const ID = OPTS.queue ? null : positional.filter((a) => !ONLY.includes(a))[0];
 if (!OPTS.queue && !ID) { console.error('usage: node tools/art-pipeline.mjs --queue | <id> [--only <action> ...] [--provider gpt|gemini] [--dry-run]'); process.exit(2); }
 
+// .env.local (gitignored) may hold the keys: KEY=value lines; the process environment wins
+for (const envFile of ['.env.local', '.env']) {
+  const f = join(ROOT, envFile); if (!existsSync(f)) continue;
+  for (const line of readFileSync(f, 'utf8').split('\n')) { const m = line.match(/^\s*(?:export\s+)?([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/); if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2'); }
+}
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1.5';
@@ -274,12 +279,20 @@ const serial = (fn) => { const next = buildLock.p.then(fn, fn); buildLock.p = ne
 async function produceCharacter(id, only = []) {
   const P = parsePromptFile(id);
   const dir = join(ACTIONS_DIR, id);
-  const todo = only.length ? only : P.actions;
+  let todo = only.length ? only : P.actions;
+  // a partial set made from this character's sheet is resumed (same sheet → same look): the files
+  // the gate passes stay, the missing and failing ones are generated; without a sheet the set is redone
+  let resume = false;
+  if (!only.length && existsSync(P.sheetPath) && existsSync(dir) && readdirSync(dir).some((f) => f.endsWith('.png'))) {
+    const res = await verifyCharacter(id, { rank: P.rank });
+    const bad = new Set(P.actions.filter((a) => !res.present.includes(a) || res.fails.some((f) => f.startsWith(`${a}.png`))));
+    if (bad.size < P.actions.length) { resume = true; todo = P.actions.filter((a) => bad.has(a)); if (!OPTS.dryRun) for (const a of bad) if (existsSync(join(dir, `${a}.png`))) renameSync(join(dir, `${a}.png`), join(dir, `${a}.rejected.png.bak`)); log(id, `resuming a partial set from its sheet — keeping ${P.actions.filter((a) => !bad.has(a)).join(' ')}; generating ${todo.join(' ')}`); }
+  }
   for (const a of todo) if (!P.beats[a]) throw new Error(`${id}.md has no beats for ${a}`);
   log(id, `start — ${P.rank}, ${todo.length} file(s)${only.length ? ` (only: ${only.join(' ')})` : ''}, provider ${OPTS.provider}`);
 
   // a full set replaces whatever is there: move the old files aside so the gate never mixes deliveries
-  if (!only.length && existsSync(dir) && readdirSync(dir).some((f) => f.endsWith('.png'))) {
+  if (!only.length && !resume && existsSync(dir) && readdirSync(dir).some((f) => f.endsWith('.png'))) {
     const aside = join(ROOT, 'public/assets/backups/replaced', `${id}-${Date.now()}`);
     if (!OPTS.dryRun) { mkdirSync(aside, { recursive: true }); for (const f of readdirSync(dir)) if (f.endsWith('.png')) renameSync(join(dir, f), join(aside, f)); }
     log(id, `moved ${readdirSync(OPTS.dryRun ? dir : aside).length} old file(s) aside → ${aside.replace(ROOT + '/', '')}`);
@@ -289,7 +302,7 @@ async function produceCharacter(id, only = []) {
   const identity = await Promise.all(P.attach.map(refPart));
 
   // Step A — the sheet (full sets that have a Step A prompt; a partial job reuses the existing sheet)
-  if (!only.length && P.sheetPrompt) {
+  if (!only.length && !resume && P.sheetPrompt) {
     let extra = [], ok = false;
     for (let attempt = 1; attempt <= 2 && !ok; attempt++) {
       const prompt = sheetPromptText(P) + (extra.length ? `\n\nThe previous sheet was rejected: ${extra.map((e) => `**${e}**`).join(' ')}` : '');
@@ -327,7 +340,7 @@ async function produceCharacter(id, only = []) {
   if (failed.length) return park(id, failed.join(' || '));
 
   // Step C — hero card
-  if (P.cardPrompt && !only.length) {
+  if (P.cardPrompt && !only.length && !existsSync(join(ROOT, 'public/assets/generated/heroes', `${id}-card.png`))) {
     const cardPath = join(ROOT, 'public/assets/generated/heroes', `${id}-card.png`);
     const prompt = cardPromptText(P);
     if (OPTS.dryRun) console.log(`\n--- ${id} card ---\n${prompt}\n`);
@@ -338,6 +351,8 @@ async function produceCharacter(id, only = []) {
   // whole-set gate, then build + test + commit — one character at a time
   const res = await verifyCharacter(id, { rank: P.rank });
   if (res.fails.length) return park(id, `whole-set gate: ${res.fails.slice(0, 3).join(' | ')}`);
+  mkdirSync(join(ATTEMPTS, id), { recursive: true });
+  for (const f of readdirSync(dir)) if (f.endsWith('.rejected.png.bak')) renameSync(join(dir, f), join(ATTEMPTS, id, f));
   log(id, 'PASS — verify:character clean');
   return serial(async () => {
     for (const script of ['build:assets', 'test:assets']) {
