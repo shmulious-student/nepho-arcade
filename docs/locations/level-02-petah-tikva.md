@@ -78,3 +78,8 @@ towers (white, tall, balcony-stacked), put the clinic/shop frontage at street le
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-02.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- attempt count: 2 (gen-left retried with bolded no-text rule to remove +CLINIC text; gen-right ok, seam diff 36.1). ACCEPTED.
+
