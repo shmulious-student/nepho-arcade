@@ -1,9 +1,10 @@
-# Codex — run the character-art regeneration queue (one image at a time)
+# Codex — run the character-art queue to the end (one image at a time)
 
-You are working in `/Users/shmuelvachnish-mbpr/Projects/GitHub/Nepho`, branch `game/core`. Your job today is to
-regenerate every character sprite set that still needs art, in queue order, until `npm run readiness`
-shows every enemy and boss READY, plus the fixes listed. Everything you need is in the repo — read
-these first, in this order, and do not start generating before you have:
+You are working in `/Users/shmuelvachnish-mbpr/Projects/GitHub/Nepho`, branch `game/core`. Your job is to
+regenerate every character sprite set that still needs art, in queue order, and **you do not stop
+until `npm run readiness` lists every character in the queue as READY** — every enemy, every boss,
+pitz, nepho and byte. There is no one to ask; the standard and the prompt files answer everything.
+Read these first, in this order, and do not start generating before you have:
 
 1. `docs/character-art-standard.md` — the contract: format, anchor, margins, the 9 beats per action, the
    gate, and the failure catalogue (why every rule exists).
@@ -11,6 +12,22 @@ these first, in this order, and do not start generating before you have:
 3. `docs/prompts/<id>.md` for the character you are on — its Status block (what is outstanding and the
    gate's exact output), character card, STYLE BLOCK, FRAME BLOCK, the beats per file, and the Accept
    commands. Every prompt you send is assembled from this file; do not improvise designs.
+
+## Where things stand (2026-09-13, 11:20)
+
+A previous session of yours ran part of this queue. Its log is `docs/prompts/QUEUE-LOG.md` — keep
+appending to it. Its outcomes, already verified on disk:
+
+- **shmuel** — done. `walk` and `dash` were redelivered and pass; not in the queue any more.
+- **glass-warden** — 4 of 6 files pass (`idle approach attack special`) from the sheet at
+  `docs/refs/glass-warden-sheet.png`. **Do not redo them.** Generate `hurt` and `defeat` from the same
+  sheet, attaching `idle.png` as the size reference, then run the whole-set gate.
+- **pitz** `run.png` — parked after 3 attempts, every one on the same failure: the cat is placed at a
+  different height in each row of the grid (paw line ~640 px in the top row, ~530 px in the bottom
+  row). The other two files pass. It is first in the queue and it must land — see "when a file keeps
+  failing" below.
+- The first `glass-warden/idle` attempt failed with "canvas must be a square power of two" because
+  **intake was skipped**. Intake runs after every save, before every verify, no exceptions.
 
 ## Hard rules
 
@@ -59,8 +76,9 @@ these first, in this order, and do not start generating before you have:
    Ignore "missing" failures for files you have not generated yet. Any other FAIL naming the file you
    just made: regenerate **only that file**, same session, with the offending rule repeated and
    **bolded** at the end of the prompt (use the gate's wording). Up to **3 retries per file**. If a file
-   still fails after 3 retries, park the character: log it, leave what passed in place, and move on to
-   the next character in the queue. Come back to parked characters after the queue is exhausted.
+   still fails after 3 retries, park the character *for now*: log it, leave what passed in place, move
+   on to the next character — and **come back to it after the queue is exhausted, with a different
+   approach** (below). Parking is a postponement, never an end state.
 6. **By-eye checks the gate cannot do** — open the PNG and look before accepting:
    - `walk` (and `approach`, `run`): both legs lead once per loop — not one lunge repeated with small
      variations. `dash` 3–7: the legs cycle, not one sprint pose repeated.
@@ -73,6 +91,25 @@ these first, in this order, and do not start generating before you have:
    npm run build:assets && npm run test:assets
    ```
    Both must be clean. Then **commit** that character alone (see below) and append a line to the log.
+
+## When a file keeps failing (the same gate line 3 times)
+
+The prompt is not the problem any more; change the approach, one step at a time, and log which one:
+
+1. **Split the request's attention.** Put the failing rule first, alone, in its own sentence at the top
+   of the prompt, bolded, before the FRAME BLOCK — then the block, then the beats.
+2. **Change the references.** Attach the last *accepted* file of this character (its `idle.png`, or for
+   pitz `leap.png`) and say "match the placement of the figure in each cell of the attached sheet
+   exactly — same baseline, same size, same centre".
+3. **Ask for the grid explicitly as a layout.** "Nine cells of equal size in three rows; in every cell
+   the figure stands on the same invisible horizontal line, one third of the way up from the cell's
+   bottom edge; the figure is horizontally centred in its cell."
+4. **Regenerate the file at a different aspect of the model** — a different seed/variation, or, if
+   your tool offers more than one image model, the other model. Same prompt, same references.
+5. Only after all four: regenerate the *sheet* (Step A) and the file together in a fresh session.
+
+Never, at any step, fix pixels by script: no shifting cells, no re-slicing, no compositing. The fix
+is always a regenerated image.
 
 ## Commit (after each character passes and builds)
 
@@ -103,17 +140,24 @@ Keep `docs/prompts/QUEUE-LOG.md` (create it): one line per request —
 character when it is committed. This is how the owner follows progress; keep it current after every
 request, not at the end.
 
-## Order and budget
+## Order and stopping condition
 
-The queue in `docs/prompts/README.md` is the order: pitz `run` (1 request) → shmuel `dash` (1) → the nine legacy
-bosses in level order (7 each) → the five legacy enemies (11 each) → nepho (14) → byte (14) —
-148 requests on a clean run, plus retries. The deadline is the end of today: keep moving, do not
-polish a passing file, do not stop to ask about anything the standard or the prompt file already
-answers. The two heroes are last on purpose; if the day runs out, they are what slips — every enemy
-and boss must be done.
+The queue in `docs/prompts/README.md` is the order: pitz `run` (1 request) → glass-warden `hurt` +
+`defeat` (2) → the eight remaining legacy bosses in level order (7 each) → the five legacy enemies
+(11 each) → nepho (14) → byte (14) — about 145 requests on a clean run, plus retries. Keep moving:
+do not polish a passing file, do not stop to ask about anything the standard or the prompt file
+already answers, do not summarise progress to the owner mid-run — the log is the progress report.
+
+**You are finished only when `npm run readiness` prints every one of these as READY:** pitz (the
+build prints `fx pitz ok (actions)`), glass-warden, kilnheart, monk-zero, market-king, railmaw,
+crown-runner, the-null, vault-mother, ultra-signal, brawler, knight, chainer, kicker, shield, nepho,
+byte. A parked character is not finished. Loop: queue → parked characters with the escalation above →
+readiness → repeat until the list is clean.
 
 ## Finish
 
-When the queue is exhausted (and parked characters retried once more), run `npm run readiness` and
-report: the readiness table, which characters were parked and the exact gate line that blocked them,
-and the list of commits made. Do not push.
+When `npm run readiness` is clean for the whole list, report: the readiness table, the number of
+requests per character (from the log), anything that needed the escalation ladder and which step
+fixed it, and the list of commits made. Do not push. If you are genuinely blocked by something outside
+your control (the image tool is down, the repo's gate crashes), say exactly what and stop — that is
+the only reason to stop early.
