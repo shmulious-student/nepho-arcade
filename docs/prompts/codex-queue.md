@@ -1,9 +1,13 @@
-# Codex — run the character-art queue to the end (one image at a time)
+# Codex — legacy 09/14 queue (one image at a time)
 
 You are working in `/Users/shmuelvachnish-mbpr/Projects/GitHub/Nepho`, branch `game/core`. Your job is to
-regenerate every character sprite set that still needs art, in queue order, and **you do not stop
-until `npm run readiness` lists every character in the queue as READY** — every enemy, every boss,
-pitz, nepho and byte. There is no one to ask; the standard and the prompt files answer everything.
+regenerate exactly the ten legacy sprite sets in the new queue order. Run unattended, one image
+request at a time, with a relaxed single-file queue. There are **no retries**: save the first delivery,
+intake it, then flag any gate or visual failure for Claude in `docs/prompts/queue_log_091426.md` and
+continue to the next request. Claude owns all verification and any repair; only act on a later explicit
+Claude instruction. Work only `railmaw`, `crown-runner`, `the-null`, `vault-mother`, `ultra-signal`,
+`brawler`, `knight`, `chainer`, `kicker`, and `shield` — five 7-request boss sets followed by five
+11-request enemy sets.
 Read these first, in this order, and do not start generating before you have:
 
 1. `docs/character-art-standard.md` — the contract: format, anchor, margins, the 9 beats per action, the
@@ -13,7 +17,7 @@ Read these first, in this order, and do not start generating before you have:
    gate's exact output), character card, STYLE BLOCK, FRAME BLOCK, the beats per file, and the Accept
    commands. Every prompt you send is assembled from this file; do not improvise designs.
 
-## Where things stand (2026-09-13, 11:20)
+## Previous queue history (2026-09-13, 11:20)
 
 A previous session of yours ran part of this queue. Its log is `docs/prompts/QUEUE-LOG.md` — keep
 appending to it. Its outcomes, already verified on disk:

@@ -45,6 +45,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   walk over them. Clearing a level pays a time bonus and a best-combo bonus.
 - **Lobby:** hero cards three to a page — tap to pick, swipe or ◀ ▶ to turn the page; each card wears its role
   (P1 / P2 / ASSIST / SIDEKICK). Friend, level and player options sit in one row above START.
+- **Play on phone:** the PLAY ON PHONE button (lobby, top left) shows a QR code a phone can scan to open the
+  game — this server's LAN address when you run `npm run dev` or `npm run lan`, the published site otherwise.
 - **Difficulty:** EASY / NORMAL / HARD / EXPERT, beside START in the lobby (remembered by the browser). EASY
   is the game exactly as tuned; each step up makes enemies and bosses tougher and harder-hitting, quicker
   to swing and more of them at once, with fewer lives and a slower HP trickle (`src/sim/difficulty.ts`).

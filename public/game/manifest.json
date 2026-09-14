@@ -1,7 +1,7 @@
 {
- "version": "b0d1c4d6d43bd282",
+ "version": "9202290637ebc745",
  "derived": "derived:2026-09-14T19:19:12.945Z:d1e85574",
- "generatedAt": "2026-09-14T19:22:32.121Z",
+ "generatedAt": "2026-09-14T21:29:33.265Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -536,12 +536,12 @@
    "sha256": "17682112160d63da551f40d3a0fc5256137b1bec399ec28e87a4cecf5efa933a"
   },
   "ui/icon-192.png": {
-   "size": 72895,
-   "sha256": "abbfa04ff37daa47f148f6dbdc6271e16c556f8f386212e440493128b14246bc"
+   "size": 54678,
+   "sha256": "4301bdbda4133975f3c9ea484d6f065d801869b3832c66704ea553e2301f0e32"
   },
   "ui/icon-512.png": {
-   "size": 436009,
-   "sha256": "f735629aaf2814c31c9a409d0d2c72a12c0f5bd2eea495a22ab94ced534f6f07"
+   "size": 286505,
+   "sha256": "495e14b0fc16e59a84da086f39e13c69957e62bc50556e1c805cd531f4b1b858"
   },
   "ui/keyart.webp": {
    "size": 131038,
@@ -596,8 +596,8 @@
    "sha256": "e417696c19802a01dd6eabfeed0cb6f128241fdfc576c136e4a92f5bcc4dff21"
   },
   "ui/splash.png": {
-   "size": 5707422,
-   "sha256": "4f33dcc9c7478cf5fbfd4e1246e525075f63718fb4b3a4b8a856f45a0d108497"
+   "size": 3978627,
+   "sha256": "1dea9c96a233757c64dc5227f93183e9585d3991941d75239f8064f9e96f998e"
   }
  }
 }

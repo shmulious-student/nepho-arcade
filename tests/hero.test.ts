@@ -25,7 +25,7 @@ function addEnemy(w: World, x: number, y: number) {
 
 describe('hero', () => {
   it("shmuel's special sends the cat hunting: one piercing projectile that chases every enemy in view — ahead, behind, in another lane — and floors each once", () => {
-    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
+    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] , dialogs: false });
     while (w.phase === 'entry') w.step([NONE, NONE]);
     const h = w.players[0]!;
     h.facing = 1; h.meter = 100;
@@ -50,7 +50,7 @@ describe('hero', () => {
   });
 
   it("pitz's run is leap → gallop → pounce at the far edge of the view, all of it on screen, then he is gone", () => {
-    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
+    const w = new World({ seed: 3, level: 1, heroes: ['shmuel', null] , dialogs: false });
     while (w.phase === 'entry') w.step([NONE, NONE]);
     const h = w.players[0]!;
     h.facing = 1; h.meter = 100;
@@ -156,7 +156,7 @@ describe('level flow', () => {
     // the clear bonus (time + best combo) is added on completion, then the total carries over
     expect(w.score[0]).toBeGreaterThan(1234);
     expect(w.levelBonus[0]).toBe(w.score[0] - 1234);
-    const next = new World({ seed: 5, level: 2, heroes: ['eviatar', null], score: w.score });
+    const next = new World({ seed: 5, level: 2, heroes: ['eviatar', null], score: w.score , dialogs: false });
     expect(next.level).toBe(2);
     expect(next.score).toEqual(w.score);
   });

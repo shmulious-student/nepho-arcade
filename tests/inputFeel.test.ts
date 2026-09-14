@@ -10,7 +10,7 @@ const press = (b: number): InputFrame => ({ held: b, pressed: b });
 const hold = (b: number): InputFrame => ({ held: b, pressed: 0 });
 
 function world(seed = 1) {
-  const w = new World({ seed, level: 1, heroes: ['eviatar', null] });
+  const w = new World({ seed, level: 1, heroes: ['eviatar', null], dialogs: false }); // scenes wait for a press; not what is measured here
   while (w.phase === 'entry') w.step([NONE, NONE]);
   return w;
 }
@@ -25,6 +25,7 @@ describe('input feel', () => {
   it('a tap sampled on a frame that steps no tick is not lost, and one that steps two ticks starts only one attack', () => {
     const s = new LocalSession(1, 1, ['eviatar', null]);
     const w = s.world();
+    w.dialogsEnabled = false; // the opening scene would wait for a press
     while (w.phase === 'entry') s.update(1000 / 60);
     // 120Hz display: the press lands on a frame that accumulates less than a tick
     s.setInput(0, press(BTN.LIGHT)); s.update(8);

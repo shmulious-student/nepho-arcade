@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import { writeFileSync } from 'node:fs';
+import { networkInterfaces } from 'node:os';
 import { join } from 'node:path';
 import { readiness, fingerprint } from './tools/readiness.mjs';
 
@@ -15,6 +16,13 @@ function backofficeApi(): Plugin {
       const cache: Record<string, { fp: string; res: unknown }> = {};
       let result: any = null, running: Promise<void> | null = null, resultFp = '';
       const allFp = () => Object.keys(cache).map((id) => `${id}=${fingerprint(id)}`).join(';');
+      // GET /__dev/lan-ip — the machine's LAN IPv4, so the lobby's "play on phone" QR can point a phone
+      // at this dev server (it is opened as localhost on the laptop, which a phone cannot reach).
+      server.middlewares.use('/__dev/lan-ip', (_req, res) => {
+        const ip = Object.values(networkInterfaces()).flat().find((i) => i && i.family === 'IPv4' && !i.internal)?.address ?? '';
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ip }));
+      });
       server.middlewares.use('/__backoffice/readiness', (req, res) => {
         const stale = !result || resultFp !== allFp();
         if (stale && !running) {
