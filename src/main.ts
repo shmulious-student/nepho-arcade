@@ -5,8 +5,13 @@ import { GameScene } from './render/scenes/GameScene';
 import { ResultsScene } from './render/scenes/ResultsScene';
 import { VIEW_W, VIEW_H } from './sim/types';
 
+// Android WebViews (the Capacitor app, BlueStacks) mis-render the WebGL path — the Redmi Note 13 smeared
+// the last-uploaded texture over every sprite, BlueStacks painted an opaque cream slab over the play
+// area and froze. The game uses no shaders or FX pipelines, so Canvas 2D renders it identically.
+const isAndroid = /Android/.test(navigator.userAgent);
+
 const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
+  type: isAndroid ? Phaser.CANVAS : Phaser.AUTO,
   parent: 'app',
   width: VIEW_W,
   height: VIEW_H,
