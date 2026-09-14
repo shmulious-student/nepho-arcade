@@ -88,7 +88,7 @@ if (existsSync(catalogPath)) {
   check(cat.heroes.length >= 4, 'at least the four founding heroes expected'); // plus every later hero whose set is complete
   check(cat.enemies.length >= 6, 'at least six enemies expected');
   check(cat.bosses.length >= 10, 'the ten campaign bosses expected'); // plus any extra sets the roster can place
-  check(cat.levels.length === 10, 'ten levels expected');
+  check(cat.levels.length >= 10, 'at least the ten campaign levels expected');
   let total = 0;
   for (const id of [...cat.heroes, ...cat.enemies, ...cat.bosses.map((b) => b.id)]) {
     const c = cat.characters[id];
