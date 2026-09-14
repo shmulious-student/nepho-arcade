@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { HeroId } from '../../sim/types';
 import { VIEW_W, VIEW_H } from '../../sim/types';
 import { t, uiFont, uiSize } from '../../shared/i18n';
+import { centreUiCamera } from '../viewport';
 
 interface ResultsData {
   result: 'victory' | 'gameover';
@@ -20,6 +21,7 @@ export class ResultsScene extends Phaser.Scene {
   constructor() { super('Results'); }
 
   create(data: ResultsData): void {
+    centreUiCamera(this);
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711).setOrigin(0, 0);
     const won = data.result === 'victory';
     const campaignDone = won && data.isLastLevel;

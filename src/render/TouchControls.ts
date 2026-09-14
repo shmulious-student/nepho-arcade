@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { t, uiFont } from '../shared/i18n';
 import { BTN, InputEdge, type InputFrame } from '../sim/input';
 import { VIEW_H, VIEW_W } from '../sim/types';
+import { uiOffsetX } from './viewport';
 
 /** Touch layer, built on what the good mobile brawlers settled on (Dead Cells' port notes, SoR4's
  * mobile reviews): a floating stick that plants under the thumb; a few LARGE buttons with hit areas
@@ -10,9 +11,10 @@ import { VIEW_H, VIEW_W } from '../sim/types';
  *
  *   right thumb   SPC (top, lights up when the meter is full)
  *                 HVY · ATK · JMP  in an arc under it
- *                 BLK  small, tucked top-right (hold)
- *   left thumb    stick; DSH sits above it — hold DSH and push the stick sideways to run
- *   friend        tap the friend chip on the HUD card (top-left) when its bar is full
+ *                 BLK  small, tucked top-right (hold); DSH small, top-left of the cluster (hold +
+ *                 push the stick sideways to run); CALL further left, lit when the friend is ready
+ *                 (assist mode only — the HUD's friend chip still answers a tap too)
+ *   left thumb    stick
  *
  * A player can pick S / M / L controls in the lobby (persisted). Keyboard input is handled separately
  * in GameScene and merged with this. */
@@ -25,10 +27,11 @@ export class TouchControls {
   private stickOrigin = { x: 0, y: 0 };
   private stickHome = { x: 0, y: 0 };
   private stickVec = { x: 0, y: 0 };
-  private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; pointerId: number | null; x: number; y: number; r: number; hit: number }[] = [];
+  private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; colour: number; pointerId: number | null; x: number; y: number; r: number; hit: number }[] = [];
+  private offX: number; // the 960 frame's left edge on the canvas (render/viewport.ts)
   private assistZone: { x: number; y: number; w: number; h: number; pointerId: number | null };
   private edge = new InputEdge();
-  private specialReady = false;
+  private lit = new Set<number>(); // buttons drawn filled because their action is ready (SPC, CALL)
   visible = true;
 
   static readonly SIZE_KEY = 'nepho.touchSize';
@@ -36,8 +39,9 @@ export class TouchControls {
     try { const v = localStorage.getItem(TouchControls.SIZE_KEY); return v === 'S' || v === 'L' ? v : 'M'; } catch { return 'M'; }
   }
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, withFriend = false) {
     this.scene = scene;
+    this.offX = uiOffsetX(scene);
     this.container = scene.add.container(0, 0).setDepth(40000).setScrollFactor(0);
     const k = { S: 0.85, M: 1, L: 1.2 }[TouchControls.sizeSetting()];
 
@@ -58,15 +62,15 @@ export class TouchControls {
       [cx + 92 * k, cy - 18 * k, BTN.JUMP, t('btnJump'), 0xf3f4e8, big, bigHit],
       [cx, cy - 92 * k, BTN.SPECIAL, t('btnSpecial'), 0xffcf5c, big * 0.95, bigHit],
       [cx + 92 * k, cy - 108 * k, BTN.BLOCK, t('btnBlock'), 0x37aaff, 24 * k, 34 * k],
-      // dash lives on the LEFT, above the stick's resting spot, so the left thumb can hold it while
-      // the right thumb keeps attacking — a run is a chord: DSH + a direction on the stick
-      [stickX + 96 * k, stickY - 96 * k, BTN.DASH, t('btnDash'), 0xa4ee42, 26 * k, 36 * k],
+      [cx - 92 * k, cy - 108 * k, BTN.DASH, t('btnDash'), 0xa4ee42, 26 * k, 36 * k],
     ];
+    // the friend call, beside the cluster where the right thumb reaches it (assist mode only)
+    if (withFriend) defs.push([cx - 176 * k, cy - 56 * k, BTN.ASSIST, t('btnFriend'), 0xc58cff, 26 * k, 36 * k]);
     for (const [x, y, bit, label, colour, r, hit] of defs) {
       const g = scene.add.circle(x, y, r, 0x0b1730, 0.45).setStrokeStyle(3, colour);
       const t = scene.add.text(x, y, label, { fontFamily: uiFont(), fontSize: `${Math.round(13 * k)}px`, color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.9);
       this.container.add([g, t]);
-      this.buttons.push({ g, label: t, bit, pointerId: null, x, y, r, hit });
+      this.buttons.push({ g, label: t, bit, colour, pointerId: null, x, y, r, hit });
     }
     // the friend call lives on the HUD card (top-left), not on the cluster
     this.assistZone = { x: 14, y: 10, w: 290, h: 80, pointerId: null };
@@ -79,10 +83,13 @@ export class TouchControls {
   }
 
   /** Lights the special button when the meter is full, so the affordance is visible at a glance. */
-  setSpecialReady(ready: boolean): void {
-    if (ready === this.specialReady) return;
-    this.specialReady = ready;
-    const b = this.buttons.find((x) => x.bit === BTN.SPECIAL);
+  setSpecialReady(ready: boolean): void { this.setReady(BTN.SPECIAL, ready); }
+  /** Lights the friend button when the assist bar is full. */
+  setAssistReady(ready: boolean): void { this.setReady(BTN.ASSIST, ready); }
+  private setReady(bit: number, ready: boolean): void {
+    if (ready === this.lit.has(bit)) return;
+    if (ready) this.lit.add(bit); else this.lit.delete(bit);
+    const b = this.buttons.find((x) => x.bit === bit);
     if (!b) return;
     this.paint(b, false);
     b.label.setColor(ready ? '#0b1730' : '#f3f4e8');
@@ -91,13 +98,13 @@ export class TouchControls {
 
   private onDown(p: Phaser.Input.Pointer): void {
     if (!this.visible) return;
-    const z = this.assistZone;
-    if (p.x >= z.x && p.x <= z.x + z.w && p.y >= z.y && p.y <= z.y + z.h) { z.pointerId = p.id; return; }
-    const overButton = this.buttons.some((b) => Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) < b.hit);
-    if (!overButton && this.stickPointerId === null && p.x < VIEW_W * 0.42 && p.y > VIEW_H * 0.22) {
+    const z = this.assistZone, x = p.x - this.offX, y = p.y;
+    if (x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) { z.pointerId = p.id; return; }
+    const overButton = this.buttons.some((b) => Phaser.Math.Distance.Between(x, y, b.x, b.y) < b.hit);
+    if (!overButton && this.stickPointerId === null && x < VIEW_W * 0.42 && y > VIEW_H * 0.22) {
       // plant the stick under the thumb
       this.stickPointerId = p.id;
-      this.stickOrigin = { x: p.x, y: p.y };
+      this.stickOrigin = { x, y };
       this.stickBase.setPosition(p.x, p.y).setAlpha(1);
       this.updateStick(p);
       return;
@@ -108,7 +115,7 @@ export class TouchControls {
     if (!p.isDown) return; // a hovering mouse must never press anything
     if (p.id === this.stickPointerId) { this.updateStick(p); return; }
     // sticky buttons: a press survives a drifting thumb, and sliding well onto a neighbour switches
-    for (const b of this.buttons) if (b.pointerId === p.id && Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y) >= b.hit + 18) { b.pointerId = null; this.paint(b, false); }
+    for (const b of this.buttons) if (b.pointerId === p.id && Phaser.Math.Distance.Between(p.x - this.offX, p.y, b.x, b.y) >= b.hit + 18) { b.pointerId = null; this.paint(b, false); }
     this.pressAt(p);
   }
   private pressAt(p: Phaser.Input.Pointer): void {
@@ -116,13 +123,13 @@ export class TouchControls {
     let best: typeof this.buttons[number] | null = null, bd = Infinity;
     for (const b of this.buttons) {
       if (b.pointerId !== null) continue;
-      const d = Phaser.Math.Distance.Between(p.x, p.y, b.x, b.y);
+      const d = Phaser.Math.Distance.Between(p.x - this.offX, p.y, b.x, b.y);
       if (d < b.hit && d < bd) { bd = d; best = b; }
     }
     if (best) { best.pointerId = p.id; this.paint(best, true); }
   }
   private paint(b: typeof this.buttons[number], down: boolean): void {
-    if (b.bit === BTN.SPECIAL && this.specialReady) { b.g.setFillStyle(0xffcf5c, down ? 0.95 : 0.6); b.g.setScale(down ? 0.92 : 1); return; }
+    if (this.lit.has(b.bit)) { b.g.setFillStyle(b.colour, down ? 0.95 : 0.6); b.g.setScale(down ? 0.92 : 1); return; }
     b.g.setFillStyle(down ? 0x1c2f4d : 0x0b1730, down ? 0.95 : 0.45);
     b.g.setScale(down ? 0.92 : 1);
   }
@@ -137,7 +144,7 @@ export class TouchControls {
     for (const b of this.buttons) if (b.pointerId === p.id) { b.pointerId = null; this.paint(b, false); }
   }
   private updateStick(p: Phaser.Input.Pointer): void {
-    const dx = p.x - this.stickOrigin.x, dy = p.y - this.stickOrigin.y;
+    const dx = p.x - this.offX - this.stickOrigin.x, dy = p.y - this.stickOrigin.y;
     const len = Math.hypot(dx, dy);
     const throwMax = this.stickBase.radius * 0.7;
     const d = Math.min(throwMax, len);

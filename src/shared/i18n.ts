@@ -23,6 +23,9 @@ const STR = {
   joinGame: ['JOIN GAME', 'הצטרפות'],
   start: ['START', 'התחלה'],
   difficulty: ['DIFFICULTY', 'קושי'],
+  playOnPhone: ['PLAY ON PHONE', 'לשחק בטלפון'],
+  scanHint: ['Scan with the phone camera to open the game', 'סרקו עם מצלמת הטלפון כדי לפתוח את המשחק'],
+  tapToClose: ['tap anywhere to close', 'הקישו בכל מקום לסגירה'],
   easy: ['EASY', 'קל'], normal: ['NORMAL', 'רגיל'], hard: ['HARD', 'קשה'], expert: ['EXPERT', 'מומחה'],
   startingHost: ['starting host…', 'פותחים חדר…'],
   roomOpen: ['Room {code} — have your co-op partner open:', 'חדר {code} — השותף פותח את הקישור:'],
@@ -47,7 +50,7 @@ const STR = {
   restartLevel: ['RESTART LEVEL', 'התחל שלב מחדש'],
   backToLobby: ['BACK TO LOBBY', 'חזרה ללובי'],
   sound: ['SOUND', 'צליל'],
-  helpTouch: ['stick: move · hold DSH + stick sideways: run · ATK / HVY / JMP · SPC when lit · hold BLK · tap your card to call a friend', 'סטיק: תנועה · ריצה + סטיק הצידה: ריצה · מכה / כבד / קפיצה · ספיישל כשדולק · הגנה בלחיצה ארוכה · הקשה על הקלף קוראת לחבר'],
+  helpTouch: ['stick: move · hold DSH + stick sideways: run · ATK / HVY / JMP · SPC when lit · hold BLK · CALL when lit: a friend', 'סטיק: תנועה · ריצה + סטיק הצידה: ריצה · מכה / כבד / קפיצה · ספיישל כשדולק · הגנה בלחיצה ארוכה · קריאה כשדולק: חבר'],
   helpKeys: ['WASD move · J light · K heavy · SPACE jump · hold L + direction: run · I special · U block · H friend · ESC pause', 'WASD תנועה · J מכה · K כבד · SPACE קפיצה · L + כיוון: ריצה · I ספיישל · U הגנה · H חבר · ESC הפסקה'],
   level: ['LEVEL', 'שלב'],
   getReady: ['GET READY', 'מוכנים?'],
@@ -69,7 +72,7 @@ const STR = {
   lanEnded: ['LAN game ended — host or join a new room from the lobby', 'משחק הרשת נגמר — פתחו או הצטרפו לחדר חדש מהלובי'],
   nextLevel: ['NEXT LEVEL: {n}', 'השלב הבא: {n}'],
   retryLevel: ['RETRY LEVEL', 'נסו שוב'],
-  btnHeavy: ['HVY', 'כבד'], btnLight: ['ATK', 'מכה'], btnJump: ['JMP', 'קפיצה'], btnSpecial: ['SPC', 'ספיישל'], btnBlock: ['BLK', 'הגנה'], btnDash: ['DSH', 'ריצה'],
+  btnHeavy: ['HVY', 'כבד'], btnLight: ['ATK', 'מכה'], btnJump: ['JMP', 'קפיצה'], btnSpecial: ['SPC', 'ספיישל'], btnBlock: ['BLK', 'הגנה'], btnDash: ['DSH', 'ריצה'], btnFriend: ['CALL', 'קריאה'],
 } as const;
 
 export type StrKey = keyof typeof STR;

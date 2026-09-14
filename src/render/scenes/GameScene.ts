@@ -14,7 +14,8 @@ import { PauseMenu } from '../PauseMenu';
 import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
 import { LEVEL_COUNT } from '../../sim/levels';
-import { LEVEL_W, VIEW_W, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
+import { LEVEL_W, VIEW_W, VIEW_H, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
+import { uiOffsetX } from '../viewport';
 import type { FriendSetup } from '../../sim/friends';
 import { DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
@@ -108,7 +109,22 @@ export class GameScene extends Phaser.Scene {
     // Pivot low on the combat band so the fight sits in the upper two thirds of the screen — on a
     // phone the bottom strip is where thumbs and the touch controls live. (The pivot lives in
     // sim/types so the backdrop band and the tests can derive what is on screen.)
-    this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom), VIEW_PIVOT_Y * (1 - zoom));
+    const off = uiOffsetX(this);
+    this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom) + off, VIEW_PIVOT_Y * (1 - zoom));
+    // Two cameras (render/viewport.ts): the main one spans the whole canvas — wider than 960 on a
+    // phone — and draws only the world, so the fight spreads to the screen's edges; a second one, the
+    // 960×540 frame centred on the canvas, draws everything else (HUD, touch controls, dialog, pause),
+    // which keeps every UI layout in frame coordinates. Filters are set on the top-level objects
+    // themselves (not via camera.ignore, which walks a container's current children and would miss
+    // sprites spawned into the world later); UI objects are flagged as they appear, once per frame.
+    const worldCam = this.cameras.main;
+    const uiCam = this.cameras.add(off, 0, VIEW_W, VIEW_H, false, 'ui');
+    this.world.cameraFilter |= uiCam.id;
+    const hideUiFromWorldCam = () => {
+      for (const o of this.children.list) if (o !== this.world && !(o.cameraFilter & worldCam.id)) o.cameraFilter |= worldCam.id;
+    };
+    this.events.on('prerender', hideUiFromWorldCam);
+    this.events.once('shutdown', () => this.events.off('prerender', hideUiFromWorldCam));
     this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex, this.difficultyLabel());
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
@@ -119,7 +135,7 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', () => { this.pointerHeld = true; if (this.dialogActive) this.dialogTap = true; });
     this.input.on('pointerup', () => { this.pointerHeld = false; });
     this.input.keyboard!.on('keydown', (ev: KeyboardEvent) => { if (this.dialogActive && !ev.repeat && ev.key !== 'Escape' && ev.key.toLowerCase() !== 'p') this.dialogTap = true; });
-    this.touch = new TouchControls(this);
+    this.touch = new TouchControls(this, this.friends?.mode === 'assist');
     this.touch.setVisible(isTouchDevice(this));
 
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
@@ -156,7 +172,7 @@ export class GameScene extends Phaser.Scene {
   private showKeyboardHint(withP2: boolean): void {
     if (isTouchDevice(this)) return; // touch controls cover this on mobile
     const lines = withP2 ? [t('hintP1'), t('hintP2')] : [t('hintSolo')];
-    const hint = this.keyHint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
+    const hint = this.keyHint = this.add.text(VIEW_W / 2, VIEW_H - 10, lines.join('\n'), {
       fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
     this.tweens.add({ targets: hint, alpha: 0.25, delay: 5000, duration: 1200 });
@@ -201,7 +217,7 @@ export class GameScene extends Phaser.Scene {
     this.dialogBox.setLang(getLang());
     this.hud.destroy();
     this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
-    this.touch.setVisible(false); this.touch = new TouchControls(this); this.touch.setVisible(false);
+    this.touch.setVisible(false); this.touch = new TouchControls(this, this.friends?.mode === 'assist'); this.touch.setVisible(false);
     this.keyHint?.destroy(); this.showKeyboardHint(!!this.heroes[1]);
     this.pause.destroy(); this.pauseBtn.destroy();
     this.buildPause();
@@ -293,7 +309,7 @@ export class GameScene extends Phaser.Scene {
     const snap = this.session.snapshot();
     if (!snap) {
       // Host is waiting on the guest's hero pick before the World can be built (see HostSession.start).
-      if (!this.waitingText) this.waitingText = this.add.text(this.scale.width / 2, this.scale.height / 2, t('waitingP2'), { fontFamily: uiFont(), fontSize: uiSize(13), color: '#9bb1c9' }).setOrigin(0.5).setDepth(35000);
+      if (!this.waitingText) this.waitingText = this.add.text(VIEW_W / 2, VIEW_H / 2, t('waitingP2'), { fontFamily: uiFont(), fontSize: uiSize(13), color: '#9bb1c9' }).setOrigin(0.5).setDepth(35000);
       return;
     }
     if (this.waitingText) { this.waitingText.destroy(); this.waitingText = undefined; }
@@ -379,7 +395,7 @@ export class GameScene extends Phaser.Scene {
     this.hud.update(snap);
     this.dialogBox.update(snap);
     const me = snap.entities.find((e) => e.kind === 'hero' && e.slot === (this.session.mode === 'guest' ? 1 : 0));
-    if (me) this.touch.setSpecialReady(me.meter >= 0.999);
+    if (me) { this.touch.setSpecialReady(me.meter >= 0.999); this.touch.setAssistReady((snap.assist[me.slot === 1 ? 1 : 0] ?? 0) >= 1); }
 
     if (!this.finished && (snap.phase === 'victory' || snap.phase === 'gameover')) {
       this.finished = true;
@@ -405,7 +421,7 @@ export class GameScene extends Phaser.Scene {
    * the run. A LAN guest only watches: the host decides. */
   private showContinue(score: [number, number]): void {
     const cx = VIEW_W / 2, cy = 250;
-    const veil = this.add.rectangle(0, 0, VIEW_W, 540, 0x050711, 0.6).setOrigin(0, 0);
+    const veil = this.add.rectangle(-uiOffsetX(this), 0, this.scale.width, VIEW_H, 0x050711, 0.6).setOrigin(0, 0); // the whole canvas, not just the frame
     const title = this.add.text(cx, cy - 60, t('continueQ'), { fontFamily: uiFont(), fontSize: uiSize(40), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8, letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const num = this.add.text(cx, cy + 10, '9', { fontFamily: uiFont(), fontSize: uiSize(64), color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8 }).setOrigin(0.5);
     const hint = this.add.text(cx, cy + 70, this.session.mode === 'guest' ? t('waitingHost') : t('pressAny'), { fontFamily: uiFont(), fontSize: uiSize(14), color: '#9bb1c9' }).setOrigin(0.5);

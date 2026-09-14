@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { LevelEntry } from '../shared/catalog';
 import { VIEW_W, VIEW_H, FLOOR_TOP, LANE_H } from '../sim/types';
+import { uiOffsetX } from './viewport';
 import { t, ls, isHebrew, uiFont, uiSize } from '../shared/i18n';
 
 /** Backdrop + entry reveal + contrast band. Each level has exactly one (non-repeating) plate that
@@ -18,6 +19,7 @@ export class Backdrop {
   private art: { x: number; y: number; w: number; h: number };
   private lastCameraX = 0;
 
+  private bgEdges: Phaser.GameObjects.Image[];
   private campaignIndex: number;
   private difficultyLabel: string;
 
@@ -26,7 +28,13 @@ export class Backdrop {
     // a catalog without `art` is a pre-band build: legacy fit, full view height from x=0
     this.art = level.art ?? { x: 0, y: 0, w: level.size.w * (VIEW_H / level.size.h), h: VIEW_H };
     this.bg = scene.add.image(this.art.x, this.art.y, `${level.id}-bg`).setOrigin(0, 0).setDisplaySize(this.art.w, this.art.h);
-    container.add(this.bg);
+    // A canvas wider than the 960 frame (render/viewport.ts) shows past the plate's ends at the start
+    // and finish of a level; a mirrored copy on each side continues the scenery there.
+    this.bgEdges = [
+      scene.add.image(this.art.x, this.art.y, `${level.id}-bg`).setOrigin(1, 0).setFlipX(true).setDisplaySize(this.art.w, this.art.h),
+      scene.add.image(this.art.x + this.art.w, this.art.y, `${level.id}-bg`).setOrigin(0, 0).setFlipX(true).setDisplaySize(this.art.w, this.art.h),
+    ];
+    container.add([...this.bgEdges, this.bg]);
     // Readability tint over the fighting lane only: a vertical gradient that fades in over the 30 world
     // px above the lane's far edge and stays at 18% down to the bottom of the view, so sprites read
     // against the ground without a hard line across the scenery. It lives in the (zoomed) world
@@ -50,7 +58,7 @@ export class Backdrop {
     // from the level's own name, Hebrew name and accent colour fits any screen and matches the HUD.
     const accent = Phaser.Display.Color.HexStringToColor(this.level.accent).color;
     const cx = VIEW_W / 2, cy = VIEW_H * 0.42;
-    const veil = this.scene.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711, 0.55).setOrigin(0, 0);
+    const veil = this.scene.add.rectangle(-uiOffsetX(this.scene), 0, this.scene.scale.width, VIEW_H, 0x050711, 0.55).setOrigin(0, 0); // the whole canvas
     const band = this.scene.add.rectangle(cx, cy, VIEW_W, 150, 0x0b1730, 0.92).setOrigin(0.5);
     const rule1 = this.scene.add.rectangle(cx, cy - 75, VIEW_W, 3, accent).setOrigin(0.5);
     const rule2 = this.scene.add.rectangle(cx, cy + 75, VIEW_W, 3, accent).setOrigin(0.5);
@@ -78,7 +86,8 @@ export class Backdrop {
   setCameraX(x: number): void {
     this.lastCameraX = x;
     this.bg.setX(this.art.x - x);
+    this.bgEdges[0].setX(this.art.x - x); this.bgEdges[1].setX(this.art.x + this.art.w - x);
   }
 
-  destroy(): void { this.bg.destroy(); this.entry?.destroy(); this.contrastBand.destroy(); }
+  destroy(): void { this.bg.destroy(); for (const e of this.bgEdges) e.destroy(); this.entry?.destroy(); this.contrastBand.destroy(); }
 }

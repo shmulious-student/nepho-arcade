@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { catalogLevel } from '../../shared/catalog';
 import { getLang, setLang, langLabel } from '../../shared/lang';
+import { centreUiCamera, uiOffsetX } from '../viewport';
 import { t, isHebrew, difficultyName, heroBias, uiFont, uiSize } from '../../shared/i18n';
 import { getDifficulty, setDifficulty } from '../../shared/difficultySetting';
+import { CONTENT_URL } from '../../content/updater';
 import { DIFFICULTIES, isDifficulty } from '../../sim/difficulty';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES } from '../../sim/frameData';
@@ -71,6 +73,7 @@ export class LobbyScene extends Phaser.Scene {
   private get stripX0(): number { return Math.round((VIEW_W - (this.pageW - LobbyScene.CARD_GAP)) / 2); }
 
   create(): void {
+    centreUiCamera(this);
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
     // header: the wordmark (it already says EVIOMRI · CIRCUIT BREAKERS) and the section title
@@ -78,6 +81,9 @@ export class LobbyScene extends Phaser.Scene {
     this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, t('pickHero'), { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
     this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, t('carouselHint'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#5f7391' }).setOrigin(1, 0.5);
 
+    // play on phone: a QR of the address a phone can open, top-left
+    const qrBtn = this.makeButton(24, 8, 132, 22, t('playOnPhone'), () => this.togglePhoneQr());
+    void qrBtn;
     // dialog text language, top-right
     const langBtn = this.makeButton(VIEW_W - 24 - 112, 8, 112, 22, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
 
@@ -231,7 +237,7 @@ export class LobbyScene extends Phaser.Scene {
         this.goToPage(target);
       } else {
         // a tap: which card is under it?
-        const local = p.x - this.strip.x;
+        const local = p.x - uiOffsetX(this) - this.strip.x; // pointer coordinates are canvas ones
         const i = Math.floor(local / (CARD_W + CARD_GAP));
         if (i >= 0 && i < HERO_IDS.length && local - i * (CARD_W + CARD_GAP) <= CARD_W && p.y >= CAROUSEL_Y && p.y <= CAROUSEL_Y + CARD_H) this.pickHero(HERO_IDS[i]);
       }
@@ -350,6 +356,40 @@ export class LobbyScene extends Phaser.Scene {
     session.events.onError = (m) => this.statusText.setText(`${t('error')}: ${m}`);
     session.connect();
     this.registry.set('pendingHostSession', session);
+  }
+
+  /** The address a phone should open: this page's own origin when it is reachable (the LAN server,
+   * the published site), the machine's LAN address when this is the dev server opened as localhost,
+   * and the published site when nothing better is known. */
+  private async phoneUrl(): Promise<string> {
+    const local = ['localhost', '127.0.0.1', '::1', '[::1]'].includes(location.hostname);
+    if (!local) return `${location.origin}/`;
+    if (import.meta.env.DEV) {
+      try {
+        const { ip } = await (await fetch('/__dev/lan-ip')).json();
+        if (ip) return `${location.protocol}//${ip}${location.port ? `:${location.port}` : ''}/`;
+      } catch { /* not the dev server */ }
+    }
+    return CONTENT_URL.replace(/game\/$/, '');
+  }
+
+  private phoneQr: Phaser.GameObjects.Container | null = null;
+  private async togglePhoneQr(): Promise<void> {
+    if (this.phoneQr) { this.phoneQr.destroy(); this.phoneQr = null; return; }
+    const url = await this.phoneUrl();
+    const QR = await import('qrcode');
+    const dataUrl = await QR.toDataURL(url, { margin: 1, width: 256, color: { dark: '#050711', light: '#f3f4e8' } });
+    await addTextureFromDataUrl(this, 'qr-phone', dataUrl);
+    if (this.phoneQr) return;
+    const cx = VIEW_W / 2, cy = VIEW_H / 2 - 10;
+    const veil = this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711, 0.82).setOrigin(0, 0).setInteractive();
+    const panel = this.add.rectangle(cx, cy, 340, 360, 0x0b1730, 0.98).setStrokeStyle(2, 0x75f5dc);
+    const title = this.add.text(cx, cy - 158, t('playOnPhone'), { fontFamily: uiFont(), fontSize: uiSize(14), color: '#75f5dc', fontStyle: 'bold' }).setOrigin(0.5);
+    const img = this.add.image(cx, cy - 10, 'qr-phone').setDisplaySize(240, 240);
+    const link = this.add.text(cx, cy + 128, url, { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8', wordWrap: { width: 310 }, align: 'center' }).setOrigin(0.5, 0);
+    const hint = this.add.text(cx, cy + 156, `${t('scanHint')} · ${t('tapToClose')}`, { fontFamily: uiFont(), fontSize: uiSize(9), color: '#9bb1c9', wordWrap: { width: 310 }, align: 'center' }).setOrigin(0.5, 0);
+    this.phoneQr = this.add.container(0, 0, [veil, panel, title, img, link, hint]).setDepth(1000);
+    veil.on('pointerdown', () => { this.phoneQr?.destroy(); this.phoneQr = null; });
   }
 
   private renderQr(url: string): void {
