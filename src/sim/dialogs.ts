@@ -86,12 +86,12 @@ const L = (who: Speaker, en: string, he: string): DialogLine => ({ who, en, he }
 export const DIALOGS: Record<string, LevelDialogs> = {
   rishon: {
     start: { hero: 'shmuel', lines: [
-      L('shmuel', 'Hi. I am Shmuel, and before anything else: this is a game. Nothing here is real. Not the punks, not the bosses, not the bruises.', 'היי. אני שמואל, ולפני הכול: זה משחק. שום דבר פה לא אמיתי. לא הפאנקים, לא הבוסים, לא המכות.'),
+      L('shmuel', 'Hi. I am Shmuel, and before anything else: this is a game. Nothing here is real. Not the punks, not the bosses, not the bruises.', 'היי. אני שמואל, ולפני הכול: זה משחק. שום דבר פה לא אמיתי. לא העלילה ולא המכות.'),
       L('shmuel', 'You do not have to like it, and you do not have to play it. Stop whenever you want. Nothing bad happens.', 'לא חייבים לאהוב אותו, ולא חייבים לשחק בו. אפשר להפסיק מתי שרוצים. שום דבר רע לא קורה.'),
-      L('shmuel', 'The story: Eviatar and Omri are looking for Adi and Abir, their mom and dad. They are safe.', 'הסיפור: אביתר ועומרי מחפשים את עדי ואביר, אמא ואבא. הם בטוחים.'),
-      L('shmuel', 'They are just somewhere along this road, and we will find them, one clue at a time.', 'הם פשוט איפשהו לאורך הדרך, ואנחנו נמצא אותם, רמז אחרי רמז.'),
-      L('shmuel', 'This is HaSarig Street, our street. Light is J, heavy is K, three lights in a row spin all the way round. Go on, clear the road.', 'זה רחוב השריג, הרחוב שלנו. מכה קלה ב-J, כבדה ב-K, שלוש קלות ברצף מסתובבות סביב. קדימה, לפנות את הדרך.'),
-      L('player', 'On it!', 'על זה!'),
+      L('shmuel', 'The story: Eviatar and Omri are looking for Adi and Abir, their mom and dad. They are safe.', 'כדי שיהיה קצת אקשן, העלילה של המשחק תהיה כזאת שאביתר ועומרי, אתם, מחפשים את אבא אביר ואמא עדי ברחבי העולם'),
+      L('shmuel', 'They are just somewhere along this road, and we will find them, one clue at a time.', 'אל תדאגו, הם בסדר גמור, הם פשוט איפשהו לאורך הדרך, ואנחנו נמצא אותם, רמז אחרי רמז.'),
+      L('shmuel', 'This is HaSarig Street, our street. Light is J, heavy is K, three lights in a row spin all the way round. Go on, clear the road.', 'זה רחוב השריג בראשון לציון. הבית של סבא וסבתא. נצחו את הרעים כדי לשחרר אותם, ושימשיכו את הדרך איתכם לרמז הבא. בהצלחה!'),
+      L('player', 'On it!', 'אנחנו על זה bro!'),
     ] },
     boss: { hero: 'shmuel', join: true, lines: [
       L('shmuel', 'Hold on. The ground is shaking. That is not a punk, that is the first boss. Remember: just a game.', 'רגע. הרצפה רועדת. זה לא פאנק, זה הבוס הראשון. תזכרו: רק משחק.'),
@@ -99,7 +99,7 @@ export const DIALOGS: Record<string, LevelDialogs> = {
       L('shmuel', 'We do not pay on our street. I am staying for this one. Let\'s go!', 'אצלנו ברחוב לא משלמים. אני נשאר לקרב הזה. קדימה!'),
     ] },
     end: { hero: 'noa', lines: [
-      L('boss', 'Fine... the clinic... Refael Eitan Street... she was there...', 'טוב... קופת החולים... רחוב רפאל איתן... היא הייתה שם...'),
+      L('boss', 'Fine... the clinic... Refael Eitan Street... she was there...', 'טוב... רחוב רפאל איתן... זה הרמז היחיד שיש לי'),
       L('pitz', 'Meow. Meow-meow.', 'מיאו. מיאו-מיאו.'),
       L('noa', 'Pitz says the Ferryman dropped a note. A clinic receipt with Adi\'s name, and a smiley on it. She is fine.', 'פיץ אומר שהמעבורן הפיל פתק. קבלה מהקופה עם השם של עדי, וסמיילי עליה. היא בסדר.'),
       L('noa', 'First clue! Next stop, Refael Eitan Street. Saba Kobi is waiting there with the newspaper.', 'רמז ראשון! התחנה הבאה, רחוב רפאל איתן. סבא קובי מחכה שם עם העיתון.'),
@@ -107,29 +107,29 @@ export const DIALOGS: Record<string, LevelDialogs> = {
   },
   'petah-tikva': {
     start: { hero: 'saba-kobi', lines: [
-      L('saba-kobi', 'Refael Eitan Street! Adi was at the clinic this morning. Perfectly healthy, the nurse said. She just went on ahead.', 'רחוב רפאל איתן! עדי הייתה בקופת החולים הבוקר. בריאה לגמרי, אמרה האחות. היא פשוט המשיכה הלאה.'),
+      L('saba-kobi', 'Refael Eitan Street! Adi was at the clinic this morning. Perfectly healthy, the nurse said. She just went on ahead.', 'רחוב רפאל איתן! עדי הייתה פה בסופר הבוקר, היא פשוט המשיכה הלאה.'),
       L('saba-kobi', 'And Abir? Abir called from somewhere with drums. We will get to that. First, these punks, and a Gold Sorceress who throws things.', 'ואביר? אביר התקשר ממקום עם תופים. נגיע לזה. קודם, הפאנקים האלה, ומכשפת זהב שזורקת דברים.'),
-      L('saba-kobi', 'Dash out of her way: hold L and push sideways. Ha!', 'תתחמקו ממנה בריצה: מחזיקים L ודוחפים הצידה. חה!'),
+      L('saba-kobi', 'Dash out of her way: hold L and push sideways. Ha!', 'תתחמקו ממנה בריצה: מחזיקים את הכפתור של הריצה ודוחקים אותה 😉'),
     ] },
     boss: { hero: 'savta-orly', lines: [
       L('savta-orly', 'Wait, wait, I brought soup. Nobody fights a boss on an empty stomach. And I have news: Adi left me a message. She is fine, she is with Abir.', 'רגע, רגע, הבאתי מרק. אף אחד לא נלחם בבוס על בטן ריקה. ויש לי חדשות: עדי השאירה לי הודעה. היא בסדר, היא עם אביר.'),
-      L('boss', 'Monk Zero needs no soup. Only silence. Your parents passed my street. I let them. You, I will not.', 'מונק זירו לא צריך מרק. רק שקט. ההורים שלכם עברו ברחוב שלי. להם נתתי. לכם לא.'),
-      L('savta-orly', 'Silence? In this family? Good luck with that. Watch his orbs, sweetheart.', 'שקט? במשפחה הזאת? בהצלחה עם זה. תיזהרו מהכדורים שלו, מותק.'),
+      L('boss', 'Monk Zero needs no soup. Only silence. Your parents passed my street. I let them. You, I will not.', 'מונק זירו לא צריכה מרק. רק שקט. ההורים שלכם עברו ברחוב שלי. להם נתתי. לכם לא.'),
+      L('savta-orly', 'Silence? In this family? Good luck with that. Watch his orbs, sweetheart.', 'שקט? במשפחה הזאת? בהצלחה עם זה. תיזהרו מהמונק זירו הזה!'),
     ] },
     end: { hero: 'noa', lines: [
       L('boss', '...so loud... the gym... they went to the gym with the drums...', '...כל כך רועש... המכון... הם הלכו למכון עם התופים...'),
-      L('noa', 'Drums! That is Omri\'s capoeira gym. Abir forgot his gym bag there, he always does.', 'תופים! זה מכון הקפוארה של עומרי. אביר שכח שם את תיק הספורט שלו, הוא תמיד שוכח.'),
+      L('noa', 'Drums! That is Omri\'s capoeira gym. Abir forgot his gym bag there, he always does.', 'תופים! זה מכון הקפוארה של עומרי. אביר שכח שם את תיק הספורט שלו, אני בטוחה!'),
       L('noa', 'Second clue. Off to Academia Ginga. Eviatar wants to show you something on the way.', 'רמז שני. יוצאים לאקדמיה ז\'ינגה. אביתר רוצה להראות לכם משהו בדרך.'),
     ] },
   },
   'capoeira-gym': {
     start: { hero: 'eviatar', ifPlayed: 'swap', lines: [
       L('eviatar', 'Omri\'s gym, Academia Ginga. Look: Abir\'s bag on the bench, and a note. "Went to buy pastries with Adi. Back soon. Love you."', 'המכון של עומרי, אקדמיה ז\'ינגה. תראו: התיק של אביר על הספסל, ופתק. "הלכנו לקנות מאפים עם עדי. חוזרים. אוהבים."'),
-      L('eviatar', 'See? Safe. We just keep following. Bio-Brutes are slow but hit like a truck. Jump kicks floor them: SPACE, then J in the air.', 'רואים? בטוחים. פשוט ממשיכים לעקוב. ביו-ברוטים איטיים אבל מכים כמו משאית. בעיטה מקפיצה מפילה אותם: SPACE ואז J באוויר.'),
+      L('eviatar', 'See? Safe. We just keep following. Bio-Brutes are slow but hit like a truck. Jump kicks floor them: SPACE, then J in the air.', 'רואים? הכל טוב איתם. פשוט ממשיכים לעקוב. ביו-ברוטים איטיים אבל מכים כמו משאית. בעיטה מקפיצה מפילה אותם. אבל איפה עומרי?'),
     ], swapLines: [
       L('eviatar', 'Omri\'s gym, Academia Ginga. Look: Abir\'s bag on the bench, and a note. "Went to buy pastries with Adi. Back soon. Love you."', 'המכון של עומרי, אקדמיה ז\'ינגה. תראו: התיק של אביר על הספסל, ופתק. "הלכנו לקנות מאפים עם עדי. חוזרים. אוהבים."'),
-      L('eviatar', 'I am reading the clues on this level, so {new} takes the floor. You get me back next level.', 'אני קורא את הרמזים בשלב הזה, אז {new} על הרצפה. בשלב הבא אני חוזר אליכם.'),
-      L('eviatar', 'Bio-Brutes are slow but hit like a truck. Jump kicks floor them: SPACE, then J in the air.', 'ביו-ברוטים איטיים אבל מכים כמו משאית. בעיטה מקפיצה מפילה אותם: SPACE ואז J באוויר.'),
+      L('eviatar', 'I am reading the clues on this level, so {new} takes the floor. You get me back next level.', 'אני קורא את הרמזים בשלב הזה, אז {new} נכנס במקומי. בשלב הבא אני חוזר אליכם.'),
+      L('eviatar', 'Bio-Brutes are slow but hit like a truck. Jump kicks floor them: SPACE, then J in the air.', 'ביו-ברוטים איטיים אבל מכים כמו משאית. בעיטה מקפיצה מפילה אותם: אבל איפה עומרי?'),
     ] },
     boss: { hero: 'eviatar', lines: [
       L('eviatar', 'Feel that heat? Something is coming through the back wall.', 'מרגישים את החום? משהו עובר דרך הקיר האחורי.'),
@@ -138,14 +138,14 @@ export const DIALOGS: Record<string, LevelDialogs> = {
     ] },
     end: { hero: 'omri', lines: [
       L('boss', '...cooling... down...', '...מתקרר...'),
-      L('omri', 'MY GYM! You saved my gym! Axé! And look what fell out of his pocket: a pastry-shop receipt from Sant Cugat.', 'המכון שלי! הצלתם את המכון שלי! אשה! ותראו מה נפל לו מהכיס: קבלה מקונדיטוריה בסנט קוגט.'),
-      L('omri', 'Third clue! Sant Cugat. The big square, the monastery, and the best xuixos in the world.', 'רמז שלישי! סנט קוגט. הכיכר הגדולה, המנזר, והשוישו הכי טוב בעולם.'),
+      L('omri', 'MY GYM! You saved my gym! Axé! And look what fell out of his pocket: a pastry-shop receipt from Sant Cugat.', 'המכון שלי! הצלתם את המכון שלי! ותראו מה נפל לו מהכיס: קבלה מקונדיטוריה בסנט קוגט.'),
+      L('omri', 'Third clue! Sant Cugat. The big square, the monastery, and the best xuixos in the world.', 'רמז שלישי! סנט קוגט. הכיכר הגדולה, המנזר, והחנויות! בטוח שלשם הם הלכו!'),
     ] },
   },
   'sant-cugat': {
     start: { hero: 'eviatar', lines: [
-      L('eviatar', 'Plaça d\'Octavià. The waiter says Adi and Abir sat right here an hour ago, laughing, with two coffees. They are fine.', 'פלאסה ד\'אוקטביה. המלצר אומר שעדי ואביר ישבו ממש כאן לפני שעה, צוחקים, עם שני קפה. הם בסדר.'),
-      L('eviatar', 'Then Rainbow Oracles filled the square. They dodge a lot. Do not chase. Wait for them to come to you, then land the third light.', 'ואז אורקלי קשת מילאו את הכיכר. הם מתחמקים המון. לא לרדוף. חכו שיבואו אליכם, ואז המכה השלישית.'),
+      L('pitz', 'Plaça d\'Octavià. The waiter says Adi and Abir sat right here an hour ago, laughing, with two coffees. They are fine.', 'פלאסה ד\'אוקטביה. המלצר אומר שעדי ואביר ישבו ממש כאן לפני שעה, צוחקים, עם שני קפה. הם בסדר.'),
+      L('pitz', 'Then Rainbow Oracles filled the square. They dodge a lot. Do not chase. Wait for them to come to you, then land the third light.', 'ואז אורקלי קשת מילאו את הכיכר. הם מתחמקים המון. לא לרדוף. חכו שיבואו אליכם, ואז המכה השלישית.'),
     ] },
     boss: { hero: 'omri', join: true, lines: [
       L('omri', 'Hey! Sorry I am late, I was doing cartwheels down Carrer Major. I asked everyone: they went towards Barcelona!', 'היי! סליחה שאיחרתי, עשיתי גלגלונים לאורך קאראר מז\'ור. שאלתי את כולם: הם הלכו לכיוון ברצלונה!'),
@@ -162,62 +162,57 @@ export const DIALOGS: Record<string, LevelDialogs> = {
     start: { hero: 'shmuel', lines: [
       L('shmuel', 'Carrer de Mallorca, and there she is: the Sagrada Família. Adi and Abir were here an hour ago. They are fine, they are just ahead of us.', 'קארר דה מיורקה, והנה היא: הסגרדה פמיליה. עדי ואביר היו פה לפני שעה. הם בסדר, הם פשוט לפנינו.'),
       L('shmuel', 'Halfway through. Quick reminder: it is a game. If it stops being fun, stop. Nobody minds.', 'חצי דרך. תזכורת קטנה: זה משחק. אם זה מפסיק להיות כיף, מפסיקים. אף אחד לא כועס.'),
-      L('shmuel', 'If you are in: four waves this time. Pace yourselves, block with U when it gets crowded, grab the hearts.', 'אם אתם בפנים: ארבעה גלים הפעם. תחלקו כוחות, חוסמים עם U כשנהיה צפוף, אוספים לבבות.'),
+      L('shmuel', 'If you are in: four waves this time. Pace yourselves, block with U when it gets crowded, grab the hearts.', 'אם אתם בפנים: ארבעה גלים הפעם. תחלקו כוחות, אפשר גם לחסום מכות כשנהיה צפוף, אוספים לבבות.'),
     ] },
     end: { hero: 'saba-kobi', lines: [
       L('boss', '...my crystals... shattered... they had tickets... a basketball game...', '...הגבישים שלי... מנופצים... היו להם כרטיסים... משחק כדורסל...'),
       L('saba-kobi', 'The Prism Queen, in front of Gaudí\'s church! And two tickets in her crown: Eviatar\'s hall, tonight.', 'מלכת הפריזמה, מול הכנסייה של גאודי! ושני כרטיסים בכתר שלה: האולם של אביתר, הערב.'),
-      L('saba-kobi', 'Fifth clue. Abir never misses a game. To the basketball hall!', 'רמז חמישי. אביר לא מפספס משחק. לאולם הכדורסל!'),
+      L('saba-kobi', 'Fifth clue. Abir never misses a game. To the basketball hall!', 'רמז חמישי. אביר בטח התחיל טורניר פאדל. לאולם הכדורסל!'),
     ] },
   },
   'basketball-gym': {
     start: { hero: 'omri', ifPlayed: 'swap', lines: [
       L('omri', 'Eviatar\'s hall! Abir\'s scarf is on the bleachers, still warm from cheering. They were here, they are fine, they moved on.', 'האולם של אביתר! הצעיף של אביר על הטריבונות, עוד חם מהעידוד. הם היו פה, הם בסדר, הם המשיכו.'),
-      L('omri', 'Then the Void Demons showed up under the hoop. That is a foul, right? They are the heavy ones. Get behind them and hit the back.', 'ואז שדי החלל הופיעו מתחת לסל. זו עבירה, נכון? הם הכבדים. מאחוריהם ולהכות בגב.'),
+      L('omri', 'Then the Void Demons showed up under the hoop. That is a foul, right? They are the heavy ones. Get behind them and hit the back.', 'ואז שדי החלל הופיעו מתחת לסל. זו עבירה, נכון? הם האיטיים יותר. להתגנב מאחוריהם ולהכות בגב.'),
     ], swapLines: [
       L('omri', 'Eviatar\'s hall! Abir\'s scarf is on the bleachers, still warm from cheering. They were here, they are fine, they moved on.', 'האולם של אביתר! הצעיף של אביר על הטריבונות, עוד חם מהעידוד. הם היו פה, הם בסדר, הם המשיכו.'),
       L('omri', 'I have the mic this game, so {new} gets the ball. I sub back in next level.', 'המיקרופון אצלי במשחק הזה, אז {new} מקבל את הכדור. אני חוזר לחמישייה בשלב הבא.'),
-      L('omri', 'Void Demons are the heavy ones. Do not stand in front of them. Get behind and hit the back.', 'שדי החלל הם הכבדים. לא לעמוד מולם. מאחוריהם ולהכות בגב.'),
+      L('omri', 'Void Demons are the heavy ones. Do not stand in front of them. Get behind and hit the back.', 'שדי החלל הם הכבדים. לא לעמוד מולם. להתגנב מאחוריהם ולהכות בגב.'),
     ] },
     boss: { hero: 'omri', lines: [
       L('omri', 'Uh. The scoreboard just melted.', 'אה. לוח התוצאות בדיוק נמס.'),
       L('boss', 'From the deep I rise. The Abyss Dragon takes the court. Your parents left at half time. Wise.', 'מהמעמקים אני עולה. דרקון התהום לוקח את המגרש. ההורים שלכם יצאו במחצית. חכמים.'),
-      L('omri', 'Then we take it back. Keep moving. He cannot hit what he cannot catch!', 'אז אנחנו לוקחים אותו בחזרה. תמשיכו לזוז. הוא לא יכול להכות מה שהוא לא תופס!'),
+      L('omri', 'Then we take it back. Keep moving. He cannot hit what he cannot catch!', 'אז אנחנו לוקחים אותו בחזרה. תמשיכו לזוז. הוא לא יכול להכות מה שהוא לא תופס! אבל איפה אביתר?'),
     ] },
     end: { hero: 'eviatar', lines: [
       L('boss', '...back... to the deep...', '...חזרה... למעמקים...'),
-      L('eviatar', 'That is my court. And that is Adi\'s handwriting on the scoreboard: "Picking up your drawings at school. Love, Mom."', 'זה המגרש שלי. וזה כתב היד של עדי על לוח התוצאות: "אוספים את הציורים שלכם בבית הספר. אוהבת, אמא."'),
+      L('eviatar', 'That is my court. And that is Adi\'s handwriting on the scoreboard: "Picking up your drawings at school. Love, Mom."', 'זה המגרש שלי. וזה כתב היד של אמא על לוח התוצאות: "אוספים את הציורים שלכם בבית הספר. אוהבת, אמא."'),
       L('eviatar', 'Sixth clue. Hatikva School. Omri knows the way: through the yard, past the big tree.', 'רמז שישי. בית הספר התקווה. עומרי מכיר את הדרך: דרך החצר, ליד העץ הגדול.'),
     ] },
   },
   'hatikva-school': {
     start: { hero: 'omri', lines: [
-      L('omri', 'Col·legi Hatikva! The court, the big tree, the blue mosaic wall. Adi took our drawings from the classroom, the teacher saw her. Fine and smiling.', 'קולז\' התקווה! המגרש, העץ הגדול, קיר הפסיפס הכחול. עדי לקחה את הציורים שלנו מהכיתה, המורה ראתה אותה. בסדר ומחייכת.'),
-      L('omri', 'Four waves, then something big. When the meter is full press I: the special clears the whole yard.', 'ארבעה גלים, ואז משהו גדול. כשהמד מלא לוחצים I: הספיישל מנקה את כל החצר.'),
+      L('omri', 'Col·legi Hatikva! The court, the big tree, the blue mosaic wall. Adi took our drawings from the classroom, the teacher saw her. Fine and smiling.', 'בית ספר התקווה! המגרש, העץ הגדול, קיר הפסיפס הכחול. אמא לקחה את הציורים שלנו מהכיתה, המורה ראתה אותה.'),
+      L('omri', 'Four waves, then something big. When the meter is full press I: the special clears the whole yard.', 'הפעם יש ארבעה גלים, ואז משהו גדול. כשהמד מלא לוחצים והספיישל מנקה את כל החצר.'),
     ] },
-    afterWave: { 2: { hero: 'eviatar', join: true, lines: [
-      L('eviatar', 'Two waves down. Recess is over. I found Abir\'s coffee cup by the olive tree, still warm. I am joining you for the rest of this one.', 'שני גלים ירדו. ההפסקה נגמרה. מצאתי את כוס הקפה של אביר ליד עץ הזית, עוד חמה. אני מצטרף אליכם לשאר השלב.'),
-      L('eviatar', 'Stick together. The Bio-Brutes come from both sides now.', 'תישארו ביחד. הביו-ברוטים מגיעים עכשיו משני הצדדים.'),
-    ] } },
     end: { hero: 'saba-kobi', lines: [
       L('boss', '...the deep... calls me home... they went up... the hill...', '...המעמקים... קוראים לי הביתה... הם עלו... לגבעה...'),
       L('saba-kobi', 'The dragon came back for a second round and left with a second bruise. Ha! And a clue: the hill above Barcelona.', 'הדרקון חזר לסיבוב שני ויצא עם חבורה שנייה. חה! ורמז: הגבעה מעל ברצלונה.'),
-      L('saba-kobi', 'Seventh clue. Noa is waiting at the bunkers. Bring a jacket, it is windy.', 'רמז שביעי. נועה מחכה בבונקרים. תביאו ז\'קט, יש רוח.'),
+      L('saba-kobi', 'Seventh clue. Noa is waiting at the bunkers. Bring a jacket, it is windy.', 'רמז שביעי. נועה מחכה בבונקרים. תביאו ז\'קטיקו, יש רוח.'),
     ] },
+    afterWave: { 2: { hero: 'eviatar', join: true, lines: [
+      L('eviatar', 'Two waves down. Recess is over. I found Abir\'s coffee cup by the olive tree, still warm. I am joining you for the rest of this one.', 'שני גלים ירדו. ההפסקה נגמרה. מצאתי את כוס הקפה של אביר, אז הם בסביבה. אני מצטרף אליכם לשאר השלב.'),
+      L('eviatar', 'Stick together. The Bio-Brutes come from both sides now.', 'תישארו ביחד. הביו-ברוטים מגיעים עכשיו משני הצדדים.'),
+    ] } },
   },
   catalunya: {
     start: { hero: 'noa', lines: [
       L('noa', 'Bunkers del Carmel. The whole city, the sea, Montserrat on the horizon. And Adi\'s picnic blanket, folded, with two cups. They were just here.', 'בונקרס דל כרמל. כל העיר, הים, מונסראט באופק. והשמיכה של עדי, מקופלת, עם שתי כוסות. הם היו פה ממש עכשיו.'),
       L('noa', 'It is windy up here. Watch the edge, and watch the Sorceress\'s bolts. Dash through them.', 'יש פה רוח. תיזהרו מהקצה, ומהברקים של המכשפה. רצים דרכם.'),
     ] },
-    afterWave: { 2: { hero: 'noa', lines: [
-      L('noa', 'Nice. See down there? The Sagrada Família, the gym, the school. You have followed them across the whole map.', 'יפה. רואים שם למטה? הסגרדה פמיליה, המכון, בית הספר. עקבתם אחריהם על פני כל המפה.'),
-      L('pitz', 'Mrrrp. Meow!', 'מררפ. מיאו!'),
-      L('noa', 'Pitz smells someone familiar at the top of the hill. And someone not familiar at all. One more wave first.', 'פיץ מריח מישהו מוכר בראש הגבעה. ומישהו בכלל לא מוכר. קודם עוד גל אחד.'),
-    ] } },
     boss: { hero: 'noa', join: true, lines: [
       L('noa', 'There it is. The not-familiar one.', 'הנה זה. הלא-מוכר.'),
-      L('boss', 'Monk Zero returns. Petah Tikva was practice. Your parents are at the theatre. I am here.', 'מונק זירו חוזר. פתח תקווה הייתה אימון. ההורים שלכם בתיאטרון. אני כאן.'),
+      L('boss', 'Monk Zero returns. Petah Tikva was practice. Your parents are at the theatre. I am here.', 'אני חוזר חזק יותר. פתח תקווה הייתה אימון. ההורים שלכם בתיאטרון. אני כאן.'),
       L('noa', 'So was that. I am bringing the rolling pin. Let\'s finish him together, then the theatre.', 'גם זה היה. אני מביאה את המערוך. בואו נסיים אותו ביחד, ואז התיאטרון.'),
     ] },
     end: { hero: 'noa', lines: [
@@ -225,61 +220,50 @@ export const DIALOGS: Record<string, LevelDialogs> = {
       L('noa', 'Twice. He lost to this family twice. And he was telling the truth: two theatre tickets, front row, in Abir\'s handwriting.', 'פעמיים. הוא הפסיד למשפחה הזאת פעמיים. והוא אמר את האמת: שני כרטיסים לתיאטרון, שורה ראשונה, בכתב היד של אביר.'),
       L('noa', 'Eighth clue. Two levels left. Saba Kobi got us seats too. On the stage.', 'רמז שמיני. נשארו שני שלבים. סבא קובי השיג גם לנו מקומות. על הבמה.'),
     ] },
+    afterWave: { 2: { hero: 'noa', lines: [
+      L('noa', 'Nice. See down there? The Sagrada Família, the gym, the school. You have followed them across the whole map.', 'יפה. רואים שם למטה? הסגרדה פמיליה, המכון, בית הספר. עקבתם אחריהם על פני כל המפה.'),
+      L('pitz', 'Mrrrp. Meow!', 'מררפ. מיאו!'),
+      L('noa', 'Pitz smells someone familiar at the top of the hill. And someone not familiar at all. One more wave first.', 'פיץ מריח מישהו מוכר בראש הגבעה. ומישהו בכלל לא מוכר. קודם עוד גל אחד.'),
+    ] } },
   },
   theater: {
     start: { hero: 'saba-kobi', ifPlayed: 'swap', lines: [
-      L('saba-kobi', 'Teatron HaMoshava! Red curtains, footlights. Adi and Abir were in the front row, the usher saw them clapping.', 'תיאטרון המושבה! וילונות אדומים, אורות במה. עדי ואביר ישבו בשורה הראשונה, הסדרן ראה אותם מוחאים כפיים.'),
+      L('saba-kobi', 'Teatron HaMoshava! Red curtains, footlights. Adi and Abir were in the front row, the usher saw them clapping.', 'תיאטרון ליסאו! וילונות אדומים, אורות במה. עדי ואביר ישבו בשורה הראשונה, הסדרן ראה אותם מוחאים כפיים.'),
       L('saba-kobi', 'Then the Void Demon came on. Places, everyone!', 'ואז עלה שד החלל. כולם למקומות!'),
-      L('saba-kobi', 'Mind the props table, and when the lights go magenta, that is a Sorceress winding up.', 'תיזהרו משולחן האביזרים, וכשהאורות נהיים מג\'נטה, זו מכשפה שמתכוננת.'),
+      L('saba-kobi', 'Mind the props table, and when the lights go magenta, that is a Sorceress winding up.', 'תיזהרו משולחן האביזרים, וכשהאורות נהיים סגולים, זו מכשפה שמתכוננת.'),
     ], swapLines: [
       L('saba-kobi', 'Teatron HaMoshava! Red curtains, footlights. Adi and Abir were in the front row, the usher saw them clapping.', 'תיאטרון המושבה! וילונות אדומים, אורות במה. עדי ואביר ישבו בשורה הראשונה, הסדרן ראה אותם מוחאים כפיים.'),
       L('saba-kobi', 'Then the Void Demon came on. Places, everyone!', 'ואז עלה שד החלל. כולם למקומות!'),
       L('saba-kobi', 'Tonight I am the narrator, so {new} plays the lead. Do not worry, I am back on stage next level.', 'הערב אני הקריין, אז {new} בתפקיד הראשי. אל דאגה, אני חוזר לבמה בשלב הבא.'),
-      L('saba-kobi', 'Mind the props table, and when the lights go magenta, that is a Sorceress winding up.', 'תיזהרו משולחן האביזרים, וכשהאורות נהיים מג\'נטה, זו מכשפה שמתכוננת.'),
+      L('saba-kobi', 'Mind the props table, and when the lights go magenta, that is a Sorceress winding up.', 'תיזהרו משולחן האביזרים, וכשהאורות נהיים סגולים, זו מכשפה שמתכוננת.'),
+    ] },
+    end: { hero: 'eviatar', lines: [
+      L('boss', '...the glass... goes dark...', '...הזכוכית... מחשיכה...'),
+      L('eviatar', 'The Glass Warden, shattered, on opening night. Take a bow.', 'שומר הזכוכית, מנופץ, בערב הבכורה. ממש שווה שנקוד לו קידה.'),
+      L('eviatar', 'Last clue, last level. Savta Orly\'s candy factory. Adi and Abir are waiting there with a surprise. Let\'s go find them.', 'רמז אחרון, שלב אחרון. מפעל הממתקים של סבתא אורלי. עדי ואביר מחכים שם עם הפתעה. בואו נמצא אותם.'),
     ] },
     afterWave: { 1: { hero: 'omri', join: true, lines: [
       L('omri', 'Psst. I found a mic in the props, and a program with a note: "Meet us at Savta\'s factory. Surprise!" Mind if I join the show?', 'פסט. מצאתי מיקרופון באביזרים, ותוכנייה עם פתק: "תפגשו אותנו במפעל של סבתא. הפתעה!" אכפת לכם אם אני מצטרף להצגה?'),
       L('omri', 'Act two. Let\'s give them a finale.', 'מערכה שנייה. בואו ניתן להם פינאלה.'),
     ] } },
-    end: { hero: 'eviatar', lines: [
-      L('boss', '...the glass... goes dark...', '...הזכוכית... מחשיכה...'),
-      L('eviatar', 'The Glass Warden, shattered, on opening night. Take a bow.', 'שומר הזכוכית, מנופץ, בערב הבכורה. קידה.'),
-      L('eviatar', 'Last clue, last level. Savta Orly\'s candy factory. Adi and Abir are waiting there with a surprise. Let\'s go find them.', 'רמז אחרון, שלב אחרון. מפעל הממתקים של סבתא אורלי. עדי ואביר מחכים שם עם הפתעה. בואו נמצא אותם.'),
-    ] },
   },
   'candy-factory': {
     start: { hero: 'savta-orly', lines: [
       L('savta-orly', 'Mamtakei Savta, my factory! The copper kettle, the taffy puller, the gumball tower. Adi and Abir are in the control room, safe, waving. See?', 'ממתקי סבתא, המפעל שלי! קומקום הנחושת, מכונת הטופי, מגדל הגומי. עדי ואביר בחדר הבקרה, בטוחים, מנפנפים. רואים?'),
       L('savta-orly', 'Between us and them: five waves, the biggest yet. Everything you learned, all at once. I am right behind you with the pot.', 'בינינו לבינם: חמישה גלים, הכי גדול עד עכשיו. כל מה שלמדתם, בבת אחת. אני ממש מאחוריכם עם הסיר.'),
     ] },
-    afterWave: { 1: { hero: 'saba-kobi', join: true, lines: [
-      L('saba-kobi', 'Room for one more? I closed the shesh-besh board. This is more important. Abir just gave me a thumbs up through the glass.', 'יש מקום לעוד אחד? סגרתי את לוח השש-בש. זה יותר חשוב. אביר בדיוק עשה לי לייק דרך הזכוכית.'),
-      L('saba-kobi', 'Watch the conveyor belt. The wrapping machine is not on our side.', 'תיזהרו מהמסוע. מכונת האריזה לא בצד שלנו.'),
-    ] } },
     end: { hero: 'shmuel', lines: [
       L('boss', '...the flame... goes out...', '...הלהבה... כבה...'),
       L('shmuel', 'The Flame Samurai, in a candy factory. He picked the wrong family.', 'סמוראי הלהבה, במפעל ממתקים. הוא בחר את המשפחה הלא נכונה.'),
       L('shmuel', 'And there they are: Adi and Abir, out of the control room, with gumballs for everyone.', 'והנה הם: עדי ואביר, יוצאים מחדר הבקרה, עם גומיות לכולם.'),
       L('pitz', 'Purrrr.', 'פררר.'),
-      L('shmuel', 'They were safe the whole way, just like I said. Rishon, Petah Tikva, Barcelona, all the way here. Every clue found.', 'הם היו בטוחים כל הדרך, בדיוק כמו שאמרתי. ראשון, פתח תקווה, ברצלונה, כל הדרך עד לכאן. כל רמז נמצא.'),
-      L('shmuel', 'Wait. Adi says the presents are gone. All of them. And there are little brown footprints leading out the back door...', 'רגע. עדי אומרת שהמתנות נעלמו. כולן. ויש עקבות חומות קטנות שמובילות מהדלת האחורית...'),
-    ] },
-  },
-  // Level 11 — Caga Tió's lair: the Catalan Christmas log took the presents and will only give
-  // them back the way tradition says he does. Placeholder script until the owner writes the finale.
-  'tio-lair': {
-    start: { hero: 'eviatar', lines: [
-      L('eviatar', 'Caga Tió! The Christmas log from Sant Cugat. He took every present from the factory and he is grinning about it.', 'קאגה טיו! בול העץ של חג המולד מסנט קוגט. הוא לקח כל מתנה מהמפעל והוא מחייך על זה.'),
-      L('eviatar', 'You know how it works in Catalunya: you hit the Tió and he... gives the presents back. From behind. Watch where you stand.', 'אתם יודעים איך זה עובד בקטלוניה: מרביצים לטיו והוא... מחזיר את המתנות. מאחור. תיזהרו איפה אתם עומדים.'),
-    ] },
-    boss: { hero: 'eviatar', lines: [
-      L('boss', 'Caga tió, caga torró! You want them? Come and knock them out of me!', 'קאגה טיו, קאגה טורו! רוצים אותן? בואו תוציאו אותן ממני!'),
-    ] },
-    end: { hero: 'shmuel', lines: [
-      L('boss', 'Oof... take them... take them all...', 'אוף... קחו אותן... קחו את כולן...'),
-      L('shmuel', 'Every present back, every turrón accounted for. Adi and Abir are already opening theirs.', 'כל מתנה חזרה, כל טורון נספר. עדי ואביר כבר פותחים את שלהם.'),
-      L('pitz', 'Purrrr.', 'פררר.'),
+      L('shmuel', 'They were safe the whole way, just like I said. Rishon, Petah Tikva, Barcelona, all the way here. Every clue found.', 'הם היו בטוחים כל הדרך, בדיוק כמו שאמרתי. ראשון, פתח תקווה, ברצלונה, סאנט קוגאט..כל הדרך עד לכאן. כל רמז נמצא.'),
       L('shmuel', 'And that is the whole game. Nothing here was real, except the fun. Thank you for playing, and well done.', 'וזה כל המשחק. שום דבר פה לא היה אמיתי, חוץ מהכיף. תודה ששיחקתם, וכל הכבוד.'),
+      L('shmuel', 'If you want a sequel with more characters, just call me 🤘🏼♥️', 'אם תרצו משחק המשך עם דמויות נוספות, פשוט תתקשרו אליי🤘🏼♥️'),
     ] },
+    afterWave: { 1: { hero: 'saba-kobi', join: true, lines: [
+      L('saba-kobi', 'Room for one more? I closed the shesh-besh board. This is more important. Abir just gave me a thumbs up through the glass.', 'יש מקום לעוד אחד? סגרתי את לוח השש-בש. זה יותר חשוב. אביר בדיוק עשה לי לייק דרך הזכוכית.'),
+      L('saba-kobi', 'Watch the conveyor belt. The wrapping machine is not on our side.', 'תיזהרו מהמסוע. מכונת האריזה לא בצד שלנו.'),
+    ] } },
   },
 };
