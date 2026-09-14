@@ -45,6 +45,10 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   walk over them. Clearing a level pays a time bonus and a best-combo bonus.
 - **Lobby:** hero cards three to a page — tap to pick, swipe or ◀ ▶ to turn the page; each card wears its role
   (P1 / P2 / ASSIST / SIDEKICK). Friend, level and player options sit in one row above START.
+- **Difficulty:** EASY / NORMAL / HARD / EXPERT, beside START in the lobby (remembered by the browser). EASY
+  is the game exactly as tuned; each step up makes enemies and bosses tougher and harder-hitting, quicker
+  to swing and more of them at once, with fewer lives and a slower HP trickle (`src/sim/difficulty.ts`).
+  The title card names anything above EASY.
 - **Friend:** `H` (touch: tap your HUD card). In the lobby you pick one of the other heroes as your friend and how
   they help — **ASSIST** (press to call them in: they run on, land their special and run off; recharges
   in 15s) or **SIDEKICK** (they fight beside you the whole level as an AI ally and get back up if
@@ -66,7 +70,9 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   they say it from where they stand — or, on a few levels, you play a random stand-in for that level
   and the hero explains. The text is English or Hebrew: **TEXT** in the lobby (top right) or the pause
   menu. Shmuel opens the game by saying it is only a game and nobody has to play; the story is Eviatar
-  and Omri following clues to Adi and Abir, who are safe the whole way. Scripts: `src/sim/dialogs.ts`.
+  and Omri following clues to Adi and Abir, who are safe the whole way. Scripts: `src/sim/dialogs.ts`;
+  `node tools/dialog-sheet.mjs` renders them as `docs/dialogs/dialog-sheet.html`, a single file that opens
+  on a phone with no server to read and edit every scene, and `--apply <exported.json>` writes the edits back.
 - **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
   stick plants itself wherever your left thumb lands; hold DSH (above it) and push sideways to run. The right
   thumb gets three big buttons — HVY · ATK · JMP — with SPC above (it lights up when the meter is

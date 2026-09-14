@@ -327,7 +327,7 @@ function runPattern(w: World, e: Entity, target: Entity, enrage: number): void {
     return;
   }
   if (e.pphase === 2) {
-    if (e.pt >= p.recover) { e.pattern = -1; e.pphase = 0; e.pt = 0; e.cooldown = Math.round(p.cooldown / enrage); setState(e, 'idle'); }
+    if (e.pt >= p.recover) { e.pattern = -1; e.pphase = 0; e.pt = 0; e.cooldown = Math.round(p.cooldown * w.diff.cooldown / enrage); setState(e, 'idle'); }
   }
 }
 

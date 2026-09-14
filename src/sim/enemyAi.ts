@@ -103,7 +103,7 @@ export function stepEnemy(w: World, e: Entity): void {
     if (atk.speed && e.st >= atk.startup && e.st < atk.startup + atk.active) e.x += e.facing * atk.speed * slowMul;
     if (e.st >= t) {
       setState(e, 'idle');
-      const [a, b] = def.cooldown; e.cooldown = Math.round(w.rng.int(a, b) * 1.35);
+      const [a, b] = def.cooldown; e.cooldown = Math.round(w.rng.int(a, b) * 1.35 * w.diff.cooldown);
       if (def.evasive) { e.ai = 1; e.aiT = 24; } // retreat
       w.releaseAttackToken(e.id);
     }

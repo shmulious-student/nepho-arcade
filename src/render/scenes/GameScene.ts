@@ -14,6 +14,7 @@ import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
 import { LEVEL_W, VIEW_W, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
+import { DIFFICULTY_DEFS, DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
 
@@ -33,6 +34,7 @@ interface StartData {
   heroId?: HeroId;
   friends?: FriendSetup;
   score?: [number, number]; // carried over from the previous level
+  difficulty?: Difficulty; // the lobby's pick; EASY when absent
 }
 
 /** Converts a quick double-press of the same direction into a synthesized DASH, the classic
@@ -80,7 +82,7 @@ export class GameScene extends Phaser.Scene {
 
     if (data.mode === 'local') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
-      this.session = new LocalSession(data.seed!, data.level!, data.heroes!, data.friends, data.score);
+      this.session = new LocalSession(data.seed!, data.level!, data.heroes!, data.friends, data.score, data.difficulty);
     } else if (data.mode === 'host') {
       this.heroes = data.heroes!; this.levelIndex = data.level!;
       this.session = data.session!;
@@ -105,7 +107,7 @@ export class GameScene extends Phaser.Scene {
     // phone the bottom strip is where thumbs and the touch controls live. (The pivot lives in
     // sim/types so the backdrop band and the tests can derive what is on screen.)
     this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom), VIEW_PIVOT_Y * (1 - zoom));
-    this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex);
+    this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex, this.difficultyLabel());
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
     this.dialogBox = new DialogBox(this, getLang(), isTouchDevice(this));
@@ -131,6 +133,12 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard!.once('keydown', () => synth.unlock());
 
     this.events.once('shutdown', () => { sequencer.stop(); this.cleanup(); });
+  }
+
+  /** The difficulty on the title card: nothing for EASY (the game as tuned), the name otherwise. */
+  private difficultyLabel(): string {
+    const d = this.session.world()?.difficulty ?? this.startData.difficulty ?? DEFAULT_DIFFICULTY;
+    return d === 'easy' ? '' : DIFFICULTY_DEFS[d].name;
   }
 
   /** The LAN link is gone: say so, then back to the lobby. */
@@ -303,7 +311,7 @@ export class GameScene extends Phaser.Scene {
       this.views.clear(); // entity ids restart at 1 in the new world; a stale view would wear the wrong sprite
       const level = catalogLevel(this.catalog, this.levelIndex);
       this.backdrop.destroy();
-      this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex);
+      this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex, this.difficultyLabel());
     }
 
     this.backdrop.setCameraX(snap.cameraX);
@@ -431,7 +439,7 @@ export class GameScene extends Phaser.Scene {
   private toResults(result: 'victory' | 'gameover', score: [number, number]): void {
     const mode = this.session.mode;
     if (mode !== 'local') this.session.destroy();
-    this.scene.start('Results', { result, level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10, mode });
+    this.scene.start('Results', { result, level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10, mode, difficulty: this.startData.difficulty });
   }
 
   private nextLevel(score: [number, number]): void {
@@ -442,7 +450,7 @@ export class GameScene extends Phaser.Scene {
     if (chosen) this.heroes = chosen;
     if (this.session.mode === 'host') {
       const session = this.session as HostSession;
-      session.start(seed, level, this.heroes, this.friends, score);
+      session.start(seed, level, this.heroes, this.friends, score, this.startData.difficulty);
       this.scene.start('Game', { ...this.startData, mode: 'host', session, level, heroes: this.heroes, score });
       return;
     }

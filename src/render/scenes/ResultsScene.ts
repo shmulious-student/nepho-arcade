@@ -10,6 +10,7 @@ interface ResultsData {
   friends?: import('../../sim/friends').FriendSetup;
   isLastLevel: boolean;
   mode?: 'local' | 'host' | 'guest'; // a LAN run cannot be retried from here: only the lobby can start a new room
+  difficulty?: import('../../sim/difficulty').Difficulty;
 }
 
 const BEST_KEY = 'nepho.best';
@@ -52,11 +53,11 @@ export class ResultsScene extends Phaser.Scene {
       this.add.text(VIEW_W / 2, 262, 'LAN game ended — host or join a new room from the lobby', { fontFamily: 'monospace', fontSize: '11px', color: '#9bb1c9' }).setOrigin(0.5);
     } else if (won && !campaignDone) {
       btn(VIEW_W / 2, 300, `NEXT LEVEL: ${data.level + 1}`, () => {
-        this.scene.start('Game', { mode: 'local', level: data.level + 1, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9) });
+        this.scene.start('Game', { mode: 'local', level: data.level + 1, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9), difficulty: data.difficulty });
       });
     } else if (!won && local) {
       btn(VIEW_W / 2, 300, 'RETRY LEVEL', () => {
-        this.scene.start('Game', { mode: 'local', level: data.level, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9) });
+        this.scene.start('Game', { mode: 'local', level: data.level, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9), difficulty: data.difficulty });
       });
     }
     btn(VIEW_W / 2, 346, 'BACK TO LOBBY', () => this.scene.start('Lobby'));

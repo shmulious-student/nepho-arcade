@@ -14,11 +14,12 @@ import { HEROES } from './frameData';
 import { ACTIVE_HEROES } from './roster';
 import { stepDialog, stepGuests, tryDialog, type DialogState } from './dialog';
 import { dialogFor } from './dialogs';
+import { DIFFICULTY_DEFS, DEFAULT_DIFFICULTY, type Difficulty, type DifficultyDef } from './difficulty';
 import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
 import { LANE_H, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
-export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number]; /** false: no dialog scenes (unit tests of other mechanics) */ dialogs?: boolean }
+export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number]; /** false: no dialog scenes (unit tests of other mechanics) */ dialogs?: boolean; difficulty?: Difficulty }
 
 export class World {
   tick = 0;
@@ -43,7 +44,9 @@ export class World {
   private maxAttackers = 2;
   private done = false;
   result: 'victory' | 'gameover' | null = null;
-  lives: [number, number] = [2, 2]; // extra lives per hero slot; after those it is the CONTINUE? countdown
+  lives: [number, number] = [2, 2]; // extra lives per hero slot (difficulty.lives); after those it is the CONTINUE? countdown
+  difficulty: Difficulty = DEFAULT_DIFFICULTY;
+  diff: DifficultyDef = DIFFICULTY_DEFS[DEFAULT_DIFFICULTY];
   private phaseBeforeGameOver: LevelPhase = 'wave';
   /** The dialog scene on stage (sim/dialog.ts); the director and the players wait while it runs. */
   dialog: DialogState | null = null;
@@ -61,6 +64,9 @@ export class World {
     this.level = opts.level;
     this.chosenHeroes = [opts.heroes[0], opts.heroes[1]];
     this.dialogsEnabled = opts.dialogs !== false;
+    this.difficulty = opts.difficulty ?? DEFAULT_DIFFICULTY;
+    this.diff = DIFFICULTY_DEFS[this.difficulty] ?? DIFFICULTY_DEFS[DEFAULT_DIFFICULTY];
+    this.lives = [this.diff.lives, this.diff.lives];
     // An opening scene marked `ifPlayed: swap` hands the player who picked its hero a random other
     // hero for this level (the script explains it); the lobby's pick comes back next level.
     const heroes: [HeroId, HeroId | null] = [opts.heroes[0], opts.heroes[1]];
@@ -86,7 +92,7 @@ export class World {
       this.entities.push(e);
       this.players[slot] = e;
     }
-    this.maxAttackers = this.playerCount() > 1 ? 2 : 1;
+    this.maxAttackers = (this.playerCount() > 1 ? 2 : 1) + this.diff.extraAttackers;
     if (opts.score) this.score = [opts.score[0], opts.score[1]];
     if (opts.friends) {
       this.friendMode = opts.friends.mode;
@@ -128,8 +134,9 @@ export class World {
   spawnEnemy(arch: string, side: 'left' | 'right'): Entity {
     const def = ENEMY_DEFS[arch];
     const x = side === 'right' ? this.cameraX + VIEW_W + 40 + this.rng.range(0, 60) : this.cameraX - 40 - this.rng.range(0, 60);
-    const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * levelDef(this.level).hpMul));
+    const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * levelDef(this.level).hpMul * this.diff.enemyHp));
     e.facing = side === 'right' ? -1 : 1;
+    e.dmgMul = this.diff.enemyDmg;
     e.guard = !!def.guard;
     e.cooldown = 75; // sizes the player up for a beat before the first swing
     this.entities.push(e);
@@ -139,9 +146,10 @@ export class World {
   spawnBoss(arch: string, x: number, y: number): Entity {
     const def = BOSS_DEFS[arch];
     const hp = arch === 'ultra-signal' ? def.hp : BOSS_HP_BASE + BOSS_HP_PER_LEVEL * this.level;
-    const scaledHp = Math.round(hp * (this.playerCount() > 1 ? 1.6 : 1));
+    const scaledHp = Math.round(hp * (this.playerCount() > 1 ? 1.6 : 1) * this.diff.bossHp);
     const e = makeEntity(this.id(), 'boss', arch, x, y, scaledHp);
     e.facing = -1;
+    e.dmgMul = this.diff.enemyDmg;
     this.entities.push(e);
     this.bossDefeated = false;
     if (arch === 'ultra-signal') this.buildUltraDeck(e);
@@ -151,8 +159,8 @@ export class World {
 
   spawnEcho(arch: string, x: number, y: number, scale: number, hpFrac: number, tint: number): Entity {
     const def = BOSS_DEFS[arch];
-    const e = makeEntity(this.id(), 'echo', arch, x, y, Math.round(def.hp * hpFrac));
-    e.scale = scale; e.tint = tint; e.facing = -1;
+    const e = makeEntity(this.id(), 'echo', arch, x, y, Math.round(def.hp * hpFrac * this.diff.bossHp));
+    e.scale = scale; e.tint = tint; e.facing = -1; e.dmgMul = this.diff.enemyDmg;
     this.entities.push(e);
     return e;
   }
@@ -218,7 +226,7 @@ export class World {
   continueRun(): boolean {
     if (!this.done || this.result !== 'gameover') return false;
     this.done = false; this.result = null;
-    this.lives = [2, 2];
+    this.lives = [this.diff.lives, this.diff.lives];
     for (const h of this.heroes()) {
       h.hp = h.maxHp; h.meter = 0; h.invuln = 120; h.hitStreak = 0; h.regenLock = 0;
       h.x = this.cameraX + VISIBLE_X0 + 100 + h.slot * 40; h.y = LANE_H * 0.5; h.z = 0; h.vz = 0; h.vx = 0;
@@ -278,7 +286,7 @@ export class World {
     }
     // A slow trickle of HP, and only after five seconds without taking a hit — enough to recover
     // between waves, never enough to shrug off a fight. Losing has to stay possible.
-    for (const h of this.heroes()) if (h.regenLock === 0 && (h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0004);
+    for (const h of this.heroes()) if (h.regenLock === 0 && (h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0004 * this.diff.regen);
     stepGuests(this);
 
     for (const e of this.entities) {

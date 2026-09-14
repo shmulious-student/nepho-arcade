@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { catalogLevel } from '../../shared/catalog';
 import { getLang, setLang, langLabel } from '../../shared/lang';
+import { getDifficulty, setDifficulty } from '../../shared/difficultySetting';
+import { DIFFICULTIES, DIFFICULTY_DEFS } from '../../sim/difficulty';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES } from '../../sim/frameData';
 import { ACTIVE_HEROES as HERO_IDS } from '../../sim/roster';
@@ -169,6 +171,13 @@ export class LobbyScene extends Phaser.Scene {
 
     const start = this.makeButton(VIEW_W / 2, botY + 22, 300, 46, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
     start.text.setFontSize(16).setFontStyle('bold');
+    // difficulty, beside START: EASY is the game as tuned, each step up is a harder campaign
+    this.add.text(VIEW_W / 2 - 160, botY + 2, 'DIFFICULTY', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' }).setOrigin(1, 0);
+    const diffBtn = this.makeButton(VIEW_W / 2 - 160 - 132, botY + 22, 132, 26, '', () => {
+      const next = DIFFICULTIES[(DIFFICULTIES.indexOf(getDifficulty()) + 1) % DIFFICULTIES.length];
+      setDifficulty(next); diffBtn.text.setText(DIFFICULTY_DEFS[next].name);
+    });
+    diffBtn.text.setText(DIFFICULTY_DEFS[getDifficulty()].name);
 
     this.cycleFriend(0);
     this.highlightCard();
@@ -399,11 +408,11 @@ export class LobbyScene extends Phaser.Scene {
     }
     if (this.netMode === 'host') {
       const session = this.registry.get('pendingHostSession');
-      session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes, friends);
-      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, friends });
+      session.start(Math.floor(Math.random() * 1e9), this.startLevel, heroes, friends, undefined, getDifficulty());
+      this.scene.start('Game', { mode: 'host', session, level: this.startLevel, heroes, friends, difficulty: getDifficulty() });
       return;
     }
-    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, seed: Math.floor(Math.random() * 1e9), friends });
+    this.scene.start('Game', { mode: 'local', level: this.startLevel, heroes, seed: Math.floor(Math.random() * 1e9), friends, difficulty: getDifficulty() });
   }
 }
 
