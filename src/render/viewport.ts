@@ -25,15 +25,36 @@ export function gameWidth(): number {
  * manager's 'resize' then lets every scene re-anchor its UI, see onViewportResize) or, when the width
  * is already right, just re-fits it. iOS reports the post-rotation size late, so a turn re-checks. */
 export function keepCanvasFitted(game: Phaser.Game): void {
+  // A phone that opened the page upright (behind the "turn your phone" card) reloads the page the
+  // first time it turns to landscape, so the game boots fresh at the size it will be played at —
+  // nothing has been played yet, so nothing is lost. Later turns (mid-game) only re-size.
+  const vv = window.visualViewport;
+  const touch = navigator.maxTouchPoints > 0 || matchMedia('(pointer: coarse)').matches;
+  const openedUpright = touch && (vv?.width ?? innerWidth) < (vv?.height ?? innerHeight);
+  let reloading = false;
   const sync = () => {
+    if (openedUpright && !reloading && (vv?.width ?? innerWidth) > (vv?.height ?? innerHeight)) { reloading = true; location.reload(); return; }
     const w = gameWidth();
-    if (w !== game.scale.gameSize.width) game.scale.resize(w, VIEW_H); else game.scale.refresh();
+    if (w !== game.scale.gameSize.width) {
+      // ScaleManager.resize() keeps the display box's old aspect ratio in FIT mode (only setGameSize
+      // updates it), so the canvas would fit to the previous shape; set it before the fit
+      game.scale.displaySize.setAspectRatio(w / VIEW_H);
+      game.scale.resize(w, VIEW_H);
+    } else game.scale.refresh();
+    // the parent box can settle a beat after the viewport does; fit again once it has
+    setTimeout(() => game.scale.refresh(), 150); setTimeout(() => game.scale.refresh(), 600);
   };
   window.visualViewport?.addEventListener('resize', sync);
   window.addEventListener('resize', sync);
   window.addEventListener('orientationchange', () => { sync(); setTimeout(sync, 250); setTimeout(sync, 800); });
   const so = (screen as any).orientation;
   so?.addEventListener?.('change', () => { sync(); setTimeout(sync, 250); });
+  // and a poll for the browsers (and emulators) that change the viewport without firing anything
+  let seenW = vv?.width ?? innerWidth, seenH = vv?.height ?? innerHeight;
+  setInterval(() => {
+    const w = vv?.width ?? innerWidth, h = vv?.height ?? innerHeight;
+    if (w !== seenW || h !== seenH) { seenW = w; seenH = h; sync(); }
+  }, 400);
 }
 
 /** Runs `layout` now and again on every canvas resize until the scene shuts down. */
