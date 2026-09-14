@@ -1,7 +1,7 @@
 {
- "version": "2430e7df72eb9617",
- "derived": "derived:2026-09-13T23:55:18.855Z:c608d1c1",
- "generatedAt": "2026-09-13T23:58:48.121Z",
+ "version": "ff400de6adaeaa21",
+ "derived": "derived:2026-09-14T00:05:22.629Z:c608d1c1",
+ "generatedAt": "2026-09-14T00:08:46.958Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -28,8 +28,8 @@
    "sha256": "6a01039c98cce70f8682b035ffef7f76460bcec699558d3e797af16cb0dfa616"
   },
   "catalog.json": {
-   "size": 71364,
-   "sha256": "0c0a59da844a139afa07fcaa213b335d67bd5e59b0de76644264313f08cf750a"
+   "size": 71379,
+   "sha256": "223234ba0266e05fb4c466603bf31cde079633a8dc92d97a8a979ab425ea13d3"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -332,16 +332,16 @@
    "sha256": "f04bea273d3759430e16dc969b51d1958ae40aed3cf124fdb573d7775cd3976d"
   },
   "levels/bg-07.webp": {
-   "size": 58562,
-   "sha256": "fa4bb615b79cdf533388b4a557b4ade84ef28876ce105e129c57d3433f8cde22"
+   "size": 255864,
+   "sha256": "bac68538a4e3fbc751915c90a3bb9386f3998e11d3321b5439b822b4dcbf4e91"
   },
   "levels/bg-08.webp": {
-   "size": 63148,
-   "sha256": "d534491ee46f3506113239f839744cb5d9fa75458c74a36b9551b26ac8655f2f"
+   "size": 132534,
+   "sha256": "534e060250a60ee3926442c67d6db7852409489bde4ed1475ff2ac14a50fd6de"
   },
   "levels/bg-09.webp": {
-   "size": 77696,
-   "sha256": "57bf45f58000f2ccf73453883bde39e763e9f69774d284ac2f09e6f2657dcfc5"
+   "size": 148816,
+   "sha256": "82809ce2244e8e7ce9468080302b6174c999b2dd8e3f47c761e18700cc4d29a9"
   },
   "levels/bg-10.webp": {
    "size": 97436,

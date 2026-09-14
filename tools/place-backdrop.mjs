@@ -1,5 +1,5 @@
 // Accepts a delivered level backdrop:
-//   node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%]
+//   node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%] [--trim-bottom=0%]
 // The plate is 4:1 (2800×700) and fills ART_BAND (src/sim/types.ts). The image is scaled to 700 tall
 // and NEVER cropped in height (the fighting lane is the bottom third — cropping it is the one thing
 // that must not happen). A 4:1 image fills the plate; a narrower one (two 16:9 or 21:9 halves come
@@ -17,6 +17,8 @@
 // is filled by tiling the last 64 rows of the pavement (flipped every other tile so nothing seams);
 // shifted down, the exposed top is the top row stretched (sky). Measure it on the image, do not guess:
 // the prompts ask for 58% but models tend to put the ground at 65–70%.
+// --trim-bottom=<percent> cuts that much off the bottom of the delivered image first — for plates
+// whose bottom edge is a lip, a border or a fade that must not be tiled up into the lane.
 import sharp from 'sharp';
 import { mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -30,9 +32,10 @@ const PX_PER_WORLD = PLATE.w / 1400, BAND_X0 = 180, BAND_Y0 = 178, VISIBLE_X0 = 
 const FLOOR_ROW = Math.round((FLOOR_TOP - BAND_Y0) * PX_PER_WORLD); // 404
 const argv = process.argv.slice(2), flags = argv.filter((a) => a.startsWith('--')), [levelArg, image] = argv.filter((a) => !a.startsWith('--'));
 const floorArg = (flags.find((a) => a.startsWith('--floor=')) || '--floor=58%').slice(8);
+const trimBottom = parseFloat((flags.find((a) => a.startsWith('--trim-bottom=')) || '--trim-bottom=0').slice(14)) || 0;
 const level = Number(levelArg);
 if (!(level >= 1 && level <= 10) || !image || !existsSync(image)) {
-  console.error('usage: node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%]');
+  console.error('usage: node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%] [--trim-bottom=0%]');
   process.exit(1);
 }
 const nn = String(level).padStart(2, '0');
@@ -43,8 +46,13 @@ if (existsSync(out)) {
   mkdirSync(bk, { recursive: true });
   copyFileSync(out, join(bk, `level-${nn}-${Date.now()}.png`));
 }
-const src = sharp(image).rotate().removeAlpha();
-const meta = await src.metadata();
+let src = sharp(image).rotate().removeAlpha();
+let meta = await src.metadata();
+if (trimBottom > 0) {
+  const keep = Math.round(meta.height * (1 - trimBottom / 100));
+  src = sharp(await src.extract({ left: 0, top: 0, width: meta.width, height: keep }).png().toBuffer());
+  meta = await src.metadata();
+}
 let fitted = await src.resize({ height: PLATE.h }).png().toBuffer();
 const fw = Math.round(meta.width * PLATE.h / meta.height);
 // align the pavement's far edge to the lane

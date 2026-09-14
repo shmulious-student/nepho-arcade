@@ -152,3 +152,6 @@
 01:55 backdrop level 4 (Midjourney, sant-cugat.png) → ACCEPTED, --floor=88% (large lift; reroll candidate)
 02:00 backdrop level 5 (Midjourney, hatikva-school.png) → ACCEPTED, --floor=83%
 02:00 backdrop level 6 (Midjourney, capoeira.png) → ACCEPTED, --floor=71%
+02:05 backdrop level 7 (Midjourney, basketbass-gym.png) → ACCEPTED, --floor=63%
+02:05 backdrop level 8 (Midjourney, theater.png) → ACCEPTED, --trim-bottom=6% --floor=83%
+02:05 backdrop level 9 (Midjourney, candy-factory.png) → ACCEPTED, --floor=67%

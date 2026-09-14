@@ -71,3 +71,7 @@ full width.
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-08.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- 2026-09-14 02:05 — Midjourney V8.2 plate `docs/backdrops_midjourney/theater.png` accepted; the stage lip at the bottom edge was tiling into the lane, so `--trim-bottom=6% --floor=83%`.

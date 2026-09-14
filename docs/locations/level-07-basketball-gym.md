@@ -70,3 +70,7 @@ the bleachers are drawn too small. Redo it in daylight with the layout above.
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-07.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- 2026-09-14 02:05 — Midjourney V8.2 plate `docs/backdrops_midjourney/basketbass-gym.png` accepted; sideline at 63% → `--floor=63%`. Scoreboard shows digits — tolerated.

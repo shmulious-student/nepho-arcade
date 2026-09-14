@@ -72,3 +72,7 @@ pallets, safety stripes.
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-09.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- 2026-09-14 02:05 — Midjourney V8.2 plate `docs/backdrops_midjourney/candy-factory.png` accepted; safety stripe at 67% → `--floor=67%`.
