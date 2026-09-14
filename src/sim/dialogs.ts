@@ -291,7 +291,8 @@ export const DIALOGS: Record<string, LevelDialogs> = {
       L('pitz', 'Mrrp. Footprints end here. Log-smell. Turrón-smell. Presents. Lots.', 'מררפ. העקבות נגמרות פה. ריח של בול עץ. ריח של טורון. מתנות. הרבה.'),
       L('omri', 'Caga Tió! The Christmas log from Catalunya. He took every present from Savta\'s factory and he is grinning about it.', 'קאגה טיו! בול העץ של חג המולד מקטלוניה. הוא לקח כל מתנה מהמפעל של סבתא והוא מחייך על זה.'),
       L('omri', 'You know how it works here: you hit the Tió and he... gives the presents back. From behind. Watch where you stand 😉', 'אתם יודעים איך זה עובד פה: מרביצים לטיו והוא... מחזיר את המתנות. מאחור. תיזהרו איפה אתם עומדים 😉'),
-      L('omri', 'Four waves of his helpers first. Last level, everyone is here. Let\'s go!', 'קודם ארבעה גלים של העוזרים שלו. שלב אחרון, כולם פה. קדימה!'),
+      L('omri', 'And he brought friends: every boss we beat is back, one after the other, before we reach the log.', 'והוא הביא חברים: כל בוס שניצחנו חוזר, אחד אחרי השני, לפני שנגיע לבול העץ.'),
+      L('omri', 'Last level, everyone is here. Let\'s go!', 'שלב אחרון, כולם פה. קדימה!'),
     ] },
     afterWave: { 2: { hero: 'savta-orly', join: true, lines: [
       L('savta-orly', 'Nobody takes presents from my factory. I brought the big pot. Move over, sweethearts, Savta is joining.', 'אף אחד לא לוקח מתנות מהמפעל שלי. הבאתי את הסיר הגדול. זוזו, מתוקים, סבתא מצטרפת.'),

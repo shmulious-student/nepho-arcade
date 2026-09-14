@@ -147,7 +147,8 @@ describe('readyRoster', () => {
     const levels = composeLevels(r);
     const four = ['abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus'];
     expect(levels.map((l) => l.boss)).toEqual(Array.from({ length: LEVEL_COUNT }, (_, i) => four[i % 4]));
-    for (const l of levels) for (const w of [...l.waves, l.bonusWave]) for (const s of w.spawns) expect(['bio-brute', 'void-demon']).toContain(s.arch);
+    // only ready enemies fill the waves; a ready boss may also stand in the finale's gauntlet
+    for (const l of levels) for (const w of [...l.waves, l.bonusWave]) for (const s of w.spawns) expect(['bio-brute', 'void-demon', ...four]).toContain(s.arch);
     expect(heroPool(r).heroes).toEqual(['eviatar', 'omri']);
   });
   it('keeps the default bosses when no boss is ready', () => {

@@ -32,9 +32,11 @@ export const LEVELS: LevelDef[] = [
   { index: 8, id: 'catalunya', boss: 'the-null', hpMul: 1.2, waves: [W(30, ['punk-b', 2], ['gold-sorceress', 1]), W(34, ['bio-brute', 1], ['gold-sorceress', 1], ['punk-b', 1]), W(40, ['bio-brute', 1], ['gold-sorceress', 2], ['punk-b', 2])], bonusWave: W(12, ['punk-b', 1]) },
   { index: 9, id: 'theater', boss: 'vault-mother', hpMul: 1.25, waves: [W(32, ['punk', 2], ['gold-sorceress', 1]), W(36, ['void-demon', 1], ['punk', 2], ['gold-sorceress', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['punk', 2])], bonusWave: W(14, ['punk', 1]) },
   { index: 10, id: 'candy-factory', boss: 'ultra-signal', hpMul: 1.3, waves: [W(26, ['punk-b', 2], ['rainbow-oracle', 1]), W(30, ['gold-sorceress', 1], ['punk-b', 2]), W(34, ['bio-brute', 1], ['rainbow-oracle', 1], ['punk-b', 1]), W(38, ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1], ['punk-b', 1])], bonusWave: W(12, ['punk-b', 1]) },
-  // Level 11 — Caga Tió's lair (owner, 2026-09-14): the finale after the factory. The backdrop is
-  // still to come (docs/locations/level-11-tio-lair.md); until then the build ships a placeholder.
-  { index: 11, id: 'tio-lair', boss: 'caga-tio', hpMul: 1.35, waves: [W(28, ['punk-b', 2], ['gold-sorceress', 1]), W(32, ['bio-brute', 1], ['rainbow-oracle', 1], ['punk-b', 1]), W(36, ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['punk-b', 1])], bonusWave: W(12, ['punk-b', 1]) },
+  // Level 11 — Caga Tió's lair (owner, 2026-09-14): the finale after the factory. The gauntlet: every
+  // boss of levels 1–10 comes back as a wave enemy (a smaller, weaker copy — World.spawnWaveBoss) in
+  // campaign order, then Caga Tió himself. The backdrop is still to come
+  // (docs/locations/level-11-tio-lair.md); until then the build ships a placeholder.
+  { index: 11, id: 'tio-lair', boss: 'caga-tio', hpMul: 1.35, waves: [W(36, ['ferryman', 1], ['monk-zero', 1]), W(40, ['kilnheart', 1], ['market-king', 1], ['prism-queen', 1]), W(40, ['railmaw', 1], ['crown-runner', 1], ['the-null', 1]), W(44, ['vault-mother', 1], ['ultra-signal', 1])], bonusWave: W(12, ['punk-b', 1]) },
 ];
 
 // The campaign the sim actually runs. It starts as LEVELS and is replaced by applyRoster() when a

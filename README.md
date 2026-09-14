@@ -145,7 +145,8 @@ characters still on legacy art each have a ready-to-run prompt file in `docs/pro
 ## Campaign order
 
 `src/sim/levels.ts` is the play order (1 Rishon LeZion, 2 Refael Eitan Street, 3 Capoeira gym, 4 Sant
-Cugat, 5 Barcelona, 6 Basketball gym, 7 Hatikva School, 8 Catalunya, 9 Theater, 10 Candy factory) with
+Cugat, 5 Barcelona, 6 Basketball gym, 7 Hatikva School, 8 Catalunya, 9 Theater, 10 Candy factory, 11 Caga
+Tió's lair — the finale, where every earlier boss comes back as a wave enemy before Caga Tió) with
 each level's waves, enemy pool and boss. A level's art is looked up by its `id`, so the numbered files
 under `public/game/levels/` and `public/assets/generated/backdrops/level-NN.png` keep the numbering the
 art was delivered with (Barcelona is still `bg-03`) — `place-backdrop` takes that art number, the lobby,

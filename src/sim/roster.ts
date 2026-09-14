@@ -94,19 +94,22 @@ const mergeSpawns = (spawns: SpawnDef[]): SpawnDef[] => {
 /** Rebuilds one level's waves for the enemies the roster lets into it. Headcount and budgets are
  * kept: an archetype that is out is replaced in place, and a newcomer takes one slot of an existing
  * wave rather than adding bodies — the wave design (a couple at a time, never a mob) is tuned. */
-function composeWaves(level: LevelDef, pool: string[], warnings: string[]): { waves: WaveDef[]; bonusWave: WaveDef } {
+function composeWaves(level: LevelDef, pool: string[], bosses: string[], warnings: string[]): { waves: WaveDef[]; bonusWave: WaveDef } {
   const all = [...level.waves, level.bonusWave];
   if (!pool.length) {
     warnings.push(`level ${level.index}: no enemies enabled for it — keeping its default waves`);
     return { waves: level.waves, bonusWave: level.bonusWave };
   }
-  const present = new Set(all.flatMap((w) => w.spawns.map((s) => s.arch)));
+  const present = new Set(all.flatMap((w) => w.spawns.map((s) => s.arch)).filter((a) => !BOSS_DEFS[a]));
   const newcomers = pool.filter((id) => !present.has(id));
   let subIdx = 0;
   const substitute = () => (newcomers.length ? newcomers[subIdx++ % newcomers.length] : pool[subIdx++ % pool.length]);
   const placed = new Set<string>();
   const rebuilt = all.map((w) => ({ budget: w.budget, spawns: w.spawns.map((s) => {
-    const arch = pool.includes(s.arch) ? s.arch : substitute();
+    // a boss fielded as a wave enemy (the finale's gauntlet) is part of the level's design, not the
+    // pool: it stays as long as the roster has that boss enabled, otherwise the pool fills the slot
+    if (BOSS_DEFS[s.arch] && bosses.includes(s.arch)) return { arch: s.arch, n: s.n };
+    const arch = !BOSS_DEFS[s.arch] && pool.includes(s.arch) ? s.arch : substitute();
     placed.add(arch);
     return { arch, n: s.n };
   }) }));
@@ -138,7 +141,7 @@ export function composeLevels(roster: Roster, warnings: string[] = []): LevelDef
       warnings.push(`level ${level.index}: no boss assigned and ${level.boss} is disabled — it guards the level anyway`);
     }
     const pool = enemies.filter((id) => chars[id].levels.includes(level.index));
-    return { ...level, boss, ...composeWaves(level, pool, warnings) };
+    return { ...level, boss, ...composeWaves(level, pool, bosses, warnings) };
   });
 }
 

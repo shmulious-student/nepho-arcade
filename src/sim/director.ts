@@ -5,6 +5,7 @@
 import { levelDef, ENTRY_TICKS, CLEAR_TICKS, CLEAR_DIALOG_AT, levelWidth, segmentX, type WaveDef } from './levels';
 import { VIEW_W, LANE_H } from './types';
 import { tryDialog } from './dialog';
+import { BOSS_DEFS } from './bosses';
 import type { World } from './world';
 
 export interface DirectorState {
@@ -29,7 +30,8 @@ function queueWave(w: World, d: DirectorState, wave: WaveDef): void {
   const mul = w.playerCount() > 1 ? 1.5 : 1;
   let i = 0;
   const list: string[] = [];
-  for (const s of wave.spawns) for (let k = 0; k < Math.ceil(s.n * mul); k++) list.push(s.arch);
+  // co-op fields half again as many — except bosses used as wave enemies, which come one each
+  for (const s of wave.spawns) for (let k = 0; k < (BOSS_DEFS[s.arch] ? s.n : Math.ceil(s.n * mul)); k++) list.push(s.arch);
   // interleave archetypes so the wave feels mixed
   // Spawns trickle in, mostly from the front, with a beat between them: the wave builds up rather
   // than storming the players the moment it starts.

@@ -19,6 +19,9 @@ import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
 import { LANE_H, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
+/** Hp a boss keeps when it is fielded as a wave enemy. */
+export const WAVE_BOSS_HP = 0.16;
+
 export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number]; /** false: no dialog scenes (unit tests of other mechanics) */ dialogs?: boolean; difficulty?: Difficulty }
 
 export class World {
@@ -109,7 +112,8 @@ export class World {
   playerCount(): number { return this.players.filter(Boolean).length; }
   heroes(): Entity[] { return this.players.filter((p): p is Entity => !!p); }
   boss(): Entity | undefined { return this.entities.find((e) => e.kind === 'boss'); }
-  livingEnemies(): number { return this.entities.filter((e) => e.kind === 'enemy' && !e.dead).length; }
+  /** Wave enemies still up — including bosses fielded as wave enemies (echoes, see spawnEnemy). */
+  livingEnemies(): number { return this.entities.filter((e) => (e.kind === 'enemy' || e.kind === 'echo') && !e.dead).length; }
   setPhase(p: LevelPhase): void { this.phase = p; this.director.phaseTick = 0; }
   addScore(slot: number, v: number): void { if (slot >= 0) this.score[slot] += v; }
   emit(ev: SimEvent): void { this.events.push(ev); }
@@ -132,6 +136,7 @@ export class World {
   releaseAttackToken(id: number): void { this.attackTokens.delete(id); }
 
   spawnEnemy(arch: string, side: 'left' | 'right'): Entity {
+    if (BOSS_DEFS[arch]) return this.spawnWaveBoss(arch, side);
     const def = ENEMY_DEFS[arch];
     const x = side === 'right' ? this.cameraX + VIEW_W + 40 + this.rng.range(0, 60) : this.cameraX - 40 - this.rng.range(0, 60);
     const e = makeEntity(this.id(), 'enemy', arch, x, this.rng.range(10, LANE_H - 10), Math.round(def.hp * levelDef(this.level).hpMul * this.diff.enemyHp));
@@ -139,6 +144,22 @@ export class World {
     e.dmgMul = this.diff.enemyDmg;
     e.guard = !!def.guard;
     e.cooldown = 75; // sizes the player up for a beat before the first swing
+    this.entities.push(e);
+    return e;
+  }
+
+  /** A boss fielded as a wave enemy (the finale's gauntlet): a smaller copy with a fraction of its
+   * hp that fights with the boss's own patterns, counted and cleared like any wave enemy — an echo,
+   * the same kind Crown Runner splits into, so the HUD's named boss bar stays for the real boss. */
+  spawnWaveBoss(arch: string, side: 'left' | 'right'): Entity {
+    const def = BOSS_DEFS[arch];
+    const x = side === 'right' ? this.cameraX + VIEW_W + 40 + this.rng.range(0, 60) : this.cameraX - 40 - this.rng.range(0, 60);
+    const hp = Math.round(def.hp * WAVE_BOSS_HP * levelDef(this.level).hpMul * this.diff.enemyHp);
+    const e = makeEntity(this.id(), 'echo', arch, x, this.rng.range(10, LANE_H - 10), hp);
+    e.facing = side === 'right' ? -1 : 1;
+    e.scale = 1.1; // the renderer draws echoes at 0.72 of the boss: this lands between an enemy and the boss
+    e.dmgMul = this.diff.enemyDmg;
+    e.cooldown = 75;
     this.entities.push(e);
     return e;
   }
