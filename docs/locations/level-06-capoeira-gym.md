@@ -71,3 +71,7 @@ A wooden-floor hall with a capoeira mural, drums and a Brazilian flag — alread
 
 Attach to the request: the reference photos listed above and the current plate `public/game/levels/bg-06.webp` (for the
 layout: "keep this composition, replace the place with the real one").
+
+## Log
+
+- 2026-09-14 02:00 — Midjourney V8.2 plate `docs/backdrops_midjourney/capoeira.png` accepted; bench line at 71% → `--floor=71%`.

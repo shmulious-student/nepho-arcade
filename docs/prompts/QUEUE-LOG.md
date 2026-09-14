@@ -150,3 +150,5 @@
 01:50 backdrop level 2 (Midjourney, petah_tikva.png) → ACCEPTED, --floor=78%
 01:55 backdrop level 3 (Midjourney, barcelona.png) → ACCEPTED, --floor=80%
 01:55 backdrop level 4 (Midjourney, sant-cugat.png) → ACCEPTED, --floor=88% (large lift; reroll candidate)
+02:00 backdrop level 5 (Midjourney, hatikva-school.png) → ACCEPTED, --floor=83%
+02:00 backdrop level 6 (Midjourney, capoeira.png) → ACCEPTED, --floor=71%

@@ -91,3 +91,7 @@ layout: "keep this composition, replace the place with the real one").
 
 - attempt count: 1 (gen-left ok, gen-right ok, seam diff 32.6). ACCEPTED.
 
+
+## Log
+
+- 2026-09-14 02:00 — Midjourney V8.2 plate `docs/backdrops_midjourney/hatikva-school.png` accepted; court back line / wall base at 83% → `--floor=83%`.
