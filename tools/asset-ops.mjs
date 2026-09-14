@@ -511,10 +511,19 @@ export function unbakeCheckerAuto(img) {
   }
   const out = cloneImage(img);
   for (let i = 0; i < n; i++) { const l = labels[i]; if (l !== -1 && remove[l]) out.data[i * 4 + 3] = 0; }
-  // what is left of the checker sits where a glow or a thin line bridged it to the figure: any
-  // remaining pixel that is exactly a checker grey is checker, connected or not, and a small grey
-  // crumb left behind is checker too
-  for (let i = 0; i < n; i++) if (out.data[i * 4 + 3] > 0 && cand[i]) out.data[i * 4 + 3] = 0;
+  // what is left of the checker sits where a glow or a thin line bridged it to the figure — but only
+  // the remnants that TOUCH the cleared background are checker. A patch of checker-grey that is
+  // sealed inside the figure (a tooth, an eye highlight, a shirt fold, a beret gleam) is art:
+  // clearing it punched holes through Caga Tió's face (2026-09-14).
+  {
+    const rem = components(width, height, (i) => out.data[i * 4 + 3] > 0 && cand[i] > 0);
+    const touches = new Uint8Array(rem.comps.length);
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const i = y * width + x, l = rem.labels[i]; if (l === -1 || touches[l]) continue;
+      if ((x > 0 && out.data[(i - 1) * 4 + 3] === 0) || (x < width - 1 && out.data[(i + 1) * 4 + 3] === 0) || (y > 0 && out.data[(i - width) * 4 + 3] === 0) || (y < height - 1 && out.data[(i + width) * 4 + 3] === 0)) touches[l] = 1;
+    }
+    for (let i = 0; i < n; i++) { const l = rem.labels[i]; if (l !== -1 && touches[l]) out.data[i * 4 + 3] = 0; }
+  }
   const left = components(width, height, (i) => out.data[i * 4 + 3] > A_T);
   for (const c of left.comps) {
     if (c.size > 400) continue;
