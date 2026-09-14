@@ -59,16 +59,17 @@ export class Backdrop {
     const accent = Phaser.Display.Color.HexStringToColor(this.level.accent).color;
     const cx = VIEW_W / 2, cy = VIEW_H * 0.42;
     const veil = this.scene.add.rectangle(-uiOffsetX(this.scene), 0, this.scene.scale.width, VIEW_H, 0x050711, 0.55).setOrigin(0, 0); // the whole canvas
-    const band = this.scene.add.rectangle(cx, cy, VIEW_W, 150, 0x0b1730, 0.92).setOrigin(0.5);
-    const rule1 = this.scene.add.rectangle(cx, cy - 75, VIEW_W, 3, accent).setOrigin(0.5);
-    const rule2 = this.scene.add.rectangle(cx, cy + 75, VIEW_W, 3, accent).setOrigin(0.5);
+    const bw = this.scene.scale.width; // edge to edge
+    const band = this.scene.add.rectangle(cx, cy, bw, 150, 0x0b1730, 0.92).setOrigin(0.5);
+    const rule1 = this.scene.add.rectangle(cx, cy - 75, bw, 3, accent).setOrigin(0.5);
+    const rule2 = this.scene.add.rectangle(cx, cy + 75, bw, 3, accent).setOrigin(0.5);
     // the language's name is the big one, the other sits under it
     const big = isHebrew() ? this.level.nameHe : this.level.name, small = isHebrew() ? this.level.name : this.level.nameHe;
     const kicker = this.scene.add.text(cx, cy - 50, `${t('level')} ${this.campaignIndex}${this.difficultyLabel ? ` · ${this.difficultyLabel}` : ''}`, { fontFamily: uiFont(), fontSize: uiSize(14), color: Phaser.Display.Color.IntegerToColor(accent).rgba, letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const name = this.scene.add.text(cx, cy - 12, big, { fontFamily: isHebrew() ? 'Arial, sans-serif' : 'Arial Black, Arial, sans-serif', fontSize: uiSize(40), color: '#fff8d6', fontStyle: 'bold', stroke: '#10182b', strokeThickness: 6 }).setOrigin(0.5);
     const he = this.scene.add.text(cx, cy + 36, small, { fontFamily: 'Arial, sans-serif', fontSize: uiSize(28), color: '#fff8d6', stroke: '#10182b', strokeThickness: 5 }).setOrigin(0.5);
     const ready = this.scene.add.text(cx, cy + 108, t('getReady'), { fontFamily: uiFont(), fontSize: uiSize(16), color: '#f3f4e8', letterSpacing: ls(4) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
-    this.entry = this.scene.add.container(0, 0, [veil, band, rule1, rule2, kicker, name, he, ready]).setDepth(20000).setScrollFactor(0);
+    this.entry = this.scene.add.container(0, 0, [veil, band, rule1, rule2, kicker, name, he, ready]).setDepth(20000);
     // slide the band in, pulse the prompt
     band.setScale(1, 0); rule1.setAlpha(0); rule2.setAlpha(0); name.setAlpha(0); he.setAlpha(0); kicker.setAlpha(0);
     this.scene.tweens.add({ targets: band, scaleY: 1, duration: 260, ease: 'Back.Out' });

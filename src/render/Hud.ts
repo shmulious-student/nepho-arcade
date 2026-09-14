@@ -5,6 +5,7 @@ import { HEROES } from '../sim/frameData';
 import type { FriendSetup } from '../sim/friends';
 import type { HeroId } from '../sim/types';
 import { VIEW_W, VIEW_H } from '../sim/types';
+import { uiLeft, uiRight } from './viewport';
 import { BOSS_DEFS } from '../sim/bosses';
 import { BOSS_NAMES_HE } from '../sim/dialogs';
 import { t, ls, isHebrew, uiFont, uiSize } from '../shared/i18n';
@@ -39,13 +40,13 @@ export class Hud {
   constructor(scene: Phaser.Scene, heroes: [HeroId, HeroId | null], friends?: FriendSetup, touch = false) {
     this.touch = touch;
     this.scene = scene;
-    this.container = scene.add.container(0, 0).setDepth(30000).setScrollFactor(0);
+    this.container = scene.add.container(0, 0).setDepth(30000);
     for (let slot = 0; slot < 2; slot++) {
       const hid = heroes[slot];
       if (!hid) continue;
       const def = HEROES[hid];
       const right = slot === 1;
-      const x = right ? VIEW_W - 14 - (BAR_W + 62) : 14;
+      const x = right ? uiRight(scene) - 14 - (BAR_W + 62) : uiLeft(scene) + 14; // the screen's corners
       const root = scene.add.container(x, 10);
       const panel = scene.add.rectangle(0, 0, BAR_W + 62, 58, 0x0b1730, 0.72).setOrigin(0, 0).setStrokeStyle(1, 0x344861);
       // portrait chip: the hero's card art
@@ -74,7 +75,7 @@ export class Hud {
     }
     this.timerText = scene.add.text(VIEW_W / 2, 10, '0:00', { fontFamily: uiFont(), fontSize: uiSize(20), color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5, 0);
     this.waveText = scene.add.text(VIEW_W / 2, 34, '', { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9', stroke: '#0b1730', strokeThickness: 3 }).setOrigin(0.5, 0);
-    this.goArrow = scene.add.text(VIEW_W - 80, VIEW_H * 0.5, t('go'), { fontFamily: uiFont(), fontSize: uiSize(34), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 6 }).setOrigin(0.5).setVisible(false);
+    this.goArrow = scene.add.text(uiRight(scene) - 80, VIEW_H * 0.5, t('go'), { fontFamily: uiFont(), fontSize: uiSize(34), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 6 }).setOrigin(0.5).setVisible(false);
     this.container.add([this.timerText, this.waveText, this.goArrow]);
   }
 
@@ -125,16 +126,16 @@ export class Hud {
     if (s.phase === 'boss' && this.lastWave !== 99) { this.lastWave = 99; this.banner(t('boss'), bossName(s.bossId)); }
     if (s.phase === 'clear' && this.lastWave !== 100) { this.lastWave = 100; this.banner(t('bossDown'), s.level >= LEVEL_COUNT ? t('youFoundThem') : t('stageClear')); }
     this.goArrow.setVisible(s.go);
-    if (s.go) { this.goArrow.setAlpha(0.6 + 0.4 * Math.sin(s.tick / 6)); this.goArrow.setX(VIEW_W - 80 + 6 * Math.sin(s.tick / 5)); }
+    if (s.go) { this.goArrow.setAlpha(0.6 + 0.4 * Math.sin(s.tick / 6)); this.goArrow.setX(uiRight(this.scene) - 80 + 6 * Math.sin(s.tick / 5)); }
   }
 
   /** A big centre-screen banner that slides in and fades — wave starts, the boss, level clear. */
   banner(title: string, subtitle = ''): void {
     const cx = VIEW_W / 2, cy = VIEW_H * 0.36;
-    const band = this.scene.add.rectangle(cx, cy, VIEW_W, 64, 0x0b1730, 0.8).setOrigin(0.5).setScale(1, 0);
+    const band = this.scene.add.rectangle(cx, cy, this.scene.scale.width, 64, 0x0b1730, 0.8).setOrigin(0.5).setScale(1, 0); // edge to edge
     const t = this.scene.add.text(cx, cy - (subtitle ? 8 : 0), title, { fontFamily: uiFont(), fontSize: uiSize(30), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 6, letterSpacing: ls(4) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5).setAlpha(0);
     const sub = this.scene.add.text(cx, cy + 20, subtitle, { fontFamily: uiFont(), fontSize: uiSize(13), color: '#f3f4e8', stroke: '#0b1730', strokeThickness: 3 }).setOrigin(0.5).setAlpha(0);
-    const group = this.scene.add.container(0, 0, [band, t, sub]).setDepth(31000).setScrollFactor(0);
+    const group = this.scene.add.container(0, 0, [band, t, sub]).setDepth(31000);
     this.scene.tweens.add({ targets: band, scaleY: 1, duration: 180, ease: 'Back.Out' });
     this.scene.tweens.add({ targets: [t, sub], alpha: 1, duration: 200, delay: 120 });
     this.scene.tweens.add({ targets: group, alpha: 0, delay: 1500, duration: 400, onComplete: () => group.destroy() });

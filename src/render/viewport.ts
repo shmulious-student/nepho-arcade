@@ -16,6 +16,11 @@ export function gameWidth(): number {
  * this before comparing them with anything laid out in the frame. */
 export const uiOffsetX = (scene: Phaser.Scene): number => Math.round((scene.scale.width - VIEW_W) / 2);
 
+/** The screen's edges in frame coordinates — what corner-anchored UI (HUD cards, pause, the touch
+ * stick and cluster) hangs from, so it sits in the real corners of a wide phone screen. */
+export const uiLeft = (scene: Phaser.Scene): number => -uiOffsetX(scene);
+export const uiRight = (scene: Phaser.Scene): number => VIEW_W + uiOffsetX(scene);
+
 export function centreUiCamera(scene: Phaser.Scene): void {
   scene.cameras.main.setViewport(uiOffsetX(scene), 0, VIEW_W, VIEW_H);
 }

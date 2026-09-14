@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { t, uiFont } from '../shared/i18n';
 import { BTN, InputEdge, type InputFrame } from '../sim/input';
 import { VIEW_H, VIEW_W } from '../sim/types';
-import { uiOffsetX } from './viewport';
+import { uiLeft, uiOffsetX, uiRight } from './viewport';
 
 /** Touch layer, built on what the good mobile brawlers settled on (Dead Cells' port notes, SoR4's
  * mobile reviews): a floating stick that plants under the thumb; a few LARGE buttons with hit areas
@@ -42,11 +42,11 @@ export class TouchControls {
   constructor(scene: Phaser.Scene, withFriend = false) {
     this.scene = scene;
     this.offX = uiOffsetX(scene);
-    this.container = scene.add.container(0, 0).setDepth(40000).setScrollFactor(0);
+    this.container = scene.add.container(0, 0).setDepth(40000);
     const k = { S: 0.85, M: 1, L: 1.2 }[TouchControls.sizeSetting()];
 
     // floating stick, resting bottom-left when idle
-    const stickX = 100 * k, stickY = VIEW_H - 100 * k;
+    const stickX = uiLeft(scene) + 100 * k, stickY = VIEW_H - 100 * k; // the screen's own corners, not the frame's
     this.stickHome = { x: stickX, y: stickY };
     this.stickBase = scene.add.circle(stickX, stickY, 58 * k, 0x0b1730, 0.35).setStrokeStyle(2, 0x344861).setAlpha(0.6);
     this.stickNub = scene.add.circle(stickX, stickY, 26 * k, 0x14243d, 0.85).setStrokeStyle(2, 0x75f5dc);
@@ -55,7 +55,7 @@ export class TouchControls {
 
     // right cluster: three big buttons in an arc under the thumb, special above, block tucked away.
     // Hit radius is well beyond the drawn circle; gaps between centres exceed two hit radii.
-    const cx = VIEW_W - 120 * k, cy = VIEW_H - 92 * k, big = 36 * k, bigHit = 48 * k;
+    const cx = uiRight(scene) - 120 * k, cy = VIEW_H - 92 * k, big = 36 * k, bigHit = 48 * k;
     const defs: [number, number, number, string, number, number, number][] = [
       [cx - 92 * k, cy - 18 * k, BTN.HEAVY, t('btnHeavy'), 0xff9357, big, bigHit],
       [cx, cy + 12 * k, BTN.LIGHT, t('btnLight'), 0x75f5dc, big * 1.1, bigHit * 1.1],
@@ -73,7 +73,7 @@ export class TouchControls {
       this.buttons.push({ g, label: t, bit, colour, pointerId: null, x, y, r, hit });
     }
     // the friend call lives on the HUD card (top-left), not on the cluster
-    this.assistZone = { x: 14, y: 10, w: 290, h: 80, pointerId: null };
+    this.assistZone = { x: uiLeft(scene) + 14, y: 10, w: 290, h: 80, pointerId: null };
 
     scene.input.addPointer(4); // stick + up to four fingers on the buttons
     scene.input.on('pointerdown', this.onDown, this);
@@ -101,7 +101,7 @@ export class TouchControls {
     const z = this.assistZone, x = p.x - this.offX, y = p.y;
     if (x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) { z.pointerId = p.id; return; }
     const overButton = this.buttons.some((b) => Phaser.Math.Distance.Between(x, y, b.x, b.y) < b.hit);
-    if (!overButton && this.stickPointerId === null && x < VIEW_W * 0.42 && y > VIEW_H * 0.22) {
+    if (!overButton && this.stickPointerId === null && x < uiLeft(this.scene) + this.scene.scale.width * 0.42 && y > VIEW_H * 0.22) {
       // plant the stick under the thumb
       this.stickPointerId = p.id;
       this.stickOrigin = { x, y };

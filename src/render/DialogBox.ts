@@ -44,7 +44,7 @@ export class DialogBox {
     this.text = scene.add.text(0, 0, '', { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '19px', color: '#f3f4e8', lineSpacing: 5 });
     this.more = scene.add.text(0, 0, '▼', { fontFamily: 'Arial, sans-serif', fontSize: uiSize(14), color: '#ffcf5c' }).setOrigin(0.5);
     this.hint = scene.add.text(0, 0, '', { fontFamily: uiFont(), fontSize: uiSize(9), color: '#6b7a99', letterSpacing: 1 } as Phaser.Types.GameObjects.Text.TextStyle);
-    this.root = scene.add.container(0, 0, [this.frame, this.cardFrame, this.card, this.name, this.text, this.more, this.hint]).setDepth(40000).setScrollFactor(0).setVisible(false);
+    this.root = scene.add.container(0, 0, [this.frame, this.cardFrame, this.card, this.name, this.text, this.more, this.hint]).setDepth(40000).setVisible(false);
   }
 
   setLang(lang: Lang): void { this.lang = lang; this.pageKey = ''; }

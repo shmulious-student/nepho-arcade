@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { VIEW_W, VIEW_H } from '../sim/types';
+import { uiOffsetX } from './viewport';
 import { synth } from '../audio/synth';
 import { getLang, setLang, langLabel } from '../shared/lang';
 import { t, ls, uiFont, uiSize } from '../shared/i18n';
@@ -19,7 +20,7 @@ export class PauseMenu {
   constructor(scene: Phaser.Scene, actions: PauseActions, opts: { canPause: boolean; touch: boolean }) {
     this.scene = scene;
     const cx = VIEW_W / 2;
-    const veil = scene.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711, 0.72).setOrigin(0, 0).setInteractive(); // eats clicks underneath
+    const veil = scene.add.rectangle(-uiOffsetX(scene), 0, scene.scale.width, VIEW_H, 0x050711, 0.72).setOrigin(0, 0).setInteractive(); // the whole canvas; // eats clicks underneath
     const panel = scene.add.rectangle(cx, 262, 340, 350, 0x0b1730, 0.96).setStrokeStyle(2, 0x344861);
     const title = scene.add.text(cx, 128, t('paused'), { fontFamily: uiFont(), fontSize: uiSize(26), color: '#ffcf5c', fontStyle: 'bold', letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const items: Phaser.GameObjects.GameObject[] = [veil, panel, title];
@@ -43,7 +44,7 @@ export class PauseMenu {
     const langBtn = button(langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.setText(langLabel(getLang())); actions.language?.(); });
     const help = opts.touch ? t('helpTouch') : t('helpKeys');
     items.push(scene.add.text(cx, y + 12, help, { fontFamily: uiFont(), fontSize: uiSize(9), color: '#9bb1c9', align: 'center', wordWrap: { width: 320 } }).setOrigin(0.5, 0));
-    this.root = scene.add.container(0, 0, items).setDepth(50000).setScrollFactor(0).setVisible(false);
+    this.root = scene.add.container(0, 0, items).setDepth(50000).setVisible(false);
   }
 
   show(): void { this.open = true; this.root.setVisible(true); }

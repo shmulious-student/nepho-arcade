@@ -15,7 +15,7 @@ import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
 import { LEVEL_COUNT } from '../../sim/levels';
 import { LEVEL_W, VIEW_W, VIEW_H, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
-import { uiOffsetX } from '../viewport';
+import { uiOffsetX, uiRight } from '../viewport';
 import type { FriendSetup } from '../../sim/friends';
 import { DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
@@ -111,14 +111,16 @@ export class GameScene extends Phaser.Scene {
     // sim/types so the backdrop band and the tests can derive what is on screen.)
     const off = uiOffsetX(this);
     this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom) + off, VIEW_PIVOT_Y * (1 - zoom));
-    // Two cameras (render/viewport.ts): the main one spans the whole canvas — wider than 960 on a
-    // phone — and draws only the world, so the fight spreads to the screen's edges; a second one, the
-    // 960×540 frame centred on the canvas, draws everything else (HUD, touch controls, dialog, pause),
-    // which keeps every UI layout in frame coordinates. Filters are set on the top-level objects
-    // themselves (not via camera.ignore, which walks a container's current children and would miss
-    // sprites spawned into the world later); UI objects are flagged as they appear, once per frame.
+    // Two cameras (render/viewport.ts), both spanning the whole canvas — wider than 960 on a phone:
+    // the main one draws only the world, so the fight spreads to the screen's edges; the second draws
+    // everything else (HUD, touch controls, dialog, pause) scrolled so that frame x=0 lands at the
+    // frame's left edge — every UI layout stays in frame coordinates, and corner-anchored pieces use
+    // uiLeft/uiRight to reach the real screen edges. (A 960-wide viewport would clip them instead.
+    // No UI object may use scrollFactor 0: it would ignore this scroll.) Filters are set on the
+    // top-level objects themselves (not via camera.ignore, which walks a container's current children
+    // and would miss sprites spawned into the world later); UI objects are flagged as they appear.
     const worldCam = this.cameras.main;
-    const uiCam = this.cameras.add(off, 0, VIEW_W, VIEW_H, false, 'ui');
+    const uiCam = this.cameras.add(0, 0, this.scale.width, VIEW_H, false, 'ui').setScroll(-off, 0);
     this.world.cameraFilter |= uiCam.id;
     const hideUiFromWorldCam = () => {
       for (const o of this.children.list) if (o !== this.world && !(o.cameraFilter & worldCam.id)) o.cameraFilter |= worldCam.id;
@@ -163,7 +165,7 @@ export class GameScene extends Phaser.Scene {
   private netLost(message: string): void {
     if (this.netLostShown) return;
     this.netLostShown = true;
-    this.add.text(VIEW_W / 2, 250, `${message}\n${t('netLost')}`, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000).setScrollFactor(0);
+    this.add.text(VIEW_W / 2, 250, `${message}\n${t('netLost')}`, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000);
     this.time.delayedCall(2200, () => { this.session.destroy(); this.scene.start('Lobby'); });
   }
   private netLostShown = false;
@@ -174,7 +176,7 @@ export class GameScene extends Phaser.Scene {
     const lines = withP2 ? [t('hintP1'), t('hintP2')] : [t('hintSolo')];
     const hint = this.keyHint = this.add.text(VIEW_W / 2, VIEW_H - 10, lines.join('\n'), {
       fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
-    }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
+    }).setOrigin(0.5, 1).setDepth(35000);
     this.tweens.add({ targets: hint, alpha: 0.25, delay: 5000, duration: 1200 });
   }
 
@@ -206,7 +208,7 @@ export class GameScene extends Phaser.Scene {
     const t = this.add.text(0, -1, '❚❚', { fontFamily: uiFont(), fontSize: uiSize(12), color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
     // below the P2 card when there is (or may be) a second player, whose card owns the top-right corner
     const twoCards = this.session.mode !== 'local' || !!this.heroes[1];
-    this.pauseBtn = this.add.container(VIEW_W - 30, twoCards ? 104 : 28, [g, t]).setDepth(45000).setScrollFactor(0);
+    this.pauseBtn = this.add.container(uiRight(this) - 30, twoCards ? 104 : 28, [g, t]).setDepth(45000);
     g.on('pointerdown', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-ESC', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-P', () => this.setPaused(!this.pause.open));
@@ -425,7 +427,7 @@ export class GameScene extends Phaser.Scene {
     const title = this.add.text(cx, cy - 60, t('continueQ'), { fontFamily: uiFont(), fontSize: uiSize(40), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8, letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const num = this.add.text(cx, cy + 10, '9', { fontFamily: uiFont(), fontSize: uiSize(64), color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8 }).setOrigin(0.5);
     const hint = this.add.text(cx, cy + 70, this.session.mode === 'guest' ? t('waitingHost') : t('pressAny'), { fontFamily: uiFont(), fontSize: uiSize(14), color: '#9bb1c9' }).setOrigin(0.5);
-    const group = this.add.container(0, 0, [veil, title, num, hint]).setDepth(48000).setScrollFactor(0);
+    const group = this.add.container(0, 0, [veil, title, num, hint]).setDepth(48000);
     let count = 9, resolved = false;
     const finish = () => {
       if (resolved) return; resolved = true;
