@@ -1,7 +1,7 @@
 {
- "version": "ff1447f0dd058213",
- "derived": "derived:2026-09-14T15:43:38.931Z:d1e85574",
- "generatedAt": "2026-09-14T15:46:40.984Z",
+ "version": "b0d1c4d6d43bd282",
+ "derived": "derived:2026-09-14T19:19:12.945Z:d1e85574",
+ "generatedAt": "2026-09-14T19:22:32.121Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -24,12 +24,12 @@
    "sha256": "76c7809efaa663dae60042618082744af2442bda129f84608ed401d4e23c5188"
   },
   "cards/shmuel.webp": {
-   "size": 109458,
-   "sha256": "6a01039c98cce70f8682b035ffef7f76460bcec699558d3e797af16cb0dfa616"
+   "size": 101242,
+   "sha256": "bdaa7a0dd2b893d76ba83e2a68f27f48e5e431ebdb7092537d855c15dbb3ed83"
   },
   "catalog.json": {
    "size": 72885,
-   "sha256": "26462e0411c3b9c0d5e7acb8201f0524510d6c354b7e994f6ea05927bfde69cd"
+   "sha256": "88652218198b3e2b3cc5f5e392e376f1333df8f150cbc1ba6f415c778c3fa28b"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -192,12 +192,12 @@
    "sha256": "6c9557ada2ee5b7225b29a964bfa3c1a34654798bb0a4746a3fc52f14765b65a"
   },
   "chars/pitz.json": {
-   "size": 4518,
-   "sha256": "620f19a58137c085105d66a1d3afbc7c89600db84200b9da90067a6b3ed564c0"
+   "size": 4520,
+   "sha256": "f0b70ae338d3d76731f02236a15b5ec425fdf20dc37ce5f07dd96fa2d94e6322"
   },
   "chars/pitz.webp": {
-   "size": 112894,
-   "sha256": "4ba0dd990facf734363a5c81bdaa022cd443a07c4caf07ca83cd3a8e1cec0ee9"
+   "size": 105640,
+   "sha256": "b9c63268595c1aa474707ede44ce54a51c33c3f9e2838ef5f79c4056a3531fed"
   },
   "chars/prism-queen.json": {
    "size": 9206,
@@ -356,8 +356,8 @@
    "sha256": "1ac4ce16f987772d318a64f180bef5222b90ea4c20f70950b8f402ed9d05dc76"
   },
   "levels/bg-11.webp": {
-   "size": 160360,
-   "sha256": "77b5adfb914d95ca685c38007ca331d7d2e15f3a6eb4a9ebef3eeff357de161a"
+   "size": 190770,
+   "sha256": "3af1962691da06dd12510fda4c54ad345c7bba83973e39f819101b52bc12b67c"
   },
   "levels/entry-01.webp": {
    "size": 97102,
