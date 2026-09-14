@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-14T14:44:46.633Z",
+ "generatedAt": "2026-09-14T15:43:38.931Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -5141,6 +5141,50 @@
     0
    ],
    "source": "public/assets/generated/actions/storm-colossus/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": [
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
+   ]
+  },
+  "caga-tio": {
+   "id": "caga-tio",
+   "kind": "boss",
+   "atlas": "chars/caga-tio.webp",
+   "data": "chars/caga-tio.json",
+   "box": {
+    "w": 392,
+    "h": 345
+   },
+   "anchor": {
+    "x": 196,
+    "y": 325
+   },
+   "rows": [
+    "idle",
+    "approach",
+    "attack",
+    "special",
+    "hurt",
+    "defeat"
+   ],
+   "framesPerRow": 9,
+   "scale": 0.4653,
+   "renderScale": 0.5882,
+   "skin": [
+    0,
+    0,
+    0
+   ],
+   "outline": [
+    0,
+    0,
+    0
+   ],
+   "source": "public/assets/generated/actions/caga-tio/{idle,approach,attack,special,hurt,defeat}.png",
    "sourceFormat": "actions",
    "notes": [
     "feathered binary alpha",

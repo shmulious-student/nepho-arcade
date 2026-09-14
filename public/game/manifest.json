@@ -1,7 +1,7 @@
 {
- "version": "d7f08b467230cd82",
- "derived": "derived:2026-09-14T14:44:46.633Z:d1e85574",
- "generatedAt": "2026-09-14T14:47:45.834Z",
+ "version": "ff1447f0dd058213",
+ "derived": "derived:2026-09-14T15:43:38.931Z:d1e85574",
+ "generatedAt": "2026-09-14T15:46:40.984Z",
  "files": {
   "cards/eviatar.webp": {
    "size": 101090,
@@ -28,8 +28,8 @@
    "sha256": "6a01039c98cce70f8682b035ffef7f76460bcec699558d3e797af16cb0dfa616"
   },
   "catalog.json": {
-   "size": 72110,
-   "sha256": "651c3daa9cf467f8b6a51769c87a3f75e65f2a8b663ef86a8cc492d292cae135"
+   "size": 72885,
+   "sha256": "26462e0411c3b9c0d5e7acb8201f0524510d6c354b7e994f6ea05927bfde69cd"
   },
   "chars/abyss-dragon.json": {
    "size": 9241,
@@ -63,6 +63,14 @@
    "size": 374294,
    "sha256": "37442d3e3f27cbbb2bb84d388295dc04b0e7dd27a6ea9a931d11c52f0fead496"
   },
+  "chars/caga-tio.json": {
+   "size": 9182,
+   "sha256": "4b376fac9e8620f88d6e532280dffc43a38fa17f82e1642d63501a441d0a2405"
+  },
+  "chars/caga-tio.webp": {
+   "size": 1008814,
+   "sha256": "49b1f56ea84b5ac610a661d4af04aff60b65d7a9b63d21db749cd1f3959232b3"
+  },
   "chars/chainer.json": {
    "size": 12031,
    "sha256": "4b2ef8c6b4c30f2b0c41f14011271bd9f7aa27153bfa3059b22cfd7fbd705db0"
@@ -73,11 +81,11 @@
   },
   "chars/crown-runner.json": {
    "size": 9201,
-   "sha256": "8a08a969d13d1aa0152c4f8f5f1ad28db51677a4563068d29c1add94ecefa9bb"
+   "sha256": "d77cbc85bc324f655c25bb749b88e6908a8f556e2664c634a7a3c4105e9e1fd2"
   },
   "chars/crown-runner.webp": {
-   "size": 1121482,
-   "sha256": "bb47f2e0a1f928ae679a8abb464e8f058afae67ac768a0021501fdf13687da9d"
+   "size": 1085030,
+   "sha256": "b634c6b44a2c8f24136b5dbe0f693b729151b183c501e0c2a36485a4146f3cc8"
   },
   "chars/eviatar.json": {
    "size": 18251,
@@ -217,11 +225,11 @@
   },
   "chars/railmaw.json": {
    "size": 9196,
-   "sha256": "0129c54ec592f034e284373a51831cbb9239609d62966793150aa2c918dfee00"
+   "sha256": "09f8e9d13ddcb7973fe47da385a58f75c9a6042dbadb27b001e9e01852b74e6d"
   },
   "chars/railmaw.webp": {
-   "size": 1188046,
-   "sha256": "e46f646035466610ff2cd6fdc74427b26a4b5f7ca33b421502aa7a3d6dd19573"
+   "size": 1151792,
+   "sha256": "d33e777ec68f8b98f5a6f41a4abe35ec75b630f10f7764a9169c77c0ee81b291"
   },
   "chars/rainbow-oracle.json": {
    "size": 15180,
@@ -273,11 +281,11 @@
   },
   "chars/the-null.json": {
    "size": 9192,
-   "sha256": "c4882d0aba132a7e35f0f45b61d9c71e00a9f5cdfb171a19454078534e45941b"
+   "sha256": "dcfcb687b265478afb0008e1cf9e2fe9dd4e41d00f485f3aca04b00d0a1231b3"
   },
   "chars/the-null.webp": {
-   "size": 1387124,
-   "sha256": "f07dd91faea212b9cbcf7ab0b9f5e92df5e53b79a0c8797766b79cc16fe661a5"
+   "size": 1316124,
+   "sha256": "d0280edfe202d19b330bb9ccb5dc4594a89bc1f0cc8cfc330556ff151b39e6d7"
   },
   "chars/ultra-signal.json": {
    "size": 9193,
@@ -443,9 +451,13 @@
    "size": 12896,
    "sha256": "3a33b7d95cff6c29c556ed9bb6f385f1f4ad3d943a7d4cd4798b594901a5d268"
   },
+  "portraits/caga-tio.webp": {
+   "size": 7716,
+   "sha256": "f351978b8e51e30fa1e6799f49fe70eeab85df30926eddb48177d5e73e234370"
+  },
   "portraits/crown-runner.webp": {
-   "size": 9470,
-   "sha256": "7d1eda77137b262577456cbef90172707e76fe7edb223d60a06b43d9bef54d7e"
+   "size": 9254,
+   "sha256": "50a72b32fee61caf53003a957f4c8f3a2fc470f455d6ea31cb8eb5b336a6cdea"
   },
   "portraits/ferryman.webp": {
    "size": 7868,
@@ -476,8 +488,8 @@
    "sha256": "17cc6099471896d7fa4294c62b14f1350359f6f9a19b2b8a91f313ba82f3d3d5"
   },
   "portraits/railmaw.webp": {
-   "size": 8338,
-   "sha256": "a93101035da72b69b626232ae8253dc77eb393c4c826f235f0aeb344dec6ce98"
+   "size": 7860,
+   "sha256": "988045cf531e0d0b48f2774961a739e705fc9d31d299d1806449640397a41470"
   },
   "portraits/storm-colossus.webp": {
    "size": 10802,
