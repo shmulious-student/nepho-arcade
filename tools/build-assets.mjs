@@ -61,6 +61,7 @@ const BOSSES = [
   ['vault-mother', 'Vault Mother'], ['ultra-signal', 'Ultra Signal'],
   // per-action sets only (no legacy grid): public/assets/generated/actions/<id>/{idle,approach,attack,special,hurt,defeat}.png
   ['abyss-dragon', 'Abyss Dragon'], ['flame-samurai', 'Flame Samurai'], ['prism-queen', 'Prism Queen'], ['storm-colossus', 'Storm Colossus'],
+  ['caga-tio', 'Caga Tio'],
 ];
 const BOSS_FILES = ['boss-00-ferryman-grid.png', 'boss-01-glass-warden-grid.png', 'boss-02-kilnheart-grid.png', 'boss-03-monk-zero-grid.png',
   'boss-04-market-king-grid.png', 'boss-05-railmaw-grid.png', 'boss-06-crown-runner-grid.png', 'boss-07-the-null-grid.png',
