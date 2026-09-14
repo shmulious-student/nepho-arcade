@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { catalogLevel } from '../../shared/catalog';
 import { getLang, setLang, langLabel } from '../../shared/lang';
+import { t, isHebrew, difficultyName, heroBias, uiFont, uiSize } from '../../shared/i18n';
 import { getDifficulty, setDifficulty } from '../../shared/difficultySetting';
-import { DIFFICULTIES, DIFFICULTY_DEFS } from '../../sim/difficulty';
+import { DIFFICULTIES, isDifficulty } from '../../sim/difficulty';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES } from '../../sim/frameData';
 import { ACTIVE_HEROES as HERO_IDS } from '../../sim/roster';
@@ -74,11 +75,11 @@ export class LobbyScene extends Phaser.Scene {
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
     // header: the wordmark (it already says EVIOMRI · CIRCUIT BREAKERS) and the section title
     this.add.image(VIEW_W / 2, 30, 'logo').setDisplaySize(176, 52);
-    this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, 'PICK YOUR HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
-    this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, 'tap a card · swipe or ◀ ▶ for more', { fontFamily: 'monospace', fontSize: '10px', color: '#5f7391' }).setOrigin(1, 0.5);
+    this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, t('pickHero'), { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
+    this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, t('carouselHint'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#5f7391' }).setOrigin(1, 0.5);
 
     // dialog text language, top-right
-    const langBtn = this.makeButton(VIEW_W - 24 - 112, 8, 112, 22, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); });
+    const langBtn = this.makeButton(VIEW_W - 24 - 112, 8, 112, 22, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
 
     this.buildCarousel();
 
@@ -87,29 +88,29 @@ export class LobbyScene extends Phaser.Scene {
     const panel = this.add.rectangle(24, rowY, VIEW_W - 48, 62, PALETTE.panel, 0.7).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line);
     void panel;
     // friend
-    this.add.text(36, rowY + 8, 'FRIEND', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    this.add.text(36, rowY + 8, t('friend'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
     this.makeButton(36, rowY + 26, 28, 26, '◀', () => this.cycleFriend(-1));
-    this.friendText = this.add.text(70, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    this.friendText = this.add.text(70, rowY + 39, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
     this.makeButton(222, rowY + 26, 28, 26, '▶', () => this.cycleFriend(1));
     const modeBtn = this.makeButton(258, rowY + 26, 112, 26, '', () => {
       this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
-      modeBtn.text.setText(this.friendMode.toUpperCase());
+      modeBtn.text.setText(t(this.friendMode));
       this.refreshBadges();
     });
-    modeBtn.text.setText(this.friendMode.toUpperCase());
-    this.add.text(258, rowY + 8, 'HELPS AS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    modeBtn.text.setText(t(this.friendMode));
+    this.add.text(258, rowY + 8, t('helpsAs'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
     // level
-    this.add.text(400, rowY + 8, 'START AT LEVEL', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    this.add.text(400, rowY + 8, t('startAtLevel'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
     this.makeButton(400, rowY + 26, 28, 26, '◀', () => this.setLevel(this.startLevel - 1));
-    const levelText = this.add.text(434, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    const levelText = this.add.text(434, rowY + 39, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
     this.makeButton(606, rowY + 26, 28, 26, '▶', () => this.setLevel(this.startLevel + 1));
-    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(LEVEL_COUNT, n)); levelText.setText(`${this.startLevel} · ${catalogLevel(this.catalog, this.startLevel).name}`); };
+    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(LEVEL_COUNT, n)); levelText.setText(`${this.startLevel} · ${isHebrew() ? catalogLevel(this.catalog, this.startLevel).nameHe : catalogLevel(this.catalog, this.startLevel).name}`); };
     this.setLevel(this.startLevel);
     // players / co-op toggles
-    this.add.text(656, rowY + 8, 'PLAYERS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
-    const coopBtn = this.makeButton(656, rowY + 26, 132, 26, 'LAN CO-OP: OFF', () => {
+    this.add.text(656, rowY + 8, t('players'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
+    const coopBtn = this.makeButton(656, rowY + 26, 132, 26, `${t('lanCoop')}: ${t('off')}`, () => {
       this.coop = !this.coop;
-      coopBtn.text.setText(`LAN CO-OP: ${this.coop ? 'ON' : 'OFF'}`);
+      coopBtn.text.setText(`${t('lanCoop')}: ${this.coop ? t('on') : t('off')}`);
       netRow.setVisible(this.coop);
       if (this.coop && this.local2p) setLocal2p(false);
       if (!this.coop) {
@@ -123,14 +124,14 @@ export class LobbyScene extends Phaser.Scene {
     let local2pBtn: { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } | null = null;
     const setLocal2p = (on: boolean) => {
       this.local2p = on;
-      local2pBtn?.text.setText(`2P KEYBOARD: ${on ? 'ON' : 'OFF'}`);
+      local2pBtn?.text.setText(`${t('twoPKeyboard')}: ${on ? t('on') : t('off')}`);
       this.p2Row.setVisible(on);
       if (on && !this.heroPick[1]) this.heroPick[1] = pickOther(this.heroPick[0]);
       if (!on) this.heroPick[1] = null;
       this.cycleP2(0); this.cycleFriend(0);
     };
     if (!isTouchDevice(this)) {
-      local2pBtn = this.makeButton(796, rowY + 26, 132, 26, '2P KEYBOARD: OFF', () => {
+      local2pBtn = this.makeButton(796, rowY + 26, 132, 26, `${t('twoPKeyboard')}: ${t('off')}`, () => {
         setLocal2p(!this.local2p);
         if (this.local2p && this.coop) coopBtn.g.emit('pointerdown');
       });
@@ -140,45 +141,53 @@ export class LobbyScene extends Phaser.Scene {
       const sizeBtn = this.makeButton(796, rowY + 26, 132, 26, '', () => {
         const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
         try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
-        sizeBtn.text.setText(`CONTROLS: ${next}`);
+        sizeBtn.text.setText(`${t('controls')}: ${next}`);
       });
-      sizeBtn.text.setText(`CONTROLS: ${TouchControls.sizeSetting()}`);
+      sizeBtn.text.setText(`${t('controls')}: ${TouchControls.sizeSetting()}`);
     }
 
     // ---- bottom: P2 pick / net buttons on the sides, status + START in the middle ----
     const botY = rowY + 76; // 464
     this.p2Row = this.add.container(0, 0).setVisible(false);
-    const p2Label = this.add.text(36, botY, 'PLAYER 2', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });
+    const p2Label = this.add.text(36, botY, t('player2'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
     const p2Prev = this.makeButton(36, botY + 16, 28, 26, '◀', () => this.cycleP2(-1));
-    this.p2Text = this.add.text(70, botY + 29, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
+    this.p2Text = this.add.text(70, botY + 29, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
     const p2Next = this.makeButton(222, botY + 16, 28, 26, '▶', () => this.cycleP2(1));
     this.p2Row.add([p2Label, p2Prev.g, p2Prev.text, this.p2Text, p2Next.g, p2Next.text]);
 
     const netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = this.makeButton(656, botY + 16, 132, 26, 'HOST GAME', () => this.startAsHost());
-    const joinBtn = this.makeButton(796, botY + 16, 132, 26, 'JOIN GAME', () => this.promptJoin());
+    const hostBtn = this.makeButton(656, botY + 16, 132, 26, t('hostGame'), () => this.startAsHost());
+    const joinBtn = this.makeButton(796, botY + 16, 132, 26, t('joinGame'), () => this.promptJoin());
     netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
 
     // Arriving through the host's QR code / join link (?join=CODE): the room is already known, so
     // the guest only has to pick a hero and press START.
     const joinCode = new URLSearchParams(location.search).get('join')?.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') ?? '';
     if (joinCode.length === 4) {
-      this.coop = true; coopBtn.text.setText('LAN CO-OP: ON'); netRow.setVisible(true);
+      this.coop = true; coopBtn.text.setText(`${t('lanCoop')}: ${t('on')}`); netRow.setVisible(true);
       this.netMode = 'guest'; this.roomCode = joinCode;
     }
 
-    this.statusText = this.add.text(VIEW_W / 2, botY + 2, '', { fontFamily: 'monospace', fontSize: '10px', color: '#75f5dc', align: 'center' }).setOrigin(0.5, 0);
-    if (this.netMode === 'guest' && this.roomCode) this.statusText.setText(`joining room ${this.roomCode} — pick your hero and press START`);
+    this.statusText = this.add.text(VIEW_W / 2, botY + 2, '', { fontFamily: uiFont(), fontSize: uiSize(10), color: '#75f5dc', align: 'center' }).setOrigin(0.5, 0);
+    if (this.netMode === 'guest' && this.roomCode) this.statusText.setText(t('joiningRoom', { code: this.roomCode }));
 
-    const start = this.makeButton(VIEW_W / 2, botY + 22, 300, 46, 'START', () => this.tryStart(), 0x75f5dc, 0x0b1730);
+    const start = this.makeButton(VIEW_W / 2, botY + 22, 300, 46, t('start'), () => this.tryStart(), 0x75f5dc, 0x0b1730);
     start.text.setFontSize(16).setFontStyle('bold');
     // difficulty, beside START: EASY is the game as tuned, each step up is a harder campaign
-    this.add.text(VIEW_W / 2 - 160, botY + 2, 'DIFFICULTY', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' }).setOrigin(1, 0);
+    this.add.text(VIEW_W / 2 - 160, botY + 2, t('difficulty'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' }).setOrigin(1, 0);
     const diffBtn = this.makeButton(VIEW_W / 2 - 160 - 132, botY + 22, 132, 26, '', () => {
       const next = DIFFICULTIES[(DIFFICULTIES.indexOf(getDifficulty()) + 1) % DIFFICULTIES.length];
-      setDifficulty(next); diffBtn.text.setText(DIFFICULTY_DEFS[next].name);
+      setDifficulty(next); diffBtn.text.setText(difficultyName(next));
     });
-    diffBtn.text.setText(DIFFICULTY_DEFS[getDifficulty()].name);
+    diffBtn.text.setText(difficultyName(getDifficulty()));
+    if (import.meta.env.DEV) {
+      // dev shortcuts: /?level=11&difficulty=hard lands the lobby on that level and setting
+      const q = new URLSearchParams(location.search);
+      const lv = Number(q.get('level'));
+      if (lv >= 1 && lv <= LEVEL_COUNT) this.setLevel(lv);
+      const d = q.get('difficulty');
+      if (isDifficulty(d)) { setDifficulty(d); diffBtn.text.setText(difficultyName(d)); }
+    }
 
     this.cycleFriend(0);
     this.highlightCard();
@@ -233,7 +242,7 @@ export class LobbyScene extends Phaser.Scene {
     this.makeButton(x0 + viewW + 12, ay - 30, 40, 60, '▶', () => this.goToPage(this.page + 1));
     const dotsY = CAROUSEL_Y + CARD_H + 14;
     for (let i = 0; i < this.pageCount; i++) this.pageDots.push(this.add.circle(VIEW_W / 2 + (i - (this.pageCount - 1) / 2) * 16, dotsY, 4, PALETTE.line));
-    this.pageText = this.add.text(x0 + viewW, dotsY, '', { fontFamily: 'monospace', fontSize: '10px', color: '#5f7391' }).setOrigin(1, 0.5);
+    this.pageText = this.add.text(x0 + viewW, dotsY, '', { fontFamily: uiFont(), fontSize: uiSize(10), color: '#5f7391' }).setOrigin(1, 0.5);
     this.goToPage(Math.floor(HERO_IDS.indexOf(this.heroPick[0]) / LobbyScene.PER_PAGE), true);
   }
 
@@ -262,10 +271,10 @@ export class LobbyScene extends Phaser.Scene {
     const art = CARD_W - 20;
     const img = this.add.image(CARD_W / 2, 10 + art / 2, `card-${id}`).setDisplaySize(art, art);
     const tint = this.add.rectangle(CARD_W / 2, 14 + art, art, 3, def.colour).setOrigin(0.5, 0);
-    const name = this.add.text(CARD_W / 2, 32 + art, def.name, { fontFamily: 'monospace', fontSize: '16px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
-    const bias = this.add.text(CARD_W / 2, 48 + art, def.bias, { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', wordWrap: { width: CARD_W - 16 } }).setOrigin(0.5, 0);
+    const name = this.add.text(CARD_W / 2, 32 + art, def.name, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    const bias = this.add.text(CARD_W / 2, 48 + art, heroBias(id, def.bias), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9', align: 'center', wordWrap: { width: CARD_W - 16 } }).setOrigin(0.5, 0);
     // role badge (P1 / P2 / FRIEND) in the top-left corner
-    const badge = this.add.text(10, 10, '', { fontFamily: 'monospace', fontSize: '11px', color: '#0b1730', fontStyle: 'bold', backgroundColor: '#75f5dc', padding: { x: 6, y: 3 } }).setOrigin(0, 0).setVisible(false);
+    const badge = this.add.text(10, 10, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#0b1730', fontStyle: 'bold', backgroundColor: '#75f5dc', padding: { x: 6, y: 3 } }).setOrigin(0, 0).setVisible(false);
     c.add([bg, img, tint, name, bias, badge]);
     this.strip.add(c);
     this.cards[id] = c;
@@ -292,7 +301,7 @@ export class LobbyScene extends Phaser.Scene {
     let i = this.friendPick ? pool.indexOf(this.friendPick) : -1;
     if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
     this.friendPick = pool[i];
-    this.friendText.setText(`${HEROES[this.friendPick].name} · ${HEROES[this.friendPick].bias.split(' · ')[1] || ''}`.slice(0, 24));
+    this.friendText.setText(`${HEROES[this.friendPick].name} · ${heroBias(this.friendPick, HEROES[this.friendPick].bias).split(' · ')[1] || ''}`.slice(0, 24));
     this.refreshBadges();
   }
 
@@ -300,7 +309,7 @@ export class LobbyScene extends Phaser.Scene {
     for (const id of HERO_IDS) {
       const b = this.badges[id];
       if (!b) continue;
-      const role = id === this.heroPick[0] ? 'P1' : id === this.heroPick[1] ? 'P2' : id === this.friendPick && this.friendMode !== 'off' ? this.friendMode.toUpperCase() : '';
+      const role = id === this.heroPick[0] ? 'P1' : id === this.heroPick[1] ? 'P2' : id === this.friendPick && this.friendMode !== 'off' ? t(this.friendMode) : '';
       b.setText(role).setVisible(!!role);
       b.setStyle({ backgroundColor: role === 'P1' ? '#75f5dc' : role === 'P2' ? '#ffcf5c' : '#9bb1c9' });
     }
@@ -319,7 +328,7 @@ export class LobbyScene extends Phaser.Scene {
 
   private makeButton(x: number, y: number, w: number, h: number, label: string, onClick: () => void, fill = 0x14243d, textColour: number = PALETTE.text): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } {
     const g = this.add.rectangle(x, y, w, h, fill).setOrigin(w > 150 ? 0.5 : 0, 0).setStrokeStyle(1, PALETTE.line).setInteractive({ useHandCursor: true });
-    const text = this.add.text(x + (w > 150 ? 0 : w / 2), y + h / 2, label, { fontFamily: 'monospace', fontSize: '11px', color: Phaser.Display.Color.IntegerToColor(textColour).rgba }).setOrigin(0.5);
+    const text = this.add.text(x + (w > 150 ? 0 : w / 2), y + h / 2, label, { fontFamily: uiFont(), fontSize: uiSize(11), color: Phaser.Display.Color.IntegerToColor(textColour).rgba }).setOrigin(0.5);
     g.on('pointerdown', () => { synth.unlock(); synth.uiClick(); onClick(); });
     g.on('pointerover', () => g.setFillStyle(fill === 0x14243d ? 0x1c2f4d : fill));
     g.on('pointerout', () => g.setFillStyle(fill));
@@ -328,17 +337,17 @@ export class LobbyScene extends Phaser.Scene {
 
   private async startAsHost(): Promise<void> {
     this.netMode = 'host';
-    this.statusText.setText('starting host…');
+    this.statusText.setText(t('startingHost'));
     const { wsUrlFromLocation, HostSession } = await import('../../net/session');
     const session = new HostSession(wsUrlFromLocation());
     session.events.onRoom = (code) => {
       this.roomCode = code;
       const joinUrl = `${location.origin}/?join=${code}`;
-      this.statusText.setText(`Room ${code} — have your co-op partner open:\n${joinUrl}`);
+      this.statusText.setText(`${t('roomOpen', { code })}\n${joinUrl}`);
       this.renderQr(joinUrl);
     };
-    session.events.onPeer = (joined) => { if (joined) this.statusText.setText(`Player 2 connected! Press START.`); };
-    session.events.onError = (m) => this.statusText.setText(`error: ${m}`);
+    session.events.onPeer = (joined) => { if (joined) this.statusText.setText(t('peerJoined')); };
+    session.events.onError = (m) => this.statusText.setText(`${t('error')}: ${m}`);
     session.connect();
     this.registry.set('pendingHostSession', session);
   }
@@ -380,7 +389,7 @@ export class LobbyScene extends Phaser.Scene {
       if (code.length !== 4) { input.focus(); return; }
       this.netMode = 'guest';
       this.roomCode = code;
-      this.statusText.setText(`joining room ${this.roomCode} — pick your hero and press START`);
+      this.statusText.setText(t('joiningRoom', { code: this.roomCode }));
       close();
     };
     input.addEventListener('input', () => { input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });

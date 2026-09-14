@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { uiFont, uiSize } from '../shared/i18n';
 import type { Snapshot, DialogView, HeroId } from '../sim/types';
 import { VIEW_W, VIEW_H } from '../sim/types';
 import { HEROES } from '../sim/frameData';
@@ -38,10 +39,11 @@ export class DialogBox {
     this.frame = scene.add.graphics();
     this.cardFrame = scene.add.graphics();
     this.card = scene.add.image(0, 0, '__pixel').setVisible(false);
-    this.name = scene.add.text(0, 0, '', { fontFamily: 'Arial Black, Arial, sans-serif', fontSize: '13px', color: '#ffcf5c', letterSpacing: 2 } as Phaser.Types.GameObjects.Text.TextStyle);
+    this.name = scene.add.text(0, 0, '', { fontFamily: 'Arial Black, Arial, sans-serif', fontSize: uiSize(13), color: '#ffcf5c', letterSpacing: 2 } as Phaser.Types.GameObjects.Text.TextStyle);
+    // the box is sized for two lines of this: not scaled with the UI (a Hebrew page is measured against it)
     this.text = scene.add.text(0, 0, '', { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '19px', color: '#f3f4e8', lineSpacing: 5 });
-    this.more = scene.add.text(0, 0, '▼', { fontFamily: 'Arial, sans-serif', fontSize: '14px', color: '#ffcf5c' }).setOrigin(0.5);
-    this.hint = scene.add.text(0, 0, '', { fontFamily: 'monospace', fontSize: '9px', color: '#6b7a99', letterSpacing: 1 } as Phaser.Types.GameObjects.Text.TextStyle);
+    this.more = scene.add.text(0, 0, '▼', { fontFamily: 'Arial, sans-serif', fontSize: uiSize(14), color: '#ffcf5c' }).setOrigin(0.5);
+    this.hint = scene.add.text(0, 0, '', { fontFamily: uiFont(), fontSize: uiSize(9), color: '#6b7a99', letterSpacing: 1 } as Phaser.Types.GameObjects.Text.TextStyle);
     this.root = scene.add.container(0, 0, [this.frame, this.cardFrame, this.card, this.name, this.text, this.more, this.hint]).setDepth(40000).setScrollFactor(0).setVisible(false);
   }
 

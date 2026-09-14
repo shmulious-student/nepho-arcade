@@ -11,6 +11,7 @@
 // 1-based), an optional one just before the boss walks in (`boss`, the boss itself answers from
 // off-screen and only enters once the talking is done) and a closing one (`end`, the boss gets its
 // last words first). A page is at most two lines of the text box; longer speeches are more pages.
+// Pitz walks in beside the hero on any scene that gives him a line. Pages turn only on a press.
 import type { HeroId } from './types';
 
 /** Who says a line: the visiting hero (its id), the level's boss (off-stage until the fight), Pitz the
@@ -35,8 +36,6 @@ export type DialogKey = 'start' | 'boss' | 'end' | `wave${number}`;
 
 /** Characters revealed per tick by the typewriter (both sim and renderer). */
 export const REVEAL_CPT = 0.6;
-/** Ticks a fully revealed page waits before turning on its own. */
-export const AUTO_ADVANCE_TICKS = 210;
 /** Ticks a button must be held to skip the whole scene. */
 export const HOLD_SKIP_TICKS = 45;
 /** A page ignores presses for this long after it opens, so a mash from the fight does not skip it. */

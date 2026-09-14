@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { t, uiFont } from '../shared/i18n';
 import { BTN, InputEdge, type InputFrame } from '../sim/input';
 import { VIEW_H, VIEW_W } from '../sim/types';
 
@@ -52,18 +53,18 @@ export class TouchControls {
     // Hit radius is well beyond the drawn circle; gaps between centres exceed two hit radii.
     const cx = VIEW_W - 120 * k, cy = VIEW_H - 92 * k, big = 36 * k, bigHit = 48 * k;
     const defs: [number, number, number, string, number, number, number][] = [
-      [cx - 92 * k, cy - 18 * k, BTN.HEAVY, 'HVY', 0xff9357, big, bigHit],
-      [cx, cy + 12 * k, BTN.LIGHT, 'ATK', 0x75f5dc, big * 1.1, bigHit * 1.1],
-      [cx + 92 * k, cy - 18 * k, BTN.JUMP, 'JMP', 0xf3f4e8, big, bigHit],
-      [cx, cy - 92 * k, BTN.SPECIAL, 'SPC', 0xffcf5c, big * 0.95, bigHit],
-      [cx + 92 * k, cy - 108 * k, BTN.BLOCK, 'BLK', 0x37aaff, 24 * k, 34 * k],
+      [cx - 92 * k, cy - 18 * k, BTN.HEAVY, t('btnHeavy'), 0xff9357, big, bigHit],
+      [cx, cy + 12 * k, BTN.LIGHT, t('btnLight'), 0x75f5dc, big * 1.1, bigHit * 1.1],
+      [cx + 92 * k, cy - 18 * k, BTN.JUMP, t('btnJump'), 0xf3f4e8, big, bigHit],
+      [cx, cy - 92 * k, BTN.SPECIAL, t('btnSpecial'), 0xffcf5c, big * 0.95, bigHit],
+      [cx + 92 * k, cy - 108 * k, BTN.BLOCK, t('btnBlock'), 0x37aaff, 24 * k, 34 * k],
       // dash lives on the LEFT, above the stick's resting spot, so the left thumb can hold it while
       // the right thumb keeps attacking — a run is a chord: DSH + a direction on the stick
-      [stickX + 96 * k, stickY - 96 * k, BTN.DASH, 'DSH', 0xa4ee42, 26 * k, 36 * k],
+      [stickX + 96 * k, stickY - 96 * k, BTN.DASH, t('btnDash'), 0xa4ee42, 26 * k, 36 * k],
     ];
     for (const [x, y, bit, label, colour, r, hit] of defs) {
       const g = scene.add.circle(x, y, r, 0x0b1730, 0.45).setStrokeStyle(3, colour);
-      const t = scene.add.text(x, y, label, { fontFamily: 'monospace', fontSize: `${Math.round(13 * k)}px`, color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.9);
+      const t = scene.add.text(x, y, label, { fontFamily: uiFont(), fontSize: `${Math.round(13 * k)}px`, color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.9);
       this.container.add([g, t]);
       this.buttons.push({ g, label: t, bit, pointerId: null, x, y, r, hit });
     }

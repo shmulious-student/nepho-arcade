@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { World } from '../src/sim/world';
 import { BTN, type InputFrame } from '../src/sim/input';
 import { ENTRY_TICKS, LEVELS, levelDef } from '../src/sim/levels';
-import { DIALOGS, dialogFor, resolveLines, revealTicks, fillNames, HOLD_SKIP_TICKS, MIN_PAGE_TICKS, AUTO_ADVANCE_TICKS } from '../src/sim/dialogs';
+import { DIALOGS, dialogFor, resolveLines, revealTicks, fillNames, HOLD_SKIP_TICKS, MIN_PAGE_TICKS } from '../src/sim/dialogs';
+import { DIALOG_CAT } from '../src/sim/dialog';
 import { encodeSnapshot, decodeSnapshot } from '../src/net/codec';
 import { HERO_IDS } from '../src/sim/frameData';
 
@@ -11,6 +12,7 @@ const TAP: InputFrame = { held: BTN.LIGHT, pressed: BTN.LIGHT };
 const HOLD: InputFrame = { held: BTN.LIGHT, pressed: 0 };
 const step = (w: World, i: InputFrame = NONE, n = 1) => { for (let k = 0; k < n; k++) w.step([i, NONE]); };
 const stage = (w: World) => w.entities.find((e) => e.kind === 'hero' && e.slot < 0 && !e.dead);
+const cat = (w: World) => w.entities.find((e) => e.kind === 'projectile' && e.arch === 'cat' && e.pattern === DIALOG_CAT && !e.dead);
 
 describe('dialog scripts', () => {
   it('every level has an opening and a closing scene, every page fits two lines, every speaker exists', () => {
@@ -39,7 +41,7 @@ describe('dialog scripts', () => {
 });
 
 describe('dialog scene', () => {
-  it('opens after the title card: the hero walks in from the right, the players wait, pages turn on a press or by themselves, and the wave starts after', () => {
+  it('opens after the title card: the hero walks in from the right, the players wait, pages turn only on a press, and the wave starts after', () => {
     const w = new World({ seed: 7, level: 1, heroes: ['eviatar', null] });
     step(w, NONE, ENTRY_TICKS);
     expect(w.dialog?.key).toBe('start');
@@ -67,16 +69,44 @@ describe('dialog scene', () => {
     step(w, NONE, 2);
     step(w, TAP);
     expect(w.dialog!.page).toBe(1);
-    // left alone, a page turns on its own once it is typed out
-    step(w, NONE, revealTicks(w.dialog!.lines[1]) + AUTO_ADVANCE_TICKS + 2);
+    // left alone, a typed-out page stays until someone presses
+    step(w, NONE, revealTicks(w.dialog!.lines[1]) + 600);
+    expect(w.dialog!.page).toBe(1);
+    step(w, TAP);
     expect(w.dialog!.page).toBe(2);
-    // …through to the end: the hero runs off and the first wave starts
+    // …through to the end, a tap per page: the hero runs off and the first wave starts
     t = 0;
-    while (w.dialog && t++ < 6000) step(w);
+    while (w.dialog && t++ < 6000) step(w, t % (MIN_PAGE_TICKS + 3) === 0 ? TAP : NONE);
     expect(w.dialog).toBeNull();
     expect(stage(w)).toBeUndefined();
     expect(w.phase).toBe('wave');
     expect(w.dialogsPlayed.has('start')).toBe(true);
+  });
+
+  it('Pitz walks in beside the hero when he has a line, sits through the talk, and runs off with them', () => {
+    const w = new World({ seed: 7, level: 1, heroes: ['eviatar', null] }); // level 1's opening has a Pitz line
+    step(w, NONE, ENTRY_TICKS);
+    const c = cat(w)!;
+    expect(c).toBeTruthy();
+    expect(c.x).toBeGreaterThan(w.players[0]!.x + 300);
+    let t = 0;
+    while (w.dialog?.stage === 'enter' && t++ < 400) step(w);
+    expect(w.dialog?.stage).toBe('talk');
+    expect(c.x).toBeLessThan(stage(w)!.x); // a step in front of the hero
+    expect(c.x).toBeGreaterThan(w.players[0]!.x);
+    const x0 = c.x;
+    step(w, NONE, 60);
+    expect(c.x).toBe(x0); // sits: not run as Shmuel's special
+    expect(c.dead).toBe(false);
+    t = 0;
+    while (w.dialog && t++ < 6000) step(w, HOLD);
+    expect(cat(w)).toBeUndefined();
+    expect(w.phase).toBe('wave');
+    // a scene without a Pitz line has no cat
+    const w2 = new World({ seed: 7, level: 1, heroes: ['eviatar', null] });
+    step(w2, NONE, ENTRY_TICKS);
+    w2.dialog!.lines = w2.dialog!.lines.filter((l) => l.who !== 'pitz');
+    void w2;
   });
 
   it('holding a button skips the whole scene', () => {
@@ -112,8 +142,11 @@ describe('dialog scene', () => {
     const keep = new World({ seed: 3, level: 1, heroes: ['shmuel', null] });
     step(keep, NONE, ENTRY_TICKS + 1);
     expect(keep.dialog?.origin).toBe('player');
+    expect(stage(keep)).toBeUndefined(); // no twin of the played hero…
+    expect(cat(keep)).toBeTruthy(); // …but Pitz still walks in for his line
+    let k = 0;
+    while (keep.dialog?.stage === 'enter' && k++ < 400) step(keep);
     expect(keep.dialog?.stage).toBe('talk');
-    expect(stage(keep)).toBeUndefined();
     expect(keep.dialog?.lines.some((l) => l.who === 'player')).toBe(false);
 
     const swapLevel = LEVELS.find((l) => DIALOGS[l.id].start.ifPlayed === 'swap')!;

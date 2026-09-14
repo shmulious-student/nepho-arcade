@@ -12,7 +12,7 @@ import { makeDirector, stepDirector, beginBoss, type DirectorState } from './dir
 import { levelDef, levelWidth, ACTIVE, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
 import { HEROES } from './frameData';
 import { ACTIVE_HEROES } from './roster';
-import { stepDialog, stepGuests, tryDialog, type DialogState } from './dialog';
+import { stepDialog, stepGuests, tryDialog, DIALOG_CAT, type DialogState } from './dialog';
 import { dialogFor } from './dialogs';
 import { DIFFICULTY_DEFS, DEFAULT_DIFFICULTY, type Difficulty, type DifficultyDef } from './difficulty';
 import { ENEMY_DEFS } from './enemyAi';
@@ -316,7 +316,7 @@ export class World {
       if (e.dead && (e.kind === 'projectile' || e.kind === 'hazard' || e.kind === 'pickup')) continue;
       if (e.kind === 'enemy') stepEnemy(this, e);
       else if (e.kind === 'boss' || e.kind === 'echo') stepBoss(this, e);
-      else if (e.kind === 'projectile') e.arch === 'cat' ? stepPitz(this, e) : stepProjectile(this, e);
+      else if (e.kind === 'projectile') { if (e.arch === 'cat') { if (e.pattern !== DIALOG_CAT) stepPitz(this, e); } else stepProjectile(this, e); } // the cat on stage for a dialog is moved by the dialog
       else if (e.kind === 'hazard') stepHazard(this, e);
       else if (e.kind === 'pickup') stepPickup(this, e);
     }

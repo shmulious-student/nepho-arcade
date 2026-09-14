@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { uiFont } from '../shared/i18n';
 import type { SimEvent } from '../sim/types';
 import { worldToScreenX, worldToScreenY } from './EntityView';
 import { HEROES, HERO_IDS } from '../sim/frameData';
@@ -71,7 +72,7 @@ export class Fx {
   }
   // a number / label that drifts up and fades — damage on hit, what a pickup gave
   private floatText(x: number, y: number, text: string, colour: string, size: number): void {
-    const t = this.scene.add.text(x, y, text, { fontFamily: 'monospace', fontSize: `${size}px`, color: colour, fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5).setDepth(9600);
+    const t = this.scene.add.text(x, y, text, { fontFamily: uiFont(), fontSize: `${size}px`, color: colour, fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5).setDepth(9600);
     this.container.add(t);
     this.scene.tweens.add({ targets: t, y: y - 34, alpha: 0, duration: 650, ease: 'Cubic.Out', onComplete: () => t.destroy() });
   }

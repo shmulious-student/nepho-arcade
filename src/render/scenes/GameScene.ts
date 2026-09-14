@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { catalogLevel, type Catalog } from '../../shared/catalog';
 import { getLang } from '../../shared/lang';
+import { t, ls, difficultyName, uiFont, uiSize } from '../../shared/i18n';
 import { DialogBox } from '../DialogBox';
 import { LocalSession, HostSession, GuestSession, wsUrlFromLocation, type Session } from '../../net/session';
 import { BTN, InputEdge, type InputFrame } from '../../sim/input';
@@ -15,7 +16,7 @@ import { HazardView } from '../HazardView';
 import { LEVEL_COUNT } from '../../sim/levels';
 import { LEVEL_W, VIEW_W, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
-import { DIFFICULTY_DEFS, DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
+import { DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
 import { sequencer } from '../../audio/sequencer';
 
@@ -139,25 +140,24 @@ export class GameScene extends Phaser.Scene {
   /** The difficulty on the title card: nothing for EASY (the game as tuned), the name otherwise. */
   private difficultyLabel(): string {
     const d = this.session.world()?.difficulty ?? this.startData.difficulty ?? DEFAULT_DIFFICULTY;
-    return d === 'easy' ? '' : DIFFICULTY_DEFS[d].name;
+    return d === 'easy' ? '' : difficultyName(d);
   }
 
   /** The LAN link is gone: say so, then back to the lobby. */
   private netLost(message: string): void {
     if (this.netLostShown) return;
     this.netLostShown = true;
-    this.add.text(VIEW_W / 2, 250, `${message}\nback to the lobby…`, { fontFamily: 'monospace', fontSize: '16px', color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000).setScrollFactor(0);
+    this.add.text(VIEW_W / 2, 250, `${message}\n${t('netLost')}`, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000).setScrollFactor(0);
     this.time.delayedCall(2200, () => { this.session.destroy(); this.scene.start('Lobby'); });
   }
   private netLostShown = false;
+  private keyHint?: Phaser.GameObjects.Text;
 
   private showKeyboardHint(withP2: boolean): void {
     if (isTouchDevice(this)) return; // touch controls cover this on mobile
-    const lines = withP2
-      ? ['P1  move WASD · light J · heavy K · jump SPACE · dash L+dir · special I · block U · friend H', 'P2  move ARROWS · light NUM1 · heavy NUM2 · jump NUM6 · dash NUM3+dir · special NUM0 · block NUM4 · friend NUM5']
-      : ['MOVE  WASD / ARROWS   LIGHT  J   HEAVY  K   JUMP  SPACE   DASH  hold L + dir   SPECIAL  I   BLOCK  U   FRIEND  H'];
-    const hint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
-      fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
+    const lines = withP2 ? [t('hintP1'), t('hintP2')] : [t('hintSolo')];
+    const hint = this.keyHint = this.add.text(this.scale.width / 2, this.scale.height - 10, lines.join('\n'), {
+      fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9', align: 'center', backgroundColor: '#0b1730cc', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(35000).setScrollFactor(0);
     this.tweens.add({ targets: hint, alpha: 0.25, delay: 5000, duration: 1200 });
   }
@@ -183,17 +183,29 @@ export class GameScene extends Phaser.Scene {
       resume: () => this.setPaused(false),
       restart: () => { this.setPaused(false); this.scene.start('Game', { ...this.startData, seed: Math.floor(Math.random() * 1e9) }); },
       lobby: () => { this.setPaused(false); this.session.destroy(); this.scene.start('Lobby'); },
-      language: () => this.dialogBox.setLang(getLang()),
+      language: () => this.relabel(),
     }, { canPause, touch: isTouchDevice(this) });
     // ⏸ in the top-right corner, comfortably tappable
     const g = this.add.circle(0, 0, 18, 0x0b1730, 0.7).setStrokeStyle(2, 0x344861).setInteractive({ useHandCursor: true });
-    const t = this.add.text(0, -1, '❚❚', { fontFamily: 'monospace', fontSize: '12px', color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
+    const t = this.add.text(0, -1, '❚❚', { fontFamily: uiFont(), fontSize: uiSize(12), color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
     // below the P2 card when there is (or may be) a second player, whose card owns the top-right corner
     const twoCards = this.session.mode !== 'local' || !!this.heroes[1];
     this.pauseBtn = this.add.container(VIEW_W - 30, twoCards ? 104 : 28, [g, t]).setDepth(45000).setScrollFactor(0);
     g.on('pointerdown', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-ESC', () => this.setPaused(!this.pause.open));
     this.input.keyboard!.on('keydown-P', () => this.setPaused(!this.pause.open));
+  }
+
+  /** The TEXT toggle in the pause menu: everything on screen is rebuilt in the other language. */
+  private relabel(): void {
+    this.dialogBox.setLang(getLang());
+    this.hud.destroy();
+    this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
+    this.touch.setVisible(false); this.touch = new TouchControls(this); this.touch.setVisible(false);
+    this.keyHint?.destroy(); this.showKeyboardHint(!!this.heroes[1]);
+    this.pause.destroy(); this.pauseBtn.destroy();
+    this.buildPause();
+    this.pause.show();
   }
 
   private setPaused(paused: boolean): void {
@@ -281,7 +293,7 @@ export class GameScene extends Phaser.Scene {
     const snap = this.session.snapshot();
     if (!snap) {
       // Host is waiting on the guest's hero pick before the World can be built (see HostSession.start).
-      if (!this.waitingText) this.waitingText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'waiting for player 2…', { fontFamily: 'monospace', fontSize: '13px', color: '#9bb1c9' }).setOrigin(0.5).setDepth(35000);
+      if (!this.waitingText) this.waitingText = this.add.text(this.scale.width / 2, this.scale.height / 2, t('waitingP2'), { fontFamily: uiFont(), fontSize: uiSize(13), color: '#9bb1c9' }).setOrigin(0.5).setDepth(35000);
       return;
     }
     if (this.waitingText) { this.waitingText.destroy(); this.waitingText = undefined; }
@@ -379,8 +391,8 @@ export class GameScene extends Phaser.Scene {
         // Beating the boss rolls straight into the next level — a banner, then the next stage's title
         // card — rather than dropping back to a menu between every level.
         const w = this.session.world();
-        const tally = w ? `TIME ${Math.floor(snap.timer / 60)}:${Math.floor(snap.timer % 60).toString().padStart(2, '0')} · BEST COMBO ${snap.maxCombo[0]} · BONUS +${w.levelBonus[0]}` : catalogLevel(this.catalog, this.levelIndex + 1).name;
-        this.hud.banner(`LEVEL ${this.levelIndex} CLEAR`, tally);
+        const tally = w ? t('tally', { time: `${Math.floor(snap.timer / 60)}:${Math.floor(snap.timer % 60).toString().padStart(2, '0')}`, combo: snap.maxCombo[0], bonus: w.levelBonus[0] }) : catalogLevel(this.catalog, this.levelIndex + 1).name;
+        this.hud.banner(t('levelClear', { n: this.levelIndex }), tally);
         if (this.session.mode !== 'guest') this.time.delayedCall(2200, () => this.nextLevel(score));
         return;
       }
@@ -394,9 +406,9 @@ export class GameScene extends Phaser.Scene {
   private showContinue(score: [number, number]): void {
     const cx = VIEW_W / 2, cy = 250;
     const veil = this.add.rectangle(0, 0, VIEW_W, 540, 0x050711, 0.6).setOrigin(0, 0);
-    const title = this.add.text(cx, cy - 60, 'CONTINUE?', { fontFamily: 'monospace', fontSize: '40px', color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8, letterSpacing: 6 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
-    const num = this.add.text(cx, cy + 10, '9', { fontFamily: 'monospace', fontSize: '64px', color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8 }).setOrigin(0.5);
-    const hint = this.add.text(cx, cy + 70, this.session.mode === 'guest' ? 'waiting for the host…' : 'press any button', { fontFamily: 'monospace', fontSize: '14px', color: '#9bb1c9' }).setOrigin(0.5);
+    const title = this.add.text(cx, cy - 60, t('continueQ'), { fontFamily: uiFont(), fontSize: uiSize(40), color: '#ffcf5c', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8, letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
+    const num = this.add.text(cx, cy + 10, '9', { fontFamily: uiFont(), fontSize: uiSize(64), color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 8 }).setOrigin(0.5);
+    const hint = this.add.text(cx, cy + 70, this.session.mode === 'guest' ? t('waitingHost') : t('pressAny'), { fontFamily: uiFont(), fontSize: uiSize(14), color: '#9bb1c9' }).setOrigin(0.5);
     const group = this.add.container(0, 0, [veil, title, num, hint]).setDepth(48000).setScrollFactor(0);
     let count = 9, resolved = false;
     const finish = () => {

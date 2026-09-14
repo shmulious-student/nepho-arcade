@@ -11,13 +11,13 @@
 // the world was built and the script explains it. A live sidekick or an earlier `join` guest of the
 // same hero is borrowed rather than duplicated.
 import { BTN, type InputFrame } from './input';
-import { HEROES } from './frameData';
+import { HEROES, PITZ } from './frameData';
 import { LANE_H, VISIBLE_X0, VISIBLE_W, HERO_EDGE, type Entity, type HeroId } from './types';
 import { makeEntity, setState, isHurt } from './entity';
 import { stepHero, clampHero } from './fighter';
 import { fightInput, frameFor } from './friends';
 import { levelDef } from './levels';
-import { dialogFor, resolveLines, revealTicks, AUTO_ADVANCE_TICKS, HOLD_SKIP_TICKS, MIN_PAGE_TICKS, type DialogDef, type DialogKey, type DialogLine } from './dialogs';
+import { dialogFor, resolveLines, revealTicks, HOLD_SKIP_TICKS, MIN_PAGE_TICKS, type DialogDef, type DialogKey, type DialogLine } from './dialogs';
 import type { World } from './world';
 
 export type DialogStage = 'enter' | 'talk' | 'leave';
@@ -31,12 +31,17 @@ export interface DialogState {
   tick: number; // ticks into the current page (talk) / stage (enter, leave)
   hold: number; // consecutive ticks a button has been held during talk
   speaker: Entity | null; // the hero on stage; null when a player's own hero speaks in place
+  /** Pitz, on stage whenever the script gives him a line: walks in beside the hero, sits, runs off. */
+  pitz: Entity | null;
   origin: 'new' | 'friend' | 'guest' | 'player';
   tx: number; ty: number; // where the speaker stands
 }
 
 const PRESS = BTN.LIGHT | BTN.HEAVY | BTN.JUMP | BTN.SPECIAL | BTN.DASH | BTN.ASSIST;
 const ENTER_TIMEOUT = 300; // ticks before a straggling speaker is simply placed on the mark
+/** Marks the cat that is on stage for a dialog (a 'cat' projectile the sim must not run as Shmuel's special). */
+export const DIALOG_CAT = -7;
+const CAT_SIT = PITZ.leap; // the run row's first frame: the cat standing still
 const SIDEKICK_REVIVE = 240;
 
 /** Starts the dialog `key` for the current level if it exists and has not played yet. */
@@ -76,7 +81,13 @@ function beginDialog(w: World, key: DialogKey, def: DialogDef): void {
       w.entities.push(speaker);
     }
   }
-  w.dialog = { key, def, lines, stage: origin === 'player' ? 'talk' : 'enter', page: 0, tick: 0, hold: 0, speaker, origin, tx, ty };
+  let pitz: Entity | null = null;
+  if (lines.some((l) => l.who === 'pitz')) {
+    pitz = makeEntity(w.nextEntityId(), 'projectile', 'cat', w.cameraX + VISIBLE_X0 + VISIBLE_W + 120, Math.min(LANE_H - 4, ty + 10), 1);
+    pitz.pattern = DIALOG_CAT; pitz.pphase = 1; pitz.st = CAT_SIT; pitz.facing = -1; pitz.ttl = 0; pitz.friendly = true;
+    w.entities.push(pitz);
+  }
+  w.dialog = { key, def, lines, stage: origin === 'player' && !pitz ? 'talk' : 'enter', page: 0, tick: 0, hold: 0, speaker, origin, pitz, tx, ty };
   w.emit({ type: 'levelPhase', x: 0, y: 0, a: 200 });
 }
 
@@ -93,6 +104,22 @@ function walkTo(e: Entity, tx: number, ty: number, speed: number): boolean {
   return false;
 }
 
+/** The cat's mark: a step in front of the hero's, or in front of the players when the hero speaks in place. */
+function catMark(w: World, d: DialogState): [number, number] {
+  const x = d.speaker || d.origin !== 'player' ? d.tx - 48 : Math.min(Math.max(...w.heroes().map((h) => h.x)) + 70, w.cameraX + VISIBLE_X0 + VISIBLE_W - 40);
+  return [x, Math.min(LANE_H - 4, d.ty + 10)];
+}
+
+/** Moves the cat on foot (run row), true once there. */
+function catWalkTo(c: Entity, tx: number, ty: number, speed: number): boolean {
+  const dx = tx - c.x, dy = ty - c.y;
+  if (Math.abs(dx) <= speed && Math.abs(dy) <= speed) { c.x = tx; c.y = ty; c.st = CAT_SIT; return true; }
+  if (Math.abs(dx) > speed) { c.x += Math.sign(dx) * speed; c.facing = dx > 0 ? 1 : -1; } else c.x = tx;
+  if (Math.abs(dy) > speed * 0.6) c.y += Math.sign(dy) * speed * 0.6; else c.y = ty;
+  c.st = Math.max(CAT_SIT, c.st) + 1;
+  return false;
+}
+
 export function stepDialog(w: World, inputs: [InputFrame, InputFrame]): void {
   const d = w.dialog!;
   const players = w.heroes();
@@ -102,37 +129,44 @@ export function stepDialog(w: World, inputs: [InputFrame, InputFrame]): void {
     stepHero(w, h, { held: 0, pressed: 0 });
     if (d.speaker && (h.state === 'idle' || h.state === 'walk')) h.facing = d.speaker.x >= h.x ? 1 : -1;
   }
-  const s = d.speaker;
+  const s = d.speaker, c = d.pitz;
   if (d.stage === 'enter') {
-    const speed = HEROES[s!.arch as HeroId].speed * 1.6;
-    if (walkTo(s!, d.tx, d.ty, speed) || d.tick > ENTER_TIMEOUT) {
-      s!.x = d.tx; s!.y = d.ty; s!.facing = -1; setState(s!, 'idle');
+    const heroThere = !s || walkTo(s, d.tx, d.ty, HEROES[s.arch as HeroId].speed * 1.6);
+    const [cx, cy] = catMark(w, d);
+    const catThere = !c || catWalkTo(c, cx, cy, 4.6);
+    if ((heroThere && catThere) || d.tick > ENTER_TIMEOUT) {
+      if (s) { s.x = d.tx; s.y = d.ty; s.facing = -1; setState(s, 'idle'); }
+      if (c) { c.x = cx; c.y = cy; c.facing = -1; c.st = CAT_SIT; }
       d.stage = 'talk'; d.page = 0; d.tick = 0; d.hold = 0;
     }
     return;
   }
   if (d.stage === 'talk') {
     if (s) { s.st++; if (s.state !== 'idle') setState(s, 'idle'); } // no invuln here: the renderer blinks invulnerable heroes; combat.ts skips the speaker instead
+    if (c) { c.st = CAT_SIT; c.facing = -1; } // sits, facing the players
     const line = d.lines[d.page];
     const reveal = revealTicks(line);
     const pressed = (inputs[0].pressed | inputs[1].pressed) & PRESS;
     const held = (inputs[0].held | inputs[1].held) & PRESS;
     d.hold = held ? d.hold + 1 : 0;
     if (d.hold >= HOLD_SKIP_TICKS) { endTalk(w, d); return; }
+    // a page only turns on a press: the first press finishes typing it, the next one turns it
     if (pressed && d.tick >= MIN_PAGE_TICKS) {
       if (d.tick < reveal) d.tick = reveal; // finish typing
       else { d.page++; d.tick = 0; }
-    } else if (d.tick >= reveal + AUTO_ADVANCE_TICKS) { d.page++; d.tick = 0; }
+    }
     if (d.page >= d.lines.length) endTalk(w, d);
     return;
   }
-  // leave: run off to the right, then vanish
-  if (!s) { finish(w, d); return; }
-  const speed = HEROES[s.arch as HeroId].speed * 2;
+  // leave: the hero (and the cat) run off to the right, then vanish
+  if (!s && !c) { finish(w, d); return; }
   const gone = w.cameraX + VISIBLE_X0 + VISIBLE_W + 80;
-  walkTo(s, gone + 10, s.y, speed);
-  if (s.x >= gone || d.tick > ENTER_TIMEOUT) {
-    s.dead = true; s.removeAt = w.tick + 1;
+  let heroGone = !s, catGone = !c;
+  if (s) { walkTo(s, gone + 10, s.y, HEROES[s.arch as HeroId].speed * 2); heroGone = s.x >= gone; }
+  if (c) { catWalkTo(c, gone + 30, c.y, 6.5); catGone = c.x >= gone; }
+  if ((heroGone && catGone) || d.tick > ENTER_TIMEOUT) {
+    if (s) { s.dead = true; s.removeAt = w.tick + 1; }
+    if (c) { c.dead = true; c.removeAt = w.tick + 1; }
     finish(w, d);
   }
 }
@@ -140,23 +174,23 @@ export function stepDialog(w: World, inputs: [InputFrame, InputFrame]): void {
 function endTalk(w: World, d: DialogState): void {
   const s = d.speaker;
   d.page = d.lines.length;
-  if (!s) { finish(w, d); return; }
-  if (d.origin === 'friend') { finish(w, d); return; } // a borrowed sidekick goes back to its duty
-  if (d.def.join || d.origin === 'guest') {
+  let heroLeaves = !!s;
+  if (s && d.origin === 'friend') heroLeaves = false; // a borrowed sidekick goes back to its duty
+  else if (s && (d.def.join || d.origin === 'guest')) {
     // stays for the rest of the level as an AI ally
     s.owner = w.players[0]!.id; s.pattern = 0; s.aiT = 0; s.pt = 0;
     setState(s, 'idle');
     w.guests.push(s);
-    finish(w, d);
-    return;
+    heroLeaves = false;
   }
+  if (!heroLeaves) d.speaker = null;
+  if (!heroLeaves && !d.pitz) { finish(w, d); return; }
   d.stage = 'leave'; d.tick = 0;
-  setState(s, 'walk');
-  w.emit({ type: 'dash', x: s.x, y: s.y, id: s.id });
+  if (heroLeaves && s) { setState(s, 'walk'); w.emit({ type: 'dash', x: s.x, y: s.y, id: s.id }); }
 }
 
 function finish(w: World, d: DialogState): void {
-  void d;
+  if (d.pitz && !d.pitz.dead) { d.pitz.dead = true; d.pitz.removeAt = w.tick + 1; }
   w.dialog = null;
   w.emit({ type: 'levelPhase', x: 0, y: 0, a: 201 });
 }

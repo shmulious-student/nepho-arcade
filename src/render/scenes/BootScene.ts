@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { uiFont, uiSize } from '../../shared/i18n';
 import { loadCatalog, assetUrl, type Catalog } from '../../shared/catalog';
 import { loadRoster, applyRoster } from '../../sim/roster';
 import { syncContent } from '../../content/updater';
@@ -14,10 +15,10 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     const w = this.scale.width, h = this.scale.height;
     this.add.rectangle(0, 0, w, h, 0x050711).setOrigin(0, 0);
-    this.add.text(w / 2, h / 2 - 40, 'EVIOMRI: CIRCUIT BREAKERS', { fontFamily: 'monospace', fontSize: '20px', color: '#ffcf5c' }).setOrigin(0.5);
+    this.add.text(w / 2, h / 2 - 40, 'EVIOMRI: CIRCUIT BREAKERS', { fontFamily: uiFont(), fontSize: uiSize(20), color: '#ffcf5c' }).setOrigin(0.5);
     this.add.rectangle(w / 2, h / 2, 300, 10, 0x14243d).setOrigin(0.5).setStrokeStyle(1, 0x344861);
     this.bar = this.add.rectangle(w / 2 - 148, h / 2, 0, 6, 0x75f5dc).setOrigin(0, 0.5);
-    this.label = this.add.text(w / 2, h / 2 + 20, 'loading…', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9' }).setOrigin(0.5);
+    this.label = this.add.text(w / 2, h / 2 + 20, 'loading…', { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9' }).setOrigin(0.5);
 
     this.load.on('progress', (p: number) => { this.bar.width = 296 * p; });
 
