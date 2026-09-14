@@ -13,7 +13,7 @@ import { t, ls, isHebrew, uiFont, uiSize } from '../shared/i18n';
 interface PlayerHud {
   root: Phaser.GameObjects.Container; hp: Phaser.GameObjects.Rectangle; hpGhost: Phaser.GameObjects.Rectangle;
   meter: Phaser.GameObjects.Rectangle; meterLabel: Phaser.GameObjects.Text; combo: Phaser.GameObjects.Text;
-  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lives: Phaser.GameObjects.Text; friendMode: string; friendName: string; lastHp: number; wasReady: boolean;
+  friend: Phaser.GameObjects.Text | null; friendBar: Phaser.GameObjects.Rectangle | null; lives: Phaser.GameObjects.Text; friendMode: string; friendName: string; lastHp: number; wasReady: boolean; right: boolean;
 }
 
 const BAR_W = 220;
@@ -71,7 +71,7 @@ export class Hud {
       const friendMode = friends?.mode ?? 'off', friendName = fid ? HEROES[fid].name : '';
       root.add([panel, chipBg, chip, name, lives, hpBg, hpGhost, hp, meterBg, meter, meterLabel, combo, ...(friend ? [friend, friendBar!] : [])]);
       this.container.add(root);
-      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lives, friendMode, friendName, lastHp: 1, wasReady: false });
+      this.players.push({ root, hp, hpGhost, meter, meterLabel, combo, friend, friendBar, lives, friendMode, friendName, lastHp: 1, wasReady: false, right });
     }
     this.timerText = scene.add.text(VIEW_W / 2, 10, '0:00', { fontFamily: uiFont(), fontSize: uiSize(20), color: '#f3f4e8', fontStyle: 'bold', stroke: '#0b1730', strokeThickness: 4 }).setOrigin(0.5, 0);
     this.waveText = scene.add.text(VIEW_W / 2, 34, '', { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9', stroke: '#0b1730', strokeThickness: 3 }).setOrigin(0.5, 0);
@@ -127,6 +127,12 @@ export class Hud {
     if (s.phase === 'clear' && this.lastWave !== 100) { this.lastWave = 100; this.banner(t('bossDown'), s.level >= LEVEL_COUNT ? t('youFoundThem') : t('stageClear')); }
     this.goArrow.setVisible(s.go);
     if (s.go) { this.goArrow.setAlpha(0.6 + 0.4 * Math.sin(s.tick / 6)); this.goArrow.setX(uiRight(this.scene) - 80 + 6 * Math.sin(s.tick / 5)); }
+  }
+
+  /** The canvas changed width: the cards back into the screen's corners. */
+  relayout(): void {
+    for (const p of this.players) p.root.setX(p.right ? uiRight(this.scene) - 14 - (BAR_W + 62) : uiLeft(this.scene) + 14);
+    this.goArrow.setX(uiRight(this.scene) - 80);
   }
 
   /** A big centre-screen banner that slides in and fades — wave starts, the boss, level clear. */

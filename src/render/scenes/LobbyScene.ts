@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { catalogLevel } from '../../shared/catalog';
 import { getLang, setLang, langLabel } from '../../shared/lang';
-import { centreUiCamera, uiOffsetX } from '../viewport';
+import { centreUiCamera, onViewportResize, uiOffsetX } from '../viewport';
 import { t, isHebrew, difficultyName, heroBias, uiFont, uiSize } from '../../shared/i18n';
 import { getDifficulty, setDifficulty } from '../../shared/difficultySetting';
 import { CONTENT_URL } from '../../content/updater';
@@ -73,7 +73,7 @@ export class LobbyScene extends Phaser.Scene {
   private get stripX0(): number { return Math.round((VIEW_W - (this.pageW - LobbyScene.CARD_GAP)) / 2); }
 
   create(): void {
-    centreUiCamera(this);
+    onViewportResize(this, () => centreUiCamera(this));
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
     // header: the wordmark (it already says EVIOMRI · CIRCUIT BREAKERS) and the section title

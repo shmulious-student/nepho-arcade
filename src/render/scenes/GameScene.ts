@@ -15,7 +15,7 @@ import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
 import { LEVEL_COUNT } from '../../sim/levels';
 import { LEVEL_W, VIEW_W, VIEW_H, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
-import { uiOffsetX, uiRight } from '../viewport';
+import { onViewportResize, uiOffsetX, uiRight } from '../viewport';
 import type { FriendSetup } from '../../sim/friends';
 import { DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
@@ -71,6 +71,7 @@ export class GameScene extends Phaser.Scene {
   private waitingText?: Phaser.GameObjects.Text;
   private heroesResolved = false;
   private friends?: FriendSetup;
+  private uiCam!: Phaser.Cameras.Scene2D.Camera;
   private startData!: StartData;
 
   create(data: StartData): void {
@@ -120,7 +121,7 @@ export class GameScene extends Phaser.Scene {
     // top-level objects themselves (not via camera.ignore, which walks a container's current children
     // and would miss sprites spawned into the world later); UI objects are flagged as they appear.
     const worldCam = this.cameras.main;
-    const uiCam = this.cameras.add(0, 0, this.scale.width, VIEW_H, false, 'ui').setScroll(-off, 0);
+    const uiCam = this.uiCam = this.cameras.add(0, 0, this.scale.width, VIEW_H, false, 'ui').setScroll(-off, 0);
     this.world.cameraFilter |= uiCam.id;
     const hideUiFromWorldCam = () => {
       for (const o of this.children.list) if (o !== this.world && !(o.cameraFilter & worldCam.id)) o.cameraFilter |= worldCam.id;
@@ -143,6 +144,7 @@ export class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,J,K,L,I,U,H,SPACE,UP,DOWN,LEFT,RIGHT,NUMPAD_ONE,NUMPAD_TWO,NUMPAD_THREE,NUMPAD_ZERO,NUMPAD_FOUR,NUMPAD_FIVE,NUMPAD_SIX') as any;
     this.showKeyboardHint(!!this.heroes[1]);
     this.buildPause();
+    onViewportResize(this, () => this.relayout());
     if (import.meta.env.DEV) {
       const q = new URLSearchParams(location.search);
       if (q.has('boss')) this.session.world()?.debugSkipToBoss();
@@ -417,6 +419,16 @@ export class GameScene extends Phaser.Scene {
       if (snap.phase === 'gameover') { this.showContinue(score); return; }
       this.time.delayedCall(900, () => this.toResults(snap.phase as 'victory' | 'gameover', score));
     }
+  }
+
+  /** The canvas was re-sized to the screen (a rotation, the address bar): re-centre the world, span the
+   * UI camera over the new width and put the corner-anchored UI back in the corners. */
+  private relayout(): void {
+    const off = uiOffsetX(this), zoom = VIEW_ZOOM;
+    this.world.setPosition(VIEW_PIVOT_X * (1 - zoom) + off, VIEW_PIVOT_Y * (1 - zoom));
+    this.uiCam.setSize(this.scale.width, VIEW_H).setScroll(-off, 0);
+    this.hud.relayout(); this.touch.relayout(); this.pause.relayout();
+    this.pauseBtn?.setX(uiRight(this) - 30);
   }
 
   /** CONTINUE? 9…0 — any key or tap puts the heroes back in the fight; the count running out ends

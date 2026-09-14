@@ -27,8 +27,9 @@ export class TouchControls {
   private stickOrigin = { x: 0, y: 0 };
   private stickHome = { x: 0, y: 0 };
   private stickVec = { x: 0, y: 0 };
-  private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; colour: number; pointerId: number | null; x: number; y: number; r: number; hit: number }[] = [];
+  private buttons: { g: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; bit: number; colour: number; pointerId: number | null; x: number; y: number; r: number; hit: number; ax: number }[] = []; // ax: x relative to the screen's right edge
   private offX: number; // the 960 frame's left edge on the canvas (render/viewport.ts)
+  private k: number; // the size setting's scale
   private assistZone: { x: number; y: number; w: number; h: number; pointerId: number | null };
   private edge = new InputEdge();
   private lit = new Set<number>(); // buttons drawn filled because their action is ready (SPC, CALL)
@@ -43,7 +44,7 @@ export class TouchControls {
     this.scene = scene;
     this.offX = uiOffsetX(scene);
     this.container = scene.add.container(0, 0).setDepth(40000);
-    const k = { S: 0.85, M: 1, L: 1.2 }[TouchControls.sizeSetting()];
+    const k = this.k = { S: 0.85, M: 1, L: 1.2 }[TouchControls.sizeSetting()];
 
     // floating stick, resting bottom-left when idle
     const stickX = uiLeft(scene) + 100 * k, stickY = VIEW_H - 100 * k; // the screen's own corners, not the frame's
@@ -70,7 +71,7 @@ export class TouchControls {
       const g = scene.add.circle(x, y, r, 0x0b1730, 0.45).setStrokeStyle(3, colour);
       const t = scene.add.text(x, y, label, { fontFamily: uiFont(), fontSize: `${Math.round(13 * k)}px`, color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5).setAlpha(0.9);
       this.container.add([g, t]);
-      this.buttons.push({ g, label: t, bit, colour, pointerId: null, x, y, r, hit });
+      this.buttons.push({ g, label: t, bit, colour, pointerId: null, x, y, r, hit, ax: x - uiRight(scene) });
     }
     // the friend call lives on the HUD card (top-left), not on the cluster
     this.assistZone = { x: uiLeft(scene) + 14, y: 10, w: 290, h: 80, pointerId: null };
@@ -80,6 +81,18 @@ export class TouchControls {
     scene.input.on('pointermove', this.onMove, this);
     scene.input.on('pointerup', this.onUp, this);
     scene.input.on('pointerupoutside', this.onUp, this);
+  }
+
+  /** The canvas changed width (a rotation, the address bar): stick and cluster back into the corners. */
+  relayout(): void {
+    const scene = this.scene, k = this.k;
+    this.offX = uiOffsetX(scene);
+    const stickX = uiLeft(scene) + 100 * k, stickY = VIEW_H - 100 * k;
+    this.stickHome = { x: stickX, y: stickY };
+    if (this.stickPointerId === null) { this.stickOrigin = { ...this.stickHome }; this.stickBase.setPosition(stickX, stickY); this.stickNub.setPosition(stickX, stickY); }
+    const right = uiRight(scene);
+    for (const b of this.buttons) { b.x = right + b.ax; b.g.setX(b.x); b.label.setX(b.x); }
+    this.assistZone.x = uiLeft(scene) + 14;
   }
 
   /** Lights the special button when the meter is full, so the affordance is visible at a glance. */

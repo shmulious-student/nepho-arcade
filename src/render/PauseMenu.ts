@@ -16,11 +16,12 @@ export class PauseMenu {
   private root: Phaser.GameObjects.Container;
   private soundBtn!: Phaser.GameObjects.Text;
   open = false;
+  private veil: Phaser.GameObjects.Rectangle;
 
   constructor(scene: Phaser.Scene, actions: PauseActions, opts: { canPause: boolean; touch: boolean }) {
     this.scene = scene;
     const cx = VIEW_W / 2;
-    const veil = scene.add.rectangle(-uiOffsetX(scene), 0, scene.scale.width, VIEW_H, 0x050711, 0.72).setOrigin(0, 0).setInteractive(); // the whole canvas; // eats clicks underneath
+    const veil = this.veil = scene.add.rectangle(-uiOffsetX(scene), 0, scene.scale.width, VIEW_H, 0x050711, 0.72).setOrigin(0, 0).setInteractive(); // the whole canvas — eats clicks underneath
     const panel = scene.add.rectangle(cx, 262, 340, 350, 0x0b1730, 0.96).setStrokeStyle(2, 0x344861);
     const title = scene.add.text(cx, 128, t('paused'), { fontFamily: uiFont(), fontSize: uiSize(26), color: '#ffcf5c', fontStyle: 'bold', letterSpacing: ls(6) } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const items: Phaser.GameObjects.GameObject[] = [veil, panel, title];
@@ -48,6 +49,8 @@ export class PauseMenu {
   }
 
   show(): void { this.open = true; this.root.setVisible(true); }
+  /** The canvas changed width: the veil over all of it again. */
+  relayout(): void { this.veil.setX(-uiOffsetX(this.scene)); this.veil.width = this.scene.scale.width; }
   hide(): void { this.open = false; this.root.setVisible(false); }
   destroy(): void { this.root.destroy(); }
 }

@@ -4,7 +4,7 @@ import { LobbyScene } from './render/scenes/LobbyScene';
 import { GameScene } from './render/scenes/GameScene';
 import { ResultsScene } from './render/scenes/ResultsScene';
 import { VIEW_H } from './sim/types';
-import { gameWidth } from './render/viewport';
+import { gameWidth, keepCanvasFitted } from './render/viewport';
 
 // Android WebViews (the Capacitor app, BlueStacks) mis-render the WebGL path — the Redmi Note 13 smeared
 // the last-uploaded texture over every sprite, BlueStacks painted an opaque cream slab over the play
@@ -27,11 +27,6 @@ const game = new Phaser.Game(config);
 
 // iOS Safari's collapsible toolbar resizes the *visible* viewport after the page has already
 // finished its first layout pass, without necessarily firing the events Phaser's ScaleManager
-// already listens to in time — without this, bottom-anchored UI (e.g. the lobby's START button)
-// can end up sized off-screen with no way to scroll to it. visualViewport's own resize event is the
-// most reliable signal mobile Safari gives for this; refresh the fit whenever it (or a plain window
-// resize/orientation change, for everything else) fires.
-const refit = () => game.scale.refresh();
-window.visualViewport?.addEventListener('resize', refit);
-window.addEventListener('resize', refit);
-window.addEventListener('orientationchange', refit);
+// already listens to in time, and a rotation changes the aspect the canvas was sized for; both are
+// handled by re-sizing/re-fitting the canvas on every viewport change (render/viewport.ts).
+keepCanvasFitted(game);
