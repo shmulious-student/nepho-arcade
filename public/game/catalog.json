@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-14T18:38:54.441Z",
+ "generatedAt": "2026-09-14T19:19:12.945Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -3745,11 +3745,11 @@
    "atlas": "chars/pitz.webp",
    "data": "chars/pitz.json",
    "box": {
-    "w": 200,
+    "w": 206,
     "h": 131
    },
    "anchor": {
-    "x": 100,
+    "x": 103,
     "y": 122
    },
    "rows": [
