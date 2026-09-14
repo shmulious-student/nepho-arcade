@@ -77,7 +77,9 @@ sheets are ignored) with CORS `*`, a 5-minute cache on art and `no-cache` on `ma
 `catalog.json` and `roster.json`. So **publishing content is one command**:
 
 ```bash
-npm run content:deploy   # build:manifest, then firebase deploy --only hosting as shmulious@gmail.com
+npm run content:deploy   # full web build, then firebase deploy --only hosting as shmulious@gmail.com
+# The same site is the playable web build: https://nepho-eviomri.web.app/ (dist/ is served whole;
+# /game/ within it is the content pack the APK pulls).
 ```
 
 (run `npm run build:assets` first when masters changed). The account is passed with `--account`

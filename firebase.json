@@ -1,14 +1,30 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "dist",
     "ignore": [
       "**/.*",
       "**/node_modules/**",
-      "assets/**",
-      "showcase.html",
       "game/debug/**"
     ],
     "headers": [
+      {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
       {
         "source": "/game/**",
         "headers": [
@@ -34,13 +50,6 @@
             "value": "no-cache"
           }
         ]
-      }
-    ],
-    "redirects": [
-      {
-        "source": "/",
-        "destination": "/game/manifest.json",
-        "type": 302
       }
     ]
   }
