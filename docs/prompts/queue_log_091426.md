@@ -179,3 +179,17 @@ Append-only format:
 - CLAUDE 12:11 the-null special → PASS (gate + by eye: the inverting phase — negative flash 4–7, figure stays readable throughout).
 - CLAUDE 12:18 the-null hurt → PASS (gate + by eye: flinch / reel / airborne crumple; the static fringe stays contained). Only defeat left.
 - CLAUDE 12:26 the-null defeat → PASS. **THE NULL COMPLETE 6/6** — verify:character PASS, build:assets + test:assets clean, npm test 161/161, roster: level 8. Committed (art + built atlas + portrait). Next: vault-mother.
+2026-09-14 13:40 vault-mother sheet vault-mother-sheet.png → GENERATED; saved for Claude verification.
+- CLAUDE 13:42 vault-mother sheet → ACCEPTED as identity (regal, lavender hair, gold halo-crown, white-and-gold segmented gown, chain whip, halo orbs — exactly the card). It has a PAINTED checkerboard, not alpha: fine for a sheet (reference only), but every action file must be run through `npm run intake:character -- vault-mother <action>` before I gate it — and ask the model for a true transparent background as the standard says. Continue with idle.
+2026-09-14 13:42 vault-mother action idle.png → GENERATED; INTAKEN; Claude verification pending.
+- CLAUDE 13:48 vault-mother idle → PASS (gate + by eye: intake keyed the checkerboard cleanly; 9 distinct frames, halo orbs drifting). Attach idle.png as size reference.
+2026-09-14 13:54 vault-mother action approach.png → GENERATED; INTAKEN; Claude verification pending.
+- CLAUDE 14:00 vault-mother approach → PASS (gate + by eye: stately stride, alternating legs, hair and gown flowing).
+2026-09-14 14:05 vault-mother action attack.png → GENERATED; INTAKEN; Claude verification pending.
+- CLAUDE 14:08 vault-mother attack → PASS (gate + by eye: chain unspools → lash beam 4–6 → recoil; margins held).
+2026-09-14 14:20 vault-mother action special.png → GENERATED; INTAKEN; Claude verification pending.
+- CLAUDE 14:24 vault-mother special → PASS (gate + by eye: raise → halo orbs summoned 4 → bombs drop 5–7 → settle; the figure reads smaller in this file but within the gate's tolerance).
+2026-09-14 14:32 vault-mother action hurt.png → GENERATED; INTAKEN; Claude verification pending.
+- CLAUDE 14:35 vault-mother hurt → PASS (gate + by eye: flinch / reel / airborne curl, chain trailing). Only defeat left.
+2026-09-14 14:43 vault-mother action defeat.png → GENERATED; INTAKEN; Claude verification pending. Vault Mother's seven requested images are complete; Claude must verify before any build or roster-art readiness change.
+- CLAUDE 14:48 vault-mother defeat → PASS (halo falls, knee, crawl, flat 7–9 with settle). **VAULT MOTHER COMPLETE 6/6, zero retries** — verify PASS, build + gates clean, npm test green, roster: level 9. Committed. Next: ultra-signal.
