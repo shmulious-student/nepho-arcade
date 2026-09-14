@@ -155,3 +155,4 @@
 02:05 backdrop level 7 (Midjourney, basketbass-gym.png) → ACCEPTED, --floor=63%
 02:05 backdrop level 8 (Midjourney, theater.png) → ACCEPTED, --trim-bottom=6% --floor=83%
 02:05 backdrop level 9 (Midjourney, candy-factory.png) → ACCEPTED, --floor=67%
+02:10 backdrop level 10 (Midjourney, cactlunya.png) → ACCEPTED, --floor=84%. ALL TEN LEVELS have Midjourney plates.
