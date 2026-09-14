@@ -11,11 +11,14 @@ import { resolveHits, registerProjectileHit, forgetProjectile, registerHazardHit
 import { makeDirector, stepDirector, beginBoss, type DirectorState } from './director';
 import { levelDef, levelWidth, ACTIVE, BOSS_HP_BASE, BOSS_HP_PER_LEVEL, BOSS_ENRAGE_TICKS } from './levels';
 import { HEROES } from './frameData';
+import { ACTIVE_HEROES } from './roster';
+import { stepDialog, stepGuests, tryDialog, type DialogState } from './dialog';
+import { dialogFor } from './dialogs';
 import { ENEMY_DEFS } from './enemyAi';
 import type { InputFrame } from './input';
 import { LANE_H, VIEW_W, VISIBLE_X0, type Entity, type HeroId, type Snapshot, type EntityView, type SimEvent, type LevelPhase } from './types';
 
-export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number] }
+export interface WorldOptions { seed: number; level: number; heroes: [HeroId, HeroId | null]; friends?: FriendSetup; score?: [number, number]; /** false: no dialog scenes (unit tests of other mechanics) */ dialogs?: boolean }
 
 export class World {
   tick = 0;
@@ -42,12 +45,39 @@ export class World {
   result: 'victory' | 'gameover' | null = null;
   lives: [number, number] = [2, 2]; // extra lives per hero slot; after those it is the CONTINUE? countdown
   private phaseBeforeGameOver: LevelPhase = 'wave';
+  /** The dialog scene on stage (sim/dialog.ts); the director and the players wait while it runs. */
+  dialog: DialogState | null = null;
+  dialogsPlayed = new Set<string>();
+  dialogsEnabled = true;
+  /** Heroes who stayed after a dialog to fight beside the players (slot -1, like sidekicks). */
+  guests: Entity[] = [];
+  /** The heroes the lobby picked, before an opening scene swapped one for this level. */
+  chosenHeroes: [HeroId, HeroId | null];
+  /** The swap an opening scene made: which player, who they picked, who they play this level. */
+  swap: { slot: number; from: HeroId; to: HeroId } | null = null;
 
   constructor(opts: WorldOptions) {
     this.rng = new Rng(opts.seed);
     this.level = opts.level;
+    this.chosenHeroes = [opts.heroes[0], opts.heroes[1]];
+    this.dialogsEnabled = opts.dialogs !== false;
+    // An opening scene marked `ifPlayed: swap` hands the player who picked its hero a random other
+    // hero for this level (the script explains it); the lobby's pick comes back next level.
+    const heroes: [HeroId, HeroId | null] = [opts.heroes[0], opts.heroes[1]];
+    const opening = dialogFor(levelDef(opts.level).id, 'start');
+    if (this.dialogsEnabled && opening?.ifPlayed === 'swap') {
+      const slot = heroes.findIndex((h) => h === opening.hero);
+      if (slot >= 0) {
+        const pool = ACTIVE_HEROES.filter((h) => !heroes.includes(h) && h !== opening.hero && HEROES[h]);
+        if (pool.length) {
+          const to = pool[this.rng.int(0, pool.length - 1)];
+          this.swap = { slot, from: opening.hero, to };
+          heroes[slot] = to;
+        }
+      }
+    }
     for (let slot = 0; slot < 2; slot++) {
-      const hid = opts.heroes[slot];
+      const hid = heroes[slot];
       if (!hid) continue;
       const def = HEROES[hid];
       // inside the zoomed view (the renderer shows roughly the middle 60% of VIEW_W), not at its edge
@@ -61,14 +91,14 @@ export class World {
     if (opts.friends) {
       this.friendMode = opts.friends.mode;
       // a friend is never the same hero as either player
-      this.friendIds = opts.friends.friends.map((f) => (f && !opts.heroes.includes(f) ? f : null)) as [HeroId | null, HeroId | null];
+      this.friendIds = opts.friends.friends.map((f) => (f && !heroes.includes(f) ? f : null)) as [HeroId | null, HeroId | null];
     }
   }
 
   private id(): number { return this.nextId++; }
   nextEntityId(): number { return this.id(); }
   /** Heroes plus any live friends — what enemies pick their targets from. */
-  allies(): Entity[] { return [...this.heroes(), ...this.friends.filter((f): f is Entity => !!f && f.state !== 'ko')]; }
+  allies(): Entity[] { return [...this.heroes(), ...this.friends.filter((f): f is Entity => !!f && f.state !== 'ko'), ...this.guests.filter((g) => !g.dead && g.state !== 'ko')]; }
   byId(id: number): Entity | undefined { return this.entities.find((e) => e.id === id); }
   playerCount(): number { return this.players.filter(Boolean).length; }
   heroes(): Entity[] { return this.players.filter((p): p is Entity => !!p); }
@@ -210,7 +240,8 @@ export class World {
     for (const e of this.entities) if (e.kind === 'enemy') { e.dead = true; e.removeAt = this.tick + 1; }
     this.cameraX = levelWidth(levelDef(this.level)) - VIEW_W;
     this.director.waveIndex = levelDef(this.level).waves.length - 1;
-    beginBoss(this, this.director);
+    this.director.queue = []; this.director.bonusUsed = true; // nothing left of the waves
+    if (!tryDialog(this, 'boss')) beginBoss(this, this.director); // the boss-entrance scene first, as in play
   }
 
   completeLevel(): void {
@@ -235,12 +266,20 @@ export class World {
     this.events = [];
     if (this.director.bossTick > BOSS_ENRAGE_TICKS && this.phase === 'boss') this.enraged = true;
 
-    // A hero on the floor or out cold takes no input; one getting up does (the get-up dash).
-    for (const h of this.heroes()) stepHero(this, h, (isDown(h) && h.state !== 'getup') || h.state === 'ko' ? { held: 0, pressed: 0 } : inputs[h.slot] || { held: 0, pressed: 0 });
+    if (this.dialog) {
+      // A dialog scene: the players listen (their presses turn the pages), the friend on stage holds
+      // still, and the director waits — everything else in the world keeps ticking.
+      stepDialog(this, inputs);
+      for (const f of this.friends) if (f && !f.dead) stepHero(this, f, { held: 0, pressed: 0 });
+    } else {
+      // A hero on the floor or out cold takes no input; one getting up does (the get-up dash).
+      for (const h of this.heroes()) stepHero(this, h, (isDown(h) && h.state !== 'getup') || h.state === 'ko' ? { held: 0, pressed: 0 } : inputs[h.slot] || { held: 0, pressed: 0 });
+      stepFriends(this, inputs);
+    }
     // A slow trickle of HP, and only after five seconds without taking a hit — enough to recover
     // between waves, never enough to shrug off a fight. Losing has to stay possible.
     for (const h of this.heroes()) if (h.regenLock === 0 && (h.state === 'idle' || h.state === 'walk') && h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + h.maxHp * 0.0004);
-    stepFriends(this, inputs);
+    stepGuests(this);
 
     for (const e of this.entities) {
       // a spent projectile / hazard / pickup is waiting for removal at the end of the tick: stepping
@@ -255,11 +294,12 @@ export class World {
     for (const h of this.heroes()) if (h.combo > this.maxCombo[h.slot]) this.maxCombo[h.slot] = h.combo;
 
     resolveHits(this);
-    stepDirector(this, this.director);
+    if (!this.dialog) stepDirector(this, this.director);
     // The camera may have moved this tick, and a downed / KO'd hero skips its own clamp: keep every
     // player and friend inside the visible band no matter what state they are in.
     for (const h of this.allies()) clampHero(this, h);
     for (const h of this.heroes()) clampHero(this, h);
+    this.guests = this.guests.filter((g) => !g.dead);
 
     if (!this.done && this.heroes().length > 0 && this.heroes().every((h) => h.state === 'ko')) {
       this.done = true;
@@ -302,6 +342,8 @@ export class World {
       events: this.events,
       go: this.phase === 'go',
       enrage: this.enraged,
+      dialog: this.dialog ? { key: this.dialog.key, page: this.dialog.page, tick: this.dialog.tick, stage: this.dialog.stage === 'enter' ? 0 : this.dialog.stage === 'talk' ? 1 : 2 } : null,
+      swap: this.swap ? [this.swap.from, this.swap.to] : null,
     };
   }
 
@@ -314,6 +356,7 @@ export class World {
       mix(Math.round(e.hp)); mix(e.st); mix(stateCode(e.state));
     }
     mix(this.score[0]); mix(this.score[1]); mix(this.director.waveIndex); mix(phaseCode(this.phase));
+    if (this.dialog) { mix(this.dialog.page); mix(this.dialog.tick); mix(this.dialog.stage.length); }
     return h >>> 0;
   }
 }

@@ -22,12 +22,15 @@ const archIndex = (a: string) => { const i = ARCH_TABLE.indexOf(a); return i < 0
 const archName = (i: number) => ARCH_TABLE[i] || 'unknown';
 
 const MAX_ENTITIES = 40;
+// dialog keys interned like arches: 0 none, 1 start, 2 boss, 3 end, 10+n after wave n
+const dialogCode = (key: string) => key === 'start' ? 1 : key === 'boss' ? 2 : key === 'end' ? 3 : key.startsWith('wave') ? 10 + Number(key.slice(4)) : 0;
+const dialogKey = (c: number) => c === 1 ? 'start' : c === 2 ? 'boss' : c === 3 ? 'end' : c >= 10 ? `wave${c - 10}` : '';
 const MAX_EVENTS = 20;
 
 export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   const entities = s.entities.slice(0, MAX_ENTITIES);
   const events = s.events.slice(0, MAX_EVENTS);
-  const buf = new ArrayBuffer(25 + entities.length * 18 + events.length * 6); // header(25) + entity(18 each) + event(6 each)
+  const buf = new ArrayBuffer(32 + entities.length * 18 + events.length * 6); // header(32) + entity(18 each) + event(6 each)
   const dv = new DataView(buf);
   let o = 0;
   dv.setUint8(o, 0x53); o += 1; // 'S'
@@ -48,6 +51,13 @@ export function encodeSnapshot(s: Snapshot): ArrayBuffer {
   dv.setUint8(o, Math.max(0, Math.min(255, s.lives[1]))); o += 1;
   dv.setUint8(o, Math.min(255, s.maxCombo[0])); o += 1;
   dv.setUint8(o, Math.min(255, s.maxCombo[1])); o += 1;
+  const d = s.dialog;
+  dv.setUint8(o, d ? dialogCode(d.key) : 0); o += 1;
+  dv.setUint8(o, Math.min(255, d?.page ?? 0)); o += 1;
+  dv.setUint16(o, Math.min(65535, d?.tick ?? 0)); o += 2;
+  dv.setUint8(o, d?.stage ?? 0); o += 1;
+  dv.setUint8(o, s.swap ? archIndex(s.swap[0]) : 255); o += 1;
+  dv.setUint8(o, s.swap ? archIndex(s.swap[1]) : 255); o += 1;
   dv.setUint8(o, entities.length); o += 1;
   dv.setUint8(o, events.length); o += 1;
   for (const e of entities) {
@@ -94,6 +104,14 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
   const assist: [number, number] = [dv.getUint8(o) / 255, dv.getUint8(o + 1) / 255]; o += 2;
   const lives: [number, number] = [dv.getUint8(o), dv.getUint8(o + 1)]; o += 2;
   const maxCombo: [number, number] = [dv.getUint8(o), dv.getUint8(o + 1)]; o += 2;
+  const dCode = dv.getUint8(o); o += 1;
+  const dPage = dv.getUint8(o); o += 1;
+  const dTick = dv.getUint16(o); o += 2;
+  const dStage = dv.getUint8(o) as 0 | 1 | 2; o += 1;
+  const swapFrom = dv.getUint8(o); o += 1;
+  const swapTo = dv.getUint8(o); o += 1;
+  const dialog = dCode ? { key: dialogKey(dCode), page: dPage, tick: dTick, stage: dStage } : null;
+  const swap: [string, string] | null = swapFrom !== 255 && swapTo !== 255 ? [archName(swapFrom), archName(swapTo)] : null;
   const nEntities = dv.getUint8(o); o += 1;
   const nEvents = dv.getUint8(o); o += 1;
   const entities: EntityView[] = [];
@@ -127,7 +145,7 @@ export function decodeSnapshot(buf: ArrayBuffer): Snapshot {
     const shapeIdx = dv.getUint8(o); o += 1;
     events.push({ type, x, y, a, shape: shapeIdx > 0 ? SHAPES[shapeIdx - 1] : undefined });
   }
-  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist, lives, maxCombo };
+  return { tick, level, phase, wave, cameraX, timer, bossHp, bossMaxHp, bossId, score: [0, 0], credits: 0, entities, events, go: !!(flags & 1), enrage: !!(flags & 2), assist, lives, maxCombo, dialog, swap };
 }
 
 const STATES = [

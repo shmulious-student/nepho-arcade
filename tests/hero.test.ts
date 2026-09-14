@@ -11,7 +11,7 @@ const press = (b: number): InputFrame => ({ held: b, pressed: b });
 const hold = (b: number): InputFrame => ({ held: b, pressed: 0 });
 
 function world(seed = 1) {
-  const w = new World({ seed, level: 1, heroes: ['eviatar', null] });
+  const w = new World({ seed, level: 1, heroes: ['eviatar', null], dialogs: false }); // the dialog scenes have their own test
   // skip the entry cinematic so the hero can act
   while (w.phase === 'entry') w.step([NONE, NONE]);
   return w;

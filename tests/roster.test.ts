@@ -20,12 +20,16 @@ describe('roster defaults', () => {
   it('reproduces the static campaign exactly', () => {
     expect(composeLevels(defaultRoster())).toEqual(LEVELS);
   });
-  it('places every enemy archetype somewhere and every campaign boss on its level', () => {
+  it('places every fielded enemy archetype on its levels and every campaign boss on its level', () => {
     const r = defaultRoster();
-    for (const id of Object.keys(ENEMY_DEFS)) expect(r.characters[id].levels.length, id).toBeGreaterThan(0);
-    for (const l of LEVELS) expect(r.characters[l.boss].levels).toEqual([l.index]);
-    // the four per-action bosses ship registered but unplaced
-    for (const id of ['abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus']) expect(r.characters[id].levels).toEqual([]);
+    const fielded = new Set(LEVELS.flatMap((l) => [...l.waves, l.bonusWave].flatMap((w) => w.spawns.map((s) => s.arch))));
+    for (const id of Object.keys(ENEMY_DEFS)) {
+      if (fielded.has(id)) expect(r.characters[id].levels.length, id).toBeGreaterThan(0);
+      else expect(r.characters[id].levels, id).toEqual([]); // legacy-art archetypes wait outside the campaign
+    }
+    for (const l of LEVELS) expect(r.characters[l.boss].levels).toContain(l.index);
+    // a boss no level uses ships registered but unplaced
+    for (const id of Object.keys(BOSS_DEFS)) if (!LEVELS.some((l) => l.boss === id)) expect(r.characters[id].levels, id).toEqual([]);
   });
 });
 
@@ -105,7 +109,7 @@ describe('applyRoster', () => {
     applyRoster(r);
     expect(levelDef(2).boss).toBe('storm-colossus');
     expect(BOSS_DEFS['storm-colossus'].name).toBe('Big Tesla');
-    const w = new World({ seed: 1, level: 2, heroes: ['eviatar', null] });
+    const w = new World({ seed: 1, level: 2, heroes: ['eviatar', null], dialogs: false });
     w.debugSkipToBoss();
     for (let i = 0; i < 400 && !w.boss(); i++) w.step([{ held: 0, pressed: 0 }, { held: 0, pressed: 0 }]);
     expect(w.boss()?.arch).toBe('storm-colossus');

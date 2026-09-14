@@ -180,7 +180,7 @@ function renderBoard() {
   const levels = composeLevels(roster, warnings);
   const board = $('#board'); board.innerHTML = '';
   for (const l of levels) {
-    const meta = catalog.levels[l.index - 1];
+    const meta = catalog.levels.find((m: { id: string }) => m.id === l.id) ?? catalog.levels[l.index - 1];
     const bossName = roster.characters[l.boss]?.name ?? l.boss;
     const portrait = catalog.bosses.find((b) => b.id === l.boss)?.portrait;
     const el = document.createElement('div'); el.className = 'lvl';

@@ -1,3 +1,4 @@
+import { levelDef } from '../sim/levels';
 // Types + loader for public/game/catalog.json, the runtime asset manifest produced by
 // tools/build-assets.mjs. Shared between the sim (for id lists) and the renderer (for atlas keys).
 
@@ -63,6 +64,13 @@ export interface Catalog {
 }
 
 /** Where the web build (and the copy packed into the app) serves the content pack from. */
+/** The catalog entry (art, names) for campaign level `n`: matched by id, because the campaign's play
+ * order (sim/levels.ts) and the numbering the art was delivered under (levels/bg-NN) differ. */
+export function catalogLevel(catalog: Catalog, n: number): LevelEntry {
+  const id = levelDef(n)?.id;
+  return catalog.levels.find((l) => l.id === id) ?? catalog.levels[n - 1];
+}
+
 export const GAME_BASE_BUNDLED = '/game/';
 
 // The base every runtime load resolves against. The app build may repoint it at a newer content

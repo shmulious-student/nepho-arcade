@@ -12,6 +12,8 @@ export function botInput(w: World, slot: number, bs: BotState): InputFrame {
   const me = w.players[slot];
   const out = (held: number): InputFrame => { const pressed = held & ~bs.prevHeld; bs.prevHeld = held; return { held, pressed }; };
   if (!me || me.state === 'ko') return out(0);
+  // a dialog scene: keep a button held and the scene skips itself (dialog.ts HOLD_SKIP_TICKS)
+  if (w.dialog) return out(BTN.LIGHT);
   const foes = w.entities.filter((e) => !e.dead && e.hp > 0 && (e.kind === 'enemy' || e.kind === 'boss' || e.kind === 'echo'));
   let held = 0;
   if (w.phase === 'go' || (w.phase === 'wave' && foes.length === 0)) {

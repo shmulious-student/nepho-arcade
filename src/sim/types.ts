@@ -140,7 +140,14 @@ export interface Snapshot {
   assist: [number, number]; // per player: friend readiness 0..1 (assist cooldown / sidekick up)
   lives: [number, number]; // continues left per player
   maxCombo: [number, number];
+  /** The dialog scene on stage, if any: which script page of the level (see sim/dialogs.ts) and how
+   * far it is typed; the renderer draws the page from the same script. */
+  dialog?: DialogView | null;
+  /** An opening scene handed a player another hero for this level: [the pick, the stand-in]. */
+  swap?: [string, string] | null;
 }
+
+export interface DialogView { key: string; page: number; tick: number; stage: 0 | 1 | 2 }
 
 export interface EntityView {
   id: number;

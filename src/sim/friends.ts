@@ -50,7 +50,7 @@ export function spawnFriend(w: World, slot: number, id: HeroId): Entity {
 }
 
 /** Steers toward (tx, ty) and returns the direction bits, leaving the pointer at `stop` px short. */
-function moveTo(e: Entity, tx: number, ty: number, stop: number): number {
+export function moveTo(e: Entity, tx: number, ty: number, stop: number): number {
   let held = 0;
   const dx = tx - e.x, dy = ty - e.y;
   if (Math.abs(dx) > stop) held |= dx > 0 ? BTN.RIGHT : BTN.LEFT;
@@ -61,7 +61,7 @@ function moveTo(e: Entity, tx: number, ty: number, stop: number): number {
 /** How far from the player a sidekick will go to pick a fight; beyond it they fall back to them. */
 const LEASH = 240;
 
-function fightInput(w: World, e: Entity, aggressive: boolean): number {
+export function fightInput(w: World, e: Entity, aggressive: boolean): number {
   const owner = w.byId(e.owner);
   let target = nearestEnemy(w, e);
   // a sidekick fights *beside* the player: only enemies near the player are fair game
@@ -92,7 +92,7 @@ function fightInput(w: World, e: Entity, aggressive: boolean): number {
 }
 
 /** Turns a held mask into an InputFrame with press edges, using aiT as the previous mask. */
-function frame(e: Entity, held: number): InputFrame {
+export function frameFor(e: Entity, held: number): InputFrame {
   const pressed = held & ~e.aiT;
   e.aiT = held;
   return { held, pressed };
@@ -126,7 +126,7 @@ export function stepFriends(w: World, inputs: [InputFrame, InputFrame]): void {
         stepHero(w, e, { held: 0, pressed: 0 });
         continue;
       }
-      stepHero(w, e, frame(e, isHurt(e) ? 0 : fightInput(w, e, true)));
+      stepHero(w, e, frameFor(e, isHurt(e) ? 0 : fightInput(w, e, true)));
       if (e.regenLock === 0 && (e.state === 'idle' || e.state === 'walk') && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.0006);
       continue;
     }
@@ -160,7 +160,7 @@ export function stepFriends(w: World, inputs: [InputFrame, InputFrame]): void {
       held = owner.facing > 0 ? BTN.LEFT : BTN.RIGHT;
       if (e.pt >= ASSIST_LINGER || isDown(e)) { w.emit({ type: 'dash', x: e.x, y: e.y, id: e.id }); retire(w, slot, e); w.assistCd[slot] = ASSIST_COOLDOWN; continue; }
     }
-    stepHero(w, e, frame(e, held));
+    stepHero(w, e, frameFor(e, held));
   }
 }
 

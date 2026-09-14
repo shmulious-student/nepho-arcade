@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import type { Catalog } from '../../shared/catalog';
+import { catalogLevel, type Catalog } from '../../shared/catalog';
+import { getLang } from '../../shared/lang';
+import { DialogBox } from '../DialogBox';
 import { LocalSession, HostSession, GuestSession, wsUrlFromLocation, type Session } from '../../net/session';
 import { BTN, InputEdge, type InputFrame } from '../../sim/input';
 import { EntityView } from '../EntityView';
@@ -49,6 +51,10 @@ export class GameScene extends Phaser.Scene {
   private fx!: Fx;
   private touch!: TouchControls;
   private pause!: PauseMenu;
+  private dialogBox!: DialogBox;
+  private dialogActive = false;
+  private dialogTap = false; // a tap or key press to turn the page, consumed by the next input poll
+  private pointerHeld = false;
   private pauseBtn!: Phaser.GameObjects.Container;
   private p1Edge = new InputEdge();
   private p2Edge = new InputEdge();
@@ -88,7 +94,7 @@ export class GameScene extends Phaser.Scene {
       this.levelIndex = 1; // guest learns the real level from the first snapshot
     }
 
-    const level = this.catalog.levels[this.levelIndex - 1];
+    const level = catalogLevel(this.catalog, this.levelIndex);
     this.world = this.add.container(0, 0);
     // Zoom the game world in (characters read far better on a phone screen) while leaving the
     // HUD and touch controls — separate top-level objects, not children of this container — at normal
@@ -99,9 +105,16 @@ export class GameScene extends Phaser.Scene {
     // phone the bottom strip is where thumbs and the touch controls live. (The pivot lives in
     // sim/types so the backdrop band and the tests can derive what is on screen.)
     this.world.setScale(zoom).setPosition(VIEW_PIVOT_X * (1 - zoom), VIEW_PIVOT_Y * (1 - zoom));
-    this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
+    this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex);
     this.fx = new Fx(this, this.world, this.cameras.main);
     this.hud = new Hud(this, this.heroes, this.friends, isTouchDevice(this));
+    this.dialogBox = new DialogBox(this, getLang(), isTouchDevice(this));
+    // During a dialog scene any tap or key turns the page and holding skips it; the touch controls are
+    // hidden then, so the whole screen is the button.
+    this.dialogActive = false; this.dialogTap = false; this.pointerHeld = false;
+    this.input.on('pointerdown', () => { this.pointerHeld = true; if (this.dialogActive) this.dialogTap = true; });
+    this.input.on('pointerup', () => { this.pointerHeld = false; });
+    this.input.keyboard!.on('keydown', (ev: KeyboardEvent) => { if (this.dialogActive && !ev.repeat && ev.key !== 'Escape' && ev.key.toLowerCase() !== 'p') this.dialogTap = true; });
     this.touch = new TouchControls(this);
     this.touch.setVisible(isTouchDevice(this));
 
@@ -161,6 +174,7 @@ export class GameScene extends Phaser.Scene {
       resume: () => this.setPaused(false),
       restart: () => { this.setPaused(false); this.scene.start('Game', { ...this.startData, seed: Math.floor(Math.random() * 1e9) }); },
       lobby: () => { this.setPaused(false); this.session.destroy(); this.scene.start('Lobby'); },
+      language: () => this.dialogBox.setLang(getLang()),
     }, { canPause, touch: isTouchDevice(this) });
     // ⏸ in the top-right corner, comfortably tappable
     const g = this.add.circle(0, 0, 18, 0x0b1730, 0.7).setStrokeStyle(2, 0x344861).setInteractive({ useHandCursor: true });
@@ -178,7 +192,8 @@ export class GameScene extends Phaser.Scene {
     if (this.finished) return; // the level is over (clear banner / CONTINUE?): nothing to pause
     if (paused) this.pause.show(); else this.pause.hide();
     this.session.setPaused(paused);
-    this.touch.setVisible(!paused && isTouchDevice(this));
+    this.dialogTap = false;
+    this.touch.setVisible(!paused && !this.dialogActive && isTouchDevice(this));
     if (paused) sequencer.stop(); else sequencer.start(this.levelIndex);
   }
 
@@ -194,6 +209,7 @@ export class GameScene extends Phaser.Scene {
     this.touch?.setVisible(false);
     this.pause?.destroy();
     this.pauseBtn?.destroy();
+    this.dialogBox?.destroy();
   }
 
   private pollP1(): InputFrame {
@@ -216,8 +232,10 @@ export class GameScene extends Phaser.Scene {
     const touch = this.touch.poll();
     held |= touch.held;
     if (import.meta.env.DEV) held |= (window as any).__nephoHeld | 0; // dev console: force a held mask
+    if (this.dialogActive && this.pointerHeld) held |= BTN.LIGHT; // a finger held anywhere skips the scene
     const frame = this.p1Edge.next(held);
     frame.pressed |= touch.pressed;
+    if (this.dialogActive && this.dialogTap) { frame.pressed |= BTN.LIGHT; this.dialogTap = false; }
     if (import.meta.env.DEV) (window as any).__nephoInput = { keys: held & ~touch.held, touch: touch.held };
     return frame;
   }
@@ -258,7 +276,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.waitingText) { this.waitingText.destroy(); this.waitingText = undefined; }
-    if (this.session.mode !== 'local' && !this.heroesResolved) {
+    if (!this.heroesResolved) {
+      // Local: an opening scene may have handed a player another hero for this level (sim/dialog.ts).
       // Host: the World was built once the guest's real hero pick arrived (see HostSession.start),
       // which may differ from the placeholder `data.heroes` guess the lobby passed in before that
       // happened. Guest: it only ever knew its own pick (`this.heroes` was seeded as [ownHero, null],
@@ -282,14 +301,19 @@ export class GameScene extends Phaser.Scene {
       this.entryShown = false;
       for (const v of this.views.values()) v.destroy();
       this.views.clear(); // entity ids restart at 1 in the new world; a stale view would wear the wrong sprite
-      const level = this.catalog.levels[this.levelIndex - 1];
+      const level = catalogLevel(this.catalog, this.levelIndex);
       this.backdrop.destroy();
-      this.backdrop = new Backdrop(this, level, LEVEL_W, this.world);
+      this.backdrop = new Backdrop(this, level, LEVEL_W, this.world, this.levelIndex);
     }
 
     this.backdrop.setCameraX(snap.cameraX);
-    if (snap.phase === 'entry') { if (!this.entryShown) { this.backdrop.showEntry(); this.entryShown = true; } }
+    if (snap.phase === 'entry' && !snap.dialog) { if (!this.entryShown) { this.backdrop.showEntry(); this.entryShown = true; } }
     else if (this.entryShown) { this.backdrop.hideEntry(); this.entryShown = false; }
+    const dialogNow = !!snap.dialog;
+    if (dialogNow !== this.dialogActive) {
+      this.dialogActive = dialogNow; this.dialogTap = false;
+      this.touch.setVisible(!this.pause.open && !dialogNow && isTouchDevice(this));
+    }
 
     const seen = new Set<number>();
     for (const e of snap.entities) {
@@ -332,6 +356,7 @@ export class GameScene extends Phaser.Scene {
 
 
     this.hud.update(snap);
+    this.dialogBox.update(snap);
     const me = snap.entities.find((e) => e.kind === 'hero' && e.slot === (this.session.mode === 'guest' ? 1 : 0));
     if (me) this.touch.setSpecialReady(me.meter >= 0.999);
 
@@ -345,7 +370,7 @@ export class GameScene extends Phaser.Scene {
         // Beating the boss rolls straight into the next level — a banner, then the next stage's title
         // card — rather than dropping back to a menu between every level.
         const w = this.session.world();
-        const tally = w ? `TIME ${Math.floor(snap.timer / 60)}:${Math.floor(snap.timer % 60).toString().padStart(2, '0')} · BEST COMBO ${snap.maxCombo[0]} · BONUS +${w.levelBonus[0]}` : this.catalog.levels[this.levelIndex].name;
+        const tally = w ? `TIME ${Math.floor(snap.timer / 60)}:${Math.floor(snap.timer % 60).toString().padStart(2, '0')} · BEST COMBO ${snap.maxCombo[0]} · BONUS +${w.levelBonus[0]}` : catalogLevel(this.catalog, this.levelIndex + 1).name;
         this.hud.banner(`LEVEL ${this.levelIndex} CLEAR`, tally);
         if (this.session.mode !== 'guest') this.time.delayedCall(2200, () => this.nextLevel(score));
         return;
@@ -412,6 +437,9 @@ export class GameScene extends Phaser.Scene {
   private nextLevel(score: [number, number]): void {
     const level = this.levelIndex + 1;
     const seed = Math.floor(Math.random() * 1e9);
+    // the lobby's picks carry on, not a stand-in an opening scene handed a player for one level
+    const chosen = this.session.world()?.chosenHeroes;
+    if (chosen) this.heroes = chosen;
     if (this.session.mode === 'host') {
       const session = this.session as HostSession;
       session.start(seed, level, this.heroes, this.friends, score);

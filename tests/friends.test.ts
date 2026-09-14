@@ -20,7 +20,7 @@ describe('friends', () => {
   });
 
   it('sidekick: joins once the level starts, fights as slot -1, and is not a player', () => {
-    const w = new World({ seed: 3, level: 1, heroes: ['eviatar', null], friends: { friends: ['omri', null], mode: 'sidekick' } });
+    const w = new World({ seed: 3, level: 1, heroes: ['eviatar', null], friends: { friends: ['omri', null], mode: 'sidekick' }, dialogs: false });
     runUntil(w, () => friendsOf(w).length > 0, 60 * 20);
     const f = friendsOf(w)[0];
     expect(f).toBeTruthy();
@@ -45,7 +45,7 @@ describe('friends', () => {
   });
 
   it('assist: the call summons the friend, they throw their special, leave, and the cooldown runs', () => {
-    const w = new World({ seed: 5, level: 1, heroes: ['eviatar', null], friends: { friends: ['shmuel', null], mode: 'assist' } });
+    const w = new World({ seed: 5, level: 1, heroes: ['eviatar', null], friends: { friends: ['shmuel', null], mode: 'assist' }, dialogs: false });
     runUntil(w, () => w.phase !== 'entry', 60 * 20);
     expect(friendsOf(w).length).toBe(0);
     expect(w.snapshot().assist[0]).toBe(1);
@@ -94,7 +94,7 @@ describe('sidekick follow', () => {
 
 describe('sidekick balance', () => {
   it('a sidekick hits for less and never launches or floors with a normal hit', () => {
-    const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['shmuel', null], mode: 'sidekick' } });
+    const w = new World({ seed: 11, level: 1, heroes: ['eviatar', null], friends: { friends: ['shmuel', null], mode: 'sidekick' }, dialogs: false });
     runUntil(w, () => friendsOf(w).length > 0, 60 * 20);
     const f = friendsOf(w)[0];
     // count launch events on enemies while the sidekick swings for a while with the player idle

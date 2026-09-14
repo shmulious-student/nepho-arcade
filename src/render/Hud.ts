@@ -121,7 +121,7 @@ export class Hud {
     this.waveText.setText(s.phase === 'boss' ? 'BOSS' : s.phase === 'wave' ? `WAVE ${s.wave}` : s.phase === 'go' ? 'MOVE ON' : '');
     if (s.phase === 'wave' && s.wave !== this.lastWave) { this.lastWave = s.wave; if (s.wave > 1) this.banner(`WAVE ${s.wave}`); }
     if (s.phase === 'boss' && this.lastWave !== 99) { this.lastWave = 99; this.banner('BOSS', bossName(s.bossId)); }
-    if (s.phase === 'clear' && this.lastWave !== 100) { this.lastWave = 100; this.banner('BOSS DOWN!', s.level >= 10 ? 'THE SIGNAL IS YOURS' : 'STAGE CLEAR'); }
+    if (s.phase === 'clear' && this.lastWave !== 100) { this.lastWave = 100; this.banner('BOSS DOWN!', s.level >= 10 ? 'YOU FOUND THEM' : 'STAGE CLEAR'); }
     this.goArrow.setVisible(s.go);
     if (s.go) { this.goArrow.setAlpha(0.6 + 0.4 * Math.sin(s.tick / 6)); this.goArrow.setX(VIEW_W - 80 + 6 * Math.sin(s.tick / 5)); }
   }

@@ -1,7 +1,10 @@
 // Wave director: spawns waves, scrolls between segments, brings in the boss and rubber-bands pacing
-// toward the 3-minute level target.
-import { levelDef, ENTRY_TICKS, CLEAR_TICKS, levelWidth, segmentX, type WaveDef } from './levels';
+// toward the 3-minute level target. Dialog scenes (dialog.ts) hook in at four points — before the
+// first wave, after a chosen wave, just before the boss walks in, and once the boss is down — and
+// the director simply does not run while one is on stage, so each hook is re-evaluated when it ends.
+import { levelDef, ENTRY_TICKS, CLEAR_TICKS, CLEAR_DIALOG_AT, levelWidth, segmentX, type WaveDef } from './levels';
 import { VIEW_W, LANE_H } from './types';
+import { tryDialog } from './dialog';
 import type { World } from './world';
 
 export interface DirectorState {
@@ -60,7 +63,10 @@ export function stepDirector(w: World, d: DirectorState): void {
   const level = levelDef(w.level);
   switch (w.phase) {
     case 'entry':
-      if (d.phaseTick >= ENTRY_TICKS) startWave(w, d, 0);
+      if (d.phaseTick >= ENTRY_TICKS) {
+        if (tryDialog(w, 'start')) break; // the opening scene; the wave starts once it ends
+        startWave(w, d, 0);
+      }
       break;
     case 'wave': {
       d.waveTick++;
@@ -85,9 +91,11 @@ export function stepDirector(w: World, d: DirectorState): void {
             queueWave(w, d, level.bonusWave);
             w.emit({ type: 'levelPhase', x: 0, y: 0, a: 99 });
           } else {
+            if (living === 0 && tryDialog(w, `wave${d.waveIndex + 1}`)) break; // a word once the wave is cleared
             beginGo(w, d, levelWidth(level) - VIEW_W, true);
           }
         } else {
+          if (living === 0 && tryDialog(w, `wave${d.waveIndex + 1}`)) break;
           beginGo(w, d, segmentX(level, d.waveIndex + 1), false);
         }
       }
@@ -100,7 +108,7 @@ export function stepDirector(w: World, d: DirectorState): void {
       w.cameraX = cam;
       if (w.cameraX >= d.goTarget - 0.5) {
         w.cameraX = d.goTarget;
-        if (d.goTarget >= levelWidth(level) - VIEW_W && d.waveIndex >= level.waves.length - 1) beginBoss(w, d);
+        if (d.goTarget >= levelWidth(level) - VIEW_W && d.waveIndex >= level.waves.length - 1) arriveAtBoss(w, d);
         else startWave(w, d, d.waveIndex + 1);
       }
       break;
@@ -116,6 +124,7 @@ export function stepDirector(w: World, d: DirectorState): void {
       break;
     }
     case 'clear':
+      if (d.phaseTick >= CLEAR_DIALOG_AT && tryDialog(w, 'end')) { d.phaseTick = CLEAR_TICKS - 45; break; } // the closing scene, then straight to the tally
       if (d.phaseTick >= CLEAR_TICKS) w.completeLevel();
       break;
   }
@@ -125,9 +134,16 @@ function beginGo(w: World, d: DirectorState, target: number, toBoss: boolean): v
   d.goTarget = target;
   w.setPhase('go');
   w.emit({ type: 'levelPhase', x: 0, y: 0, a: toBoss ? 50 : 10 + d.waveIndex });
-  if (target <= w.cameraX + 0.5) { // nothing to scroll (level 10 short path)
-    if (toBoss) beginBoss(w, d); else startWave(w, d, d.waveIndex + 1);
+  if (target <= w.cameraX + 0.5) { // nothing to scroll (a short level's last wave)
+    if (toBoss) arriveAtBoss(w, d); else startWave(w, d, d.waveIndex + 1);
   }
+}
+
+/** The players are where the boss fight happens: a word first if the level has one (the boss
+ * answers from off-screen and only walks in once the scene is over), then the fight. */
+function arriveAtBoss(w: World, d: DirectorState): void {
+  if (tryDialog(w, 'boss')) return;
+  beginBoss(w, d);
 }
 
 export function beginBoss(w: World, d: DirectorState): void {

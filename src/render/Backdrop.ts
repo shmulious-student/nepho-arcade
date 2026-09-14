@@ -17,8 +17,10 @@ export class Backdrop {
   private art: { x: number; y: number; w: number; h: number };
   private lastCameraX = 0;
 
-  constructor(scene: Phaser.Scene, level: LevelEntry, _worldWidth: number, container: Phaser.GameObjects.Container) {
-    this.scene = scene; this.level = level;
+  private campaignIndex: number;
+
+  constructor(scene: Phaser.Scene, level: LevelEntry, _worldWidth: number, container: Phaser.GameObjects.Container, campaignIndex = level.index) {
+    this.scene = scene; this.level = level; this.campaignIndex = campaignIndex;
     // a catalog without `art` is a pre-band build: legacy fit, full view height from x=0
     this.art = level.art ?? { x: 0, y: 0, w: level.size.w * (VIEW_H / level.size.h), h: VIEW_H };
     this.bg = scene.add.image(this.art.x, this.art.y, `${level.id}-bg`).setOrigin(0, 0).setDisplaySize(this.art.w, this.art.h);
@@ -50,7 +52,7 @@ export class Backdrop {
     const band = this.scene.add.rectangle(cx, cy, VIEW_W, 150, 0x0b1730, 0.92).setOrigin(0.5);
     const rule1 = this.scene.add.rectangle(cx, cy - 75, VIEW_W, 3, accent).setOrigin(0.5);
     const rule2 = this.scene.add.rectangle(cx, cy + 75, VIEW_W, 3, accent).setOrigin(0.5);
-    const kicker = this.scene.add.text(cx, cy - 50, `LEVEL ${this.level.index}`, { fontFamily: 'monospace', fontSize: '14px', color: Phaser.Display.Color.IntegerToColor(accent).rgba, letterSpacing: 6 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
+    const kicker = this.scene.add.text(cx, cy - 50, `LEVEL ${this.campaignIndex}`, { fontFamily: 'monospace', fontSize: '14px', color: Phaser.Display.Color.IntegerToColor(accent).rgba, letterSpacing: 6 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const name = this.scene.add.text(cx, cy - 12, this.level.name, { fontFamily: 'Arial Black, Arial, sans-serif', fontSize: '40px', color: '#fff8d6', fontStyle: 'bold', stroke: '#10182b', strokeThickness: 6 }).setOrigin(0.5);
     const he = this.scene.add.text(cx, cy + 36, this.level.nameHe, { fontFamily: 'Arial, sans-serif', fontSize: '28px', color: '#fff8d6', stroke: '#10182b', strokeThickness: 5 }).setOrigin(0.5);
     const ready = this.scene.add.text(cx, cy + 108, 'GET READY', { fontFamily: 'monospace', fontSize: '16px', color: '#f3f4e8', letterSpacing: 4 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);

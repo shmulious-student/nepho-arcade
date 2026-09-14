@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { catalogLevel } from '../../shared/catalog';
+import { getLang, setLang, langLabel } from '../../shared/lang';
 import type { Catalog } from '../../shared/catalog';
 import { HEROES } from '../../sim/frameData';
 import { ACTIVE_HEROES as HERO_IDS } from '../../sim/roster';
@@ -72,6 +74,9 @@ export class LobbyScene extends Phaser.Scene {
     this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, 'PICK YOUR HERO', { fontFamily: 'monospace', fontSize: '12px', color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
     this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, 'tap a card · swipe or ◀ ▶ for more', { fontFamily: 'monospace', fontSize: '10px', color: '#5f7391' }).setOrigin(1, 0.5);
 
+    // dialog text language, top-right
+    const langBtn = this.makeButton(VIEW_W - 24 - 112, 8, 112, 22, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); });
+
     this.buildCarousel();
 
     // ---- settings row ----
@@ -95,7 +100,7 @@ export class LobbyScene extends Phaser.Scene {
     this.makeButton(400, rowY + 26, 28, 26, '◀', () => this.setLevel(this.startLevel - 1));
     const levelText = this.add.text(434, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
     this.makeButton(606, rowY + 26, 28, 26, '▶', () => this.setLevel(this.startLevel + 1));
-    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(10, n)); levelText.setText(`${this.startLevel} · ${this.catalog.levels[this.startLevel - 1].name}`); };
+    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(10, n)); levelText.setText(`${this.startLevel} · ${catalogLevel(this.catalog, this.startLevel).name}`); };
     this.setLevel(this.startLevel);
     // players / co-op toggles
     this.add.text(656, rowY + 8, 'PLAYERS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });

@@ -57,6 +57,16 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
   an enemy at your back turns you toward it. Taps are never lost between frames, whatever the
   display's refresh rate.
   Beating a boss rolls straight into the next level.
+- **Dialog scenes:** every level opens with one of the family walking in from the right to talk (players
+  hold still), most have a word mid-level (after a wave, or just before the boss, who answers from
+  off-screen and only walks in afterwards) and all close with one once the boss is down. The text box
+  along the bottom shows the speaker's card and two lines at a time: any tap or button finishes the
+  page or turns it, a page turns by itself after a few seconds, and holding a button skips the scene.
+  Some speakers stay and fight beside you afterwards. If you picked the hero who is supposed to talk,
+  they say it from where they stand — or, on a few levels, you play a random stand-in for that level
+  and the hero explains. The text is English or Hebrew: **TEXT** in the lobby (top right) or the pause
+  menu. Shmuel opens the game by saying it is only a game and nobody has to play; the story is Eviatar
+  and Omri following clues to Adi and Abir, who are safe the whole way. Scripts: `src/sim/dialogs.ts`.
 - **On a phone:** hold it sideways (portrait shows a rotate prompt). START goes full screen. The
   stick plants itself wherever your left thumb lands; hold DSH (above it) and push sideways to run. The right
   thumb gets three big buttons — HVY · ATK · JMP — with SPC above (it lights up when the meter is
@@ -70,7 +80,8 @@ npm run lan        # LAN co-op — builds nothing itself, serves dist/ (run `npm
 ```
 src/sim/       deterministic simulation — fixed 60Hz tick, seeded RNG, no Phaser import (enforced by
                a test). Fighters, 6 enemy archetypes, 10 bosses with data-driven patterns, the wave
-               director, and world.step(inputs) -> Snapshot. This is the single source of truth for
+               director, the dialog scenes (dialog.ts runs them, dialogs.ts is the script in both
+               languages), and world.step(inputs) -> Snapshot. This is the single source of truth for
                both local play and the network host.
 src/render/    Phaser 3 scenes and view layer. Reads Snapshots only — never touches sim internals
                directly. EntityView/Fx/Backdrop/Hud/TouchControls/PauseMenu/PickupView/anim.ts.
@@ -124,6 +135,15 @@ with each row, and the failure catalogue behind every rule. A delivered set is a
 `npm run verify:character -- <id>` passes (every file and every cell, before anything is built), then
 `npm run build:assets && npm run test:assets`, then a look at every row on `/showcase.html`. The
 characters still on legacy art each have a ready-to-run prompt file in `docs/prompts/`.
+
+## Campaign order
+
+`src/sim/levels.ts` is the play order (1 Rishon LeZion, 2 Refael Eitan Street, 3 Capoeira gym, 4 Sant
+Cugat, 5 Barcelona, 6 Basketball gym, 7 Hatikva School, 8 Catalunya, 9 Theater, 10 Candy factory) with
+each level's waves, enemy pool and boss. A level's art is looked up by its `id`, so the numbered files
+under `public/game/levels/` and `public/assets/generated/backdrops/level-NN.png` keep the numbering the
+art was delivered with (Barcelona is still `bg-03`) — `place-backdrop` takes that art number, the lobby,
+HUD and roster count campaign positions.
 
 ## Level backdrops
 

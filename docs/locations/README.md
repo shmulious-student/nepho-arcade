@@ -1,5 +1,10 @@
 # Level locations — one prompt file per backdrop
 
+**Numbering (2026-09-14):** the numbers below (and `bg-NN`, `backdrops/level-NN.png`, `place-backdrop <level>`) are the
+art-delivery numbers each level's `id` was born with. The campaign is now played in a different order (see `src/sim/levels.ts`
+/ README "Campaign order": Capoeira gym is level 3, Barcelona level 5, Catalunya level 8, Candy factory the finale); the game
+looks art up by id, so nothing here had to move.
+
 The ten levels are real places from the family's life (level order and names are authoritative in
 `src/sim/levels.ts` / `public/game/catalog.json`). Each file below names the place, links its Street
 View, lists the reference photos on disk, says what the current plate gets wrong and carries a

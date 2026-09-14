@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { VIEW_W, VIEW_H } from '../sim/types';
 import { synth } from '../audio/synth';
+import { getLang, setLang, langLabel } from '../shared/lang';
 
-export interface PauseActions { resume: () => void; restart: () => void; lobby: () => void }
+export interface PauseActions { resume: () => void; restart: () => void; lobby: () => void; language?: () => void }
 
 /** In-game pause overlay: RESUME / RESTART LEVEL / BACK TO LOBBY / SOUND, with the controls listed
  * underneath. Built from plain Phaser shapes and text on top of everything else, so it works the
@@ -18,7 +19,7 @@ export class PauseMenu {
     this.scene = scene;
     const cx = VIEW_W / 2;
     const veil = scene.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711, 0.72).setOrigin(0, 0).setInteractive(); // eats clicks underneath
-    const panel = scene.add.rectangle(cx, 250, 340, 300, 0x0b1730, 0.96).setStrokeStyle(2, 0x344861);
+    const panel = scene.add.rectangle(cx, 262, 340, 350, 0x0b1730, 0.96).setStrokeStyle(2, 0x344861);
     const title = scene.add.text(cx, 128, 'PAUSED', { fontFamily: 'monospace', fontSize: '26px', color: '#ffcf5c', fontStyle: 'bold', letterSpacing: 6 } as Phaser.Types.GameObjects.Text.TextStyle).setOrigin(0.5);
     const items: Phaser.GameObjects.GameObject[] = [veil, panel, title];
     let y = 176;
@@ -36,6 +37,8 @@ export class PauseMenu {
     if (opts.canPause) button('RESTART LEVEL', actions.restart);
     button('BACK TO LOBBY', actions.lobby);
     this.soundBtn = button(synth.muted ? 'SOUND: OFF' : 'SOUND: ON', () => { synth.setMuted(!synth.muted); this.soundBtn.setText(synth.muted ? 'SOUND: OFF' : 'SOUND: ON'); });
+    // the language of the dialog text
+    const langBtn = button(langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.setText(langLabel(getLang())); actions.language?.(); });
     const help = opts.touch
       ? 'stick: move · hold DSH + stick sideways: run · ATK / HVY / JMP · SPC when lit · hold BLK · tap your card to call a friend'
       : 'WASD move · J light · K heavy · SPACE jump · hold L + direction: run · I special · U block · H friend · ESC pause';
