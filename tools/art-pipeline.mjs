@@ -43,7 +43,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ACTIONS_DIR = join(ROOT, 'public/assets/generated/actions');
 const PROMPTS_DIR = join(ROOT, 'docs/prompts');
 const QUALITY_REF = join(ROOT, 'public/assets/references/hero-grid-quality-reference.png');
-const LOG = join(PROMPTS_DIR, 'QUEUE-LOG.md');
+// A dedicated queue can keep its handoff log separate from the historical main queue.
+// The path is relative to the repository root unless it is absolute.
+const LOG = process.env.ART_QUEUE_LOG
+  ? (process.env.ART_QUEUE_LOG.startsWith('/') ? process.env.ART_QUEUE_LOG : join(ROOT, process.env.ART_QUEUE_LOG))
+  : join(PROMPTS_DIR, 'QUEUE-LOG.md');
 const ATTEMPTS = join(ROOT, 'public/assets/backups/attempts'); // gitignored
 
 // ---- args ----
@@ -218,7 +222,7 @@ async function generateGemini(prompt, refs, kind) {
   // Gemini has no alpha channel: the matte the standard allows, and intake keys it out
   const text = `${prompt}\n\nOutput requirement: the entire background is one flat, pure magenta #FF00FF — no checkerboard, no gradient, no grid lines, no cell borders, nothing drawn on the background.`;
   const parts = [{ text }, ...refs.map((r) => ({ inlineData: { mimeType: 'image/png', data: r.buf.toString('base64') } }))];
-  const call = async (withSize) => geminiCall(GEMINI_IMAGE_MODEL, { contents: [{ role: 'user', parts }], generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: kind === 'sheet' ? '2:1' : '1:1', ...(withSize ? { imageSize: '2K' } : {}) } } });
+  const call = async (withSize) => geminiCall(GEMINI_IMAGE_MODEL, { contents: [{ role: 'user', parts }], generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: kind === 'sheet' ? '16:9' : '1:1', ...(withSize ? { imageSize: '2K' } : {}) } } });
   let r;
   try { r = await call(true); } catch (e) { if (/imageSize|image_size/i.test(e.message)) r = await call(false); else throw e; }
   const j = await r.json();
