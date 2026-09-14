@@ -61,6 +61,7 @@ export function resolveHits(w: World): void {
       if (tgt.hitBy[att.id] === att.attackId) continue;
       if (tgt.state === 'ko' || tgt.state === 'defeat') continue;
       if (tgt.invuln > 0 && tgt.kind === 'hero') continue;
+      if (w.dialog && w.dialog.speaker === tgt) continue; // the hero on stage in a dialog scene cannot be hit
       if ((tgt.state === 'knockdown' || tgt.state === 'getup') && !hit.radius) continue;
       if (!overlaps(att, hit, tgt)) continue;
       tgt.hitBy[att.id] = att.attackId;

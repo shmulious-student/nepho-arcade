@@ -81,7 +81,8 @@ function beginDialog(w: World, key: DialogKey, def: DialogDef): void {
 }
 
 /** Moves the speaker toward (tx, ty) on foot; true once there. Done by hand rather than through the
- * hero state machine so the walk starts off-screen (the band clamp would snap it to the edge). */
+ * hero state machine so the walk starts off-screen (the band clamp would snap it to the edge). The
+ * speaker is never given invulnerability ticks — the renderer draws those as a blink. */
 function walkTo(e: Entity, tx: number, ty: number, speed: number): boolean {
   const dx = tx - e.x, dy = ty - e.y;
   if (Math.abs(dx) <= speed && Math.abs(dy) <= speed) { e.x = tx; e.y = ty; return true; }
@@ -89,7 +90,6 @@ function walkTo(e: Entity, tx: number, ty: number, speed: number): boolean {
   if (Math.abs(dy) > speed * 0.6) e.y += Math.sign(dy) * speed * 0.6; else e.y = ty;
   if (e.state !== 'walk') setState(e, 'walk');
   e.st++;
-  e.invuln = 2;
   return false;
 }
 
@@ -112,7 +112,7 @@ export function stepDialog(w: World, inputs: [InputFrame, InputFrame]): void {
     return;
   }
   if (d.stage === 'talk') {
-    if (s) { s.st++; s.invuln = 2; if (s.state !== 'idle') setState(s, 'idle'); }
+    if (s) { s.st++; if (s.state !== 'idle') setState(s, 'idle'); } // no invuln here: the renderer blinks invulnerable heroes; combat.ts skips the speaker instead
     const line = d.lines[d.page];
     const reveal = revealTicks(line);
     const pressed = (inputs[0].pressed | inputs[1].pressed) & PRESS;
