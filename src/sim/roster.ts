@@ -113,13 +113,22 @@ function composeWaves(level: LevelDef, pool: string[], bosses: string[], warning
     placed.add(arch);
     return { arch, n: s.n };
   }) }));
-  // newcomers nobody substituted in yet each borrow one body from a wave, round-robin over the real waves
+  // newcomers nobody substituted in yet each borrow one body from a wave, round-robin over the real
+  // waves — never from a boss's slot (the finale's gauntlet is fixed), so a level made only of bosses
+  // simply has no room for them
   const left = newcomers.filter((id) => !placed.has(id));
-  left.forEach((id, i) => {
-    const w = rebuilt[i % level.waves.length];
-    const slot = w.spawns[i % w.spawns.length];
-    if (slot.n > 1) { slot.n--; w.spawns.push({ arch: id, n: 1 }); } else slot.arch = id;
-  });
+  let cursor = 0;
+  for (const id of left) {
+    let taken = false;
+    for (let k = 0; k < level.waves.length && !taken; k++) {
+      const w = rebuilt[(cursor + k) % level.waves.length];
+      const slots = w.spawns.filter((s) => !BOSS_DEFS[s.arch]);
+      if (!slots.length) continue;
+      const slot = slots[cursor % slots.length];
+      if (slot.n > 1) { slot.n--; w.spawns.push({ arch: id, n: 1 }); } else slot.arch = id;
+      taken = true; cursor++;
+    }
+  }
   const waves = rebuilt.map((w) => ({ budget: w.budget, spawns: mergeSpawns(w.spawns) }));
   return { waves: waves.slice(0, level.waves.length), bonusWave: waves[level.waves.length] };
 }

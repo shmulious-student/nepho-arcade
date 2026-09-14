@@ -2,12 +2,10 @@
 
 ## The place
 
-**Imaginary — the owner will provide the backdrop** (2026-09-14). The Catalan Christmas log's hideout after he
+**Imaginary — plate delivered by the owner 2026-09-14** (`docs/backdrops_midjourney/cagatio.png`, Midjourney V8.2 from the prompt below). The Catalan Christmas log's hideout after he
 takes the presents from the candy factory: think a Catalan masia barn at Christmas — stone walls, a log fire, a heap of
 stolen wrapped presents and turrón boxes, the *caga tió* blanket and stick, festive garlands.
 
-- Until the plate arrives the build ships a copy of level 9 (theater) as a placeholder and warns about it
-  (`tools/build-assets.mjs` EXTRA_LEVELS).
 
 ## Request card (for the agent)
 
@@ -40,3 +38,7 @@ Paste as one line. Add `--sref <level-1 plate url> --sw 80` to match the other t
 > leaning by the hearth, hams and dried peppers hanging from beams, a small window with snow outside. Warm gold and red
 > light. Crisp clean pixel-art edges, flat cel shading with light dithering, saturated colours, wide panoramic eye-level
 > view. --ar 4:1 --hd --raw --s 150 --exp 10 --chaos 0 --v 8.2 --no text, letters, signs, logos, people, figures, characters, animals, watermark, frame, border, blur, photograph
+
+## Log
+
+- 2026-09-14 20:38 — Midjourney V8.2 plate `docs/backdrops_midjourney/cagatio.png` (3616×1344, ≈2.7:1) accepted: the hearth kerb at 62% → `place-backdrop 11 … --floor=62%` cuts an exact 4:1 window at full width (23% sky and 10% floor dropped) with the kerb at 58% of the lane window. Replaces the theatre placeholder.

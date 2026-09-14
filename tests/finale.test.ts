@@ -3,7 +3,8 @@ import { World, WAVE_BOSS_HP } from '../src/sim/world';
 import { LEVELS, LEVEL_COUNT, levelDef } from '../src/sim/levels';
 import { BOSS_DEFS } from '../src/sim/bosses';
 import { ENTRY_TICKS } from '../src/sim/levels';
-import { defaultRoster, composeLevels } from '../src/sim/roster';
+import { defaultRoster, composeLevels, normalizeRoster } from '../src/sim/roster';
+import { readFileSync } from 'node:fs';
 
 const NONE = { held: 0, pressed: 0 };
 
@@ -38,6 +39,12 @@ describe('the finale gauntlet', () => {
   it('the roster keeps the gauntlet as designed', () => {
     const levels = composeLevels(defaultRoster());
     expect(levels[LEVEL_COUNT - 1].waves).toEqual(LEVELS[LEVEL_COUNT - 1].waves);
+  });
+  it('the shipped roster keeps all ten bosses in the gauntlet even though its enemy pool covers level 11', () => {
+    const shipped = normalizeRoster(JSON.parse(readFileSync('public/game/roster.json', 'utf8')));
+    const last = composeLevels(shipped)[LEVEL_COUNT - 1];
+    const bosses = last.waves.flatMap((w) => w.spawns.map((s) => s.arch)).filter((a) => BOSS_DEFS[a]);
+    expect(bosses).toEqual(LEVELS.slice(0, LEVEL_COUNT - 1).map((l) => l.boss));
   });
   it('a boss the roster disables leaves the gauntlet and the pool fills its slot', () => {
     const r = defaultRoster();
