@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { catalogLevel } from '../../shared/catalog';
 import { getLang, setLang, langLabel } from '../../shared/lang';
-import { centreUiCamera, onViewportResize, uiOffsetX } from '../viewport';
+import { centreUiCamera, onViewportResize } from '../viewport';
 import { t, isHebrew, difficultyName, heroBias, uiFont, uiSize } from '../../shared/i18n';
 import { getDifficulty, setDifficulty } from '../../shared/difficultySetting';
 import { CONTENT_URL } from '../../content/updater';
@@ -17,7 +17,8 @@ import { VIEW_W, VIEW_H } from '../../sim/types';
 import { synth } from '../../audio/synth';
 import { LEVEL_COUNT } from '../../sim/levels';
 
-const PALETTE = { bg: 0x050711, panel: 0x0b1730, line: 0x344861, accent: 0xffcf5c, cyan: 0x75f5dc, text: 0xf3f4e8, muted: 0x9bb1c9 };
+const PALETTE = { bg: 0x050711, panel: 0x0b1730, field: 0x14243d, hover: 0x1c2f4d, line: 0x344861, accent: 0xffcf5c, cyan: 0x75f5dc, purple: 0xc58cff, text: 0xf3f4e8, muted: 0x9bb1c9 };
+const rgba = (c: number): string => Phaser.Display.Color.IntegerToColor(c).rgba;
 
 function addTextureFromDataUrl(scene: Phaser.Scene, key: string, dataUrl: string): Promise<void> {
   return new Promise((resolve) => {
@@ -34,6 +35,116 @@ function addTextureFromDataUrl(scene: Phaser.Scene, key: string, dataUrl: string
   });
 }
 
+/** A flat button: a box with a centred label; `active` paints it in the accent colour. */
+function button(scene: Phaser.Scene, x: number, y: number, w: number, h: number, label: string, onClick: () => void, size = 11, active = false): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text; setActive: (on: boolean) => void } {
+  const g = scene.add.rectangle(x, y, w, h, PALETTE.field).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line).setInteractive({ useHandCursor: true });
+  const text = scene.add.text(x + w / 2, y + h / 2, label, { fontFamily: uiFont(), fontSize: uiSize(size), color: rgba(PALETTE.text), fontStyle: 'bold' }).setOrigin(0.5);
+  let isActive = active;
+  const paint = (hover = false) => {
+    if (isActive) { g.setFillStyle(PALETTE.cyan).setStrokeStyle(1, PALETTE.cyan); text.setColor(rgba(PALETTE.panel)); }
+    else { g.setFillStyle(hover ? PALETTE.hover : PALETTE.field).setStrokeStyle(1, PALETTE.line); text.setColor(rgba(PALETTE.text)); }
+  };
+  g.on('pointerdown', () => { synth.unlock(); synth.uiClick(); onClick(); });
+  g.on('pointerover', () => paint(true));
+  g.on('pointerout', () => paint(false));
+  paint();
+  return { g, text, setActive: (on) => { isActive = on; paint(); } };
+}
+
+/** A row of equal buttons where exactly one is lit — the lobby's way of showing every choice at
+ * once (difficulty, friend mode, players, control size) instead of a button that cycles. */
+class Segmented<T extends string> {
+  private buttons = new Map<T, ReturnType<typeof button>>();
+  readonly root: Phaser.GameObjects.Container;
+  constructor(scene: Phaser.Scene, x: number, y: number, w: number, h: number, options: { v: T; label: string }[], current: T, onPick: (v: T) => void, size = 11) {
+    this.root = scene.add.container(0, 0);
+    const gap = 4, bw = (w - gap * (options.length - 1)) / options.length;
+    options.forEach((o, i) => {
+      const b = button(scene, x + i * (bw + gap), y, bw, h, o.label, () => onPick(o.v), size, o.v === current);
+      this.buttons.set(o.v, b);
+      this.root.add([b.g, b.text]);
+    });
+  }
+  set(v: T): void { for (const [k, b] of this.buttons) b.setActive(k === v); }
+}
+
+/** A hero's face as a tappable chip; a coloured ring and a small tag say whose it is. */
+interface ChipState { ring: number | null; tag: string; disabled?: boolean }
+class ChipRow {
+  readonly root: Phaser.GameObjects.Container;
+  private chips: { id: HeroId; bg: Phaser.GameObjects.Rectangle; img: Phaser.GameObjects.Image; tag: Phaser.GameObjects.Text }[] = [];
+  constructor(scene: Phaser.Scene, x: number, y: number, size: number, gap: number, onPick: (id: HeroId) => void) {
+    this.root = scene.add.container(0, 0);
+    HERO_IDS.forEach((id, i) => {
+      const cx = x + i * (size + gap);
+      const bg = scene.add.rectangle(cx, y, size, size, PALETTE.field).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line).setInteractive({ useHandCursor: true });
+      const img = scene.add.image(cx + size / 2, y + size / 2, `card-${id}`).setDisplaySize(size - 6, size - 6);
+      const tag = scene.add.text(cx + 2, y + 2, '', { fontFamily: uiFont(), fontSize: uiSize(Math.max(8, Math.round(size / 6))), color: rgba(PALETTE.panel), fontStyle: 'bold', backgroundColor: rgba(PALETTE.cyan), padding: { x: 3, y: 1 } }).setOrigin(0, 0).setVisible(false);
+      bg.on('pointerdown', () => { if (bg.alpha < 1) return; synth.unlock(); synth.uiClick(); onPick(id); });
+      this.root.add([bg, img, tag]);
+      this.chips.push({ id, bg, img, tag });
+    });
+  }
+  setState(state: (id: HeroId) => ChipState): void {
+    for (const c of this.chips) {
+      const s = state(c.id);
+      const a = s.disabled ? 0.35 : 1;
+      c.bg.setAlpha(a); c.img.setAlpha(a);
+      c.bg.setStrokeStyle(s.ring ? 3 : 2, s.ring ?? PALETTE.line).setFillStyle(s.ring ? PALETTE.hover : PALETTE.field);
+      c.tag.setText(s.tag).setVisible(!!s.tag).setStyle({ backgroundColor: rgba(s.ring ?? PALETTE.muted) });
+    }
+  }
+}
+
+/** The big card: the hero's art, name, style line and three stat bars, for whoever is picked. */
+class BigCard {
+  private img: Phaser.GameObjects.Image;
+  private name: Phaser.GameObjects.Text;
+  private bias: Phaser.GameObjects.Text;
+  private role: Phaser.GameObjects.Text;
+  private bars: Phaser.GameObjects.Rectangle[] = [];
+  private static readonly ART = 160;
+  private static readonly BAR_W = 186;
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    const A = BigCard.ART;
+    scene.add.rectangle(x, y, A, A, PALETTE.field).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line);
+    this.img = scene.add.image(x + A / 2, y + A / 2, `card-${HERO_IDS[0]}`).setDisplaySize(A - 4, A - 4);
+    this.role = scene.add.text(x + 6, y + 6, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: rgba(PALETTE.panel), fontStyle: 'bold', backgroundColor: rgba(PALETTE.cyan), padding: { x: 6, y: 3 } }).setOrigin(0, 0);
+    const tx = x + A + 14;
+    this.name = scene.add.text(tx, y + 2, '', { fontFamily: uiFont(), fontSize: uiSize(20), color: rgba(PALETTE.text), fontStyle: 'bold' }).setOrigin(0, 0);
+    this.bias = scene.add.text(tx, y + 32, '', { fontFamily: uiFont(), fontSize: uiSize(10), color: rgba(PALETTE.muted), wordWrap: { width: 250 } }).setOrigin(0, 0);
+    const labels = [t('statHp'), t('statSpeed'), t('statPower')];
+    labels.forEach((l, i) => {
+      const by = y + 76 + i * 26;
+      scene.add.text(tx, by, l, { fontFamily: uiFont(), fontSize: uiSize(9), color: rgba(PALETTE.muted) }).setOrigin(0, 0.5);
+      scene.add.rectangle(tx + 66, by, BigCard.BAR_W, 8, PALETTE.field).setOrigin(0, 0.5).setStrokeStyle(1, PALETTE.line);
+      this.bars.push(scene.add.rectangle(tx + 66, by, 0, 8, PALETTE.cyan).setOrigin(0, 0.5));
+    });
+  }
+  /** `id` null = nobody (the friend is off): the card goes quiet. */
+  show(id: HeroId | null, role: string, colour = PALETTE.cyan): void {
+    this.role.setText(role).setVisible(!!role).setStyle({ backgroundColor: rgba(colour) });
+    if (!id) {
+      this.img.setVisible(false); this.name.setText('—'); this.bias.setText('');
+      for (const b of this.bars) b.width = 0;
+      return;
+    }
+    const def = HEROES[id];
+    this.img.setTexture(`card-${id}`).setDisplaySize(BigCard.ART - 4, BigCard.ART - 4).setVisible(true);
+    this.name.setText(def.name); this.bias.setText(heroBias(id, def.bias));
+    // each bar is the hero's place in the roster's range, so the differences read at a glance
+    const stats: [number, number][] = [[def.hp, 0], [def.speed, 1], [def.dmgMul, 2]];
+    const all = HERO_IDS.map((h) => HEROES[h]);
+    const ranges = [[Math.min(...all.map((d) => d.hp)), Math.max(...all.map((d) => d.hp))], [Math.min(...all.map((d) => d.speed)), Math.max(...all.map((d) => d.speed))], [Math.min(...all.map((d) => d.dmgMul)), Math.max(...all.map((d) => d.dmgMul))]];
+    for (const [v, i] of stats) {
+      const [lo, hi] = ranges[i];
+      const f = hi > lo ? (v - lo) / (hi - lo) : 0.5;
+      this.bars[i].width = Math.round(BigCard.BAR_W * (0.3 + 0.7 * f));
+      this.bars[i].setFillStyle(colour);
+    }
+  }
+}
+
 export class LobbyScene extends Phaser.Scene {
   constructor() { super('Lobby'); }
 
@@ -41,304 +152,161 @@ export class LobbyScene extends Phaser.Scene {
   private heroPick: [HeroId, HeroId | null] = [HERO_IDS[0], null];
   private coop = false; // LAN co-op
   private local2p = false; // two players on one keyboard (no touch equivalent)
-  private p2Text!: Phaser.GameObjects.Text;
-  private p2Row!: Phaser.GameObjects.Container;
-  private cards: Record<HeroId, Phaser.GameObjects.Container> = {} as any;
   private startLevel = 1;
   private friendPick: HeroId | null = HERO_IDS[1] ?? null;
   private friendMode: FriendMode = 'assist';
-  private friendText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
   private netMode: 'local' | 'host' | 'guest' = 'local';
   private roomCode: string | null = null;
 
-  // ---- carousel layout: three cards per page, snapping ----
-  private static readonly CARD_W = 236;
-  private static readonly CARD_H = 292;
-  private static readonly CARD_GAP = 18;
-  private static readonly PER_PAGE = 3;
-  private static readonly CAROUSEL_Y = 66;
-  private strip!: Phaser.GameObjects.Container;
-  private page = 0;
-  private pageDots: Phaser.GameObjects.Arc[] = [];
-  private pageText!: Phaser.GameObjects.Text;
-  private badges: Record<HeroId, Phaser.GameObjects.Text> = {} as any;
-  private dragStartX = 0;
-  private dragStripX = 0;
-  private dragging = false;
-  private dragMoved = false;
+  private heroCard!: BigCard;
+  private friendCard!: BigCard;
+  private heroChips!: ChipRow;
+  private p2Chips!: ChipRow;
+  private friendChips!: ChipRow;
+  private p2Block!: Phaser.GameObjects.Container;
+  private tapHint!: Phaser.GameObjects.Text;
+  private modeSeg!: Segmented<FriendMode>;
+  private modeHint!: Phaser.GameObjects.Text;
+  private playersSeg!: Segmented<'solo' | '2p' | 'lan'>;
+  private netRow!: Phaser.GameObjects.Container;
+  private levelText!: Phaser.GameObjects.Text;
 
-  private get pageCount(): number { return Math.max(1, Math.ceil(HERO_IDS.length / LobbyScene.PER_PAGE)); }
-  private get pageW(): number { return LobbyScene.PER_PAGE * (LobbyScene.CARD_W + LobbyScene.CARD_GAP); }
-  private get stripX0(): number { return Math.round((VIEW_W - (this.pageW - LobbyScene.CARD_GAP)) / 2); }
-
+  /** The lobby is two big panels — YOUR HERO on the left, FRIEND on the right, each a large card
+   * with the pick's art and stats over a row of every hero's face to tap — then two rows of labelled
+   * controls that show every option at once (level, difficulty, control size; players and the LAN
+   * buttons) and START. Everything is laid out in the 960×540 frame, centred on the canvas. */
   create(): void {
     onViewportResize(this, () => centreUiCamera(this));
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
-    // header: the wordmark (it already says EVIOMRI · CIRCUIT BREAKERS) and the section title
-    this.add.image(VIEW_W / 2, 30, 'logo').setDisplaySize(176, 52);
-    this.add.text(this.stripX0, LobbyScene.CAROUSEL_Y - 14, t('pickHero'), { fontFamily: uiFont(), fontSize: uiSize(12), color: '#9bb1c9', fontStyle: 'bold' }).setOrigin(0, 0.5);
-    this.add.text(this.stripX0 + this.pageW - LobbyScene.CARD_GAP, LobbyScene.CAROUSEL_Y - 14, t('carouselHint'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#5f7391' }).setOrigin(1, 0.5);
+    const touch = isTouchDevice(this);
 
-    // play on phone: a QR of the address a phone can open, top-left
-    const qrBtn = this.makeButton(24, 8, 132, 22, t('playOnPhone'), () => this.togglePhoneQr());
-    void qrBtn;
-    // dialog text language, top-right
-    const langBtn = this.makeButton(VIEW_W - 24 - 112, 8, 112, 22, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
+    // ---- top bar: play-on-phone QR, the wordmark, the language toggle ----
+    this.add.image(VIEW_W / 2, 22, 'logo').setDisplaySize(150, 44);
+    button(this, 24, 8, 150, 28, t('playOnPhone'), () => this.togglePhoneQr());
+    const langBtn = button(this, VIEW_W - 24 - 150, 8, 150, 28, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
 
-    this.buildCarousel();
+    // ---- the two panels ----
+    const PY = 48, PH = 310, PW = 448, LX = 24, RX = VIEW_W - 24 - PW;
+    for (const px of [LX, RX]) this.add.rectangle(px, PY, PW, PH, PALETTE.panel, 0.8).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line);
+    this.label(LX + 12, PY + 12, t('pickHero'), 11, true);
+    this.label(RX + 12, PY + 12, t('friend'), 11, true);
+    this.heroCard = new BigCard(this, LX + 12, PY + 30);
+    this.friendCard = new BigCard(this, RX + 12, PY + 30);
+    this.heroChips = new ChipRow(this, LX + 12, PY + 198, 56, 10, (id) => this.pickHero(id));
+    this.friendChips = new ChipRow(this, RX + 12, PY + 198, 56, 10, (id) => { this.friendPick = id; this.refresh(); });
+    // under the hero: a tap hint, or the second player's pick in a two-player game
+    this.tapHint = this.label(LX + 12, PY + 278, t('tapFace'), 9);
+    this.p2Block = this.add.container(0, 0).setVisible(false);
+    const p2Label = this.label(LX + 12, PY + 278, t('player2'), 10, true);
+    this.p2Chips = new ChipRow(this, LX + 12 + 88, PY + 262, 32, 6, (id) => { this.heroPick[1] = id; this.refresh(); });
+    this.p2Block.add([p2Label, this.p2Chips.root]);
+    // under the friend: how they help, every mode a button, the lit one explained underneath
+    this.modeSeg = new Segmented<FriendMode>(this, RX + 12, PY + 262, PW - 24, 28, [
+      { v: 'off', label: t('off') }, { v: 'assist', label: t('assist') }, { v: 'sidekick', label: t('sidekick') },
+    ], this.friendMode, (m) => { this.friendMode = m; this.refresh(); });
+    this.modeHint = this.label(RX + 12, PY + 296, '', 9).setWordWrapWidth(PW - 24);
 
-    // ---- settings row ----
-    const rowY = LobbyScene.CAROUSEL_Y + LobbyScene.CARD_H + 30; // 388
-    const panel = this.add.rectangle(24, rowY, VIEW_W - 48, 62, PALETTE.panel, 0.7).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line);
-    void panel;
-    // friend
-    this.add.text(36, rowY + 8, t('friend'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
-    this.makeButton(36, rowY + 26, 28, 26, '◀', () => this.cycleFriend(-1));
-    this.friendText = this.add.text(70, rowY + 39, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
-    this.makeButton(222, rowY + 26, 28, 26, '▶', () => this.cycleFriend(1));
-    const modeBtn = this.makeButton(258, rowY + 26, 112, 26, '', () => {
-      this.friendMode = this.friendMode === 'assist' ? 'sidekick' : this.friendMode === 'sidekick' ? 'off' : 'assist';
-      modeBtn.text.setText(t(this.friendMode));
-      this.refreshBadges();
-    });
-    modeBtn.text.setText(t(this.friendMode));
-    this.add.text(258, rowY + 8, t('helpsAs'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
-    // level
-    this.add.text(400, rowY + 8, t('startAtLevel'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
-    this.makeButton(400, rowY + 26, 28, 26, '◀', () => this.setLevel(this.startLevel - 1));
-    const levelText = this.add.text(434, rowY + 39, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
-    this.makeButton(606, rowY + 26, 28, 26, '▶', () => this.setLevel(this.startLevel + 1));
-    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(LEVEL_COUNT, n)); levelText.setText(`${this.startLevel} · ${isHebrew() ? catalogLevel(this.catalog, this.startLevel).nameHe : catalogLevel(this.catalog, this.startLevel).name}`); };
-    this.setLevel(this.startLevel);
-    // players / co-op toggles
-    this.add.text(656, rowY + 8, t('players'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
-    const coopBtn = this.makeButton(656, rowY + 26, 132, 26, `${t('lanCoop')}: ${t('off')}`, () => {
-      this.coop = !this.coop;
-      coopBtn.text.setText(`${t('lanCoop')}: ${this.coop ? t('on') : t('off')}`);
-      netRow.setVisible(this.coop);
-      if (this.coop && this.local2p) setLocal2p(false);
-      if (!this.coop) {
-        this.netMode = 'local'; this.roomCode = null;
-        this.registry.get('pendingHostSession')?.destroy(); this.registry.remove('pendingHostSession');
-        this.children.getByName('qr')?.destroy(); this.statusText.setText('');
-      }
-    });
-    // Two players on one keyboard (arrows + numpad for P2): a keyboard-only option, so it is not
-    // offered on a phone. Exclusive with LAN co-op.
-    let local2pBtn: { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } | null = null;
-    const setLocal2p = (on: boolean) => {
-      this.local2p = on;
-      local2pBtn?.text.setText(`${t('twoPKeyboard')}: ${on ? t('on') : t('off')}`);
-      this.p2Row.setVisible(on);
-      if (on && !this.heroPick[1]) this.heroPick[1] = pickOther(this.heroPick[0]);
-      if (!on) this.heroPick[1] = null;
-      this.cycleP2(0); this.cycleFriend(0);
-    };
-    if (!isTouchDevice(this)) {
-      local2pBtn = this.makeButton(796, rowY + 26, 132, 26, `${t('twoPKeyboard')}: ${t('off')}`, () => {
-        setLocal2p(!this.local2p);
-        if (this.local2p && this.coop) coopBtn.g.emit('pointerdown');
-      });
-    } else {
+    // ---- settings row A: level · difficulty · control size ----
+    const AY = 366, ACY = 380, CH = 30;
+    this.label(24, AY, t('startAtLevel'), 10);
+    button(this, 24, ACY, 30, CH, '◀', () => this.setLevel(this.startLevel - 1));
+    this.add.rectangle(58, ACY, 216, CH, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(1, PALETTE.line);
+    this.levelText = this.add.text(58 + 108, ACY + CH / 2, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: rgba(PALETTE.text), fontStyle: 'bold' }).setOrigin(0.5);
+    button(this, 278, ACY, 30, CH, '▶', () => this.setLevel(this.startLevel + 1));
+    this.label(324, AY, t('difficulty'), 10);
+    const diffSeg = new Segmented(this, 324, ACY, 312, CH, DIFFICULTIES.map((d) => ({ v: d, label: difficultyName(d) })), getDifficulty(), (d) => { setDifficulty(d); diffSeg.set(d); });
+    if (touch) {
       // touch control size, for phones
-      const sizes: ('S' | 'M' | 'L')[] = ['S', 'M', 'L'];
-      const sizeBtn = this.makeButton(796, rowY + 26, 132, 26, '', () => {
-        const next = sizes[(sizes.indexOf(TouchControls.sizeSetting()) + 1) % sizes.length];
-        try { localStorage.setItem(TouchControls.SIZE_KEY, next); } catch { /* private mode */ }
-        sizeBtn.text.setText(`${t('controls')}: ${next}`);
+      this.label(652, AY, t('controls'), 10);
+      const sizeSeg = new Segmented<'S' | 'M' | 'L'>(this, 652, ACY, 160, CH, (['S', 'M', 'L'] as const).map((s) => ({ v: s, label: s })), TouchControls.sizeSetting(), (s) => {
+        try { localStorage.setItem(TouchControls.SIZE_KEY, s); } catch { /* private mode */ }
+        sizeSeg.set(s);
       });
-      sizeBtn.text.setText(`${t('controls')}: ${TouchControls.sizeSetting()}`);
     }
 
-    // ---- bottom: P2 pick / net buttons on the sides, status + START in the middle ----
-    const botY = rowY + 76; // 464
-    this.p2Row = this.add.container(0, 0).setVisible(false);
-    const p2Label = this.add.text(36, botY, t('player2'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' });
-    const p2Prev = this.makeButton(36, botY + 16, 28, 26, '◀', () => this.cycleP2(-1));
-    this.p2Text = this.add.text(70, botY + 29, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#f3f4e8' }).setOrigin(0, 0.5);
-    const p2Next = this.makeButton(222, botY + 16, 28, 26, '▶', () => this.cycleP2(1));
-    this.p2Row.add([p2Label, p2Prev.g, p2Prev.text, this.p2Text, p2Next.g, p2Next.text]);
-
-    const netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = this.makeButton(656, botY + 16, 132, 26, t('hostGame'), () => this.startAsHost());
-    const joinBtn = this.makeButton(796, botY + 16, 132, 26, t('joinGame'), () => this.promptJoin());
-    netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
+    // ---- settings row B: players · LAN buttons · status ----
+    const BY = 418, BCY = 432;
+    this.label(24, BY, t('players'), 10);
+    // Two players on one keyboard (arrows + numpad for P2) is keyboard-only, so a phone is not offered it.
+    const playerOptions: { v: 'solo' | '2p' | 'lan'; label: string }[] = [{ v: 'solo', label: t('solo') }, ...(touch ? [] : [{ v: '2p' as const, label: t('twoPKeyboard') }]), { v: 'lan', label: t('lanCoop') }];
+    this.playersSeg = new Segmented(this, 24, BCY, touch ? 240 : 360, CH, playerOptions, 'solo', (v) => this.setPlayers(v));
+    this.netRow = this.add.container(0, 0).setVisible(false);
+    const hostBtn = button(this, 400, BCY, 120, CH, t('hostGame'), () => this.startAsHost());
+    const joinBtn = button(this, 528, BCY, 120, CH, t('joinGame'), () => this.promptJoin());
+    this.netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
+    this.statusText = this.add.text(664, BY, '', { fontFamily: uiFont(), fontSize: uiSize(9), color: rgba(PALETTE.cyan), wordWrap: { width: 272 } }).setOrigin(0, 0);
 
     // Arriving through the host's QR code / join link (?join=CODE): the room is already known, so
     // the guest only has to pick a hero and press START.
     const joinCode = new URLSearchParams(location.search).get('join')?.trim().toUpperCase().replace(/[^A-Z0-9]/g, '') ?? '';
     if (joinCode.length === 4) {
-      this.coop = true; coopBtn.text.setText(`${t('lanCoop')}: ${t('on')}`); netRow.setVisible(true);
+      this.setPlayers('lan');
       this.netMode = 'guest'; this.roomCode = joinCode;
-    }
+      this.statusText.setText(t('joiningRoom', { code: this.roomCode }));
+    } else if (this.coop) this.playersSeg.set('lan'); else if (this.local2p) this.playersSeg.set('2p'); // a language toggle restarts the scene
 
-    this.statusText = this.add.text(VIEW_W / 2, botY + 2, '', { fontFamily: uiFont(), fontSize: uiSize(10), color: '#75f5dc', align: 'center' }).setOrigin(0.5, 0);
-    if (this.netMode === 'guest' && this.roomCode) this.statusText.setText(t('joiningRoom', { code: this.roomCode }));
+    // ---- START ----
+    const start = button(this, VIEW_W / 2 - 160, 474, 320, 48, t('start'), () => this.tryStart(), 16, true);
+    void start;
 
-    const start = this.makeButton(VIEW_W / 2, botY + 22, 300, 46, t('start'), () => this.tryStart(), 0x75f5dc, 0x0b1730);
-    start.text.setFontSize(16).setFontStyle('bold');
-    // difficulty, beside START: EASY is the game as tuned, each step up is a harder campaign
-    this.add.text(VIEW_W / 2 - 160, botY + 2, t('difficulty'), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9' }).setOrigin(1, 0);
-    const diffBtn = this.makeButton(VIEW_W / 2 - 160 - 132, botY + 22, 132, 26, '', () => {
-      const next = DIFFICULTIES[(DIFFICULTIES.indexOf(getDifficulty()) + 1) % DIFFICULTIES.length];
-      setDifficulty(next); diffBtn.text.setText(difficultyName(next));
-    });
-    diffBtn.text.setText(difficultyName(getDifficulty()));
     if (import.meta.env.DEV) {
       // dev shortcuts: /?level=11&difficulty=hard lands the lobby on that level and setting
       const q = new URLSearchParams(location.search);
       const lv = Number(q.get('level'));
-      if (lv >= 1 && lv <= LEVEL_COUNT) this.setLevel(lv);
+      if (lv >= 1 && lv <= LEVEL_COUNT) this.startLevel = lv;
       const d = q.get('difficulty');
-      if (isDifficulty(d)) { setDifficulty(d); diffBtn.text.setText(difficultyName(d)); }
+      if (isDifficulty(d)) { setDifficulty(d); diffSeg.set(d); }
     }
-
-    this.cycleFriend(0);
-    this.highlightCard();
+    this.setLevel(this.startLevel);
+    this.refresh();
   }
 
-  private setLevel: (n: number) => void = () => {};
-
-  /** The hero cards: a strip of all of them, clipped to one page of three, dragged/swiped or paged
-   * with the arrows, and snapped to a page on release. A tap (no drag) on a card picks it. */
-  private buildCarousel(): void {
-    const { CARD_W, CARD_H, CARD_GAP, CAROUSEL_Y } = LobbyScene;
-    const x0 = this.stripX0, viewW = this.pageW - CARD_GAP;
-    this.strip = this.add.container(x0, CAROUSEL_Y);
-    HERO_IDS.forEach((id, i) => this.buildHeroCard(id, i * (CARD_W + CARD_GAP), 0, i));
-    // clip to the page
-    const maskG = this.make.graphics({}, false);
-    maskG.fillStyle(0xffffff).fillRect(x0 - 6, CAROUSEL_Y - 8, viewW + 12, CARD_H + 16);
-    this.strip.setMask(maskG.createGeometryMask());
-    // drag / swipe on the whole page area
-    const zone = this.add.zone(x0, CAROUSEL_Y, viewW, CARD_H).setOrigin(0, 0).setInteractive({ draggable: false });
-    zone.on('pointerdown', (p: Phaser.Input.Pointer) => { this.dragging = true; this.dragMoved = false; this.dragStartX = p.x; this.dragStripX = this.strip.x; });
-    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-      if (!this.dragging || !p.isDown) return;
-      const dx = p.x - this.dragStartX;
-      if (Math.abs(dx) > 8) this.dragMoved = true;
-      const min = x0 - (this.pageCount - 1) * this.pageW, max = x0;
-      // rubber-band past the ends
-      let nx = this.dragStripX + dx;
-      if (nx > max) nx = max + (nx - max) * 0.3; if (nx < min) nx = min + (nx - min) * 0.3;
-      this.strip.x = nx;
-    });
-    this.input.on('pointerup', (p: Phaser.Input.Pointer) => {
-      if (!this.dragging) return;
-      this.dragging = false;
-      const dx = p.x - this.dragStartX;
-      if (this.dragMoved) {
-        // a flick of 50px+ turns the page; otherwise snap to the nearest
-        let target = this.page;
-        if (dx < -50) target = this.page + 1; else if (dx > 50) target = this.page - 1;
-        else target = Math.round((x0 - this.strip.x) / this.pageW);
-        this.goToPage(target);
-      } else {
-        // a tap: which card is under it?
-        const local = p.x - uiOffsetX(this) - this.strip.x; // pointer coordinates are canvas ones
-        const i = Math.floor(local / (CARD_W + CARD_GAP));
-        if (i >= 0 && i < HERO_IDS.length && local - i * (CARD_W + CARD_GAP) <= CARD_W && p.y >= CAROUSEL_Y && p.y <= CAROUSEL_Y + CARD_H) this.pickHero(HERO_IDS[i]);
-      }
-    });
-    // arrows, page dots and counter
-    const ay = CAROUSEL_Y + CARD_H / 2;
-    this.makeButton(x0 - 52, ay - 30, 40, 60, '◀', () => this.goToPage(this.page - 1));
-    this.makeButton(x0 + viewW + 12, ay - 30, 40, 60, '▶', () => this.goToPage(this.page + 1));
-    const dotsY = CAROUSEL_Y + CARD_H + 14;
-    for (let i = 0; i < this.pageCount; i++) this.pageDots.push(this.add.circle(VIEW_W / 2 + (i - (this.pageCount - 1) / 2) * 16, dotsY, 4, PALETTE.line));
-    this.pageText = this.add.text(x0 + viewW, dotsY, '', { fontFamily: uiFont(), fontSize: uiSize(10), color: '#5f7391' }).setOrigin(1, 0.5);
-    this.goToPage(Math.floor(HERO_IDS.indexOf(this.heroPick[0]) / LobbyScene.PER_PAGE), true);
+  private label(x: number, y: number, text: string, size: number, bold = false): Phaser.GameObjects.Text {
+    return this.add.text(x, y, text, { fontFamily: uiFont(), fontSize: uiSize(size), color: rgba(PALETTE.muted), fontStyle: bold ? 'bold' : 'normal' }).setOrigin(0, 0);
   }
 
-  private goToPage(n: number, instant = false): void {
-    this.page = Math.max(0, Math.min(this.pageCount - 1, n));
-    const x = this.stripX0 - this.page * this.pageW;
-    this.tweens.killTweensOf(this.strip);
-    if (instant) this.strip.x = x; else this.tweens.add({ targets: this.strip, x, duration: 220, ease: 'Cubic.easeOut' });
-    this.pageDots.forEach((d, i) => d.setFillStyle(i === this.page ? PALETTE.cyan : PALETTE.line));
-    this.pageText.setText(`${this.page + 1} / ${this.pageCount}`);
+  private setLevel(n: number): void {
+    this.startLevel = Math.max(1, Math.min(LEVEL_COUNT, n));
+    const lv = catalogLevel(this.catalog, this.startLevel);
+    this.levelText.setText(`${this.startLevel} · ${isHebrew() ? lv.nameHe : lv.name}`);
+  }
+
+  private setPlayers(v: 'solo' | '2p' | 'lan'): void {
+    this.coop = v === 'lan'; this.local2p = v === '2p';
+    // only a shared keyboard picks P2 here; a LAN guest picks on their own device
+    if (v === '2p') { if (!this.heroPick[1]) this.heroPick[1] = pickOther(this.heroPick[0]); } else this.heroPick[1] = null;
+    if (!this.coop) {
+      this.netMode = 'local'; this.roomCode = null;
+      this.registry.get('pendingHostSession')?.destroy(); this.registry.remove('pendingHostSession');
+      this.children.getByName('qr')?.destroy(); this.statusText.setText('');
+    }
+    this.playersSeg.set(v);
+    this.refresh();
   }
 
   private pickHero(id: HeroId): void {
-    synth.unlock(); synth.uiClick();
     this.heroPick[0] = id;
     if (this.heroPick[1] === id) this.heroPick[1] = pickOther(id);
-    this.highlightCard(); this.cycleP2(0); this.cycleFriend(0);
+    this.refresh();
   }
 
-  private buildHeroCard(id: HeroId, x: number, y: number, slot: number): void {
-    const { CARD_W, CARD_H } = LobbyScene;
-    const def = HEROES[id];
-    const c = this.add.container(x, y);
-    const bg = this.add.rectangle(0, 0, CARD_W, CARD_H, PALETTE.panel).setOrigin(0, 0).setStrokeStyle(2, PALETTE.line);
-    // square art shown square, nearly the card's full width, so the character reads at a glance
-    const art = CARD_W - 20;
-    const img = this.add.image(CARD_W / 2, 10 + art / 2, `card-${id}`).setDisplaySize(art, art);
-    const tint = this.add.rectangle(CARD_W / 2, 14 + art, art, 3, def.colour).setOrigin(0.5, 0);
-    const name = this.add.text(CARD_W / 2, 32 + art, def.name, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#f3f4e8', fontStyle: 'bold' }).setOrigin(0.5);
-    const bias = this.add.text(CARD_W / 2, 48 + art, heroBias(id, def.bias), { fontFamily: uiFont(), fontSize: uiSize(10), color: '#9bb1c9', align: 'center', wordWrap: { width: CARD_W - 16 } }).setOrigin(0.5, 0);
-    // role badge (P1 / P2 / FRIEND) in the top-left corner
-    const badge = this.add.text(10, 10, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: '#0b1730', fontStyle: 'bold', backgroundColor: '#75f5dc', padding: { x: 6, y: 3 } }).setOrigin(0, 0).setVisible(false);
-    c.add([bg, img, tint, name, bias, badge]);
-    this.strip.add(c);
-    this.cards[id] = c;
-    this.badges[id] = badge;
-    void slot;
-  }
-
-  /** Moves P2's hero by `dir` among the heroes P1 is not playing. */
-  private cycleP2(dir: number): void {
-    if (!this.local2p) { this.refreshBadges(); return; }
-    const pool = HERO_IDS.filter((h) => h !== this.heroPick[0]);
-    let i = pool.indexOf(this.heroPick[1]!);
-    if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
-    this.heroPick[1] = pool[i];
-    this.p2Text.setText(HEROES[this.heroPick[1]].name);
-    this.refreshBadges();
-  }
-
-  /** Moves the friend pick by `dir` among the heroes nobody is playing. */
-  private cycleFriend(dir: number): void {
-    const pool = HERO_IDS.filter((h) => h !== this.heroPick[0] && h !== this.heroPick[1]);
-    // with only two heroes in the roster there is nobody left to be the friend in a 2P game
-    if (!pool.length) { this.friendPick = null; this.friendText.setText('— nobody left'); this.refreshBadges(); return; }
-    let i = this.friendPick ? pool.indexOf(this.friendPick) : -1;
-    if (i < 0) i = 0; else i = (i + dir + pool.length) % pool.length;
-    this.friendPick = pool[i];
-    this.friendText.setText(`${HEROES[this.friendPick].name} · ${heroBias(this.friendPick, HEROES[this.friendPick].bias).split(' · ')[1] || ''}`.slice(0, 24));
-    this.refreshBadges();
-  }
-
-  private refreshBadges(): void {
-    for (const id of HERO_IDS) {
-      const b = this.badges[id];
-      if (!b) continue;
-      const role = id === this.heroPick[0] ? 'P1' : id === this.heroPick[1] ? 'P2' : id === this.friendPick && this.friendMode !== 'off' ? t(this.friendMode) : '';
-      b.setText(role).setVisible(!!role);
-      b.setStyle({ backgroundColor: role === 'P1' ? '#75f5dc' : role === 'P2' ? '#ffcf5c' : '#9bb1c9' });
-    }
-  }
-
-  private highlightCard(): void {
-    for (const id of HERO_IDS) {
-      const c = this.cards[id];
-      const bg = c.list[0] as Phaser.GameObjects.Rectangle;
-      const on = id === this.heroPick[0];
-      bg.setStrokeStyle(on ? 3 : 2, on ? PALETTE.cyan : PALETTE.line);
-      bg.setFillStyle(on ? 0x102240 : PALETTE.panel);
-    }
-    this.refreshBadges();
-  }
-
-  private makeButton(x: number, y: number, w: number, h: number, label: string, onClick: () => void, fill = 0x14243d, textColour: number = PALETTE.text): { g: Phaser.GameObjects.Rectangle; text: Phaser.GameObjects.Text } {
-    const g = this.add.rectangle(x, y, w, h, fill).setOrigin(w > 150 ? 0.5 : 0, 0).setStrokeStyle(1, PALETTE.line).setInteractive({ useHandCursor: true });
-    const text = this.add.text(x + (w > 150 ? 0 : w / 2), y + h / 2, label, { fontFamily: uiFont(), fontSize: uiSize(11), color: Phaser.Display.Color.IntegerToColor(textColour).rgba }).setOrigin(0.5);
-    g.on('pointerdown', () => { synth.unlock(); synth.uiClick(); onClick(); });
-    g.on('pointerover', () => g.setFillStyle(fill === 0x14243d ? 0x1c2f4d : fill));
-    g.on('pointerout', () => g.setFillStyle(fill));
-    return { g, text };
+  /** Every control reads from the picks; this paints them all — cards, chips, modes, rows. */
+  private refresh(): void {
+    const [p1, p2] = this.heroPick;
+    const friendOn = this.friendMode !== 'off';
+    // the friend is whoever is not playing
+    if (!this.friendPick || this.friendPick === p1 || this.friendPick === p2) this.friendPick = HERO_IDS.find((h) => h !== p1 && h !== p2) ?? null;
+    this.heroCard.show(p1, 'P1');
+    if (friendOn) this.friendCard.show(this.friendPick, t(this.friendMode), PALETTE.purple); else this.friendCard.show(null, t('off'), PALETTE.muted);
+    this.heroChips.setState((id) => ({ ring: id === p1 ? PALETTE.cyan : id === p2 ? PALETTE.accent : null, tag: id === p1 ? 'P1' : id === p2 ? 'P2' : '' }));
+    this.p2Chips.setState((id) => ({ ring: id === p2 ? PALETTE.accent : null, tag: '', disabled: id === p1 }));
+    this.friendChips.setState((id) => ({ ring: friendOn && id === this.friendPick ? PALETTE.purple : null, tag: id === p1 ? 'P1' : id === p2 ? 'P2' : '', disabled: !friendOn || id === p1 || id === p2 }));
+    this.modeSeg.set(this.friendMode);
+    this.modeHint.setText(t(this.friendMode === 'assist' ? 'assistHint' : this.friendMode === 'sidekick' ? 'sidekickHint' : 'offHint'));
+    this.p2Block.setVisible(this.local2p); this.tapHint.setVisible(!this.local2p);
+    this.netRow.setVisible(this.coop);
   }
 
   private async startAsHost(): Promise<void> {
@@ -397,7 +365,7 @@ export class LobbyScene extends Phaser.Scene {
       QR.toDataURL(url, { margin: 1, width: 128, color: { dark: '#050711', light: '#f3f4e8' } }).then((dataUrl) => {
         addTextureFromDataUrl(this, 'qr', dataUrl).then(() => {
           this.children.getByName('qr')?.destroy();
-          this.add.image(96, VIEW_H - 50, 'qr').setName('qr').setScale(0.7);
+          this.add.image(VIEW_W - 72, VIEW_H - 48, 'qr').setName('qr').setScale(0.6);
         });
       });
     }).catch(() => {});
