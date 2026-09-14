@@ -75,3 +75,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 02:05 — Midjourney V8.2 plate `docs/backdrops_midjourney/theater.png` accepted; the stage lip at the bottom edge was tiling into the lane, so `--trim-bottom=6% --floor=83%`.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/theater.png` (≈2:1, bigger ground area) accepted: `place-backdrop 8 … --floor=52%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.

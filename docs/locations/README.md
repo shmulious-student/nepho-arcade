@@ -4,14 +4,14 @@ The ten levels are real places from the family's life (level order and names are
 `src/sim/levels.ts` / `public/game/catalog.json`). Each file below names the place, links its Street
 View, lists the reference photos on disk, says what the current plate gets wrong and carries a
 ready-to-paste prompt to redraw the backdrop so it looks like the real spot. Delivery is one 4:1 plate
-per level (two or three 21:9 generations stitched with `tools/stitch-backdrop.mjs`; `place-backdrop --floor=NN%` aligns the
-measured ground line to the lane at 58% and never crops height) — `node tools/place-backdrop.mjs <level> <plate>` then
+per level (one Midjourney 4:1/2:1 generation, or 21:9 halves stitched with `tools/stitch-backdrop.mjs`; `place-backdrop --floor=NN%`
+cuts a 4:1 window with the measured ground line on the lane, or shifts and tiles when the image is already 4:1) — `node tools/place-backdrop.mjs <level> <plate>` then
 `npm run build:assets`.
 
 **Work order (family places first):** 1 → 2 → 5 → 3 → 4 → 10 → 6 → 7 → 8 → 9. Each file has a *Request card* with
 exactly what to attach, send, save and run. Agent brief for running the whole queue: [../prompts/gemini-backdrops.md](../prompts/gemini-backdrops.md). Midjourney V8.2 (one `--ar 4:1 --hd` generation per level, no stitching): [midjourney-prompts.md](midjourney-prompts.md).
 
-Status 2026-09-14 02:10: **all ten plates delivered** from Midjourney V8.2 (`docs/backdrops_midjourney/`, one 4:1 HD generation each) and placed with measured `--floor` values (see each file's Log). Rerolls worth doing when there is time: Sant Cugat (30% lift), Barcelona (shaded lane). Earlier status — nothing left to confirm. Six places are real and pinned down
+Status 2026-09-14 02:35: **all ten plates delivered twice** from Midjourney V8.2 (`docs/backdrops_midjourney/`); the second set (≈2:1, a bigger walkable area) is what ships — `place-backdrop` cuts an exact 4:1 window out of each at full width with the measured ground line on the lane, so nothing is tiled or stretched and every level covers five waves. Per-level `--floor` values are in each file's Log. Earlier status — nothing left to confirm. Six places are real and pinned down
 with Street View frames and photos (1–5, 10); four are **imaginary by decision of the owner** (6–9) — each file describes
 the invented place in enough detail to be the reference itself.
 

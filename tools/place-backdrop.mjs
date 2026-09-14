@@ -17,6 +17,11 @@
 // is filled by tiling the last 64 rows of the pavement (flipped every other tile so nothing seams);
 // shifted down, the exposed top is the top row stretched (sky). Measure it on the image, do not guess:
 // the prompts ask for 58% but models tend to put the ground at 65–70%.
+// An image narrower than 4:1 (2:1, 21:9 …) is not squeezed to the plate height: a 4:1 window is cut
+// out of it at full width, placed vertically so the measured ground line lands on the lane's far
+// edge (58%) — surplus sky above and surplus pavement below are what gets dropped. Only when the
+// window cannot be placed that way (ground too near the top or bottom) does the shift/tile fallback
+// below make up the difference.
 // --trim-bottom=<percent> cuts that much off the bottom of the delivered image first — for plates
 // whose bottom edge is a lip, a border or a fade that must not be tiled up into the lane.
 import sharp from 'sharp';
@@ -53,12 +58,26 @@ if (trimBottom > 0) {
   src = sharp(await src.extract({ left: 0, top: 0, width: meta.width, height: keep }).png().toBuffer());
   meta = await src.metadata();
 }
+// floor as a fraction of the (trimmed) source height
+let floorFrac = floorArg.endsWith('%') ? parseFloat(floorArg) / 100 : parseFloat(floorArg) / meta.height;
+let cropNote = '';
+const ratio = meta.width / meta.height;
+if (ratio < PLATE.w / PLATE.h - 0.05) {
+  // 4:1 window at full width, ground line at 58% of the window if the image allows
+  const winH = Math.round(meta.width / (PLATE.w / PLATE.h));
+  const floorPx = floorFrac * meta.height;
+  const top = Math.round(Math.max(0, Math.min(meta.height - winH, floorPx - (FLOOR_ROW / PLATE.h) * winH)));
+  src = sharp(await src.extract({ left: 0, top, width: meta.width, height: winH }).png().toBuffer());
+  floorFrac = (floorPx - top) / winH;
+  cropNote = `4:1 window rows ${top}–${top + winH} of ${meta.height} (${(100 * top / meta.height).toFixed(0)}% sky and ${(100 * (meta.height - top - winH) / meta.height).toFixed(0)}% ground dropped); `;
+  meta = await src.metadata();
+}
 let fitted = await src.resize({ height: PLATE.h }).png().toBuffer();
 const fw = Math.round(meta.width * PLATE.h / meta.height);
 // align the pavement's far edge to the lane
-const floorRow = floorArg.endsWith('%') ? Math.round(PLATE.h * parseFloat(floorArg) / 100) : Math.round(parseFloat(floorArg) * PLATE.h / meta.height);
+const floorRow = Math.round(PLATE.h * floorFrac);
 const shift = FLOOR_ROW - floorRow; // >0 = content moves down (floor was too high), <0 = moves up
-let floorNote = `floor at row ${floorRow} (${(100 * floorRow / PLATE.h).toFixed(0)}%)`;
+let floorNote = `${cropNote}floor at row ${floorRow} (${(100 * floorRow / PLATE.h).toFixed(0)}%)`;
 if (shift !== 0) {
   const layers = [];
   if (shift < 0) {

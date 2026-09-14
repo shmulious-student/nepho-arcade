@@ -95,3 +95,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 02:00 — Midjourney V8.2 plate `docs/backdrops_midjourney/hatikva-school.png` accepted; court back line / wall base at 83% → `--floor=83%`.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/hatikva-school.png` (≈2:1, bigger ground area) accepted: `place-backdrop 5 … --floor=50%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.

@@ -78,3 +78,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 02:10 — Midjourney V8.2 plate `docs/backdrops_midjourney/cactlunya.png` accepted; parapet base at 84% → `--floor=84%`.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/catalunya.png` (≈2:1, bigger ground area) accepted: `place-backdrop 10 … --floor=58%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.

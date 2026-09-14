@@ -74,3 +74,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 02:05 — Midjourney V8.2 plate `docs/backdrops_midjourney/basketbass-gym.png` accepted; sideline at 63% → `--floor=63%`. Scoreboard shows digits — tolerated.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/basketbass-gym.png` (≈2:1, bigger ground area) accepted: `place-backdrop 7 … --floor=46%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.

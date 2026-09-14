@@ -75,3 +75,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 02:00 — Midjourney V8.2 plate `docs/backdrops_midjourney/capoeira.png` accepted; bench line at 71% → `--floor=71%`.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/capoeira.png` (≈2:1, bigger ground area) accepted: `place-backdrop 6 … --floor=44%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.

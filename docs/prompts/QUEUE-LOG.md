@@ -156,3 +156,4 @@
 02:05 backdrop level 8 (Midjourney, theater.png) → ACCEPTED, --trim-bottom=6% --floor=83%
 02:05 backdrop level 9 (Midjourney, candy-factory.png) → ACCEPTED, --floor=67%
 02:10 backdrop level 10 (Midjourney, cactlunya.png) → ACCEPTED, --floor=84%. ALL TEN LEVELS have Midjourney plates.
+02:35 backdrops: second Midjourney set (2:1, bigger ground) placed for all ten levels via the new 4:1 window crop — floors 46/68/52/54/50/44/46/52/44/58%; no tiling; deployed.

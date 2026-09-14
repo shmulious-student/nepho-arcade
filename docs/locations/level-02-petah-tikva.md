@@ -91,3 +91,4 @@ layout: "keep this composition, replace the place with the real one").
 ## Log
 
 - 2026-09-14 01:50 — Midjourney V8.2 plate `docs/backdrops_midjourney/petah_tikva.png` (4096×1184) accepted; kerb measured at 78% → `--floor=78%`; covers 4 of 5 waves. Tiny illegible pseudo-lettering on the clinic fascia — tolerated.
+- 2026-09-14 02:35 — **Second Midjourney plate** `docs/backdrops_midjourney/petah_tikva.png` (≈2:1, bigger ground area) accepted: `place-backdrop 2 … --floor=68%` cuts an exact 4:1 window at full width with the ground line on the lane — no tiling, full five-wave coverage. Supersedes the first plate.
