@@ -1,6 +1,6 @@
 {
  "version": 2,
- "generatedAt": "2026-09-14T07:22:33.729Z",
+ "generatedAt": "2026-09-14T14:44:46.633Z",
  "characters": {
   "eviatar": {
    "id": "eviatar",
@@ -4772,12 +4772,12 @@
    "atlas": "chars/railmaw.webp",
    "data": "chars/railmaw.json",
    "box": {
-    "w": 228,
-    "h": 189
+    "w": 444,
+    "h": 365
    },
    "anchor": {
-    "x": 114,
-    "y": 187
+    "x": 222,
+    "y": 359
    },
    "rows": [
     "idle",
@@ -4787,8 +4787,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 1.0602,
+   "framesPerRow": 9,
+   "scale": 0.5603,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -4799,10 +4800,14 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-05-railmaw-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/railmaw/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "2 defective source frame(s) replaced by a neighbour: special/3(partial-figure)->2 defeat/5(partial-figure)->4"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "stripped 3218 px of grid guide lines"
    ]
   },
   "crown-runner": {
@@ -4811,12 +4816,12 @@
    "atlas": "chars/crown-runner.webp",
    "data": "chars/crown-runner.json",
    "box": {
-    "w": 222,
-    "h": 185
+    "w": 452,
+    "h": 334
    },
    "anchor": {
-    "x": 111,
-    "y": 183
+    "x": 226,
+    "y": 332
    },
    "rows": [
     "idle",
@@ -4826,8 +4831,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9565,
+   "framesPerRow": 9,
+   "scale": 0.5046,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -4838,10 +4844,15 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-06-crown-runner-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/crown-runner/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
-    "1 defective source frame(s) replaced by a neighbour: defeat/6(partial-figure)->5"
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "the-null": {
@@ -4850,12 +4861,12 @@
    "atlas": "chars/the-null.webp",
    "data": "chars/the-null.json",
    "box": {
-    "w": 216,
-    "h": 195
+    "w": 384,
+    "h": 335
    },
    "anchor": {
-    "x": 108,
-    "y": 191
+    "x": 192,
+    "y": 333
    },
    "rows": [
     "idle",
@@ -4865,8 +4876,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9944,
+   "framesPerRow": 9,
+   "scale": 0.4675,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -4877,11 +4889,12 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-07-the-null-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/the-null/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": [
     "feathered binary alpha",
-    "3 defective source frame(s) replaced by a neighbour: special/4(partial-figure)->3 special/6(partial-figure)->5 defeat/7(partial-figure)->6"
+    "feathered binary alpha",
+    "feathered binary alpha"
    ]
   },
   "vault-mother": {
@@ -4890,12 +4903,12 @@
    "atlas": "chars/vault-mother.webp",
    "data": "chars/vault-mother.json",
    "box": {
-    "w": 196,
-    "h": 193
+    "w": 522,
+    "h": 306
    },
    "anchor": {
-    "x": 98,
-    "y": 191
+    "x": 261,
+    "y": 304
    },
    "rows": [
     "idle",
@@ -4905,8 +4918,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 0.9312,
+   "framesPerRow": 9,
+   "scale": 0.4617,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -4917,8 +4931,8 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-08-vault-mother-grid.png",
-   "sourceFormat": "grid",
+   "source": "public/assets/generated/actions/vault-mother/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
    "notes": []
   },
   "ultra-signal": {
@@ -4927,12 +4941,12 @@
    "atlas": "chars/ultra-signal.webp",
    "data": "chars/ultra-signal.json",
    "box": {
-    "w": 218,
-    "h": 237
+    "w": 412,
+    "h": 315
    },
    "anchor": {
-    "x": 109,
-    "y": 235
+    "x": 206,
+    "y": 313
    },
    "rows": [
     "idle",
@@ -4942,8 +4956,9 @@
     "hurt",
     "defeat"
    ],
-   "framesPerRow": 8,
-   "scale": 1.0602,
+   "framesPerRow": 9,
+   "scale": 0.4962,
+   "renderScale": 0.5882,
    "skin": [
     0,
     0,
@@ -4954,12 +4969,9 @@
     0,
     0
    ],
-   "source": "public/assets/generated/bosses/boss-09-ultra-signal-grid.png",
-   "sourceFormat": "grid",
-   "notes": [
-    "feathered binary alpha",
-    "2 defective source frame(s) replaced by a neighbour: attack/6(partial-figure)->5 defeat/6(partial-figure)->5"
-   ]
+   "source": "public/assets/generated/actions/ultra-signal/{idle,approach,attack,special,hurt,defeat}.png",
+   "sourceFormat": "actions",
+   "notes": []
   },
   "abyss-dragon": {
    "id": "abyss-dragon",
@@ -5249,6 +5261,12 @@
    "name": "Storm Colossus",
    "index": 13,
    "portrait": "portraits/storm-colossus.webp"
+  },
+  {
+   "id": "caga-tio",
+   "name": "Caga Tio",
+   "index": 14,
+   "portrait": "portraits/caga-tio.webp"
   }
  ],
  "levels": [
@@ -5461,6 +5479,28 @@
    "sign": "levels/sign-10.svg",
    "signY": 118,
    "boss": "ultra-signal",
+   "size": {
+    "w": 2800,
+    "h": 700
+   },
+   "art": {
+    "x": 180,
+    "y": 178,
+    "w": 1400,
+    "h": 350
+   }
+  },
+  {
+   "index": 11,
+   "id": "tio-lair",
+   "name": "CAGA TIÓ'S LAIR",
+   "nameHe": "המאורה של קאגה טיו",
+   "accent": "#ff4f72",
+   "bg": "levels/bg-11.webp",
+   "entry": "levels/entry-11.webp",
+   "sign": "levels/sign-11.svg",
+   "signY": 119,
+   "boss": "caga-tio",
    "size": {
     "w": 2800,
     "h": 700

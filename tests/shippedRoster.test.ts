@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { normalizeRoster, applyRoster, defaultRoster, composeLevels } from '../src/sim/roster';
 import { World } from '../src/sim/world';
+import { LEVEL_COUNT } from '../src/sim/levels';
 import { makeBot, botInput } from '../src/sim/bot';
 import type { InputFrame } from '../src/sim/input';
 
@@ -42,7 +43,7 @@ describe('shipped roster (public/game/roster.json)', () => {
     }
   });
 
-  for (let level = 1; level <= 10; level++) {
+  for (let level = 1; level <= LEVEL_COUNT; level++) {
     it(`level ${level}: 1P bot wins under the shipped roster`, () => {
       applyRoster(shipped);
       const r = playLevel(9000 + level, level);

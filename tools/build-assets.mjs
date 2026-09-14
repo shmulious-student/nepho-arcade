@@ -505,6 +505,11 @@ const LEVELS = [
   { id: 'basketball-gym', boss: 'crown-runner' }, { id: 'theater', boss: 'the-null' }, { id: 'candy-factory', boss: 'vault-mother' },
   { id: 'catalunya', boss: 'ultra-signal' },
 ];
+// Levels past the ten atlas slots: a band plate at backdrops/level-NN.png (placeholder: a copy of
+// the named slot until the real art lands), a sign drawn here, the entry card from the named slot.
+const EXTRA_LEVELS = [
+  { id: 'tio-lair', boss: 'caga-tio', name: "CAGA TIÓ'S LAIR", nameHe: 'המאורה של קאגה טיו', accent: '#ff4f72', placeholderFrom: 9 },
+];
 
 function parseSigns(svgText) {
   const groups = [...svgText.matchAll(/<g transform="translate\(470 (\d+)\)">([\s\S]*?)<\/g>/g)];
@@ -557,6 +562,30 @@ async function processLevels(catalog) {
       index: i + 1, id: LEVELS[i].id, name: sg.latin.replace(/\s+·.*$/, ''), nameHe: sg.hebrew, accent: sg.accent,
       bg: `levels/bg-${nn}.webp`, entry: `levels/entry-${nn}.webp`, sign: `levels/sign-${nn}.svg`, signY: localY,
       boss: LEVELS[i].boss, size, art,
+    });
+  }
+  for (const [k, ex] of EXTRA_LEVELS.entries()) {
+    const i = 10 + k, nn = String(i + 1).padStart(2, '0');
+    const bandFile = join(SRC, 'backdrops', `level-${nn}.png`);
+    const from = String(ex.placeholderFrom).padStart(2, '0');
+    if (existsSync(bandFile)) {
+      await sharp(bandFile).resize(BAND_PLATE.w, BAND_PLATE.h, { fit: 'cover', position: 'centre' }).removeAlpha().webp({ quality: 82 }).toFile(join(OUT, 'levels', `bg-${nn}.webp`));
+      console.log('level', nn, 'band plate', bandFile.replace(ROOT, ''));
+    } else {
+      copyFileSync(join(OUT, 'levels', `bg-${from}.webp`), join(OUT, 'levels', `bg-${nn}.webp`));
+      warn(`level ${nn} (${ex.id}): no backdrop yet — shipping a copy of bg-${from} as a placeholder (docs/locations/level-${nn}-${ex.id}.md)`);
+    }
+    copyFileSync(join(OUT, 'levels', `entry-${from}.webp`), join(OUT, 'levels', `entry-${nn}.webp`));
+    const srcLevel = catalog.levels[ex.placeholderFrom - 1];
+    const localY = srcLevel.signY;
+    const body = `<rect x="-300" y="-46" width="600" height="92" rx="10" fill="#10182b" fill-opacity="0.72" stroke="${ex.accent}" stroke-width="3"/><text x="0" y="-6" font-size="34" font-weight="700">${ex.name}</text><text x="0" y="30" font-size="26">${ex.nameHe}</text>`;
+    const h = srcLevel.size.w === BAND_PLATE.w ? 334 : srcLevel.size.h;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="941" height="${h}" viewBox="0 0 941 ${h}"><g font-family="Arial,sans-serif" text-anchor="middle" fill="#fff8d6" stroke="#10182b" stroke-width="7" paint-order="stroke"><g transform="translate(470 ${localY})">${body}</g></g></svg>`;
+    writeFileSync(join(OUT, 'levels', `sign-${nn}.svg`), svg);
+    catalog.levels.push({
+      index: i + 1, id: ex.id, name: ex.name, nameHe: ex.nameHe, accent: ex.accent,
+      bg: `levels/bg-${nn}.webp`, entry: `levels/entry-${nn}.webp`, sign: `levels/sign-${nn}.svg`, signY: localY,
+      boss: ex.boss, size: existsSync(bandFile) ? { ...BAND_PLATE } : { ...srcLevel.size }, art: existsSync(bandFile) ? { ...ART_BAND } : { ...srcLevel.art },
     });
   }
 }

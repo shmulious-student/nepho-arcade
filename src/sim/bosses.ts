@@ -113,12 +113,14 @@ export const BOSS_DEFS: Record<string, BossDef> = {
     P({ type: 'aoe', name: 'Lightning Fall', tele: 42, active: 12, recover: 26, cooldown: 120, dmg: 11, count: 3, radius: 70, colour: 0x9cf2ff, row: 'special', launch: 8 }),
     P({ type: 'armor', name: 'Storm Plating', tele: 26, active: 240, recover: 110, cooldown: 500, dmg: 1, colour: 0x5ce6ff, row: 'special', weight: 0.5 }),
   ] },
-  // Caga Tió — the candy-factory finale (owner, 2026-09-14): a stocky festive figurine — boot-stomp
-  // shockwave, basket tosses, a parcel barrage. Art: docs/prompts/caga-tio.md.
-  'caga-tio': { id: 'caga-tio', name: 'Caga Tio', hp: 1420, speed: 1.5, poise: 12, patterns: [
-    P({ type: 'ring', name: 'Boot Stomp', tele: 30, active: 40, recover: 26, dmg: 10, speed: 6, colour: 0xff9357, knockdown: true }),
-    P({ type: 'projectile', name: 'Basket Toss', tele: 26, active: 26, recover: 22, dmg: 8, count: 1, speed: 8, colour: 0xffcf5c, knockdown: true }),
-    P({ type: 'projectile', name: 'Parcel Barrage', tele: 30, active: 30, recover: 26, cooldown: 110, dmg: 6, count: 3, speed: 7, colour: 0xff4f72, row: 'special' }),
+  // Caga Tió — the level-11 finale (owner, 2026-09-14): the Tió de Nadal — he squats, strains and
+  // "poops" wrapped presents and turrón at you (the projectiles fly from behind him, so a player who
+  // stands at his back eats them first), rolls like the log he is, and swings the basket up close.
+  // Art: docs/prompts/caga-tio.md.
+  'caga-tio': { id: 'caga-tio', name: 'Caga Tió', hp: 1420, speed: 1.5, poise: 12, patterns: [
+    P({ type: 'projectile', name: 'Present Drop', tele: 30, active: 26, recover: 24, dmg: 8, count: 1, speed: 7, colour: 0xff4f72, knockdown: true }),
+    P({ type: 'projectile', name: 'Turrón Barrage', tele: 34, active: 34, recover: 28, cooldown: 120, dmg: 6, count: 4, speed: 8, colour: 0xffcf5c, row: 'special' }),
+    P({ type: 'dash', name: 'Log Roll', tele: 32, active: 40, recover: 28, dmg: 11, speed: 7, colour: 0xa52a2a, knockdown: true }),
     P({ type: 'melee', name: 'Basket Swing', tele: 24, active: 8, recover: 22, dmg: 9, range: 120, colour: 0xffcf5c, knockdown: true }),
   ] },
 };

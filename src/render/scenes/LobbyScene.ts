@@ -12,6 +12,7 @@ import { TouchControls } from '../TouchControls';
 import type { HeroId } from '../../sim/types';
 import { VIEW_W, VIEW_H } from '../../sim/types';
 import { synth } from '../../audio/synth';
+import { LEVEL_COUNT } from '../../sim/levels';
 
 const PALETTE = { bg: 0x050711, panel: 0x0b1730, line: 0x344861, accent: 0xffcf5c, cyan: 0x75f5dc, text: 0xf3f4e8, muted: 0x9bb1c9 };
 
@@ -102,7 +103,7 @@ export class LobbyScene extends Phaser.Scene {
     this.makeButton(400, rowY + 26, 28, 26, '◀', () => this.setLevel(this.startLevel - 1));
     const levelText = this.add.text(434, rowY + 39, '', { fontFamily: 'monospace', fontSize: '11px', color: '#f3f4e8' }).setOrigin(0, 0.5);
     this.makeButton(606, rowY + 26, 28, 26, '▶', () => this.setLevel(this.startLevel + 1));
-    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(10, n)); levelText.setText(`${this.startLevel} · ${catalogLevel(this.catalog, this.startLevel).name}`); };
+    this.setLevel = (n: number) => { this.startLevel = Math.max(1, Math.min(LEVEL_COUNT, n)); levelText.setText(`${this.startLevel} · ${catalogLevel(this.catalog, this.startLevel).name}`); };
     this.setLevel(this.startLevel);
     // players / co-op toggles
     this.add.text(656, rowY + 8, 'PLAYERS', { fontFamily: 'monospace', fontSize: '10px', color: '#9bb1c9' });

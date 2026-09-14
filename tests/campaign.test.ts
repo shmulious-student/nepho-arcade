@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { World } from '../src/sim/world';
+import { LEVEL_COUNT } from '../src/sim/levels';
 import { makeBot, botInput } from '../src/sim/bot';
 import type { InputFrame } from '../src/sim/input';
 
@@ -35,7 +36,7 @@ function playLevel(seed: number, level: number, heroes: ['eviatar', 'omri' | nul
 }
 
 describe('full 10-level campaign (reference bot)', () => {
-  for (let level = 1; level <= 10; level++) {
+  for (let level = 1; level <= LEVEL_COUNT; level++) {
     it(`level ${level}: 1P bot wins with sane pacing`, () => {
       const r = playLevel(9000 + level, level, ['eviatar', null]);
       expect(r.finished, `level ${level} did not finish within cap (${r.seconds}s)`).toBe(true);

@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { defaultRoster, normalizeRoster, composeLevels, applyRoster, heroPool, readyRoster, ACTIVE_HEROES } from '../src/sim/roster';
+import { LEVEL_COUNT } from '../src/sim/levels';
 import { LEVELS, ACTIVE, levelDef } from '../src/sim/levels';
 import { ENEMY_DEFS } from '../src/sim/enemyAi';
 import { BOSS_DEFS } from '../src/sim/bosses';
@@ -139,12 +140,13 @@ describe('applyRoster', () => {
 
 describe('readyRoster', () => {
   const rd = (ids: string[]) => Object.fromEntries(Object.entries(defaultRoster().characters).map(([id, e]) => [id, { status: ids.includes(id) ? 'ready' : 'legacy', rank: e.rank }])) as any;
-  it('fields only ready characters and deals ready bosses across all ten levels', () => {
+  it('fields only ready characters and deals ready bosses across every level', () => {
     const r = readyRoster(rd(['eviatar', 'omri', 'bio-brute', 'void-demon', 'flame-samurai', 'prism-queen', 'abyss-dragon', 'storm-colossus']));
     expect(Object.entries(r.characters).filter(([, e]) => e.enabled).map(([id]) => id).sort()).toEqual(['abyss-dragon', 'bio-brute', 'eviatar', 'flame-samurai', 'omri', 'prism-queen', 'storm-colossus', 'void-demon']);
-    expect(r.characters['bio-brute'].levels).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(r.characters['bio-brute'].levels).toEqual(Array.from({ length: LEVEL_COUNT }, (_, i) => i + 1));
     const levels = composeLevels(r);
-    expect(levels.map((l) => l.boss)).toEqual(['abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus', 'abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus', 'abyss-dragon', 'flame-samurai']);
+    const four = ['abyss-dragon', 'flame-samurai', 'prism-queen', 'storm-colossus'];
+    expect(levels.map((l) => l.boss)).toEqual(Array.from({ length: LEVEL_COUNT }, (_, i) => four[i % 4]));
     for (const l of levels) for (const w of [...l.waves, l.bonusWave]) for (const s of w.spawns) expect(['bio-brute', 'void-demon']).toContain(s.arch);
     expect(heroPool(r).heroes).toEqual(['eviatar', 'omri']);
   });

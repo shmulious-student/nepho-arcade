@@ -12,6 +12,7 @@ import { TouchControls } from '../TouchControls';
 import { PauseMenu } from '../PauseMenu';
 import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
+import { LEVEL_COUNT } from '../../sim/levels';
 import { LEVEL_W, VIEW_W, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
 import type { FriendSetup } from '../../sim/friends';
 import { DIFFICULTY_DEFS, DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
@@ -374,7 +375,7 @@ export class GameScene extends Phaser.Scene {
       if (snap.phase === 'victory') synth.victory(); else synth.gameOver();
       const world = this.session.world();
       const score = world ? world.score : snap.score;
-      if (snap.phase === 'victory' && this.levelIndex < 10) {
+      if (snap.phase === 'victory' && this.levelIndex < LEVEL_COUNT) {
         // Beating the boss rolls straight into the next level — a banner, then the next stage's title
         // card — rather than dropping back to a menu between every level.
         const w = this.session.world();
@@ -439,7 +440,7 @@ export class GameScene extends Phaser.Scene {
   private toResults(result: 'victory' | 'gameover', score: [number, number]): void {
     const mode = this.session.mode;
     if (mode !== 'local') this.session.destroy();
-    this.scene.start('Results', { result, level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= 10, mode, difficulty: this.startData.difficulty });
+    this.scene.start('Results', { result, level: this.levelIndex, score, heroes: this.heroes, friends: this.friends, isLastLevel: this.levelIndex >= LEVEL_COUNT, mode, difficulty: this.startData.difficulty });
   }
 
   private nextLevel(score: [number, number]): void {

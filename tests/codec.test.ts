@@ -21,7 +21,7 @@ function randomSnapshot(rng: Rng): Snapshot {
     });
   }
   return {
-    tick: rng.int(0, 1e6), level: rng.int(1, 10), phase: rng.pick(PHASES), wave: rng.int(0, 3),
+    tick: rng.int(0, 1e6), level: rng.int(1, 11), phase: rng.pick(PHASES), wave: rng.int(0, 3),
     cameraX: rng.int(0, 1500), timer: +rng.range(0, 200).toFixed(1), bossHp: rng.next(), bossMaxHp: rng.int(0, 5000),
     bossId: rng.pick(ARCHES), score: [0, 0], credits: 0, entities, events: [], go: rng.chance(0.5), enrage: rng.chance(0.5),
     assist: [rng.next(), rng.next()],

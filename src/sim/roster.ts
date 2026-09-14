@@ -10,7 +10,7 @@ import { HEROES, HERO_IDS } from './frameData';
 import type { HeroId } from './types';
 import { ENEMY_DEFS } from './enemyAi';
 import { BOSS_DEFS } from './bosses';
-import { LEVELS, ACTIVE, type LevelDef, type WaveDef, type SpawnDef } from './levels';
+import { LEVELS, ACTIVE, LEVEL_COUNT, type LevelDef, type WaveDef, type SpawnDef } from './levels';
 import { getGameBase } from '../shared/catalog';
 
 export type Rank = 'hero' | 'enemy' | 'boss';
@@ -29,7 +29,7 @@ export interface RosterEntry {
 export interface Roster { version: 1; characters: Record<string, RosterEntry> }
 
 export const ROSTER_VERSION = 1;
-export const LEVEL_COUNT = LEVELS.length;
+export { LEVEL_COUNT };
 
 // the names the tables were authored with, captured before any roster renames them
 const BASE_NAMES: Record<string, string> = {};

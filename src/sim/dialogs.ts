@@ -262,6 +262,23 @@ export const DIALOGS: Record<string, LevelDialogs> = {
       L('shmuel', 'And there they are: Adi and Abir, out of the control room, with gumballs for everyone.', 'והנה הם: עדי ואביר, יוצאים מחדר הבקרה, עם גומיות לכולם.'),
       L('pitz', 'Purrrr.', 'פררר.'),
       L('shmuel', 'They were safe the whole way, just like I said. Rishon, Petah Tikva, Barcelona, all the way here. Every clue found.', 'הם היו בטוחים כל הדרך, בדיוק כמו שאמרתי. ראשון, פתח תקווה, ברצלונה, כל הדרך עד לכאן. כל רמז נמצא.'),
+      L('shmuel', 'Wait. Adi says the presents are gone. All of them. And there are little brown footprints leading out the back door...', 'רגע. עדי אומרת שהמתנות נעלמו. כולן. ויש עקבות חומות קטנות שמובילות מהדלת האחורית...'),
+    ] },
+  },
+  // Level 11 — Caga Tió's lair: the Catalan Christmas log took the presents and will only give
+  // them back the way tradition says he does. Placeholder script until the owner writes the finale.
+  'tio-lair': {
+    start: { hero: 'eviatar', lines: [
+      L('eviatar', 'Caga Tió! The Christmas log from Sant Cugat. He took every present from the factory and he is grinning about it.', 'קאגה טיו! בול העץ של חג המולד מסנט קוגט. הוא לקח כל מתנה מהמפעל והוא מחייך על זה.'),
+      L('eviatar', 'You know how it works in Catalunya: you hit the Tió and he... gives the presents back. From behind. Watch where you stand.', 'אתם יודעים איך זה עובד בקטלוניה: מרביצים לטיו והוא... מחזיר את המתנות. מאחור. תיזהרו איפה אתם עומדים.'),
+    ] },
+    boss: { hero: 'eviatar', lines: [
+      L('boss', 'Caga tió, caga torró! You want them? Come and knock them out of me!', 'קאגה טיו, קאגה טורו! רוצים אותן? בואו תוציאו אותן ממני!'),
+    ] },
+    end: { hero: 'shmuel', lines: [
+      L('boss', 'Oof... take them... take them all...', 'אוף... קחו אותן... קחו את כולן...'),
+      L('shmuel', 'Every present back, every turrón accounted for. Adi and Abir are already opening theirs.', 'כל מתנה חזרה, כל טורון נספר. עדי ואביר כבר פותחים את שלהם.'),
+      L('pitz', 'Purrrr.', 'פררר.'),
       L('shmuel', 'And that is the whole game. Nothing here was real, except the fun. Thank you for playing, and well done.', 'וזה כל המשחק. שום דבר פה לא היה אמיתי, חוץ מהכיף. תודה ששיחקתם, וכל הכבוד.'),
     ] },
   },

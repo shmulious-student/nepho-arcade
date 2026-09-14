@@ -32,12 +32,17 @@ export const LEVELS: LevelDef[] = [
   { index: 8, id: 'catalunya', boss: 'the-null', hpMul: 1.2, waves: [W(30, ['punk-b', 2], ['gold-sorceress', 1]), W(34, ['bio-brute', 1], ['gold-sorceress', 1], ['punk-b', 1]), W(40, ['bio-brute', 1], ['gold-sorceress', 2], ['punk-b', 2])], bonusWave: W(12, ['punk-b', 1]) },
   { index: 9, id: 'theater', boss: 'vault-mother', hpMul: 1.25, waves: [W(32, ['punk', 2], ['gold-sorceress', 1]), W(36, ['void-demon', 1], ['punk', 2], ['gold-sorceress', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['punk', 2])], bonusWave: W(14, ['punk', 1]) },
   { index: 10, id: 'candy-factory', boss: 'ultra-signal', hpMul: 1.3, waves: [W(26, ['punk-b', 2], ['rainbow-oracle', 1]), W(30, ['gold-sorceress', 1], ['punk-b', 2]), W(34, ['bio-brute', 1], ['rainbow-oracle', 1], ['punk-b', 1]), W(38, ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1], ['punk-b', 1])], bonusWave: W(12, ['punk-b', 1]) },
+  // Level 11 — Caga Tió's lair (owner, 2026-09-14): the finale after the factory. The backdrop is
+  // still to come (docs/locations/level-11-tio-lair.md); until then the build ships a placeholder.
+  { index: 11, id: 'tio-lair', boss: 'caga-tio', hpMul: 1.35, waves: [W(28, ['punk-b', 2], ['gold-sorceress', 1]), W(32, ['bio-brute', 1], ['rainbow-oracle', 1], ['punk-b', 1]), W(36, ['void-demon', 1], ['gold-sorceress', 1], ['rainbow-oracle', 1]), W(40, ['bio-brute', 1], ['void-demon', 1], ['gold-sorceress', 1], ['punk-b', 1])], bonusWave: W(12, ['punk-b', 1]) },
 ];
 
 // The campaign the sim actually runs. It starts as LEVELS and is replaced by applyRoster() when a
 // roster (public/game/roster.json, edited on /backoffice.html) re-assigns bosses or enemy pools;
 // read levels through levelDef() so the roster is honoured everywhere.
 export const ACTIVE: { levels: LevelDef[] } = { levels: LEVELS };
+/** How many levels the campaign has (the lobby cap, the "last level" checks and the tests read this). */
+export const LEVEL_COUNT = LEVELS.length;
 export const levelDef = (index: number): LevelDef => ACTIVE.levels[index - 1];
 
 export const ENTRY_TICKS = 150;

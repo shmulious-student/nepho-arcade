@@ -1,5 +1,6 @@
 import { it, expect } from 'vitest';
 import { World } from '../src/sim/world';
+import { LEVEL_COUNT } from '../src/sim/levels';
 import { makeBot, botInput } from '../src/sim/bot';
 import { VISIBLE_X0, VISIBLE_W } from '../src/sim/types';
 
@@ -9,7 +10,7 @@ import { VISIBLE_X0, VISIBLE_W } from '../src/sim/types';
 // enemy or boss that has entered the visible band never slips back out of it — plus the level is won.
 
 const modes = ['off', 'assist', 'sidekick'] as const;
-for (let level = 1; level <= 10; level++) {
+for (let level = 1; level <= LEVEL_COUNT; level++) {
   for (let k = 0; k < 4; k++) {
     const coop = k % 2 === 1, mode = modes[k % 3], seed = 1234 + level * 17 + k * 101;
     it(`sweep L${level} seed=${seed} ${coop ? '2P' : '1P'} ${mode}`, () => {

@@ -1,5 +1,5 @@
 // Accepts a delivered level backdrop:
-//   node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%] [--trim-bottom=0%]
+//   node tools/place-backdrop.mjs <level 1-11> <image> [--floor=58%] [--trim-bottom=0%]
 // The plate is 4:1 (2800×700) and fills ART_BAND (src/sim/types.ts). The image is scaled to 700 tall
 // and NEVER cropped in height (the fighting lane is the bottom third — cropping it is the one thing
 // that must not happen). A 4:1 image fills the plate; a narrower one (two 16:9 or 21:9 halves come
@@ -39,8 +39,8 @@ const argv = process.argv.slice(2), flags = argv.filter((a) => a.startsWith('--'
 const floorArg = (flags.find((a) => a.startsWith('--floor=')) || '--floor=58%').slice(8);
 const trimBottom = parseFloat((flags.find((a) => a.startsWith('--trim-bottom=')) || '--trim-bottom=0').slice(14)) || 0;
 const level = Number(levelArg);
-if (!(level >= 1 && level <= 10) || !image || !existsSync(image)) {
-  console.error('usage: node tools/place-backdrop.mjs <level 1-10> <image> [--floor=58%] [--trim-bottom=0%]');
+if (!(level >= 1 && level <= 11) || !image || !existsSync(image)) {
+  console.error('usage: node tools/place-backdrop.mjs <level 1-11> <image> [--floor=58%] [--trim-bottom=0%]');
   process.exit(1);
 }
 const nn = String(level).padStart(2, '0');
