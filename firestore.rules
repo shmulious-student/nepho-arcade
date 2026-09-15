@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Anonymous play-session telemetry written by the game (shared/analytics.ts): anyone may create
+    // or overwrite their own session document within the shape below; nobody reads through the
+    // client — the report tool reads as the project owner.
+    match /sessions/{sid} {
+      allow read, delete: if false;
+      allow create, update: if sid.size() <= 40
+        && request.resource.data.sid == sid
+        && request.resource.data.uid is string && request.resource.data.uid.size() <= 40
+        && request.resource.data.events is list && request.resource.data.events.size() <= 400
+        && request.resource.data.v is string && request.resource.data.v.size() <= 20
+        && request.resource.data.keys().size() <= 12;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

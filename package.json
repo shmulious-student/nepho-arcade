@@ -20,7 +20,8 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease && node ../tools/collect-apk.mjs",
     "android:run": "npm run android:sync && npx cap run android",
-    "content:deploy": "npm run build && firebase deploy --only hosting --account shmulious@gmail.com"
+    "content:deploy": "npm run build && firebase deploy --only hosting,firestore:rules --account shmulious@gmail.com",
+    "analytics:report": "node tools/analytics-report.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

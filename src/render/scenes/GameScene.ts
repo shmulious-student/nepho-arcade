@@ -14,8 +14,9 @@ import { PauseMenu } from '../PauseMenu';
 import { PickupView } from '../PickupView';
 import { HazardView } from '../HazardView';
 import { LEVEL_COUNT } from '../../sim/levels';
-import { LEVEL_W, VIEW_W, VIEW_H, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId } from '../../sim/types';
+import { LEVEL_W, VIEW_W, VIEW_H, VIEW_ZOOM, VIEW_PIVOT_X, VIEW_PIVOT_Y, type HeroId, type Snapshot } from '../../sim/types';
 import { onViewportResize, uiOffsetX, uiRight } from '../viewport';
+import { analytics } from '../../shared/analytics';
 import type { FriendSetup } from '../../sim/friends';
 import { DEFAULT_DIFFICULTY, type Difficulty } from '../../sim/difficulty';
 import { synth } from '../../audio/synth';
@@ -73,6 +74,8 @@ export class GameScene extends Phaser.Scene {
   private friends?: FriendSetup;
   private uiCam!: Phaser.Cameras.Scene2D.Camera;
   private startData!: StartData;
+  // what the level felt like, for the session analytics (shared/analytics.ts): reset per level
+  private stats = { wave: 0, boss: false, hitsTaken: 0, kos: 0, specials: 0, calls: 0, dialogs: 0, skips: 0, fps: [] as number[], prevHp: 1, prevState: '', prevAssist: 0, fpsAt: 0, skipAt: 0, wasBoss: false };
 
   create(data: StartData): void {
     this.catalog = this.registry.get('catalog');
@@ -80,6 +83,8 @@ export class GameScene extends Phaser.Scene {
     this.startData = data;
     this.finished = false;
     this.entryShown = false;
+    this.stats = { wave: 0, boss: false, hitsTaken: 0, kos: 0, specials: 0, calls: 0, dialogs: 0, skips: 0, fps: [], prevHp: 1, prevState: '', prevAssist: 0, fpsAt: 0, skipAt: 0, wasBoss: false };
+    analytics.track('level_start', { level: data.level ?? 0, difficulty: data.difficulty ?? 'easy', hero: data.heroes?.[0] ?? data.heroId, p2: !!data.heroes?.[1], mode: data.mode, friend: data.friends?.mode ?? 'off', touch: isTouchDevice(this) });
     this.heroesResolved = false;
     this.netLostShown = false;
     this.views.clear();
@@ -167,6 +172,7 @@ export class GameScene extends Phaser.Scene {
   private netLost(message: string): void {
     if (this.netLostShown) return;
     this.netLostShown = true;
+    analytics.track('net_lost', { level: this.levelIndex, msg: message });
     this.add.text(VIEW_W / 2, 250, `${message}\n${t('netLost')}`, { fontFamily: uiFont(), fontSize: uiSize(16), color: '#ff4f72', align: 'center', stroke: '#0b1730', strokeThickness: 5 }).setOrigin(0.5).setDepth(49000);
     this.time.delayedCall(2200, () => { this.session.destroy(); this.scene.start('Lobby'); });
   }
@@ -201,8 +207,8 @@ export class GameScene extends Phaser.Scene {
     const canPause = this.session.mode !== 'guest';
     this.pause = new PauseMenu(this, {
       resume: () => this.setPaused(false),
-      restart: () => { this.setPaused(false); this.scene.start('Game', { ...this.startData, seed: Math.floor(Math.random() * 1e9) }); },
-      lobby: () => { this.setPaused(false); this.session.destroy(); this.scene.start('Lobby'); },
+      restart: () => { analytics.track('restart', { level: this.levelIndex, t: this.session.snapshot()?.timer ?? 0 }); this.setPaused(false); this.scene.start('Game', { ...this.startData, seed: Math.floor(Math.random() * 1e9) }); },
+      lobby: () => { analytics.track('quit', { level: this.levelIndex, wave: this.stats.wave, t: this.session.snapshot()?.timer ?? 0 }); this.setPaused(false); this.session.destroy(); this.scene.start('Lobby'); },
       language: () => this.relabel(),
     }, { canPause, touch: isTouchDevice(this) });
     // ⏸ in the top-right corner, comfortably tappable
@@ -229,6 +235,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setPaused(paused: boolean): void {
+    if (paused && !this.pause.open) analytics.track('pause', { level: this.levelIndex, t: this.session.snapshot()?.timer ?? 0 });
     if (paused === this.pause.open) return;
     if (this.finished) return; // the level is over (clear banner / CONTINUE?): nothing to pause
     if (paused) this.pause.show(); else this.pause.hide();
@@ -348,6 +355,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.backdrop.setCameraX(snap.cameraX);
+    this.observe(snap);
     if (snap.phase === 'entry' && !snap.dialog) { if (!this.entryShown) { this.backdrop.showEntry(); this.entryShown = true; } }
     else if (this.entryShown) { this.backdrop.hideEntry(); this.entryShown = false; }
     const dialogNow = !!snap.dialog;
@@ -403,6 +411,8 @@ export class GameScene extends Phaser.Scene {
 
     if (!this.finished && (snap.phase === 'victory' || snap.phase === 'gameover')) {
       this.finished = true;
+      const st = this.stats, fps = st.fps.length ? st.fps : [60];
+      analytics.track('level_result', { level: this.levelIndex, win: snap.phase === 'victory', t: snap.timer, wave: st.wave, boss: st.boss, score: snap.score[0], combo: snap.maxCombo[0], hits: st.hitsTaken, kos: st.kos, specials: st.specials, calls: st.calls, dialogs: st.dialogs, skips: st.skips, fpsMin: Math.min(...fps), fpsAvg: fps.reduce((a, b) => a + b, 0) / fps.length, lives: snap.lives[0] });
       sequencer.stop();
       if (snap.phase === 'victory') synth.victory(); else synth.gameOver();
       const world = this.session.world();
@@ -419,6 +429,29 @@ export class GameScene extends Phaser.Scene {
       if (snap.phase === 'gameover') { this.showContinue(score); return; }
       this.time.delayedCall(900, () => this.toResults(snap.phase as 'victory' | 'gameover', score));
     }
+  }
+
+  /** Watches the level for the moments the analytics care about: wave and boss arrivals, hits taken
+   * and knock-outs, specials and friend calls, dialog scenes and how many were skipped, frame rate. */
+  private observe(snap: Snapshot): void {
+    const st = this.stats;
+    if (snap.wave !== st.wave && snap.phase === 'wave') { st.wave = snap.wave; analytics.track('wave', { level: this.levelIndex, wave: snap.wave, t: snap.timer }); }
+    if (snap.phase === 'boss' && !st.wasBoss) { st.wasBoss = true; st.boss = true; analytics.track('boss', { level: this.levelIndex, t: snap.timer, boss: snap.bossId }); }
+    const slot = this.session.mode === 'guest' ? 1 : 0;
+    const me = snap.entities.find((e) => e.kind === 'hero' && e.slot === slot);
+    if (me) {
+      if (me.hp < st.prevHp - 0.001) st.hitsTaken++;
+      if (me.state === 'ko' && st.prevState !== 'ko') { st.kos++; analytics.track('ko', { level: this.levelIndex, wave: snap.wave, t: snap.timer, boss: snap.phase === 'boss' }); }
+      st.prevHp = me.hp; st.prevState = me.state;
+    }
+    for (const ev of snap.events) if (ev.type === 'special') st.specials++;
+    const assist = snap.assist[slot] ?? 0;
+    if (st.prevAssist >= 1 && assist < 1) st.calls++;
+    st.prevAssist = assist;
+    if (snap.dialog && !this.dialogActive) st.dialogs++; // the flag flips after observe() runs
+    if (this.dialogActive && this.pointerHeld) { st.skipAt++; if (st.skipAt === 30) { st.skips++; analytics.track('dialog_skip', { level: this.levelIndex, key: snap.dialog?.key }); } } else st.skipAt = 0;
+    const now = this.time.now;
+    if (now - st.fpsAt > 2000) { st.fpsAt = now; st.fps.push(Math.round(this.game.loop.actualFps)); if (st.fps.length > 300) st.fps.shift(); }
   }
 
   /** The canvas was re-sized to the screen (a rotation, the address bar): re-centre the world, span the
@@ -445,12 +478,14 @@ export class GameScene extends Phaser.Scene {
       if (resolved) return; resolved = true;
       group.destroy(); ticker.remove();
       this.input.keyboard!.off('keydown', go); this.input.off('pointerdown', go);
+      analytics.track('continue_declined', { level: this.levelIndex });
       this.toResults('gameover', score);
     };
     const go = () => {
       if (resolved || this.session.mode === 'guest') return;
       const w = this.session.world();
       if (!w || !w.continueRun()) return;
+      analytics.track('continue', { level: this.levelIndex, left: count });
       // the cached snapshot still says 'gameover' until the next tick: refresh it now, or the very
       // next update() would open a second CONTINUE? over the game that just resumed
       this.session.refreshSnapshot();

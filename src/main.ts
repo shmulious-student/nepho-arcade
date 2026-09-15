@@ -5,6 +5,7 @@ import { GameScene } from './render/scenes/GameScene';
 import { ResultsScene } from './render/scenes/ResultsScene';
 import { VIEW_H } from './sim/types';
 import { gameWidth, keepCanvasFitted } from './render/viewport';
+import { analytics } from './shared/analytics';
 
 // Android WebViews (the Capacitor app, BlueStacks) mis-render the WebGL path — the Redmi Note 13 smeared
 // the last-uploaded texture over every sprite, BlueStacks painted an opaque cream slab over the play
@@ -30,3 +31,4 @@ const game = new Phaser.Game(config);
 // already listens to in time, and a rotation changes the aspect the canvas was sized for; both are
 // handled by re-sizing/re-fitting the canvas on every viewport change (render/viewport.ts).
 keepCanvasFitted(game);
+analytics.track('boot', { renderer: isAndroid ? 'canvas' : 'auto', w: gameWidth() });

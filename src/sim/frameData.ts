@@ -72,10 +72,10 @@ export interface HeroDef {
 export const HEROES: Record<HeroId, HeroDef> = {
   // Eviatar (11): tall and strong, green-and-blue basketball kit, fights with magic paint markers. Hits hard for his
   // speed; his special throws a wide fan of paint that floors everything in front of him.
-  eviatar: { id: 'eviatar', name: 'EVIATAR', gender: 'male', bias: 'Power · paint splash', hp: 160, speed: 2.4, dmgMul: 1.2, special: 'splash', colour: 0x3ddc84, colour2: 0x37aaff, cardKey: 'card-eviatar' },
+  eviatar: { id: 'eviatar', name: 'EVIATAR', gender: 'male', bias: 'Power · paint splash', hp: 165, speed: 3.1, dmgMul: 1.2, special: 'splash', colour: 0x3ddc84, colour2: 0x37aaff, cardKey: 'card-eviatar' },
   // Omri (9): lean capoeira fighter in red and black, with a microphone. Fastest hero; his special is a three-beat
   // sonic shockwave that launches everyone around him.
-  omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 115, speed: 3.1, dmgMul: 0.9, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
+  omri: { id: 'omri', name: 'OMRI', gender: 'male', bias: 'Capoeira speed · sonic beat', hp: 165, speed: 3.1, dmgMul: 1.2, special: 'wave', colour: 0xff4f72, colour2: 0xf3f4e8, cardKey: 'card-omri' },
   // Shmuel: bearded grown-up in a blue-and-garnet striped jersey, black shorts and fingerless gloves,
   // a bare-knuckle boxer. Tough and steady; his special opens a cyan pixel portal and sends his tabby
   // cat pouncing across the lane, flooring everyone in its path.

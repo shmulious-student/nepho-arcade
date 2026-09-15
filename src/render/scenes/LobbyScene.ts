@@ -16,6 +16,7 @@ import type { HeroId } from '../../sim/types';
 import { VIEW_W, VIEW_H } from '../../sim/types';
 import { synth } from '../../audio/synth';
 import { LEVEL_COUNT } from '../../sim/levels';
+import { analytics } from '../../shared/analytics';
 
 const PALETTE = { bg: 0x050711, panel: 0x0b1730, field: 0x14243d, hover: 0x1c2f4d, line: 0x344861, accent: 0xffcf5c, cyan: 0x75f5dc, purple: 0xc58cff, text: 0xf3f4e8, muted: 0x9bb1c9 };
 const rgba = (c: number): string => Phaser.Display.Color.IntegerToColor(c).rgba;
@@ -181,11 +182,12 @@ export class LobbyScene extends Phaser.Scene {
     this.catalog = this.registry.get('catalog');
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, PALETTE.bg).setOrigin(0, 0);
     const touch = isTouchDevice(this);
+    analytics.track('lobby');
 
     // ---- top bar: play-on-phone QR, the wordmark, the language toggle ----
     this.add.image(VIEW_W / 2, 22, 'logo').setDisplaySize(150, 44);
     button(this, 24, 8, 150, 28, t('playOnPhone'), () => this.togglePhoneQr());
-    const langBtn = button(this, VIEW_W - 24 - 150, 8, 150, 28, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
+    const langBtn = button(this, VIEW_W - 24 - 150, 8, 150, 28, langLabel(getLang()), () => { setLang(getLang() === 'he' ? 'en' : 'he'); analytics.track('set', { k: 'lang', v: getLang() }); langBtn.text.setText(langLabel(getLang())); this.scene.restart(); }); // the whole lobby re-renders in the other language
 
     // ---- the two panels ----
     const PY = 48, PH = 310, PW = 448, LX = 24, RX = VIEW_W - 24 - PW;
@@ -205,7 +207,7 @@ export class LobbyScene extends Phaser.Scene {
     // under the friend: how they help, every mode a button, the lit one explained underneath
     this.modeSeg = new Segmented<FriendMode>(this, RX + 12, PY + 262, PW - 24, 28, [
       { v: 'off', label: t('off') }, { v: 'assist', label: t('assist') }, { v: 'sidekick', label: t('sidekick') },
-    ], this.friendMode, (m) => { this.friendMode = m; this.refresh(); });
+    ], this.friendMode, (m) => { this.friendMode = m; analytics.track('set', { k: 'friendMode', v: m }); this.refresh(); });
     this.modeHint = this.label(RX + 12, PY + 296, '', 9).setWordWrapWidth(PW - 24);
 
     // ---- settings row A: level · difficulty · control size ----
@@ -216,13 +218,13 @@ export class LobbyScene extends Phaser.Scene {
     this.levelText = this.add.text(58 + 108, ACY + CH / 2, '', { fontFamily: uiFont(), fontSize: uiSize(11), color: rgba(PALETTE.text), fontStyle: 'bold' }).setOrigin(0.5);
     button(this, 278, ACY, 30, CH, '▶', () => this.setLevel(this.startLevel + 1));
     this.label(324, AY, t('difficulty'), 10);
-    const diffSeg = new Segmented(this, 324, ACY, 312, CH, DIFFICULTIES.map((d) => ({ v: d, label: difficultyName(d) })), getDifficulty(), (d) => { setDifficulty(d); diffSeg.set(d); });
+    const diffSeg = new Segmented(this, 324, ACY, 312, CH, DIFFICULTIES.map((d) => ({ v: d, label: difficultyName(d) })), getDifficulty(), (d) => { setDifficulty(d); analytics.track('set', { k: 'difficulty', v: d }); diffSeg.set(d); });
     if (touch) {
       // touch control size, for phones
       this.label(652, AY, t('controls'), 10);
       const sizeSeg = new Segmented<'S' | 'M' | 'L'>(this, 652, ACY, 160, CH, (['S', 'M', 'L'] as const).map((s) => ({ v: s, label: s })), TouchControls.sizeSetting(), (s) => {
         try { localStorage.setItem(TouchControls.SIZE_KEY, s); } catch { /* private mode */ }
-        sizeSeg.set(s);
+        analytics.track('set', { k: 'controls', v: s }); sizeSeg.set(s);
       });
     }
 
@@ -233,8 +235,8 @@ export class LobbyScene extends Phaser.Scene {
     const playerOptions: { v: 'solo' | '2p' | 'lan'; label: string }[] = [{ v: 'solo', label: t('solo') }, ...(touch ? [] : [{ v: '2p' as const, label: t('twoPKeyboard') }]), { v: 'lan', label: t('lanCoop') }];
     this.playersSeg = new Segmented(this, 24, BCY, touch ? 240 : 360, CH, playerOptions, 'solo', (v) => this.setPlayers(v));
     this.netRow = this.add.container(0, 0).setVisible(false);
-    const hostBtn = button(this, 400, BCY, 120, CH, t('hostGame'), () => this.startAsHost());
-    const joinBtn = button(this, 528, BCY, 120, CH, t('joinGame'), () => this.promptJoin());
+    const hostBtn = button(this, 400, BCY, 120, CH, t('hostGame'), () => { analytics.track('lan_host'); this.startAsHost(); });
+    const joinBtn = button(this, 528, BCY, 120, CH, t('joinGame'), () => { analytics.track('lan_join'); this.promptJoin(); });
     this.netRow.add([hostBtn.g, hostBtn.text, joinBtn.g, joinBtn.text]);
     this.statusText = this.add.text(664, BY, '', { fontFamily: uiFont(), fontSize: uiSize(9), color: rgba(PALETTE.cyan), wordWrap: { width: 272 } }).setOrigin(0, 0);
 
@@ -283,6 +285,7 @@ export class LobbyScene extends Phaser.Scene {
       this.children.getByName('qr')?.destroy(); this.statusText.setText('');
     }
     this.playersSeg.set(v);
+    analytics.track('set', { k: 'players', v });
     this.refresh();
   }
 
@@ -420,6 +423,7 @@ export class LobbyScene extends Phaser.Scene {
     // P2's friend is whoever is left over once both players and P1's friend are taken
     const p2Friend = heroes[1] ? HERO_IDS.find((h) => h !== heroes[0] && h !== heroes[1] && h !== this.friendPick) || null : null;
     const friends = { friends: [this.friendPick, p2Friend] as [HeroId | null, HeroId | null], mode: this.friendMode };
+    analytics.track('start', { level: this.startLevel, difficulty: getDifficulty(), hero: heroes[0], friend: this.friendMode === 'off' ? 'off' : this.friendPick, mode: this.friendMode, players: this.coop ? 'lan' : this.local2p ? '2p' : 'solo', touch: isTouchDevice(this), lang: getLang() });
     if (this.netMode === 'guest' && this.roomCode) {
       this.scene.start('Game', { mode: 'guest', roomCode: this.roomCode, heroId: heroes[0] });
       return;

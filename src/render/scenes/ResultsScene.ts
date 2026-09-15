@@ -3,6 +3,7 @@ import type { HeroId } from '../../sim/types';
 import { VIEW_W, VIEW_H } from '../../sim/types';
 import { t, uiFont, uiSize } from '../../shared/i18n';
 import { centreUiCamera, onViewportResize } from '../viewport';
+import { analytics } from '../../shared/analytics';
 
 interface ResultsData {
   result: 'victory' | 'gameover';
@@ -22,6 +23,7 @@ export class ResultsScene extends Phaser.Scene {
 
   create(data: ResultsData): void {
     onViewportResize(this, () => centreUiCamera(this));
+    analytics.track('results', { result: data.result, level: data.level, score: data.score[0] });
     this.add.rectangle(0, 0, VIEW_W, VIEW_H, 0x050711).setOrigin(0, 0);
     const won = data.result === 'victory';
     const campaignDone = won && data.isLastLevel;
@@ -56,13 +58,15 @@ export class ResultsScene extends Phaser.Scene {
       this.add.text(VIEW_W / 2, 262, t('lanEnded'), { fontFamily: uiFont(), fontSize: uiSize(11), color: '#9bb1c9' }).setOrigin(0.5);
     } else if (won && !campaignDone) {
       btn(VIEW_W / 2, 300, t('nextLevel', { n: data.level + 1 }), () => {
+        analytics.track('next_level', { level: data.level + 1 });
         this.scene.start('Game', { mode: 'local', level: data.level + 1, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9), difficulty: data.difficulty });
       });
     } else if (!won && local) {
       btn(VIEW_W / 2, 300, t('retryLevel'), () => {
+        analytics.track('retry', { level: data.level });
         this.scene.start('Game', { mode: 'local', level: data.level, heroes: data.heroes, friends: data.friends, seed: Math.floor(Math.random() * 1e9), difficulty: data.difficulty });
       });
     }
-    btn(VIEW_W / 2, 346, t('backToLobby'), () => this.scene.start('Lobby'));
+    btn(VIEW_W / 2, 346, t('backToLobby'), () => { analytics.track('to_lobby', { from: 'results' }); this.scene.start('Lobby'); });
   }
 }
