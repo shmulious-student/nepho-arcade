@@ -12,6 +12,7 @@ const toPrune = [
   'assets/references', // quality-reference art, build-time only
   'game/debug', // anchor contact sheets + report.json, inspection-only
   'showcase.html', // dev-only animation review page
+  'analytics/data.json', // a local dump of the play sessions for the dashboard's local mode
 ];
 
 let prunedBytes = 0;

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EviOmri analytics</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    :root { --bg: #050711; --panel: #0b1730; --field: #14243d; --line: #344861; --text: #f3f4e8; --muted: #9bb1c9; --cyan: #75f5dc; --accent: #ffcf5c; --red: #ff4f72; --purple: #c58cff; --green: #a4ee42; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+    header h1 { font-size: 20px; margin: 0 auto 0 0; letter-spacing: .04em; }
+    header h1 span { color: var(--cyan); }
+    select, button, label.chk { background: var(--field); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font: inherit; }
+    button { cursor: pointer; } button.primary { background: var(--cyan); color: var(--panel); border-color: var(--cyan); font-weight: 700; }
+    label.chk { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+    #status { color: var(--muted); font-size: 12px; width: 100%; }
+    #status.err { color: var(--red); }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 12px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+    .panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 10px; }
+    .kpis { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 12px; }
+    .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .kpi b { display: block; font-size: 26px; color: var(--cyan); line-height: 1.1; }
+    .kpi small { color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #1c2f4d; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .wrap { overflow-x: auto; }
+    .bar { height: 8px; background: var(--field); border-radius: 4px; overflow: hidden; }
+    .bar i { display: block; height: 100%; background: var(--cyan); }
+    ul.sig { list-style: none; margin: 0; padding: 0; } ul.sig li { padding: 6px 0; border-bottom: 1px solid #1c2f4d; } ul.sig b { color: var(--text); } ul.sig span { color: var(--muted); }
+    .bad b { color: var(--red); } .good b { color: var(--green); }
+    svg text { fill: var(--muted); font-size: 10px; }
+    .story { color: var(--muted); font-size: 12px; }
+    .tag { display: inline-block; background: var(--field); border-radius: 4px; padding: 1px 6px; font-size: 11px; color: var(--muted); }
+    .dev { color: var(--accent); }
+    .empty { color: var(--muted); padding: 8px 0; }
+    #gate { text-align: center; padding: 60px 20px; color: var(--muted); }
+    #gate p { max-width: 520px; margin: 12px auto; }
+    a { color: var(--cyan); }
+    @media (max-width: 600px) { body { padding: 10px; } header h1 { width: 100%; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span>EVIOMRI</span> analytics</h1>
+    <select id="days"><option value="7">last 7 days</option><option value="30" selected>last 30 days</option><option value="90">last 90 days</option><option value="365">last year</option></select>
+    <label class="chk"><input type="checkbox" id="dev" /> include dev sessions</label>
+    <button id="reload">Reload</button>
+    <button id="auth" class="primary">Sign in with Google</button>
+    <div id="status"></div>
+  </header>
+  <div id="gate"><p>The play-session data is private: sign in with the project owner's Google account to load it.</p></div>
+  <main id="main" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="panel" style="grid-column: 1 / -1"><h2>Sessions per day</h2><div id="perday"></div></div>
+    </div>
+    <div class="grid">
+      <div class="panel"><h2>Funnel</h2><div id="funnel"></div></div>
+      <div class="panel"><h2>Surfaces</h2><div class="wrap" id="surfaces"></div></div>
+      <div class="panel"><h2>Where (from the network address)</h2><div class="wrap" id="geo"></div></div>
+      <div class="panel"><h2>Setups at START</h2><div class="wrap" id="setups"></div></div>
+    </div>
+    <div class="grid">
+      <div class="panel" style="grid-column: 1 / -1"><h2>Levels</h2><div class="wrap" id="levels"></div></div>
+    </div>
+    <div class="grid">
+      <div class="panel bad"><h2>Frustration signals</h2><ul class="sig" id="frustration"></ul></div>
+      <div class="panel good"><h2>Fun signals</h2><ul class="sig" id="fun"></ul></div>
+    </div>
+    <div class="grid">
+      <div class="panel" style="grid-column: 1 / -1"><h2>Bugs, issues, blockers</h2><div class="wrap" id="errors"></div></div>
+    </div>
+    <div class="grid">
+      <div class="panel" style="grid-column: 1 / -1"><h2>Recent sessions</h2><div class="wrap" id="recent"></div></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { analyze, mmss } from './insights.mjs';
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const P = (n) => (n === null || n === undefined ? '–' : `${n}%`);
+    const fmt = (n, d = 0) => (Number.isFinite(n) ? n.toFixed(d) : '–');
+    const table = (head, rows, numCols = []) => rows.length
+      ? `<table><thead><tr>${head.map((h, i) => `<th class="${numCols.includes(i) ? 'num' : ''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+      : '<div class="empty">nothing yet</div>';
+    const pairs = (xs, label) => xs.map(([k, n]) => [label, esc(k), n]);
+    const barRows = (xs) => { const max = Math.max(1, ...xs.map(([, n]) => n)); return xs.map(([k, n]) => [esc(k), `<div class="bar"><i style="width:${(100 * n) / max}%"></i></div>`, n]); };
+
+    let raw = [];
+    const status = (msg, err = false) => { $('status').textContent = msg; $('status').className = err ? 'err' : ''; };
+
+    function render() {
+      const a = analyze(raw, { days: Number($('days').value), includeDev: $('dev').checked });
+      $('gate').hidden = true; $('main').hidden = false;
+      const p = a.players;
+      $('kpis').innerHTML = [
+        [p.distinct, 'distinct players'], [`${p.returning}`, `returning (${P(p.distinct ? Math.round((100 * p.returning) / p.distinct) : null)})`], [p.sessions, 'sessions'], [fmt(p.perPlayer, 1), 'sessions per player'],
+        [mmss(p.medianSession), 'median session'], [mmss(p.longest), 'longest session'], [`${p.reachedLevel}`, `sessions reached a level (${P(p.sessions ? Math.round((100 * p.reachedLevel) / p.sessions) : null)})`], [a.events, 'events'],
+      ].map(([v, l]) => `<div class="kpi"><b>${v}</b><small>${l}</small></div>`).join('');
+
+      // sessions per day, an SVG bar chart over the whole range
+      const daysN = a.days, today = new Date(); const dayKeys = [];
+      for (let i = daysN - 1; i >= 0; i--) { const d = new Date(today.getTime() - i * 864e5); dayKeys.push(d.toISOString().slice(0, 10)); }
+      const byDay = Object.fromEntries(a.perDay.map((d) => [d.day, d]));
+      const W = Math.max(600, dayKeys.length * 14), H = 120, max = Math.max(1, ...a.perDay.map((d) => d.sessions));
+      const bw = W / dayKeys.length;
+      $('perday').innerHTML = `<div class="wrap"><svg viewBox="0 0 ${W} ${H + 18}" width="100%" style="min-width:${W}px;height:${H + 18}px">${dayKeys.map((k, i) => {
+        const d = byDay[k]; const s = d ? d.sessions : 0, pl = d ? d.players : 0; const h = (H * s) / max, hp = (H * pl) / max;
+        return `<g><title>${k}: ${s} sessions, ${pl} players</title><rect x="${i * bw + 1}" y="${H - h}" width="${bw - 2}" height="${h}" fill="#1c2f4d"/><rect x="${i * bw + 1}" y="${H - hp}" width="${bw - 2}" height="${hp}" fill="#75f5dc"/>${(daysN <= 31 || i % 7 === 0) ? `<text x="${i * bw + bw / 2}" y="${H + 12}" text-anchor="middle">${k.slice(5)}</text>` : ''}</g>`;
+      }).join('')}</svg></div><div class="story">cyan = distinct players · grey = sessions · peak ${max}/day</div>`;
+
+      $('funnel').innerHTML = table(['Step', '', 'Sessions'], barRows(a.funnel.map((f) => [f.step, f.n])), [2]);
+      $('surfaces').innerHTML = table(['Facet', 'Value', 'Sessions'], [...pairs(a.surfaces.os, 'OS'), ...pairs(a.surfaces.app, 'Surface'), ...pairs(a.surfaces.touch, 'Touch'), ...pairs(a.surfaces.version, 'Version'), ...pairs(a.surfaces.lang, 'Language'), ...pairs(a.surfaces.screen, 'Screen')], [2]);
+      $('geo').innerHTML = a.geo.covered ? table(['Place', '', 'Sessions'], barRows(a.geo.cities.slice(0, 20)), [2]) + `<div class="story">${a.geo.covered} of ${a.sessions} sessions located · ${a.geo.countries.map(([k, n]) => `${esc(k)} ${n}`).join(' · ')}</div>` : '<div class="empty">no location data yet</div>';
+      $('setups').innerHTML = table(['Setting', 'Value', 'Starts'], [...pairs(a.setups.hero, 'Hero'), ...pairs(a.setups.mode, 'Friend mode'), ...pairs(a.setups.difficulty, 'Difficulty'), ...pairs(a.setups.players, 'Players'), ...pairs(a.setups.controls, 'Control size')], [2]);
+      $('levels').innerHTML = table(['Level', 'Starts', 'Wins', 'Losses', 'Win rate', 'Median win time', 'KOs / start', 'Continues', 'Gave up', 'Quit mid-level', 'Restarts', 'Reached boss', 'Median combo', 'Median min fps'],
+        a.levels.map((l) => [l.level, l.starts, l.wins, l.losses, P(l.winRate), mmss(l.medianWin), fmt(l.kosPerStart, 1), l.continues, l.declined, l.quits, l.restarts, P(l.bossRate), fmt(l.medianCombo), fmt(l.fpsMin)]), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+      const sig = (xs) => (xs.length ? xs.map((f) => `<li><b>${esc(f.label)}</b><br><span>${esc(f.detail)}</span></li>`).join('') : '<li class="empty">nothing yet</li>');
+      $('frustration').innerHTML = sig(a.frustration); $('fun').innerHTML = sig(a.fun);
+      $('errors').innerHTML = (a.errors.length ? table(['Error', 'Where', 'Times', 'Sessions', 'Versions', 'Surfaces'], a.errors.map((e) => [esc(e.msg), esc(e.at), e.n, e.sessions, esc(e.versions), esc(e.surfaces)]), [2, 3]) : '<div class="empty">no errors reported</div>') + (a.notes.length ? `<ul class="sig">${a.notes.map((n) => `<li><span>${esc(n)}</span></li>`).join('')}</ul>` : '');
+      $('recent').innerHTML = table(['When', 'Player', 'Surface', 'Where', 'Length', 'Events', 'Version', 'Story'], a.recent.map((r) => [r.when + (r.dev ? ' <span class="dev">dev</span>' : ''), `<span class="tag">${esc(r.uid)}</span>`, esc(r.surface), esc(r.geo), r.len, r.n, esc(r.v), `<span class="story">${esc(r.story)}</span>`]), [5]);
+      status(`${a.sessions} sessions · ${a.events} events · generated ${a.generated.slice(0, 16).replace('T', ' ')}`);
+    }
+
+    // ---- data: a local dump (vite dev, npm run analytics:report -- --dump) or Firestore behind a Google sign-in
+    const local = new URLSearchParams(location.search).has('local');
+    let loadSessions = async () => [];
+
+    if (local) {
+      $('auth').hidden = true;
+      loadSessions = async () => (await fetch('./data.json', { cache: 'no-store' })).json();
+      status('local mode: reading ./data.json');
+    } else {
+      const [{ initializeApp }, { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }, { getFirestore, collection, getDocs, query, orderBy, limit }] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js'),
+        import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js'),
+      ]);
+      const app = initializeApp({ apiKey: 'AIzaSyB43xwBxO7JLpoJ8ZHFPrqpYNmksgeFSuk', authDomain: 'nepho-eviomri.firebaseapp.com', projectId: 'nepho-eviomri' });
+      const auth = getAuth(app), db = getFirestore(app);
+      loadSessions = async () => {
+        const snap = await getDocs(query(collection(db, 'sessions'), orderBy('t0', 'desc'), limit(5000)));
+        return snap.docs.map((d) => d.data());
+      };
+      $('auth').addEventListener('click', async () => {
+        if (auth.currentUser) { await signOut(auth); return; }
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+        catch (e) {
+          status(e.code === 'auth/operation-not-allowed' || e.code === 'auth/configuration-not-found'
+            ? 'Google sign-in is not enabled yet: Firebase console → Authentication → Get started → Sign-in method → Google → Enable (pick a support email) → Save.'
+            : `Sign-in failed: ${e.code || e.message}`, true);
+        }
+      });
+      onAuthStateChanged(auth, async (user) => {
+        $('auth').textContent = user ? `Sign out (${user.email})` : 'Sign in with Google';
+        if (!user) { $('main').hidden = true; $('gate').hidden = false; status(''); return; }
+        await load();
+      });
+    }
+
+    async function load() {
+      status('loading…');
+      try { raw = await loadSessions(); render(); }
+      catch (e) { status(`Could not read the sessions: ${e.code || e.message}${e.code === 'permission-denied' ? ' — only the project owner’s account may read' : ''}`, true); }
+    }
+    $('days').addEventListener('change', () => raw.length && render());
+    $('dev').addEventListener('change', () => raw.length && render());
+    $('reload').addEventListener('click', load);
+    if (local) load();
+  </script>
+</body>
+</html>

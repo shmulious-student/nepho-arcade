@@ -59,6 +59,7 @@ class Analytics {
   private timer: number | null = null;
   private plat = platform();
   private visits: number;
+  private geo: Record<string, string | number> | null = null;
 
   constructor() {
     const q = location.search;
@@ -76,6 +77,23 @@ class Analytics {
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { this.track('bg'); this.flush(true); } else this.track('fg'); });
     window.addEventListener('pagehide', () => { this.track('end'); this.flush(true); });
     this.timer = window.setInterval(() => { if (this.dirty) this.flush(); }, FLUSH_MS);
+    window.setTimeout(() => this.locate(), 2500); // after the first burst of asset loads
+  }
+
+  /** Roughly where the player is, from the network address (no permission prompt, city-level at
+   * best, a day's cache); the time zone alone when the lookup fails. */
+  private async locate(): Promise<void> {
+    const tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return ''; } })();
+    try {
+      const cached = stored('nepho.geo');
+      const c = cached ? JSON.parse(cached) as { at: number; g: Record<string, string | number> } : null;
+      if (c && Date.now() - c.at < 864e5) { this.geo = c.g; this.dirty = true; return; }
+      const r = await fetch('https://get.geojs.io/v1/ip/geo.json');
+      const j = await r.json();
+      this.geo = { cc: j.country_code || '', country: j.country || '', region: j.region || '', city: j.city || '', lat: Number(j.latitude) || 0, lon: Number(j.longitude) || 0, tz: j.timezone || tz, org: String(j.organization_name || '').slice(0, 60) };
+      store('nepho.geo', JSON.stringify({ at: Date.now(), g: this.geo }));
+    } catch { this.geo = { tz }; }
+    this.dirty = true;
   }
 
   /** Seconds since the session began. */
@@ -96,7 +114,7 @@ class Analytics {
   private doc(): unknown {
     return {
       uid: this.uid, sid: this.sid, v: pkg.version, dev: import.meta.env.DEV, t0: new Date(this.t0).toISOString(), dur: this.t, visits: this.visits,
-      plat: this.plat, events: this.events, n: this.events.length + this.dropped, dropped: this.dropped, counts: this.counts,
+      plat: this.plat, geo: this.geo, events: this.events, n: this.events.length + this.dropped, dropped: this.dropped, counts: this.counts,
     };
   }
 

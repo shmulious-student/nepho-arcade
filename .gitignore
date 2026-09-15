@@ -15,3 +15,4 @@ android/keystore.properties
 # photos of pupils are kept out of the public repo
 docs/refs/locations/**/people-*
 docs/icon/
+public/analytics/data.json
